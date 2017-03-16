@@ -25,8 +25,8 @@ import de.robotricker.transportpipes.pipes.Pipe;
 public class PipePacketManager implements Listener {
 
 	//eig. nicht thread safe!!! nur im main thread handeln
-	public Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
-	public Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
+	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
+	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 
 	/**
 	 * only removes or sends the edited ArmorStands in this pipe! Does not edit the Pipe-ArmorStand List
@@ -55,7 +55,7 @@ public class PipePacketManager implements Listener {
 	private void putAndSpawnPipe(final Player p, final Pipe pipe) {
 		List<Pipe> list;
 		if (!pipesForPlayers.containsKey(p)) {
-			pipesForPlayers.put(p, new ArrayList<Pipe>());
+			pipesForPlayers.put(p, new ArrayList<>());
 		}
 		list = pipesForPlayers.get(p);
 		if (!list.contains(pipe)) {
@@ -67,7 +67,7 @@ public class PipePacketManager implements Listener {
 	private void putAndSpawnItem(final Player p, final PipeItem item) {
 		List<PipeItem> list;
 		if (!itemsForPlayers.containsKey(p)) {
-			itemsForPlayers.put(p, new ArrayList<PipeItem>());
+			itemsForPlayers.put(p, new ArrayList<>());
 		}
 		list = itemsForPlayers.get(p);
 		if (!list.contains(item)) {
@@ -138,10 +138,7 @@ public class PipePacketManager implements Listener {
 			Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 			if (pipeMap != null) {
 				synchronized (pipeMap) {
-					Iterator<Pipe> iterator = pipeMap.values().iterator();
-					while (iterator.hasNext()) {
-						Pipe pipe = iterator.next();
-
+					for (Pipe pipe : pipeMap.values()) {
 						try {
 							for (Player on : world.getPlayers()) {
 								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {

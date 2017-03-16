@@ -83,14 +83,13 @@ public class ItemData {
 	}
 
 	public CompoundTag toNBTTag() {
-		Map<String, Tag> map = new HashMap<String, Tag>();
+		Map<String, Tag> map = new HashMap<>();
 		map.put("Material", new IntTag("Material", getMaterial().getId()));
 		map.put("Data", new ByteTag("Data", getData()));
 		if (displayName != null) {
 			map.put("DisplayName", new StringTag("DisplayName", getDisplayName()));
 		}
-		CompoundTag tag = new CompoundTag("Item", map);
-		return tag;
+		return new CompoundTag("Item", map);
 	}
 
 	public static ItemData fromNBTTag(CompoundTag tag) {

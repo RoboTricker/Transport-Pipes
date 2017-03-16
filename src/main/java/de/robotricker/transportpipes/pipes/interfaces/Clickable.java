@@ -5,6 +5,6 @@ import org.bukkit.entity.Player;
 
 public interface Clickable {
 
-	public void click(Player p, BlockFace side);
+	void click(Player p, BlockFace side);
 	
 }

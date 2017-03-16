@@ -17,15 +17,13 @@ import de.robotricker.transportpipes.pipes.interfaces.Clickable;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class HitboxListener implements Listener {
-	
-	@SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.HIGH)
+
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onInteract(PlayerInteractEvent e) {
-		
 		Player p = e.getPlayer();
 		Block clickedBlock = e.getClickedBlock();
-		ItemStack clickedItem = null;
-		boolean mainHand = false;
+		ItemStack clickedItem;
+		boolean mainHand;
 
 		if (e.getHand() == EquipmentSlot.HAND) {
 			clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
@@ -118,7 +116,7 @@ public class HitboxListener implements Listener {
 			if (pipeBlock != null) {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof Clickable) {
-					if (clickedItem != null && clickedItem.isSimilar(TransportPipes.WRENCH_ITEM)) {
+					if (clickedItem.isSimilar(TransportPipes.WRENCH_ITEM)) {
 						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock())) {
 							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);

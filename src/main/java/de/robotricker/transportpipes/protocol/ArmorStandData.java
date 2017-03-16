@@ -63,8 +63,7 @@ public class ArmorStandData {
 	}
 
 	public ArmorStandData clone(ItemStack headItem) {
-		ArmorStandData clone = new ArmorStandData(loc, direction, small, headItem, handItem, headRotation, armRotation);
-		return clone;
+		return new ArmorStandData(loc, direction, small, headItem, handItem, headRotation, armRotation);
 	}
 
 }

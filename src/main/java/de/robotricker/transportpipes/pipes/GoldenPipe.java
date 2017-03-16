@@ -70,7 +70,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 		}
 
 		//the possible directions in which the item could go
-		List<PipeDirection> possibleDirections = new ArrayList<PipeDirection>();
+		List<PipeDirection> possibleDirections = new ArrayList<>();
 
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
@@ -88,7 +88,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 		//if this item isn't in the list, it will take a random direction from the empty dirs
 		if (possibleDirections.isEmpty()) {
 
-			List<PipeDirection> emptyList = new ArrayList<PipeDirection>();
+			List<PipeDirection> emptyList = new ArrayList<>();
 
 			for (int line = 0; line < 6; line++) {
 				PipeDirection dir = PipeDirection.fromID(line);

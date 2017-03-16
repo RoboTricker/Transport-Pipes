@@ -103,10 +103,9 @@ public class ArmorStandProtocol {
 
 			double x = asd.getDirection().getX();
 			double z = asd.getDirection().getZ();
-			double yaw = 0D;
 
 			double theta = Math.atan2(-x, z);
-			yaw = (double) Math.toDegrees((theta + 2 * Math.PI) % (2 * Math.PI));
+			double yaw = Math.toDegrees((theta + 2 * Math.PI) % (2 * Math.PI));
 
 			packet.getIntegers().write(5, ReflectionManager.convertYaw((float) yaw)); //yaw
 			packet.getIntegers().write(6, 78); //object id: ArmorStand (http://wiki.vg/Protocol#Spawn_Object)
@@ -139,7 +138,7 @@ public class ArmorStandProtocol {
 
 			byte bitMask = (byte) ((asd.isSmall() ? 0x01 : 0x00) | 0x04 | 0x08 | 0x10); //(small) + hasArms + noBasePlate + Marker
 
-			List<WrappedWatchableObject> list1 = new ArrayList<WrappedWatchableObject>();
+			List<WrappedWatchableObject> list1 = new ArrayList<>();
 			list1.add(new WrappedWatchableObject(new WrappedDataWatcherObject(3, booleanSerializer), false));//customname invisible
 			list1.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, byteSerializer), bitMask));//armorstand specific data...
 			list1.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x20)));//invisible (entity specific data)
@@ -152,7 +151,7 @@ public class ArmorStandProtocol {
 			//ENTITYMETADATA 2 (fire)
 			final PacketContainer packetMetadata2 = new PacketContainer(PacketType.Play.Server.ENTITY_METADATA);
 			packetMetadata2.getIntegers().write(0, asd.getEntityID()); //Entity ID
-			List<WrappedWatchableObject> list2 = new ArrayList<WrappedWatchableObject>();
+			List<WrappedWatchableObject> list2 = new ArrayList<>();
 			list2.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x01 | 0x20)));//on fire + invisible (entity specific data)
 			packetMetadata2.getWatchableCollectionModifier().write(0, list2);
 

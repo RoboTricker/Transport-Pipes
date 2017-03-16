@@ -25,7 +25,7 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class IronPipe extends Pipe implements Editable, Clickable {
 
-	private HashMap<PipeDirection, ArmorStandData> outputASDs = new HashMap<PipeDirection, ArmorStandData>();
+	private HashMap<PipeDirection, ArmorStandData> outputASDs = new HashMap<>();
 	private PipeDirection currentOutputDir;
 
 	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks) {
@@ -83,10 +83,10 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 			ArmorStandData oldASD2 = outputASDs.get(currentOutputDir);
 			ArmorStandData newASD2 = oldASD2.clone(ITEM_CARPET_YELLOW);
 
-			List<ArmorStandData> newList = new ArrayList<ArmorStandData>();
+			List<ArmorStandData> newList = new ArrayList<>();
 			newList.add(newASD1);
 			newList.add(newASD2);
-			List<ArmorStandData> oldList = new ArrayList<ArmorStandData>();
+			List<ArmorStandData> oldList = new ArrayList<>();
 			oldList.add(oldASD1);
 			oldList.add(oldASD2);
 

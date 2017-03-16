@@ -1,16 +1,14 @@
 package de.robotricker.transportpipes;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -31,7 +29,7 @@ public class PipeAPI {
 	/**
 	 * detroys the pipe on the given location
 	 * 
-	 * @param dropItems
+	 * @param dropItem
 	 *            if true the destroye pipe will drop the pipe item (blaze rod)
 	 */
 	public static void destroyPipe(Location blockLoc, boolean dropItem) {
@@ -45,7 +43,7 @@ public class PipeAPI {
 	 * gives you the current "ticks per second" of the TransportPipes-Thread (7 is good and the maximum)
 	 */
 	public static int getTPS() {
-		return PipeThread.CALCULATED_TPS;
+		return PipeThread.getCalculatedTps();
 	}
 
 	/**
@@ -87,14 +85,12 @@ public class PipeAPI {
 	 *            if true the destroyed pipes will drop the pipe item (blaze rod)
 	 */
 	public static void destroyPipes(World world, boolean dropItems) {
-		List<Pipe> toDestroy = new ArrayList<Pipe>();
+		List<Pipe> toDestroy = new ArrayList<>();
 
 		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 		if (pipeMap != null) {
 			synchronized (pipeMap) {
-				Iterator<Pipe> iterator = pipeMap.values().iterator();
-				while (iterator.hasNext()) {
-					Pipe pipe = iterator.next();
+				for (Pipe pipe : pipeMap.values()) {
 					toDestroy.add(pipe);
 				}
 			}

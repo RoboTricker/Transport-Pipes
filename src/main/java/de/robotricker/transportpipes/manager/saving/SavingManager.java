@@ -30,27 +30,25 @@ import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class SavingManager implements Listener {
 
-	private static List<World> loadedWorlds = new ArrayList<World>();
+	private static List<World> loadedWorlds = new ArrayList<>();
 
 	public static void savePipesSync() {
 		int pipesCount = 0;
 		try {
-			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<World, List<HashMap<String, Tag>>>();
+			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<>();
 
 			//cache worlds
 			for (World world : Bukkit.getWorlds()) {
-				List<HashMap<String, Tag>> pipeList = new ArrayList<HashMap<String, Tag>>();
+				List<HashMap<String, Tag>> pipeList = new ArrayList<>();
 				worlds.put(world, pipeList);
 
 				//put pipes in Tag Lists
 				Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 				if (pipeMap != null) {
 					synchronized (pipeMap) {
-						Iterator<Pipe> iterator = pipeMap.values().iterator();
-						while (iterator.hasNext()) {
-							Pipe pipe = iterator.next();
+						for (Pipe pipe : pipeMap.values()) {
 							//save individual pipe
-							HashMap<String, Tag> tags = new HashMap<String, Tag>();
+							HashMap<String, Tag> tags = new HashMap<>();
 							pipe.saveToNBTTag(tags);
 							pipeList.add(tags);
 							pipesCount++;
@@ -65,13 +63,13 @@ public class SavingManager implements Listener {
 				File datFile = new File(world.getName() + "/pipes.dat");
 				NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
 
-				HashMap<String, Tag> tags = new HashMap<String, Tag>();
+				HashMap<String, Tag> tags = new HashMap<>();
 
 				tags.put("PluginVersion", new StringTag("PluginVersion", TransportPipes.instance.getDescription().getVersion()));
 				tags.put("LastSave", new LongTag("LastSave", System.currentTimeMillis()));
 
 				List<HashMap<String, Tag>> rawPipeList = worlds.get(world);
-				List<Tag> finalPipeList = new ArrayList<Tag>();
+				List<Tag> finalPipeList = new ArrayList<>();
 				for (HashMap<String, Tag> map : rawPipeList) {
 					finalPipeList.add(new CompoundTag("Pipe", map));
 				}
@@ -111,8 +109,8 @@ public class SavingManager implements Listener {
 
 			CompoundTag compound = (CompoundTag) in.readTag();
 
-			String pluginVersion = ((StringTag) compound.getValue().get("PluginVersion")).getValue();
-			long lastSave = ((LongTag) compound.getValue().get("LastSave")).getValue();
+			//String pluginVersion = ((StringTag) compound.getValue().get("PluginVersion")).getValue();
+			//long lastSave = ((LongTag) compound.getValue().get("LastSave")).getValue();
 			List<Tag> pipeList = ((ListTag) compound.getValue().get("Pipes")).getValue();
 
 			for (Tag tag : pipeList) {

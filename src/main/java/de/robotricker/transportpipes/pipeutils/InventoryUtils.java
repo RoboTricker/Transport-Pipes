@@ -25,7 +25,7 @@ public class InventoryUtils {
 
 	//puts the item in this inventory from the specific side and returns the overflow items
 	public static List<ItemStack> putItemInInventoryHolder(InventoryHolder ih, ItemStack item, PipeDirection side) {
-		List<ItemStack> overflow = new ArrayList<ItemStack>();
+		List<ItemStack> overflow = new ArrayList<>();
 
 		if (ih instanceof Chest) {
 			Chest i = (Chest) ih;

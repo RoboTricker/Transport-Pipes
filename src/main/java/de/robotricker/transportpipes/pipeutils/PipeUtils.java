@@ -65,7 +65,7 @@ public class PipeUtils {
 		}
 
 		if (newPipeClass != null) {
-			Pipe pipe = null;
+			Pipe pipe;
 			try {
 				pipe = newPipeClass.getConstructor(Location.class, List.class).newInstance(blockLoc, pipeNeighborBlocks);
 				TransportPipes.putPipe(pipe);
@@ -156,7 +156,7 @@ public class PipeUtils {
 	 */
 	public static List<PipeDirection> getPipeConnections(final Location pipeLoc) {
 
-		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
+		List<PipeDirection> dirs = new ArrayList<>();
 
 		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(pipeLoc.getWorld());
 		if (pipeMap != null) {
@@ -176,7 +176,7 @@ public class PipeUtils {
 	 * ONLY IN MAIN THREAD gets block connection dirs (not pipe connections)
 	 */
 	public static List<PipeDirection> getPipeNeighborBlocksSync(final Location pipeLoc) {
-		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
+		List<PipeDirection> dirs = new ArrayList<>();
 		for (PipeDirection dir : PipeDirection.values()) {
 			Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
 			if (isIdInventoryHolder(blockLoc.getBlock().getTypeId())) {

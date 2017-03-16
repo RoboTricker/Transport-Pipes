@@ -2,7 +2,6 @@ package de.robotricker.transportpipes;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -72,7 +71,7 @@ public class TransportPipes extends JavaPlugin {
 		armorStandProtocol = new ArmorStandProtocol(ProtocolLibrary.getProtocolManager());
 		pipePacketManager = new PipePacketManager();
 
-		PipeThread.running = true;
+		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
 		pipeThread.setPriority(Thread.MIN_PRIORITY);
@@ -86,7 +85,7 @@ public class TransportPipes extends JavaPlugin {
 			@Override
 			public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
 
-				int tps = PipeThread.CALCULATED_TPS;
+				int tps = PipeThread.getCalculatedTps();
 				ChatColor colour = ChatColor.DARK_GREEN;
 				if (tps <= 1) {
 					colour = ChatColor.DARK_RED;
@@ -98,28 +97,29 @@ public class TransportPipes extends JavaPlugin {
 					colour = ChatColor.GREEN;
 				}
 
-				cs.sendMessage("�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-");
-				cs.sendMessage("�6TPS: " + colour + tps + " �6/ �2" + PipeThread.WANTED_TPS);
-				cs.sendMessage("�6Tick: " + colour + (PipeThread.timeTick / 10000) / 100f);
+				cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						"&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
+				cs.sendMessage(ChatColor.GOLD + "TPS: " + colour + tps + " " + ChatColor.GOLD +"/ "
+						+ ChatColor.DARK_GREEN + PipeThread.WANTED_TPS);
+				cs.sendMessage(ChatColor.GOLD + "Tick: " + colour + (PipeThread.timeTick / 10000) / 100f);
 				for (World world : Bukkit.getWorlds()) {
 					int worldPipes = 0;
 					int worldItems = 0;
 					Map<Long, Pipe> pipeMap = getPipeMap(world);
 					if (pipeMap != null) {
-						cs.sendMessage("�e" + world.getName() + ":");
+						cs.sendMessage(ChatColor.YELLOW + world.getName() + ":");
 						synchronized (pipeMap) {
-							Iterator<Pipe> iterator = pipeMap.values().iterator();
-							while (iterator.hasNext()) {
-								Pipe pipe = iterator.next();
+							for (Pipe pipe : pipeMap.values()) {
 								worldPipes++;
 								worldItems += pipe.pipeItems.size();
 							}
 						}
-						cs.sendMessage("�6   Pipes: �e" + worldPipes);
-						cs.sendMessage("�6   Items: �e" + worldItems);
+						cs.sendMessage(ChatColor.GOLD + "   Pipes: " + ChatColor.YELLOW + worldPipes);
+						cs.sendMessage(ChatColor.GOLD + "   Items: " + ChatColor.YELLOW + worldItems);
 					}
 				}
-				cs.sendMessage("�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-");
+				cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						"&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
 				return false;
 			}
 		});
@@ -188,7 +188,7 @@ public class TransportPipes extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		PipeThread.running = false;
+		PipeThread.setRunning(false);
 		try {
 			pipeThread.join();
 		} catch (InterruptedException e) {
@@ -215,7 +215,7 @@ public class TransportPipes extends JavaPlugin {
 
 	public static boolean canBuild(Player p, Block b) {
 		boolean canBuild = true;
-		if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard") && canBuild) {
+		if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
 			canBuild = com.sk89q.worldguard.bukkit.WorldGuardPlugin.inst().canBuild(p, b);
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("ASkyBlock") && canBuild) {
@@ -225,7 +225,7 @@ public class TransportPipes extends JavaPlugin {
 	}
 
 	public static long blockLocToLong(Location blockLoc) {
-		return (long) ((((long) (blockLoc.getBlockX() + 30000)) << 34) | ((long) (blockLoc.getBlockY()) << 26) | ((long) (blockLoc.getBlockZ() + 30000)));
+		return (((long) (blockLoc.getBlockX() + 30000)) << 34) | ((long) (blockLoc.getBlockY()) << 26) | ((long) (blockLoc.getBlockZ() + 30000));
 	}
 
 }

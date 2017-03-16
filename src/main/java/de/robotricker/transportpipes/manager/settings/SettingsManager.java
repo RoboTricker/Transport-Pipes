@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 
 public class SettingsManager {
 
-	public static final int DEFAULT_VIEW_DISTANCE = 25;
-	public static HashMap<String, Integer> viewDistances = new HashMap<String, Integer>();
+	private static final int DEFAULT_VIEW_DISTANCE = 25;
+	private static HashMap<String, Integer> viewDistances = new HashMap<>();
 
 	public static void cacheSettings() {
 		File parentDir = new File("plugins/TransportPipes/settings/");

@@ -40,7 +40,7 @@ public abstract class Pipe {
 	protected static final ItemStack ITEM_GLASS = new ItemStack(Material.GLASS);
 	protected static final ItemStack ITEM_GOLD_BLOCK = new ItemStack(Material.GOLD_BLOCK);
 	protected static final ItemStack ITEM_IRON_BLOCK = new ItemStack(Material.IRON_BLOCK);
-	protected static final ItemStack ITEM_ARROW = new ItemStack(Material.ARROW);
+	//protected static final ItemStack ITEM_ARROW = new ItemStack(Material.ARROW);
 	protected static final ItemStack ITEM_CARPET_WHITE = new ItemStack(Material.CARPET, 1, (short) 0);
 	protected static final ItemStack ITEM_CARPET_YELLOW = new ItemStack(Material.CARPET, 1, (short) 4);
 	protected static final ItemStack ITEM_CARPET_GREEN = new ItemStack(Material.CARPET, 1, (short) 5);
@@ -50,15 +50,15 @@ public abstract class Pipe {
 
 	private List<ArmorStandData> armorStandList;
 
-	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<PipeItem, PipeDirection>();
+	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<>();
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
 	//jedes iteraten durch diese Map MUSS mit synchronized(tempPipeItems){} sein!
-	public Map<PipeItem, PipeDirection> tempPipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
+	public final Map<PipeItem, PipeDirection> tempPipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should be spawned to the players
 	//jedes iteraten durch diese Map MUSS mit synchronized(tempPipeItemsWithSpawn){} sein!
-	public Map<PipeItem, PipeDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
+	public final Map<PipeItem, PipeDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
 	public Location blockLoc;
 
@@ -70,16 +70,14 @@ public abstract class Pipe {
 	private AxisAlignedBB aabb;
 
 	public Pipe(Location blockLoc, AxisAlignedBB aabb) {
-		armorStandList = new ArrayList<ArmorStandData>();
+		armorStandList = new ArrayList<>();
 		this.blockLoc = blockLoc;
 		this.aabb = aabb;
 	}
 
 	public Pipe(Location blockLoc, AxisAlignedBB aabb, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
 		this(blockLoc, aabb);
-		for (ArmorStandData asd : list) {
-			armorStandList.add(asd);
-		}
+		Collections.addAll(armorStandList, list);
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection pd : pipeNeighborBlocks) {
 				this.pipeNeighborBlocks.add(pd);
@@ -249,7 +247,7 @@ public abstract class Pipe {
 									newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
 								}
 							} catch (Exception e) {
-								System.err.println(e); //this schould be not there when exporting
+								e.printStackTrace(); //this should be not there when exporting
 							}
 						}
 					});
@@ -263,7 +261,7 @@ public abstract class Pipe {
 
 	private List<PipeDirection> inputItemsAndCalculatePipeDirections(boolean inputItems) {
 
-		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
+		List<PipeDirection> dirs = new ArrayList<>();
 
 		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
@@ -329,7 +327,7 @@ public abstract class Pipe {
 
 		//sum all neighbor blocks and pipes
 		final List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc);
-		List<PipeDirection> combi = new ArrayList<PipeDirection>();
+		List<PipeDirection> combi = new ArrayList<>();
 		combi.addAll(pipeConnections);
 		synchronized (this.pipeNeighborBlocks) {
 			for (PipeDirection dir : this.pipeNeighborBlocks) {
@@ -380,16 +378,16 @@ public abstract class Pipe {
 		NOTHING(),
 		DROP(),
 		INPUT_IN_INVENTORY(),
-		INPUT_IN_NEXT_PIPE();
+		INPUT_IN_NEXT_PIPE()
 	}
 
 	public void saveToNBTTag(HashMap<String, Tag> tags) {
 		tags.put("PipeClassName", new StringTag("PipeClassName", getClass().getName()));
 		tags.put("PipeLocation", new StringTag("PipeLocation", PipeUtils.LocToString(blockLoc)));
-		List<Tag> itemList = new ArrayList<Tag>();
+		List<Tag> itemList = new ArrayList<>();
 
 		for (PipeItem pipeItem : pipeItems.keySet()) {
-			HashMap<String, Tag> itemMap = new HashMap<String, Tag>();
+			HashMap<String, Tag> itemMap = new HashMap<>();
 
 			//put item data
 			{
@@ -403,9 +401,9 @@ public abstract class Pipe {
 					itemMap.put("DisplayName", new StringTag("DisplayName", item.getItemMeta().getDisplayName()));
 				}
 
-				List<Tag> enchantments = new ArrayList<Tag>();
+				List<Tag> enchantments = new ArrayList<>();
 				for (Enchantment ench : item.getEnchantments().keySet()) {
-					HashMap<String, Tag> enchMap = new HashMap<String, Tag>();
+					HashMap<String, Tag> enchMap = new HashMap<>();
 					enchMap.put("Id", new IntTag("Id", ench.getId()));
 					enchMap.put("Level", new IntTag("Level", item.getEnchantments().get(ench)));
 					enchantments.add(new CompoundTag("Enchantment", enchMap));

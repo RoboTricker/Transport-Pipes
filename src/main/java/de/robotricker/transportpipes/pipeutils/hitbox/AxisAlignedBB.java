@@ -6,12 +6,12 @@ import org.bukkit.util.Vector;
 
 public class AxisAlignedBB {
 
-	public double minx;
-	public double miny;
-	public double minz;
-	public double maxx;
-	public double maxy;
-	public double maxz;
+	private double minx;
+	private double miny;
+	private double minz;
+	private double maxx;
+	private double maxy;
+	private double maxz;
 
 	public AxisAlignedBB(double minx, double miny, double minz, double maxx, double maxy, double maxz) {
 		this.minx = minx;

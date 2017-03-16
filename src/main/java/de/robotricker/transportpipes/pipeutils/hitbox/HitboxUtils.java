@@ -28,27 +28,28 @@ import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class HitboxUtils {
 
-	public static final int HITBOX_RANGE = 5;
-	private static Set<Material> lineOfSightSet = null;
+	public final static int HITBOX_RANGE = 5;
+	private final static Set<Material> LINE_OF_SIGHT_SET;
 
-	public static List<Block> getLineOfSight(Player p) {
-		if (lineOfSightSet == null) {
-			lineOfSightSet = new HashSet<Material>();
-			lineOfSightSet.add(Material.WATER);
-			lineOfSightSet.add(Material.STATIONARY_WATER);
-			lineOfSightSet.add(Material.LAVA);
-			lineOfSightSet.add(Material.STATIONARY_LAVA);
-			lineOfSightSet.add(Material.AIR);
-			//add transprant blocks, so that when you look only a little above the hitbox of e.g. a grass,
-			//you will neverless click on the pipe unless you really click on the hitbox of the grass.
-			//without this code, the line of sight will stop at this transparent block and won't recognize the pipe behind it.
-			for (Material m : Material.values()) {
-				if (m.isTransparent() && !lineOfSightSet.contains(m)) {
-					lineOfSightSet.add(m);
-				}
+	static {
+		LINE_OF_SIGHT_SET = new HashSet<>();
+		LINE_OF_SIGHT_SET.add(Material.WATER);
+		LINE_OF_SIGHT_SET.add(Material.STATIONARY_WATER);
+		LINE_OF_SIGHT_SET.add(Material.LAVA);
+		LINE_OF_SIGHT_SET.add(Material.STATIONARY_LAVA);
+		LINE_OF_SIGHT_SET.add(Material.AIR);
+		//add transprant blocks, so that when you look only a little above the hitbox of e.g. a grass,
+		//you will neverless click on the pipe unless you really click on the hitbox of the grass.
+		//without this code, the line of sight will stop at this transparent block and won't recognize the pipe behind it.
+		for (Material m : Material.values()) {
+			if (m.isTransparent()) {
+				LINE_OF_SIGHT_SET.add(m);
 			}
 		}
-		return p.getLineOfSight(lineOfSightSet, HITBOX_RANGE);
+	}
+
+	public static List<Block> getLineOfSight(Player p) {
+		return p.getLineOfSight(LINE_OF_SIGHT_SET, HITBOX_RANGE);
 	}
 
 	/**

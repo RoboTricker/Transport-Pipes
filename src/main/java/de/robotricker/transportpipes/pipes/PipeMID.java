@@ -30,7 +30,7 @@ public class PipeMID extends Pipe {
 
 	@Override
 	public PipeDirection itemArrivedAtMiddle(PipeItem item, PipeDirection before, List<PipeDirection> dirs) {
-		List<PipeDirection> clonedList = new ArrayList<PipeDirection>();
+		List<PipeDirection> clonedList = new ArrayList<>();
 		clonedList.addAll(dirs);
 
 		PipeDirection opposite = before.getOpposite();

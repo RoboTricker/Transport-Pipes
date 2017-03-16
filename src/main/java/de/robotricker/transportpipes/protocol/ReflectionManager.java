@@ -25,6 +25,9 @@ public class ReflectionManager {
 	public static Object createVector3f(float x, float y, float z) {
 		try {
 			Class<?> vectorClass = getVector3fClass();
+			if(vectorClass == null) {
+				return null;
+			}
 			Constructor<?> constructor = vectorClass.getConstructor(float.class, float.class, float.class);
 			return constructor.newInstance(x, y, z);
 		} catch (Exception e) {
@@ -116,7 +119,7 @@ public class ReflectionManager {
 						if ((f.getType() == null) || (f.getType() != Integer.TYPE))
 							continue;
 						f.setAccessible(true);
-						protocolVersion = ((Integer) f.get(serverData)).intValue();
+						protocolVersion = (Integer) f.get(serverData);
 					}
 
 					if (protocolVersion != -1) {

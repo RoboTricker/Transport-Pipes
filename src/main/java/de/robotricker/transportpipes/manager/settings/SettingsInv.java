@@ -25,11 +25,11 @@ public class SettingsInv implements Listener, CommandExecutor {
 
 		ItemStack glassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7);
 		ItemStack decreaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(decreaseBtn, "�6Decrease");
+		SettingsUtils.changeDisplayNameAndLore(decreaseBtn, ChatColor.GOLD + "Decrease");
 		ItemStack increaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(increaseBtn, "�6Increase");
+		SettingsUtils.changeDisplayNameAndLore(increaseBtn, ChatColor.GOLD + "Increase");
 		ItemStack eye = new ItemStack(Material.EYE_OF_ENDER, SettingsManager.getViewDistance(viewer), (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(eye, "�6View Distance: " + SettingsManager.getViewDistance(viewer), "", "�7This represents the Radius in Blocks", "�7in which you can see the pipes.", "�7If you have too less FPS, decrease this option.");
+		SettingsUtils.changeDisplayNameAndLore(eye, ChatColor.GOLD + "View Distance: " + SettingsManager.getViewDistance(viewer), "", ChatColor.GRAY + "This represents the Radius in Blocks", ChatColor.GRAY + "in which you can see the pipes.", ChatColor.GRAY + "If you have too less FPS, decrease this option.");
 
 		inv.setItem(0, glassPane);
 		inv.setItem(1, glassPane);
@@ -47,7 +47,7 @@ public class SettingsInv implements Listener, CommandExecutor {
 
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals("�rPlayer Settings")) {
+		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(ChatColor.RESET + "Player Settings")) {
 			Player p = (Player) e.getWhoClicked();
 			e.setCancelled(true);
 			if (e.getAction() == InventoryAction.PICKUP_ALL || e.getAction() == InventoryAction.PICKUP_HALF) {

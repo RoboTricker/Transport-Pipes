@@ -11,28 +11,22 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class PipeNeighborBlockListener implements Listener {
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
-		if (e.isCancelled())
-			return;
 		if (PipeUtils.isIdInventoryHolder(e.getBlockPlaced().getTypeId())) {
 			PipeUtils.updatePipeNeighborBlockSync(e.getBlock(), true);
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent e) {
-		if (e.isCancelled())
-			return;
 		if (PipeUtils.isIdInventoryHolder(e.getBlock().getTypeId())) {
 			PipeUtils.updatePipeNeighborBlockSync(e.getBlock(), false);
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onExplode1(BlockExplodeEvent e){
-		if (e.isCancelled())
-			return;
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onBlockExplode(BlockExplodeEvent e){
 		for(Block b : e.blockList()){
 			if(PipeUtils.isIdInventoryHolder(b.getTypeId())){
 				PipeUtils.updatePipeNeighborBlockSync(b, false);
@@ -40,10 +34,8 @@ public class PipeNeighborBlockListener implements Listener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onExplode2(EntityExplodeEvent e){
-		if (e.isCancelled())
-			return;
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onEntityExplode(EntityExplodeEvent e){
 		for(Block b : e.blockList()){
 			if(PipeUtils.isIdInventoryHolder(b.getTypeId())){
 				PipeUtils.updatePipeNeighborBlockSync(b, false);

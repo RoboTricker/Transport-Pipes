@@ -16,15 +16,18 @@ import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
 public class PipeThread extends Thread {
 
-	public static int WANTED_TPS = 7;
-	public static int CALCULATED_TPS = 0;
+	public final static int WANTED_TPS = 7;
+
+	private final static long TICK_DIFF = 1000 / WANTED_TPS;
+	private final static int INPUT_ITEMS_TICK_DIFF = 3;
+	private final static int VIEW_DISTANCE_TICK_DIFF = 3;
 
 	//jedes iteraten durch diese Map MUSS mit synchronized(tickList){} sein!
-	public static Map<Runnable, Integer> tickList = Collections.synchronizedMap(new HashMap<Runnable, Integer>());
+	private static final Map<Runnable, Integer> tickList = Collections.synchronizedMap(new HashMap<Runnable, Integer>());
 
-	public static long tickDiff = 1000 / WANTED_TPS;
-	private int inputItemsTickDiff = 3;
-	private int viewDistanceTickDiff = 3;
+	// TODO: shouldn't be static fields
+	private static int calculatedTps = 0;
+	private static boolean running = false;
 
 	private long lastTick = 0;
 	private int inputItemsTick = 0;
@@ -33,14 +36,24 @@ public class PipeThread extends Thread {
 	private long lastSecond = 0;
 	private int tpsCounter = 0;
 
-	public static boolean running = false;
-
 	public static long timeTick = 0;
 
 	public PipeThread() {
 		super("TransportPipes Thread");
 	}
-	
+
+	public static int getCalculatedTps() {
+		return calculatedTps;
+	}
+
+	public static boolean isRunning() {
+		return running;
+	}
+
+	public static void setRunning(boolean running) {
+		PipeThread.running = running;
+	}
+
 	@Override
 	public void run() {
 		System.out.println(TransportPipes.PREFIX_CONSOLE + "starting TransportPipes-Thread");
@@ -49,10 +62,10 @@ public class PipeThread extends Thread {
 			long currentTime = System.currentTimeMillis();
 			if (currentTime - lastSecond >= 1000) {
 				lastSecond = currentTime;
-				CALCULATED_TPS = tpsCounter;
+				calculatedTps = tpsCounter;
 				tpsCounter = 0;
 			}
-			if (currentTime - lastTick < tickDiff) {
+			if (currentTime - lastTick < TICK_DIFF) {
 				continue;
 			}
 			
@@ -61,13 +74,13 @@ public class PipeThread extends Thread {
 			
 			//input Items tick
 			inputItemsTick++;
-			if (inputItemsTick == inputItemsTickDiff) {
+			if (inputItemsTick == INPUT_ITEMS_TICK_DIFF) {
 				inputItemsTick = 0;
 				inputItems = true;
 			}
 			//check view distance tick
 			viewDistanceTick++;
-			if (viewDistanceTick == viewDistanceTickDiff) {
+			if (viewDistanceTick == VIEW_DISTANCE_TICK_DIFF) {
 				viewDistanceTick = 0;
 				checkViewDistance = true;
 			}
@@ -77,7 +90,7 @@ public class PipeThread extends Thread {
 
 			//internal PipeThread scheduler. Has nothing to do with the pipes themselves
 			{
-				HashMap<Runnable, Integer> tempTickList = new HashMap<Runnable, Integer>();
+				HashMap<Runnable, Integer> tempTickList = new HashMap<>();
 				synchronized (tickList) {
 					tempTickList.putAll(tickList);
 				}
@@ -98,17 +111,14 @@ public class PipeThread extends Thread {
 			long timeBefore = System.nanoTime();
 
 			//in this list are the items stored which are already processed in this tick (that no item is processed 2 times in 1 tick)
-			List<PipeItem> roundItems = new ArrayList<PipeItem>();
+			List<PipeItem> roundItems = new ArrayList<>();
 
 			//update pipes
 			for (World world : Bukkit.getWorlds()) {
 				Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 				if (pipeMap != null) {
 					synchronized (pipeMap) {
-						Iterator<Pipe> iterator = pipeMap.values().iterator();
-						while (iterator.hasNext()) {
-							Pipe pipe = iterator.next();
-
+						for (Pipe pipe : pipeMap.values()) {
 							//input items from "tempPipeItemsWithSpawn"
 							if (inputItems) {
 								synchronized (pipe.tempPipeItemsWithSpawn) {

@@ -14,7 +14,7 @@ public enum PipeDirection {
 
 	private Vector v;
 
-	private PipeDirection(int x, int y, int z) {
+	PipeDirection(int x, int y, int z) {
 		this.v = new Vector(x, y, z);
 	}
 
