@@ -1,0 +1,11 @@
+name: TransportPipes
+version: ${project.version}
+author: RoboTricker
+main: main.de.robotricker.transportpipes.TransportPipes
+load: STARTUP
+depend: [ProtocolLib]
+commands:
+  transportpipessettings:
+    aliases: [tpsettings]
+  transportpipestps:
+    aliases: [tptps]
