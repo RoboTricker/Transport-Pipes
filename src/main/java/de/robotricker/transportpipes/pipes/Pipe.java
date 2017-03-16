@@ -62,7 +62,7 @@ public abstract class Pipe {
 
 	public Location blockLoc;
 
-	//das enthält NUR die Nachbar-BLÖCKE, nicht die Nachbar-Pipes!
+	//that ONLY contains the neighbor BLOCKS, not the neighbor pipes!
 	//jedes iteraten durch diese List MUSS mit synchronized(pipeNeighborBlocks){} sein!
 	public List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
 

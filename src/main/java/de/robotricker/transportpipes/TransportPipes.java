@@ -6,10 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -52,13 +49,13 @@ public class TransportPipes extends JavaPlugin {
 
 	public static final String PREFIX_CONSOLE = "[TransportPipes] ";
 
-	public static final String PIPE_NAME = "Pipe";
+	public static final String PIPE_NAME = ChatColor.WHITE + "Pipe";
 	public static ItemStack PIPE_ITEM;
-	public static final String GOLDEN_PIPE_NAME = "�6Golden-Pipe";
+	public static final String GOLDEN_PIPE_NAME = ChatColor.GOLD + "6Golden-Pipe";
 	public static ItemStack GOLDEN_PIPE_ITEM;
-	public static final String IRON_PIPE_NAME = "�7Iron-Pipe";
+	public static final String IRON_PIPE_NAME = ChatColor.GRAY + "Iron-Pipe";
 	public static ItemStack IRON_PIPE_ITEM;
-	public static final String WRENCH_NAME = "�cWrench";
+	public static final String WRENCH_NAME = ChatColor.RED + "Wrench";
 	public static ItemStack WRENCH_ITEM;
 
 	//x << 34 | y << 26 | z
@@ -90,15 +87,15 @@ public class TransportPipes extends JavaPlugin {
 			public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
 
 				int tps = PipeThread.CALCULATED_TPS;
-				String colour = "�2";
+				ChatColor colour = ChatColor.DARK_GREEN;
 				if (tps <= 1) {
-					colour = "�4";
+					colour = ChatColor.DARK_RED;
 				} else if (tps <= 4) {
-					colour = "�c";
+					colour = ChatColor.RED;
 				} else if (tps <= 5) {
-					colour = "�6";
+					colour = ChatColor.GOLD;
 				} else if (tps <= 6) {
-					colour = "�a";
+					colour = ChatColor.GREEN;
 				}
 
 				cs.sendMessage("�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-�6-�e-");

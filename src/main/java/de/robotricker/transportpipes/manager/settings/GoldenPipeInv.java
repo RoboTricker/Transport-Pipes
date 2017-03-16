@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,19 +29,19 @@ public class GoldenPipeInv implements Listener {
 		if (pipe_invs.containsKey(pipe)) {
 			inv = pipe_invs.get(pipe);
 		} else {
-			inv = Bukkit.createInventory(null, 6 * 9, "§rGolden Pipe");
+			inv = Bukkit.createInventory(null, 6 * 9, ChatColor.RESET + "Golden Pipe");
 			pipe_invs.put(pipe, inv);
 		}
 
-		ItemStack glass_pane = SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), "§r");
+		ItemStack glass_pane = SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), "ï¿½r");
 		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(pipe.blockLoc);
 
-		inv.setItem(0 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), "§fWhite"));
-		inv.setItem(1 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 4), "§eYellow"));
-		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 5), "§aGreen"));
-		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 11), "§1Blue"));
-		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 14), "§cRed"));
-		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 15), "§8Black"));
+		inv.setItem(0 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), "ï¿½fWhite"));
+		inv.setItem(1 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 4), "ï¿½eYellow"));
+		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 5), "ï¿½aGreen"));
+		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 11), "ï¿½1Blue"));
+		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 14), "ï¿½cRed"));
+		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 15), "ï¿½8Black"));
 
 		for (int line = 0; line < 6; line++) {
 			if (!pipe.isPipeNeighborBlock(PipeDirection.values()[line]) && !pipeConnections.contains(PipeDirection.values()[line])) {
@@ -67,7 +68,7 @@ public class GoldenPipeInv implements Listener {
 		if (e.getClickedInventory() != null && pipe_invs.containsValue(e.getClickedInventory())) {
 			Player p = (Player) e.getWhoClicked();
 			//clicked on glass pane
-			if (SettingsUtils.hasDisplayName(e.getCurrentItem(), "§r")) {
+			if (SettingsUtils.hasDisplayName(e.getCurrentItem(), "ï¿½r")) {
 				e.setCancelled(true);
 			}
 			//clicked on wool block
@@ -94,14 +95,14 @@ public class GoldenPipeInv implements Listener {
 				for (int i = 1; i < 9; i++) {
 					ItemStack is = e.getInventory().getItem(line * 9 + i);
 					//make sure the glass pane won't be saved
-					if (is != null && !SettingsUtils.hasDisplayName(is, "§r")) {
+					if (is != null && !SettingsUtils.hasDisplayName(is, "ï¿½r")) {
 						items.add(new ItemData(is));
 						if (is.getAmount() > 1) {
 							ItemStack clone = is.clone();
 							clone.setAmount(is.getAmount() - 1);
 							e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation(), clone);
 						}
-					} else if (SettingsUtils.hasDisplayName(is, "§r")) {
+					} else if (SettingsUtils.hasDisplayName(is, "ï¿½r")) {
 						//skip this save-sequenz if this line is not available (not a pipe or block as neighbor)
 						continue linefor;
 					}

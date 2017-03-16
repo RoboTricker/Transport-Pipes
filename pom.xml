@@ -84,6 +84,15 @@
             <id>dmulloy2-repo</id>
             <url>http://repo.dmulloy2.net/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo/</url>
+        </repository>
+        <repository>
+            <id>bintray-tastybento-maven-repo</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/tastybento/maven-repo</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -106,6 +115,20 @@
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib-API</artifactId>
             <version>4.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- WorldGuard -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>6.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- ASkyBlock -->
+        <dependency>
+            <groupId>com.wasteofplastic</groupId>
+            <artifactId>askyblock</artifactId>
+            <version>3.0.5.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
