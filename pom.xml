@@ -114,7 +114,7 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib-API</artifactId>
-            <version>4.1.0</version>
+            <version>4.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- WorldGuard -->
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>com.wasteofplastic</groupId>
             <artifactId>askyblock</artifactId>
-            <version>3.0.5.4</version>
+            <version>3.0.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
