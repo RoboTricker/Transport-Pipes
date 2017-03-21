@@ -50,7 +50,7 @@ public class TransportPipes extends JavaPlugin {
 
 	public static final String PIPE_NAME = ChatColor.WHITE + "Pipe";
 	public static ItemStack PIPE_ITEM;
-	public static final String GOLDEN_PIPE_NAME = ChatColor.GOLD + "6Golden-Pipe";
+	public static final String GOLDEN_PIPE_NAME = ChatColor.GOLD + "Golden-Pipe";
 	public static ItemStack GOLDEN_PIPE_ITEM;
 	public static final String IRON_PIPE_NAME = ChatColor.GRAY + "Iron-Pipe";
 	public static ItemStack IRON_PIPE_ITEM;
