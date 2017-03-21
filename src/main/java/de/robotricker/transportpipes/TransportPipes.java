@@ -68,7 +68,7 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		armorStandProtocol = new ArmorStandProtocol(ProtocolLibrary.getProtocolManager());
+		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
 
 		PipeThread.setRunning(true);
