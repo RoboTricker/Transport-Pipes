@@ -3,7 +3,6 @@ package de.robotricker.transportpipes.protocol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
@@ -24,7 +24,7 @@ import de.robotricker.transportpipes.pipes.Pipe;
 
 public class PipePacketManager implements Listener {
 
-	//eig. nicht thread safe!!! nur im main thread handeln
+	//not really(!) thread safe! Handle in main thread!
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 
@@ -190,6 +190,33 @@ public class PipePacketManager implements Listener {
 	@EventHandler
 	public void onKick(PlayerKickEvent e) {
 		quit(e.getPlayer());
+	}
+
+	@EventHandler
+	public void onWorldChange(final PlayerChangedWorldEvent e) {
+		//remove cached pipes if the player changes world, so the pipe will be spawned if he switches back
+		if (pipesForPlayers.containsKey(e.getPlayer())) {
+			List<Pipe> rmList = new ArrayList<Pipe>();
+			for (int i = 0; i < pipesForPlayers.get(e.getPlayer()).size(); i++) {
+				Pipe pipe = pipesForPlayers.get(e.getPlayer()).get(i);
+				if (pipe.getBlockLoc().getWorld().equals(e.getFrom())) {
+					rmList.add(pipe);
+				}
+			}
+			pipesForPlayers.get(e.getPlayer()).removeAll(rmList);
+		}
+
+		//remove cached items if the player changes world, so the item will be spawned if he switches back
+		if (itemsForPlayers.containsKey(e.getPlayer())) {
+			List<PipeItem> rmList = new ArrayList<PipeItem>();
+			for (int i = 0; i < itemsForPlayers.get(e.getPlayer()).size(); i++) {
+				PipeItem pipeItem = itemsForPlayers.get(e.getPlayer()).get(i);
+				if (pipeItem.getBlockLoc().getWorld().equals(e.getFrom())) {
+					rmList.add(pipeItem);
+				}
+			}
+			itemsForPlayers.get(e.getPlayer()).removeAll(rmList);
+		}
 	}
 
 	private void quit(final Player p) {
