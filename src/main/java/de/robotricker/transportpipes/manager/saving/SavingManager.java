@@ -2,6 +2,7 @@ package de.robotricker.transportpipes.manager.saving;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,28 +60,32 @@ public class SavingManager implements Listener {
 
 			//save Tag Lists to files
 			for (World world : worlds.keySet()) {
-				File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
-				if (!datFile.exists()) {
-					datFile.mkdirs();
-					datFile.createNewFile();
+				try {
+					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
+					if (!datFile.exists()) {
+						datFile.mkdirs();
+						datFile.createNewFile();
+					}
+					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
+
+					HashMap<String, Tag> tags = new HashMap<>();
+
+					tags.put("PluginVersion", new StringTag("PluginVersion", TransportPipes.instance.getDescription().getVersion()));
+					tags.put("LastSave", new LongTag("LastSave", System.currentTimeMillis()));
+
+					List<HashMap<String, Tag>> rawPipeList = worlds.get(world);
+					List<Tag> finalPipeList = new ArrayList<>();
+					for (HashMap<String, Tag> map : rawPipeList) {
+						finalPipeList.add(new CompoundTag("Pipe", map));
+					}
+					tags.put("Pipes", new ListTag("Pipes", CompoundTag.class, finalPipeList));
+
+					CompoundTag compound = new CompoundTag("Data", tags);
+					out.writeTag(compound);
+					out.close();
+				} catch (FileNotFoundException e) {
+					
 				}
-				NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
-
-				HashMap<String, Tag> tags = new HashMap<>();
-
-				tags.put("PluginVersion", new StringTag("PluginVersion", TransportPipes.instance.getDescription().getVersion()));
-				tags.put("LastSave", new LongTag("LastSave", System.currentTimeMillis()));
-
-				List<HashMap<String, Tag>> rawPipeList = worlds.get(world);
-				List<Tag> finalPipeList = new ArrayList<>();
-				for (HashMap<String, Tag> map : rawPipeList) {
-					finalPipeList.add(new CompoundTag("Pipe", map));
-				}
-				tags.put("Pipes", new ListTag("Pipes", CompoundTag.class, finalPipeList));
-
-				CompoundTag compound = new CompoundTag("Data", tags);
-				out.writeTag(compound);
-				out.close();
 			}
 
 		} catch (Exception e) {
