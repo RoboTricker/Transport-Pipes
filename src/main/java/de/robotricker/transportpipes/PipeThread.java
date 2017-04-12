@@ -161,7 +161,7 @@ public class PipeThread extends Thread {
 				}
 			}
 
-			//PipeThread.timeTick = (System.nanoTime() - timeBefore);
+			PipeThread.timeTick = (System.nanoTime() - timeBefore);
 
 			if (checkViewDistance) {
 				TransportPipes.pipePacketManager.tickSync();
