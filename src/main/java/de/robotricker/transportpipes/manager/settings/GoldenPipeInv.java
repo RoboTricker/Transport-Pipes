@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.GoldenPipe;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -29,19 +30,19 @@ public class GoldenPipeInv implements Listener {
 		if (pipe_invs.containsKey(pipe)) {
 			inv = pipe_invs.get(pipe);
 		} else {
-			inv = Bukkit.createInventory(null, 6 * 9, ChatColor.RESET + "Golden Pipe");
+			inv = Bukkit.createInventory(null, 6 * 9, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("goldpipeinv.nameinv")));
 			pipe_invs.put(pipe, inv);
 		}
 
 		ItemStack glass_pane = SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), String.valueOf(ChatColor.RESET));
 		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(pipe.blockLoc);
 
-		inv.setItem(0, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), ChatColor.WHITE + "White"));
-		inv.setItem(9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 4), ChatColor.YELLOW + "Yellow"));
-		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 5), ChatColor.GREEN + "Green"));
-		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 11), ChatColor.BLUE + "Blue"));
-		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 14), ChatColor.RED + "Red"));
-		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 15), ChatColor.BLACK + "Black"));
+		inv.setItem(0, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.white"))));
+		inv.setItem(9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 4), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.yellow"))));
+		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 5), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.green"))));
+		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 11), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.blue"))));
+		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 14), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.red"))));
+		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 15), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.black"))));
 
 		for (int line = 0; line < 6; line++) {
 			if (!pipe.isPipeNeighborBlock(PipeDirection.values()[line]) && !pipeConnections.contains(PipeDirection.values()[line])) {
