@@ -1,13 +1,13 @@
 prefix: '[TransportPipes] '
 pipename:
-  pipe: 'Pipe'
+  pipe: '&fPipe'
   golden_pipe: '&6Golden-Pipe'
   iron_pipe: '&7Iron-Pipe'
   wrench: '&cWrench'
 goldpipeinv:
   nameinv: '&rGolden Pipe'
   colors:
-    white: 'White'
+    white: '&fWhite'
     yellow: '&eYellow'
     green: '&aGreen'
     blue: '&9Blue'
