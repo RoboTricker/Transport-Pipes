@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -46,15 +47,15 @@ import de.robotricker.transportpipes.protocol.PipePacketManager;
 
 public class TransportPipes extends JavaPlugin {
 
-	public static final String PREFIX_CONSOLE = "[TransportPipes] ";
+	public final String PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
 
-	public static final String PIPE_NAME = ChatColor.WHITE + "Pipe";
+	public final String PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.pipe"));
 	public static ItemStack PIPE_ITEM;
-	public static final String GOLDEN_PIPE_NAME = ChatColor.GOLD + "Golden-Pipe";
+	public final String GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.golden_pipe"));
 	public static ItemStack GOLDEN_PIPE_ITEM;
-	public static final String IRON_PIPE_NAME = ChatColor.GRAY + "Iron-Pipe";
+	public final String IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.iron_pipe"));
 	public static ItemStack IRON_PIPE_ITEM;
-	public static final String WRENCH_NAME = ChatColor.RED + "Wrench";
+	public final String WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.wrench"));
 	public static ItemStack WRENCH_ITEM;
 
 	//x << 34 | y << 26 | z
@@ -71,6 +72,9 @@ public class TransportPipes extends JavaPlugin {
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
 
+	    getConfig().options().copyDefaults(true);
+	    saveConfig();     
+	     
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);

@@ -1,5 +1,8 @@
 package de.robotricker.transportpipes.manager.settings;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,21 +18,26 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.TransportPipes;
+
 public class SettingsInv implements Listener, CommandExecutor {
+	
+	public static List<String> lore = TransportPipes.instance.getConfig().getStringList("settingsinv.viewDistanceLores");
+	 
 
 	public static void updateSettingsInventory(Inventory inv, Player viewer) {
 		if (inv == null) {
-			inv = Bukkit.createInventory(null, 9, ChatColor.RESET + "Player Settings");
+			inv = Bukkit.createInventory(null, 9, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.nameinv")));
 			viewer.openInventory(inv);
 		}
 
 		ItemStack glassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7);
 		ItemStack decreaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(decreaseBtn, ChatColor.GOLD + "Decrease");
+		SettingsUtils.changeDisplayNameAndLore(decreaseBtn, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.decrease")));
 		ItemStack increaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(increaseBtn, ChatColor.GOLD + "Increase");
+		SettingsUtils.changeDisplayNameAndLore(increaseBtn, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.increase")));
 		ItemStack eye = new ItemStack(Material.EYE_OF_ENDER, SettingsManager.getViewDistance(viewer), (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(eye, ChatColor.GOLD + "View Distance: " + SettingsManager.getViewDistance(viewer), "", ChatColor.GRAY + "This represents the Radius in Blocks", ChatColor.GRAY + "in which you can see the pipes.", ChatColor.GRAY + "If you have too less FPS, decrease this option.");
+		SettingsUtils.changeDisplayNameAndLoreConfig(eye, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.viewDistanceName")) + SettingsManager.getViewDistance(viewer),  lore);
 
 		inv.setItem(0, glassPane);
 		inv.setItem(1, glassPane);
@@ -47,7 +55,7 @@ public class SettingsInv implements Listener, CommandExecutor {
 
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(ChatColor.RESET + "Player Settings")) {
+		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.nameinv")))) {
 			Player p = (Player) e.getWhoClicked();
 			e.setCancelled(true);
 			if (e.getAction() == InventoryAction.PICKUP_ALL || e.getAction() == InventoryAction.PICKUP_HALF) {

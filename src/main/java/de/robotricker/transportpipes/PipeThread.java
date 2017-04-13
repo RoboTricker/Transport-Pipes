@@ -56,9 +56,11 @@ public class PipeThread extends Thread {
 
 	@Override
 	public void run() {
-		System.out.println(TransportPipes.PREFIX_CONSOLE + "starting TransportPipes-Thread");
+		System.out.println(TransportPipes.instance.PREFIX_CONSOLE + "starting TransportPipes-Thread");
 		while (running) {
 
+		try {
+			Thread.sleep(50);
 			long currentTime = System.currentTimeMillis();
 			if (currentTime - lastSecond >= 1000) {
 				lastSecond = currentTime;
@@ -164,9 +166,14 @@ public class PipeThread extends Thread {
 			if (checkViewDistance) {
 				TransportPipes.pipePacketManager.tickSync();
 			}
-
+		
+		System.out.println(TransportPipes.instance.PREFIX_CONSOLE + "finishing TransportPipes-Thread");
+		
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		System.out.println(TransportPipes.PREFIX_CONSOLE + "finishing TransportPipes-Thread");
+		}
 	}
 
 	public static void runTask(Runnable run, int tickDelay) {
