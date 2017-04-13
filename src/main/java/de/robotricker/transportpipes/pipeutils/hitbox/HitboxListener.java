@@ -18,7 +18,7 @@ import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class HitboxListener implements Listener {
 
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		Block clickedBlock = e.getClickedBlock();

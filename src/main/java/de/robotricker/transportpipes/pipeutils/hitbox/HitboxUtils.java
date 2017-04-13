@@ -212,13 +212,13 @@ public class HitboxUtils {
 		if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
 			String displayName = item.getItemMeta().getDisplayName();
 			if (displayName != null) {
-				if (displayName.equals(TransportPipes.PIPE_NAME)) {
+				if (displayName.equals(TransportPipes.instance.PIPE_NAME)) {
 					return Pipe.class;
 				}
-				if (displayName.equals(TransportPipes.GOLDEN_PIPE_NAME)) {
+				if (displayName.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
 					return GoldenPipe.class;
 				}
-				if (displayName.equals(TransportPipes.IRON_PIPE_NAME)) {
+				if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
 					return IronPipe.class;
 				}
 			}
