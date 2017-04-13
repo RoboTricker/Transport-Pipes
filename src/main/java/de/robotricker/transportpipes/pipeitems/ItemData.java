@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jnbt.ByteTag;
@@ -14,90 +15,59 @@ import org.jnbt.Tag;
 
 public class ItemData {
 
-	private Material material;
-	private byte data;
-	private String displayName;
+	private ItemStack item;
 
 	public ItemData(ItemStack itemStack) {
-		this.material = itemStack.getType();
-		this.data = itemStack.getData().getData();
-		this.displayName = itemStack.hasItemMeta() ? itemStack.getItemMeta().getDisplayName() : null;
-	}
-
-	public ItemData(Material material, byte data, String displayName) {
-		this.material = material;
-		this.data = data;
-		this.displayName = displayName;
-	}
-
-	public ItemData(Material material, byte data) {
-		this(material, data, null);
-	}
-
-	public Material getMaterial() {
-		return material;
-	}
-
-	public void setMaterial(Material material) {
-		this.material = material;
-	}
-
-	public byte getData() {
-		return data;
-	}
-
-	public void setData(byte data) {
-		this.data = data;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+		item = itemStack.clone();
+		item.setAmount(1);
 	}
 
 	public ItemStack toItemStack() {
-		ItemStack itemStack = new ItemStack(material, 1, data);
-		if (displayName != null) {
-			ItemMeta meta = itemStack.getItemMeta();
-			meta.setDisplayName(displayName);
-			itemStack.setItemMeta(meta);
-		}
-		return itemStack;
+		return item.clone();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj instanceof ItemData) {
-			boolean displayNameEquals = false;
-			if (((ItemData) obj).displayName == null && displayName == null) {
-				displayNameEquals = true;
-			} else if (((ItemData) obj).displayName != null) {
-				displayNameEquals = ((ItemData) obj).displayName.equals(displayName);
-			}
-			return ((ItemData) obj).material.equals(material) && ((ItemData) obj).data == data && displayNameEquals;
+			ItemData o = (ItemData) obj;
+			return o.item.equals(item);
 		}
 		return false;
 	}
 
 	public CompoundTag toNBTTag() {
 		Map<String, Tag> map = new HashMap<>();
-		map.put("Material", new IntTag("Material", getMaterial().getId()));
-		map.put("Data", new ByteTag("Data", getData()));
-		if (displayName != null) {
-			map.put("DisplayName", new StringTag("DisplayName", getDisplayName()));
-		}
+		map.put("Item", new StringTag("Item", itemToStringBlob(item)));
 		return new CompoundTag("Item", map);
 	}
 
 	public static ItemData fromNBTTag(CompoundTag tag) {
 		Map<String, Tag> map = tag.getValue();
-		Material m = Material.getMaterial(((IntTag) map.get("Material")).getValue());
-		byte d = ((ByteTag) map.get("Data")).getValue();
-		String dm = map.containsKey("DisplayName") ? ((StringTag) map.get("DisplayName")).getValue() : null;
-		return new ItemData(m, d, dm);
+		ItemStack item = null;
+		try {
+			String rawItem = ((StringTag) map.get("Item")).getValue();
+			item = stringBlobToItem(rawItem);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Unable to load pipe! (Maybe outdated NBT format?)");
+		}
+		return new ItemData(item);
 	}
 
+	public static String itemToStringBlob(ItemStack itemStack) {
+		YamlConfiguration config = new YamlConfiguration();
+		config.set("i", itemStack);
+		return config.saveToString();
+	}
+
+	public static ItemStack stringBlobToItem(String stringBlob) {
+		YamlConfiguration config = new YamlConfiguration();
+		try {
+			config.loadFromString(stringBlob);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return config.getItemStack("i", null);
+	}
 }

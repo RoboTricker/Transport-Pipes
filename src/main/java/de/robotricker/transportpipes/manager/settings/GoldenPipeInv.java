@@ -36,12 +36,22 @@ public class GoldenPipeInv implements Listener {
 		ItemStack glass_pane = SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), String.valueOf(ChatColor.RESET));
 		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(pipe.blockLoc);
 
-		inv.setItem(0, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), ChatColor.WHITE + "White"));
-		inv.setItem(9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 4), ChatColor.YELLOW + "Yellow"));
-		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 5), ChatColor.GREEN + "Green"));
-		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 11), ChatColor.BLUE + "Blue"));
-		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 14), ChatColor.RED + "Red"));
-		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 15), ChatColor.BLACK + "Black"));
+		Material material;
+		String filteringMode;
+		if(pipe.isIgnoreNBT()) {
+			material = Material.WOOL;
+			filteringMode = "Current mode: " + ChatColor.RED + "IGNORE NBT";
+		} else {
+			material = Material.STAINED_GLASS;
+			filteringMode = "Current mode: " + ChatColor.GREEN + "CHECK NBT";
+		}
+
+		inv.setItem(0, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 0), ChatColor.WHITE + "White", filteringMode, "Click to change filtering mode."));
+		inv.setItem(9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 4), ChatColor.YELLOW + "Yellow", filteringMode, "Click to change filtering mode."));
+		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 5), ChatColor.GREEN + "Green", filteringMode, "Click to change filtering mode."));
+		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 11), ChatColor.BLUE + "Blue", filteringMode, "Click to change filtering mode."));
+		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 14), ChatColor.RED + "Red", filteringMode, "Click to change filtering mode."));
+		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 15), ChatColor.BLACK + "Black", filteringMode, "Click to change filtering mode."));
 
 		for (int line = 0; line < 6; line++) {
 			if (!pipe.isPipeNeighborBlock(PipeDirection.values()[line]) && !pipeConnections.contains(PipeDirection.values()[line])) {
@@ -72,6 +82,20 @@ public class GoldenPipeInv implements Listener {
 			}
 			//clicked on wool block
 			if (e.getRawSlot() >= 0 && e.getRawSlot() <= 5 * 9 && e.getRawSlot() % 9 == 0) {
+				if (e.getInventory() != null && pipe_invs.containsValue(e.getInventory())) {
+					GoldenPipe pipe = null;
+					//get pipe with inventory
+					for (GoldenPipe gp : pipe_invs.keySet()) {
+						if (pipe_invs.get(gp).equals(e.getInventory())) {
+							pipe = gp;
+							break;
+						}
+					}
+					pipe.setIgnoreNBT(!pipe.isIgnoreNBT());
+					// Update inv
+					e.getWhoClicked().closeInventory();
+					openGoldenPipeInv((Player) e.getWhoClicked(), pipe);
+				}
 				e.setCancelled(true);
 			}
 		}
@@ -89,7 +113,8 @@ public class GoldenPipeInv implements Listener {
 				}
 			}
 			//cache new items in golden pipe
-			linefor: for (int line = 0; line < 6; line++) {
+			linefor:
+			for (int line = 0; line < 6; line++) {
 				List<ItemData> items = new ArrayList<>();
 				for (int i = 1; i < 9; i++) {
 					ItemStack is = e.getInventory().getItem(line * 9 + i);
