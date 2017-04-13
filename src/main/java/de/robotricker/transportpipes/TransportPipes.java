@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,10 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.comphenix.protocol.ProtocolLibrary;
 
 import de.robotricker.transportpipes.manager.saving.SavingManager;
 import de.robotricker.transportpipes.manager.settings.GoldenPipeInv;
@@ -47,15 +48,15 @@ import de.robotricker.transportpipes.protocol.PipePacketManager;
 
 public class TransportPipes extends JavaPlugin {
 
-	public final String PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
+	public String PREFIX_CONSOLE;
 
-	public final String PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.pipe"));
+	public String PIPE_NAME;
 	public static ItemStack PIPE_ITEM;
-	public final String GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.golden_pipe"));
+	public String GOLDEN_PIPE_NAME;
 	public static ItemStack GOLDEN_PIPE_ITEM;
-	public final String IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.iron_pipe"));
+	public String IRON_PIPE_NAME;
 	public static ItemStack IRON_PIPE_ITEM;
-	public final String WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.wrench"));
+	public String WRENCH_NAME;
 	public static ItemStack WRENCH_ITEM;
 
 	//x << 34 | y << 26 | z
@@ -73,7 +74,13 @@ public class TransportPipes extends JavaPlugin {
 		pipePacketManager = new PipePacketManager();
 
 	    getConfig().options().copyDefaults(true);
-	    saveConfig();     
+	    saveConfig();
+	    
+	    PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
+		PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.pipe"));
+		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.golden_pipe"));
+		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.iron_pipe"));
+		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.wrench"));
 	     
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();

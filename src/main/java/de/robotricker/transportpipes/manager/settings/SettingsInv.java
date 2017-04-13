@@ -21,9 +21,15 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 
 public class SettingsInv implements Listener, CommandExecutor {
-	
-	public static List<String> lore = TransportPipes.instance.getConfig().getStringList("settingsinv.viewDistanceLores");
-	 
+
+	public static List<String> lore = new ArrayList<String>();
+
+	static {
+		List<String> loreRaw = TransportPipes.instance.getConfig().getStringList("settingsinv.viewDistanceLores");
+		for (String s : loreRaw) {
+			lore.add(ChatColor.translateAlternateColorCodes('&', s));
+		}
+	}
 
 	public static void updateSettingsInventory(Inventory inv, Player viewer) {
 		if (inv == null) {
@@ -37,7 +43,7 @@ public class SettingsInv implements Listener, CommandExecutor {
 		ItemStack increaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
 		SettingsUtils.changeDisplayNameAndLore(increaseBtn, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.increase")));
 		ItemStack eye = new ItemStack(Material.EYE_OF_ENDER, SettingsManager.getViewDistance(viewer), (short) 0);
-		SettingsUtils.changeDisplayNameAndLoreConfig(eye, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.viewDistanceName")) + SettingsManager.getViewDistance(viewer),  lore);
+		SettingsUtils.changeDisplayNameAndLoreConfig(eye, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.viewDistanceName")) + SettingsManager.getViewDistance(viewer), lore);
 
 		inv.setItem(0, glassPane);
 		inv.setItem(1, glassPane);
