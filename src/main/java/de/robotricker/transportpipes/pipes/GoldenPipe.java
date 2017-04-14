@@ -31,6 +31,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
 	private ItemData[][] outputItems = new ItemData[6][8];
+	private boolean ignoreNBT = false;
 
 	public GoldenPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
@@ -79,7 +80,13 @@ public class GoldenPipe extends Pipe implements Clickable {
 				continue;
 			}
 			for (int i = 0; i < 8; i++) {
-				if (itemData.equals(outputItems[line][i])) {
+				if(ignoreNBT) {
+					ItemStack item = itemData.toItemStack();
+					ItemStack sample = outputItems[line][i].toItemStack();
+					if(sample.getType().equals(item.getType()) && sample.getData().getData() == item.getData().getData()) {
+						possibleDirections.add(dir);
+					}
+				} else if (itemData.equals(outputItems[line][i])) {
 					possibleDirections.add(dir);
 				}
 			}
@@ -177,6 +184,14 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	public ItemData[] getOutputItems(PipeDirection pd) {
 		return outputItems[pd.getId()];
+	}
+
+	public boolean isIgnoreNBT() {
+		return ignoreNBT;
+	}
+
+	public void setIgnoreNBT(boolean ignoreNBT) {
+		this.ignoreNBT = ignoreNBT;
 	}
 
 	public void changeOutputItems(PipeDirection pd, List<ItemData> items) {
