@@ -238,5 +238,9 @@ public class TransportPipes extends JavaPlugin {
 	public static long blockLocToLong(Location blockLoc) {
 		return (((long) (blockLoc.getBlockX() + 30000)) << 34) | ((long) (blockLoc.getBlockY()) << 26) | ((long) (blockLoc.getBlockZ() + 30000));
 	}
+	
+	public static String getFormattedConfigString(String key) {
+		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
+	}
 
 }

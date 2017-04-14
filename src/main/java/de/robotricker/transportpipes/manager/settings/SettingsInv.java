@@ -33,17 +33,17 @@ public class SettingsInv implements Listener, CommandExecutor {
 
 	public static void updateSettingsInventory(Inventory inv, Player viewer) {
 		if (inv == null) {
-			inv = Bukkit.createInventory(null, 9, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.nameinv")));
+			inv = Bukkit.createInventory(null, 9, TransportPipes.getFormattedConfigString("settingsinv.nameinv"));
 			viewer.openInventory(inv);
 		}
 
 		ItemStack glassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7);
 		ItemStack decreaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(decreaseBtn, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.decrease")));
+		SettingsUtils.changeDisplayNameAndLore(decreaseBtn, TransportPipes.getFormattedConfigString("settingsinv.decrease"));
 		ItemStack increaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
-		SettingsUtils.changeDisplayNameAndLore(increaseBtn, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.increase")));
+		SettingsUtils.changeDisplayNameAndLore(increaseBtn, TransportPipes.getFormattedConfigString("settingsinv.increase"));
 		ItemStack eye = new ItemStack(Material.EYE_OF_ENDER, SettingsManager.getViewDistance(viewer), (short) 0);
-		SettingsUtils.changeDisplayNameAndLoreConfig(eye, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.viewDistanceName")) + SettingsManager.getViewDistance(viewer), lore);
+		SettingsUtils.changeDisplayNameAndLoreConfig(eye, TransportPipes.getFormattedConfigString("settingsinv.viewDistanceName") + SettingsManager.getViewDistance(viewer), lore);
 
 		inv.setItem(0, glassPane);
 		inv.setItem(1, glassPane);
@@ -61,7 +61,7 @@ public class SettingsInv implements Listener, CommandExecutor {
 
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("settingsinv.nameinv")))) {
+		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(TransportPipes.getFormattedConfigString("settingsinv.nameinv"))) {
 			Player p = (Player) e.getWhoClicked();
 			e.setCancelled(true);
 			if (e.getAction() == InventoryAction.PICKUP_ALL || e.getAction() == InventoryAction.PICKUP_HALF) {

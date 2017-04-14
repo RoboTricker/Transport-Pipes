@@ -30,7 +30,7 @@ public class GoldenPipeInv implements Listener {
 		if (pipe_invs.containsKey(pipe)) {
 			inv = pipe_invs.get(pipe);
 		} else {
-			inv = Bukkit.createInventory(null, 6 * 9, ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString("goldpipeinv.nameinv")));
+			inv = Bukkit.createInventory(null, 6 * 9, TransportPipes.getFormattedConfigString("goldpipeinv.nameinv"));
 			pipe_invs.put(pipe, inv);
 		}
 
@@ -39,20 +39,20 @@ public class GoldenPipeInv implements Listener {
 
 		Material material;
 		String filteringMode;
-		if(pipe.isIgnoreNBT()) {
+		if (pipe.isIgnoreNBT()) {
 			material = Material.WOOL;
-			filteringMode = "Current mode: " + ChatColor.RED + "IGNORE NBT";
+			filteringMode = TransportPipes.getFormattedConfigString("goldpipeinv.filtering.ignoreNbt");
 		} else {
 			material = Material.STAINED_GLASS;
-			filteringMode = "Current mode: " + ChatColor.GREEN + "CHECK NBT";
+			filteringMode = TransportPipes.getFormattedConfigString("goldpipeinv.filtering.checkNbt");
 		}
 
-		inv.setItem(0, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 0), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.white")), filteringMode, "Click to change filtering mode."));
-		inv.setItem(9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 4), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.yellow")), filteringMode, "Click to change filtering mode."));
-		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 5), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.green")), filteringMode, "Click to change filtering mode."));
-		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 11), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.blue")), filteringMode, "Click to change filtering mode."));
-		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 14), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.red")), filteringMode, "Click to change filtering mode."));
-		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 15), ChatColor.translateAlternateColorCodes('&',  TransportPipes.instance.getConfig().getString("goldpipeinv.colors.black")), filteringMode, "Click to change filtering mode."));
+		inv.setItem(0, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 0), TransportPipes.getFormattedConfigString("goldpipeinv.colors.white"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
+		inv.setItem(9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 4), TransportPipes.getFormattedConfigString("goldpipeinv.colors.yellow"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
+		inv.setItem(2 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 5), TransportPipes.getFormattedConfigString("goldpipeinv.colors.green"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
+		inv.setItem(3 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 11), TransportPipes.getFormattedConfigString("goldpipeinv.colors.blue"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
+		inv.setItem(4 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 14), TransportPipes.getFormattedConfigString("goldpipeinv.colors.red"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
+		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 15), TransportPipes.getFormattedConfigString("goldpipeinv.colors.black"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
 
 		for (int line = 0; line < 6; line++) {
 			if (!pipe.isPipeNeighborBlock(PipeDirection.values()[line]) && !pipeConnections.contains(PipeDirection.values()[line])) {
@@ -94,7 +94,6 @@ public class GoldenPipeInv implements Listener {
 					}
 					pipe.setIgnoreNBT(!pipe.isIgnoreNBT());
 					// Update inv
-					e.getWhoClicked().closeInventory();
 					openGoldenPipeInv((Player) e.getWhoClicked(), pipe);
 				}
 				e.setCancelled(true);
@@ -114,8 +113,7 @@ public class GoldenPipeInv implements Listener {
 				}
 			}
 			//cache new items in golden pipe
-			linefor:
-			for (int line = 0; line < 6; line++) {
+			linefor: for (int line = 0; line < 6; line++) {
 				List<ItemData> items = new ArrayList<>();
 				for (int i = 1; i < 9; i++) {
 					ItemStack is = e.getInventory().getItem(line * 9 + i);

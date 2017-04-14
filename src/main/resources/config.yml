@@ -13,6 +13,10 @@ goldpipeinv:
     blue: '&9Blue'
     red: '&cRed'
     black: '&0Black'
+  filtering:
+    ignoreNbt: '&7Current Mode: &cIGNORE NBT'
+    checkNbt: '&7Current Mode: &aCHECK NBT'
+    clickToChange: '&7Click to change filtering mode.'
 settingsinv:
   nameinv: '&rPlayer Settings'
   decrease: '&6Decrease'

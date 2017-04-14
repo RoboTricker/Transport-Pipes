@@ -3,13 +3,9 @@ package de.robotricker.transportpipes.pipeitems;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jnbt.ByteTag;
 import org.jnbt.CompoundTag;
-import org.jnbt.IntTag;
 import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
@@ -48,8 +44,7 @@ public class ItemData {
 			String rawItem = ((StringTag) map.get("Item")).getValue();
 			item = stringBlobToItem(rawItem);
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Unable to load pipe! (Maybe outdated NBT format?)");
+			System.err.println("Unable to load pipe! (Maybe outdated NBT format?)");
 		}
 		return new ItemData(item);
 	}

@@ -80,11 +80,13 @@ public class GoldenPipe extends Pipe implements Clickable {
 				continue;
 			}
 			for (int i = 0; i < 8; i++) {
-				if(ignoreNBT) {
+				if (ignoreNBT) {
 					ItemStack item = itemData.toItemStack();
-					ItemStack sample = outputItems[line][i].toItemStack();
-					if(sample.getType().equals(item.getType()) && sample.getData().getData() == item.getData().getData()) {
-						possibleDirections.add(dir);
+					if (outputItems[line][i] != null) {
+						ItemStack sample = outputItems[line][i].toItemStack();
+						if (sample.getType().equals(item.getType()) && sample.getData().getData() == item.getData().getData()) {
+							possibleDirections.add(dir);
+						}
 					}
 				} else if (itemData.equals(outputItems[line][i])) {
 					possibleDirections.add(dir);
