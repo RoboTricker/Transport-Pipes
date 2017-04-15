@@ -63,7 +63,6 @@ public class SavingManager implements Listener {
 				try {
 					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
 					if (!datFile.exists()) {
-						datFile.mkdirs();
 						datFile.createNewFile();
 					}
 					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
@@ -115,10 +114,10 @@ public class SavingManager implements Listener {
 			}
 			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile));
 
-			CompoundTag compound = (CompoundTag) in.readTag();
+            CompoundTag compound = (CompoundTag) in.readTag();
 
-			//String pluginVersion = ((StringTag) compound.getValue().get("PluginVersion")).getValue();
-			//long lastSave = ((LongTag) compound.getValue().get("LastSave")).getValue();
+			String pluginVersion = ((StringTag) compound.getValue().get("PluginVersion")).getValue();
+			long lastSave = ((LongTag) compound.getValue().get("LastSave")).getValue();
 			List<Tag> pipeList = ((ListTag) compound.getValue().get("Pipes")).getValue();
 
 			for (Tag tag : pipeList) {
