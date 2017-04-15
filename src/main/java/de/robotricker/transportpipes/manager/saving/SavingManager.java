@@ -63,7 +63,7 @@ public class SavingManager implements Listener {
 				try {
 					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
 					if (!datFile.exists()) {
-						datFile.mkdirs();
+						//datFile.mkdirs();
 						datFile.createNewFile();
 					}
 					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
@@ -110,9 +110,11 @@ public class SavingManager implements Listener {
 			int pipesCount = 0;
 
 			File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
+			
 			if (!datFile.exists()) {
 				return;
 			}
+			
 			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile));
 
 			CompoundTag compound = (CompoundTag) in.readTag();
