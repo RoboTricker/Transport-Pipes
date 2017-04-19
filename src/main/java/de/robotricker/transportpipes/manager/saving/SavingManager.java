@@ -62,10 +62,20 @@ public class SavingManager implements Listener {
 			for (World world : worlds.keySet()) {
 				try {
 					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
-					if (!datFile.exists()) {
-						//datFile.mkdirs();
+
+					if (datFile.exists()) {
+
+						// Security for delete old fail on saving system.
+						if (datFile.isDirectory()) {
+							datFile.delete();
+						}
+						// Security end
+
+					} else {
+
 						datFile.createNewFile();
 					}
+					
 					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
 
 					HashMap<String, Tag> tags = new HashMap<>();
