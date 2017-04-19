@@ -64,15 +64,13 @@ public class SavingManager implements Listener {
 					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
 
 					if (datFile.exists()) {
-
 						// Security for delete old fail on saving system.
 						if (datFile.isDirectory()) {
 							datFile.delete();
+							datFile.createNewFile();
 						}
 						// Security end
-
 					} else {
-
 						datFile.createNewFile();
 					}
 					
