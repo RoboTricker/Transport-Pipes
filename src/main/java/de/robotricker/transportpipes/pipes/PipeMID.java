@@ -26,7 +26,9 @@ public class PipeMID extends Pipe {
 		super(blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
 			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_GLASS, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		//@formatter:on
+		lastDir = -1;
 	}
+	private int lastDir;
 
 	@Override
 	public PipeDirection itemArrivedAtMiddle(PipeItem item, PipeDirection before, List<PipeDirection> dirs) {
@@ -38,7 +40,11 @@ public class PipeMID extends Pipe {
 			clonedList.remove(opposite);
 		}
 		if (!clonedList.isEmpty()) {
-			return clonedList.get(new Random().nextInt(clonedList.size()));
+			lastDir++;
+			if(lastDir>=clonedList.size()) {
+				lastDir=0;
+			}
+			return clonedList.get(lastDir);
 		}
 
 		return before;
