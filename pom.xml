@@ -6,7 +6,7 @@
 
     <groupId>de.robotricker</groupId>
     <artifactId>transportpipes</artifactId>
-    <version>3.6.2</version>
+    <version>3.7.0</version>
     <packaging>jar</packaging>
 
     <name>TransportPipes</name>
