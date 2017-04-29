@@ -55,7 +55,7 @@ public class PipePacketManager implements Listener {
 	private void putAndSpawnPipe(final Player p, final Pipe pipe) {
 		List<Pipe> list;
 		if (!pipesForPlayers.containsKey(p)) {
-			pipesForPlayers.put(p, new ArrayList<>());
+			pipesForPlayers.put(p, new ArrayList<Pipe>());
 		}
 		list = pipesForPlayers.get(p);
 		if (!list.contains(pipe)) {
@@ -67,7 +67,7 @@ public class PipePacketManager implements Listener {
 	private void putAndSpawnItem(final Player p, final PipeItem item) {
 		List<PipeItem> list;
 		if (!itemsForPlayers.containsKey(p)) {
-			itemsForPlayers.put(p, new ArrayList<>());
+			itemsForPlayers.put(p, new ArrayList<PipeItem>());
 		}
 		list = itemsForPlayers.get(p);
 		if (!list.contains(item)) {

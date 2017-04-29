@@ -1,21 +1,27 @@
 package de.robotricker.transportpipes.protocol;
 
-import com.comphenix.packetwrapper.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+
+import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityMetadata;
+import com.comphenix.packetwrapper.WrapperPlayServerRelEntityMove;
+import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher.Registry;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher.Serializer;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObject;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class ArmorStandProtocol {
 
@@ -122,7 +128,7 @@ public class ArmorStandProtocol {
 			metaWrapper.sendPacket(p);
 
 			//ENTITYEQUIPMENT
-			WrapperPlayServerEntityEquipment equipmentWrapper = new WrapperPlayServerEntityEquipment();
+			final WrapperPlayServerEntityEquipment equipmentWrapper = new WrapperPlayServerEntityEquipment();
 			equipmentWrapper.setEntityID(asd.getEntityID());
 
 			//HAND ITEM
@@ -138,7 +144,7 @@ public class ArmorStandProtocol {
 			}
 
 			//ENTITYMETADATA 2 (fire)
-			WrapperPlayServerEntityMetadata meta2Wrapper = new WrapperPlayServerEntityMetadata();
+			final WrapperPlayServerEntityMetadata meta2Wrapper = new WrapperPlayServerEntityMetadata();
 			meta2Wrapper.setEntityID(asd.getEntityID());
 
 			List<WrappedWatchableObject> meta2List = new ArrayList<>();
