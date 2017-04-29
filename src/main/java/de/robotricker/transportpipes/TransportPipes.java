@@ -73,15 +73,15 @@ public class TransportPipes extends JavaPlugin {
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
 
-	    getConfig().options().copyDefaults(true);
-	    saveConfig();
-	    
-	    PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
+		getConfig().options().copyDefaults(true);
+		saveConfig();
+
+		PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
 		PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.pipe"));
 		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.golden_pipe"));
 		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.iron_pipe"));
 		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.wrench"));
-	     
+
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
@@ -108,10 +108,8 @@ public class TransportPipes extends JavaPlugin {
 					colour = ChatColor.GREEN;
 				}
 
-				cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-						"&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
-				cs.sendMessage(ChatColor.GOLD + "TPS: " + colour + tps + " " + ChatColor.GOLD +"/ "
-						+ ChatColor.DARK_GREEN + PipeThread.WANTED_TPS);
+				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
+				cs.sendMessage(ChatColor.GOLD + "TPS: " + colour + tps + " " + ChatColor.GOLD + "/ " + ChatColor.DARK_GREEN + PipeThread.WANTED_TPS);
 				cs.sendMessage(ChatColor.GOLD + "Tick: " + colour + (PipeThread.timeTick / 10000) / 100f);
 				for (World world : Bukkit.getWorlds()) {
 					int worldPipes = 0;
@@ -129,8 +127,7 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.GOLD + "   Items: " + ChatColor.YELLOW + worldItems);
 					}
 				}
-				cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-						"&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
+				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
 				return false;
 			}
 		});
@@ -232,13 +229,18 @@ public class TransportPipes extends JavaPlugin {
 		if (Bukkit.getPluginManager().isPluginEnabled("ASkyBlock") && canBuild) {
 			canBuild = com.wasteofplastic.askyblock.ASkyBlockAPI.getInstance().locationIsOnIsland(p, b.getLocation());
 		}
+		if (Bukkit.getPluginManager().isPluginEnabled("PlotSquared") && canBuild) {
+			com.intellectualcrafters.plot.api.PlotAPI plotApi = new com.intellectualcrafters.plot.api.PlotAPI();
+			com.intellectualcrafters.plot.object.Plot plot = plotApi.getPlot(b.getLocation());
+			canBuild = plot != null && plotApi.getPlayerPlots(b.getWorld(), p).contains(plot);
+		}
 		return canBuild || p.isOp();
 	}
 
 	public static long blockLocToLong(Location blockLoc) {
 		return (((long) (blockLoc.getBlockX() + 30000)) << 34) | ((long) (blockLoc.getBlockY()) << 26) | ((long) (blockLoc.getBlockZ() + 30000));
 	}
-	
+
 	public static String getFormattedConfigString(String key) {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
