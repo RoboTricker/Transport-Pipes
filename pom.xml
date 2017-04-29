@@ -142,5 +142,20 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/PlotSquared-3.5.1-SNAPSHOT.jar</systemPath>
 		</dependency>
+		<!-- Factions -->
+		<dependency>
+			<groupId>com.massivecraft</groupId>
+			<artifactId>Factions</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/Factions.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.massivecraft</groupId>
+			<artifactId>MassiveCore</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/MassiveCore.jar</systemPath>
+		</dependency>
 	</dependencies>
 </project>

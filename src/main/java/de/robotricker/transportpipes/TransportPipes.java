@@ -234,6 +234,11 @@ public class TransportPipes extends JavaPlugin {
 			com.intellectualcrafters.plot.object.Plot plot = plotApi.getPlot(b.getLocation());
 			canBuild = plot != null && plotApi.getPlayerPlots(b.getWorld(), p).contains(plot);
 		}
+		if(Bukkit.getPluginManager().isPluginEnabled("Factions") && canBuild){
+			com.massivecraft.factions.entity.MPlayer mp = com.massivecraft.factions.entity.MPlayer.get(p);
+			com.massivecraft.factions.entity.Faction faction = com.massivecraft.factions.entity.BoardColl.get().getFactionAt(com.massivecraft.massivecore.ps.PS.valueOf(b));
+			canBuild = faction.getMPlayers().contains(mp);
+		}
 		return canBuild || p.isOp();
 	}
 
