@@ -18,6 +18,7 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.manager.settings.SettingsManager;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
@@ -135,7 +136,7 @@ public class PipePacketManager implements Listener {
 	public void tickSync() {
 
 		for (World world : Bukkit.getWorlds()) {
-			Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+			Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 			if (pipeMap != null) {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {

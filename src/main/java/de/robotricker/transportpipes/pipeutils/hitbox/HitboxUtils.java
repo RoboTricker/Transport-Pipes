@@ -21,6 +21,7 @@ import org.bukkit.material.Lever;
 import org.bukkit.material.TrapDoor;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.GoldenPipe;
 import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
@@ -143,9 +144,9 @@ public class HitboxUtils {
 		}
 		//check if there is already a pipe at this position
 		
-		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(b.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(b.getWorld());
 		if(pipeMap != null){
-			if(pipeMap.containsKey(TransportPipes.blockLocToLong(b.getLocation()))){
+			if(pipeMap.containsKey(TransportPipes.convertBlockLoc(b.getLocation()))){
 				return false;
 			}
 		}

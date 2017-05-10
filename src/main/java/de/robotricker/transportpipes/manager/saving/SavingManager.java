@@ -25,6 +25,7 @@ import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
@@ -43,12 +44,12 @@ public class SavingManager implements Listener {
 				worlds.put(world, pipeList);
 
 				//put pipes in Tag Lists
-				Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 				if (pipeMap != null) {
 					synchronized (pipeMap) {
 						for (Pipe pipe : pipeMap.values()) {
 							//save individual pipe
-							HashMap<String, Tag> tags = new HashMap<>();
+							HashMap<String, Tag> tags = new HashMap<String, Tag>();
 							pipe.saveToNBTTag(tags);
 							pipeList.add(tags);
 							pipesCount++;

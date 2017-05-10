@@ -3,6 +3,7 @@ package de.robotricker.transportpipes;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
@@ -60,7 +61,7 @@ public class TransportPipes extends JavaPlugin {
 	public static ItemStack WRENCH_ITEM;
 
 	//x << 34 | y << 26 | z
-	public static Map<World, Map<Long, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<Long, Pipe>>());
+	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
 
 	public static ArmorStandProtocol armorStandProtocol;
 	public static TransportPipes instance;
@@ -100,11 +101,11 @@ public class TransportPipes extends JavaPlugin {
 				ChatColor colour = ChatColor.DARK_GREEN;
 				if (tps <= 1) {
 					colour = ChatColor.DARK_RED;
-				} else if (tps <= 4) {
+				} else if (tps <= 3) {
 					colour = ChatColor.RED;
-				} else if (tps <= 5) {
+				} else if (tps <= 4) {
 					colour = ChatColor.GOLD;
-				} else if (tps <= 6) {
+				} else if (tps <= 5) {
 					colour = ChatColor.GREEN;
 				}
 
@@ -114,7 +115,7 @@ public class TransportPipes extends JavaPlugin {
 				for (World world : Bukkit.getWorlds()) {
 					int worldPipes = 0;
 					int worldItems = 0;
-					Map<Long, Pipe> pipeMap = getPipeMap(world);
+					Map<BlockLoc, Pipe> pipeMap = getPipeMap(world);
 					if (pipeMap != null) {
 						cs.sendMessage(ChatColor.YELLOW + world.getName() + ":");
 						synchronized (pipeMap) {
@@ -205,7 +206,7 @@ public class TransportPipes extends JavaPlugin {
 		SavingManager.savePipesSync();
 	}
 
-	public static Map<Long, Pipe> getPipeMap(World world) {
+	public static Map<BlockLoc, Pipe> getPipeMap(World world) {
 		if (ppipes.containsKey(world)) {
 			return ppipes.get(world);
 		}
@@ -213,12 +214,12 @@ public class TransportPipes extends JavaPlugin {
 	}
 
 	public static void putPipe(Pipe pipe) {
-		Map<Long, Pipe> pipeMap = getPipeMap(pipe.blockLoc.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = getPipeMap(pipe.blockLoc.getWorld());
 		if (pipeMap == null) {
-			pipeMap = Collections.synchronizedMap(new TreeMap<Long, Pipe>());
+			pipeMap = Collections.synchronizedMap(new TreeMap<BlockLoc, Pipe>());
 			ppipes.put(pipe.blockLoc.getWorld(), pipeMap);
 		}
-		pipeMap.put(blockLocToLong(pipe.blockLoc), pipe);
+		pipeMap.put(convertBlockLoc(pipe.blockLoc), pipe);
 	}
 
 	public static boolean canBuild(Player p, Block b) {
@@ -244,12 +245,66 @@ public class TransportPipes extends JavaPlugin {
 		return canBuild || p.isOp();
 	}
 
-	public static long blockLocToLong(Location blockLoc) {
-		return (((long) (blockLoc.getBlockX() + 30000)) << 34) | ((long) (blockLoc.getBlockY()) << 26) | ((long) (blockLoc.getBlockZ() + 30000));
+	public static BlockLoc convertBlockLoc(Location blockLoc) {
+		return new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
 	}
 
 	public static String getFormattedConfigString(String key) {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
+	}
+
+	public static class BlockLoc implements Comparable<BlockLoc> {
+
+		private int x;
+		private int y;
+		private int z;
+
+		public BlockLoc(int x, int y, int z) {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this) {
+				return true;
+			}
+			if (!(obj instanceof BlockLoc)) {
+				return false;
+			}
+			BlockLoc bl = (BlockLoc) obj;
+			return bl.x == x && bl.y == y && bl.z == z;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(x, y, z);
+		}
+
+		@Override
+		public int compareTo(BlockLoc o) {
+			if (z < o.z) {
+				return -1;
+			} else if (z > o.z) {
+				return 1;
+			} else {
+				if (y < o.y) {
+					return -1;
+				} else if (y > o.y) {
+					return 1;
+				} else {
+					if (x < o.x) {
+						return -1;
+					} else if (x > o.x) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}
+		}
+
 	}
 
 }

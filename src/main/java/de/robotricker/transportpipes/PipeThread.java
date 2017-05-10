@@ -10,6 +10,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -116,7 +117,7 @@ public class PipeThread extends Thread {
 
 				//update pipes
 				for (World world : Bukkit.getWorlds()) {
-					Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+					Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
 					if (pipeMap != null) {
 						synchronized (pipeMap) {
 							for (Pipe pipe : pipeMap.values()) {

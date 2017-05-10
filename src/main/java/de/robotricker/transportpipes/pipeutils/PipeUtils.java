@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeEW;
@@ -30,9 +31,9 @@ public class PipeUtils {
 	public static boolean buildPipe(final Location blockLoc, Class<? extends Pipe> pipeClass) {
 
 		//check if there is already a pipe at this position
-		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
-			if (pipeMap.containsKey(TransportPipes.blockLocToLong(blockLoc))) {
+			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
 				//there already exists a pipe at this location
 				return false;
 			}
@@ -85,10 +86,10 @@ public class PipeUtils {
 			@Override
 			public void run() {
 
-				Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 				if (pipeMap != null) {
 					for (PipeDirection dir : PipeDirection.values()) {
-						long blockLocLong = TransportPipes.blockLocToLong(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
+						BlockLoc blockLocLong = TransportPipes.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 						if (pipeMap.containsKey(blockLocLong)) {
 							pipeMap.get(blockLocLong).updatePipeShape();
 						}
@@ -111,11 +112,11 @@ public class PipeUtils {
 			@Override
 			public void run() {
 
-				Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
 				if (pipeMap != null) {
 					//only remove the pipe if it is in the pipe list!
-					if (pipeMap.containsKey(TransportPipes.blockLocToLong(pipeToDestroy.blockLoc))) {
-						pipeMap.remove(TransportPipes.blockLocToLong(pipeToDestroy.blockLoc));
+					if (pipeMap.containsKey(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc))) {
+						pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
 
 						TransportPipes.pipePacketManager.destroyPipeSync(pipeToDestroy);
 
@@ -136,7 +137,7 @@ public class PipeUtils {
 
 						//update neighbor pipes
 						for (PipeDirection dir : PipeDirection.values()) {
-							long blockLocLong = TransportPipes.blockLocToLong(pipeToDestroy.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
+							BlockLoc blockLocLong = TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 							if (pipeMap.containsKey(blockLocLong)) {
 								pipeMap.get(blockLocLong).updatePipeShape();
 							}
@@ -158,11 +159,11 @@ public class PipeUtils {
 
 		List<PipeDirection> dirs = new ArrayList<>();
 
-		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(pipeLoc.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeLoc.getWorld());
 		if (pipeMap != null) {
 			for (PipeDirection dir : PipeDirection.values()) {
 				Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-				if (pipeMap.containsKey(TransportPipes.blockLocToLong(blockLoc))) {
+				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
 					dirs.add(dir);
 				}
 			}
@@ -229,15 +230,15 @@ public class PipeUtils {
 	 */
 	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
 
-		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(toUpdate.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(toUpdate.getWorld());
 
 		if (pipeMap != null) {
 			for (PipeDirection pd : PipeDirection.values()) {
 				PipeDirection opposite = pd.getOpposite();
 				Location blockLoc = toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
-				if (pipeMap.containsKey(TransportPipes.blockLocToLong(blockLoc))) {
-					final Pipe pipe = pipeMap.get(TransportPipes.blockLocToLong(blockLoc));
+				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
+					final Pipe pipe = pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
 					if (add) {
 						//add pipe neighbor block
 						if (!pipe.pipeNeighborBlocks.contains(opposite)) {
@@ -290,10 +291,10 @@ public class PipeUtils {
 
 	public static Pipe getPipeWithLocation(Location blockLoc) {
 
-		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
-			if (pipeMap.containsKey(TransportPipes.blockLocToLong(blockLoc))) {
-				return pipeMap.get(TransportPipes.blockLocToLong(blockLoc));
+			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
+				return pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
 			}
 		}
 		return null;

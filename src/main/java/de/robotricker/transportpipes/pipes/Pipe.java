@@ -21,6 +21,7 @@ import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -189,9 +190,9 @@ public abstract class Pipe {
 
 				if (itemHandling == ItemHandling.NOTHING) {
 
-					Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(newBlockLoc.getWorld());
+					Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(newBlockLoc.getWorld());
 					if (pipeMap != null) {
-						long newBlockLocLong = TransportPipes.blockLocToLong(newBlockLoc);
+						BlockLoc newBlockLocLong = TransportPipes.convertBlockLoc(newBlockLoc);
 						if (pipeMap.containsKey(newBlockLocLong)) {
 							Pipe pipe = pipeMap.get(newBlockLocLong);
 							//put item in next pipe
@@ -263,7 +264,7 @@ public abstract class Pipe {
 
 		List<PipeDirection> dirs = new ArrayList<>();
 
-		Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
 
 			for (final PipeDirection dir : PipeDirection.values()) {
@@ -271,7 +272,7 @@ public abstract class Pipe {
 				final Location blockLoc = this.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
 				boolean dirAvailable = false;
 
-				if (pipeMap.containsKey(TransportPipes.blockLocToLong(blockLoc))) {
+				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
 					dirAvailable = true;
 				}
 
@@ -345,8 +346,8 @@ public abstract class Pipe {
 			try {
 				pipe = newPipeClass.getConstructor(Location.class, List.class).newInstance(blockLoc, this.pipeNeighborBlocks);
 
-				Map<Long, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
-				pipeMap.put(TransportPipes.blockLocToLong(pipe.blockLoc), pipe);
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
+				pipeMap.put(TransportPipes.convertBlockLoc(pipe.blockLoc), pipe);
 
 				TransportPipes.pipePacketManager.destroyPipeSync(this);
 				TransportPipes.pipePacketManager.spawnPipeSync(pipe);
