@@ -27,6 +27,7 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class SavingManager implements Listener {
@@ -139,7 +140,7 @@ public class SavingManager implements Listener {
 				Location pipeLoc = PipeUtils.StringToLoc(((StringTag) pipeTag.getValue().get("PipeLocation")).getValue());
 
 				if (pipeLoc != null) {
-					Pipe pipe = (Pipe) Class.forName(className).getConstructor(Location.class, List.class).newInstance(pipeLoc, PipeUtils.getPipeNeighborBlocksSync(pipeLoc));
+					Pipe pipe = PipeUtils.createPipeObject((Class<? extends Pipe>) Class.forName(className), pipeLoc, PipeUtils.getPipeNeighborBlocksSync(pipeLoc), PipeColor.WHITE);
 					pipe.loadFromNBTTag(pipeTag);
 
 					//load and spawn pipe

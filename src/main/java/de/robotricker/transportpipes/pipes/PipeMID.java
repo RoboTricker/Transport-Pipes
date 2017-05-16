@@ -3,7 +3,6 @@ package de.robotricker.transportpipes.pipes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,6 +12,7 @@ import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
@@ -20,11 +20,11 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class PipeMID extends Pipe {
 
-	public PipeMID(Location blockLoc, List<PipeDirection> pipeNeighborBlocks) {
+	public PipeMID(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
-		super(blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
-			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_GLASS, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
+			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		//@formatter:on
 		lastDir = -1;
 	}
@@ -67,7 +67,7 @@ public class PipeMID extends Pipe {
 
 				@Override
 				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.PIPE_ITEM);
+					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getPipeItem(pipeColor));
 				}
 			});
 		}

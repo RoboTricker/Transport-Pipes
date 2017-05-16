@@ -143,23 +143,23 @@ public class HitboxUtils {
 			return false;
 		}
 		//check if there is already a pipe at this position
-		
+
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(b.getWorld());
-		if(pipeMap != null){
-			if(pipeMap.containsKey(TransportPipes.convertBlockLoc(b.getLocation()))){
+		if (pipeMap != null) {
+			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(b.getLocation()))) {
 				return false;
 			}
 		}
-		
+
 		if (!(b.getType() == Material.AIR || b.isLiquid())) {
 			return false;
 		}
 		b.setTypeIdAndData(id, data, true);
-		
+
 		if (PipeUtils.isIdInventoryHolder(id)) {
 			PipeUtils.updatePipeNeighborBlockSync(b, true);
 		}
-		
+
 		return true;
 	}
 
@@ -213,14 +213,14 @@ public class HitboxUtils {
 		if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
 			String displayName = item.getItemMeta().getDisplayName();
 			if (displayName != null) {
-				if (displayName.equals(TransportPipes.instance.PIPE_NAME)) {
-					return Pipe.class;
-				}
 				if (displayName.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
 					return GoldenPipe.class;
 				}
 				if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
 					return IronPipe.class;
+				}
+				if (displayName.contains(TransportPipes.instance.PIPE_NAME) && displayName.startsWith("§")) {
+					return Pipe.class;
 				}
 			}
 		}

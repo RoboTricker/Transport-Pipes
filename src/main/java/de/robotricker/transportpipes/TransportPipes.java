@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,6 +27,7 @@ import de.robotricker.transportpipes.manager.saving.SavingManager;
 import de.robotricker.transportpipes.manager.settings.GoldenPipeInv;
 import de.robotricker.transportpipes.manager.settings.SettingsInv;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -52,13 +54,13 @@ public class TransportPipes extends JavaPlugin {
 	public String PREFIX_CONSOLE;
 
 	public String PIPE_NAME;
-	public static ItemStack PIPE_ITEM;
+	private static ItemStack PIPE_ITEM;
 	public String GOLDEN_PIPE_NAME;
-	public static ItemStack GOLDEN_PIPE_ITEM;
+	private static ItemStack GOLDEN_PIPE_ITEM;
 	public String IRON_PIPE_NAME;
-	public static ItemStack IRON_PIPE_ITEM;
+	private static ItemStack IRON_PIPE_ITEM;
 	public String WRENCH_NAME;
-	public static ItemStack WRENCH_ITEM;
+	private static ItemStack WRENCH_ITEM;
 
 	//x << 34 | y << 26 | z
 	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
@@ -77,11 +79,26 @@ public class TransportPipes extends JavaPlugin {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
+		//version fix
+		if (getConfig().getString("pipename.pipe").startsWith("&f")) {
+			getConfig().set("pipename.pipe", getConfig().getString("pipename.pipe").substring(2));
+		}
+		if (getConfig().getString("pipename.golden_pipe").startsWith("&6")) {
+			getConfig().set("pipename.golden_pipe", getConfig().getString("pipename.golden_pipe").substring(2));
+		}
+		if (getConfig().getString("pipename.iron_pipe").startsWith("&7")) {
+			getConfig().set("pipename.iron_pipe", getConfig().getString("pipename.iron_pipe").substring(2));
+		}
+		if (getConfig().getString("pipename.wrench").startsWith("&c")) {
+			getConfig().set("pipename.wrench", getConfig().getString("pipename.wrench").substring(2));
+		}
+		saveConfig();
+
 		PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
 		PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.pipe"));
-		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.golden_pipe"));
-		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.iron_pipe"));
-		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.wrench"));
+		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&6" + getConfig().getString("pipename.golden_pipe"));
+		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&7" + getConfig().getString("pipename.iron_pipe"));
+		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
 
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
@@ -145,7 +162,7 @@ public class TransportPipes extends JavaPlugin {
 
 		PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
 		ItemMeta meta = PIPE_ITEM.getItemMeta();
-		meta.setDisplayName(PIPE_NAME);
+		meta.setDisplayName(PipeColor.WHITE.getColorCode() + PIPE_NAME);
 		PIPE_ITEM.setItemMeta(meta);
 		GOLDEN_PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
 		meta = GOLDEN_PIPE_ITEM.getItemMeta();
@@ -192,6 +209,13 @@ public class TransportPipes extends JavaPlugin {
 		recipe.setIngredient('A', new MaterialData(Material.REDSTONE, (byte) 0));
 		recipe.setIngredient('B', new MaterialData(Material.STICK, (byte) 0));
 		Bukkit.addRecipe(recipe);
+
+		for (PipeColor pipeColor : PipeColor.values()) {
+			ShapelessRecipe recipeShapeless = new ShapelessRecipe(getPipeItem(pipeColor));
+			recipeShapeless.addIngredient(Material.BLAZE_ROD);
+			recipeShapeless.addIngredient(pipeColor.getDyeItem().getData());
+			Bukkit.addRecipe(recipeShapeless);
+		}
 
 	}
 
@@ -251,6 +275,27 @@ public class TransportPipes extends JavaPlugin {
 
 	public static String getFormattedConfigString(String key) {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
+	}
+
+	public ItemStack getPipeItem(PipeColor pipeColor) {
+		ItemStack result = PIPE_ITEM.clone();
+		result.setAmount(1);
+		ItemMeta itemMeta = result.getItemMeta();
+		itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
+		result.setItemMeta(itemMeta);
+		return result;
+	}
+
+	public ItemStack getGoldenPipeItem() {
+		return GOLDEN_PIPE_ITEM;
+	}
+
+	public ItemStack getIronPipeItem() {
+		return IRON_PIPE_ITEM;
+	}
+
+	public ItemStack getWrenchItem() {
+		return WRENCH_ITEM;
 	}
 
 	public static class BlockLoc implements Comparable<BlockLoc> {

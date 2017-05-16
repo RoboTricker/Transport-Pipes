@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class HitboxListener implements Listener {
@@ -60,7 +61,7 @@ public class HitboxListener implements Listener {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					//cancel block placement if the player clicked at the pipe with a wrench
-					if (!clickedItem.isSimilar(TransportPipes.WRENCH_ITEM)) {
+					if (!clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (HitboxUtils.placeBlock(p, placeBlock, clickedItem.getTypeId(), clickedItem.getData().getData())) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
@@ -88,7 +89,7 @@ public class HitboxListener implements Listener {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					if (TransportPipes.canBuild(p, placeBlock)) {
-						if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe)) {
+						if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
 						}
@@ -103,7 +104,7 @@ public class HitboxListener implements Listener {
 					}
 					if (canPlace) {
 						if (TransportPipes.canBuild(p, placeBlock)) {
-							if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe)) {
+							if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
 								return;
@@ -116,7 +117,7 @@ public class HitboxListener implements Listener {
 			if (pipeBlock != null) {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof Clickable) {
-					if (clickedItem.isSimilar(TransportPipes.WRENCH_ITEM)) {
+					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock())) {
 							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);

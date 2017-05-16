@@ -21,14 +21,14 @@ import de.robotricker.transportpipes.pipes.PipeUD;
 
 public class PipeUtils {
 
-	public static boolean buildPipe(final Location blockLoc) {
-		return buildPipe(blockLoc, Pipe.class);
+	public static boolean buildPipe(Location blockLoc, PipeColor pipeColor) {
+		return buildPipe(blockLoc, Pipe.class, pipeColor);
 	}
 
 	/**
 	 * invoke this if you want to build a new pipe at this location. If there is a pipe already, it will do nothing. Otherwise it will place the pipe and send the packets to the players near. don't call this if you only want to update the pipe! returns whether the pipe could be placed
 	 */
-	public static boolean buildPipe(final Location blockLoc, Class<? extends Pipe> pipeClass) {
+	public static boolean buildPipe(final Location blockLoc, Class<? extends Pipe> pipeClass, PipeColor pipeColor) {
 
 		//check if there is already a pipe at this position
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
@@ -68,7 +68,7 @@ public class PipeUtils {
 		if (newPipeClass != null) {
 			Pipe pipe;
 			try {
-				pipe = newPipeClass.getConstructor(Location.class, List.class).newInstance(blockLoc, pipeNeighborBlocks);
+				pipe = createPipeObject(newPipeClass, blockLoc, pipeNeighborBlocks, pipeColor);
 				TransportPipes.putPipe(pipe);
 
 				final Pipe finalPipe = pipe;
@@ -296,6 +296,15 @@ public class PipeUtils {
 			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
 				return pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
 			}
+		}
+		return null;
+	}
+
+	public static Pipe createPipeObject(Class<? extends Pipe> pipeClass, Location loc, List list, PipeColor pipeColor) {
+		try {
+			return pipeClass.getConstructor(Location.class, List.class, PipeColor.class).newInstance(loc, list, pipeColor);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

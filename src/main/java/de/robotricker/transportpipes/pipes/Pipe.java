@@ -24,6 +24,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
@@ -38,10 +39,8 @@ public abstract class Pipe {
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Float.toString(ITEM_SPEED).split("\\.")[1].length()));
 
 	protected static final ItemStack ITEM_BLAZE = new ItemStack(Material.BLAZE_ROD);
-	protected static final ItemStack ITEM_GLASS = new ItemStack(Material.GLASS);
 	protected static final ItemStack ITEM_GOLD_BLOCK = new ItemStack(Material.GOLD_BLOCK);
 	protected static final ItemStack ITEM_IRON_BLOCK = new ItemStack(Material.IRON_BLOCK);
-	//protected static final ItemStack ITEM_ARROW = new ItemStack(Material.ARROW);
 	protected static final ItemStack ITEM_CARPET_WHITE = new ItemStack(Material.CARPET, 1, (short) 0);
 	protected static final ItemStack ITEM_CARPET_YELLOW = new ItemStack(Material.CARPET, 1, (short) 4);
 	protected static final ItemStack ITEM_CARPET_GREEN = new ItemStack(Material.CARPET, 1, (short) 5);
@@ -51,7 +50,7 @@ public abstract class Pipe {
 
 	private List<ArmorStandData> armorStandList;
 
-	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<>();
+	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<PipeItem, PipeDirection>();
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
 	//jedes iteraten durch diese Map MUSS mit synchronized(tempPipeItems){} sein!
@@ -69,15 +68,19 @@ public abstract class Pipe {
 
 	//the Hitbox for this pipe
 	private AxisAlignedBB aabb;
+	
+	//the color of the pipe (different colored pipes don't connect to each other)
+	protected PipeColor pipeColor;
 
-	public Pipe(Location blockLoc, AxisAlignedBB aabb) {
-		armorStandList = new ArrayList<>();
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb) {
+		this.pipeColor = pipeColor;
 		this.blockLoc = blockLoc;
 		this.aabb = aabb;
+		armorStandList = new ArrayList<ArmorStandData>();
 	}
 
-	public Pipe(Location blockLoc, AxisAlignedBB aabb, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
-		this(blockLoc, aabb);
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
+		this(pipeColor, blockLoc, aabb);
 		Collections.addAll(armorStandList, list);
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection pd : pipeNeighborBlocks) {
@@ -344,7 +347,7 @@ public abstract class Pipe {
 		if (newPipeClass != null && !newPipeClass.equals(this.getClass())) {
 			Pipe pipe = null;
 			try {
-				pipe = newPipeClass.getConstructor(Location.class, List.class).newInstance(blockLoc, this.pipeNeighborBlocks);
+				pipe = PipeUtils.createPipeObject(newPipeClass, blockLoc, this.pipeNeighborBlocks, pipeColor);
 
 				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 				pipeMap.put(TransportPipes.convertBlockLoc(pipe.blockLoc), pipe);
@@ -367,13 +370,13 @@ public abstract class Pipe {
 	}
 
 	/**
-	 * You don't have to really destroy/remove the pipe or drop the items inside of the pipe.<br>
+	 * You don't have to really destroy/remove the pipe or drop the items inside of the pipe while implementing this method.<br>
 	 * But you have to drop the pipe itself that it can be used again
 	 */
-	public abstract void destroy(boolean dropItem);
+	public abstract void destroy(boolean dropPipeItem);
 
 	/**
-	 * Determines wether the item should drop, be put in another pipe or be put in an Inventory when it reaches the end of a pipe
+	 * Determines wether the item should drop, be put in another pipe or be put in an inventory when it reaches the end of a pipe
 	 */
 	private enum ItemHandling {
 		NOTHING(),
