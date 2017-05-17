@@ -13,6 +13,8 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipes.GoldenPipe;
+import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeEW;
 import de.robotricker.transportpipes.pipes.PipeMID;
@@ -45,7 +47,7 @@ public class PipeUtils {
 		}
 
 		//calculate all neighbor blocks and pipes
-		final List<PipeDirection> pipeConnections = getPipeConnections(blockLoc);
+		final List<PipeDirection> pipeConnections = getPipeConnections(blockLoc, pipeColor, pipeClass == null || pipeClass == Pipe.class);
 		//ONLY SYNC!!!
 		final List<PipeDirection> pipeNeighborBlocks = getPipeNeighborBlocksSync(blockLoc);
 
@@ -154,17 +156,31 @@ public class PipeUtils {
 
 	/**
 	 * gets all pipe connection directions (not block connections)
+	 * 
+	 * @param normalPipe
+	 *            determines if the pipe at pipeLoc (for which the neighbor pipe check is done) is a normal pipe or a special pipe (golden, iron pipe)
 	 */
-	public static List<PipeDirection> getPipeConnections(final Location pipeLoc) {
+	public static List<PipeDirection> getPipeConnections(Location pipeLoc, PipeColor pipeColor, boolean normalPipe) {
 
 		List<PipeDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeLoc.getWorld());
+
+		if (pipeColor == null) {
+			BlockLoc pipeLocBlockLoc = TransportPipes.convertBlockLoc(pipeLoc);
+			pipeColor = pipeMap.containsKey(pipeLocBlockLoc) ? pipeMap.get(pipeLocBlockLoc).getPipeColor() : null;
+		}
 		if (pipeMap != null) {
 			for (PipeDirection dir : PipeDirection.values()) {
 				Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-					dirs.add(dir);
+				BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
+				if (pipeMap.containsKey(bl)) {
+					Pipe connectedPipe = pipeMap.get(bl);
+					if (connectedPipe instanceof GoldenPipe || connectedPipe instanceof IronPipe || !normalPipe) {
+						dirs.add(dir);
+					} else if (pipeColor == null || connectedPipe.getPipeColor().equals(pipeColor)) {
+						dirs.add(dir);
+					}
 				}
 			}
 		}
@@ -290,11 +306,11 @@ public class PipeUtils {
 	}
 
 	public static Pipe getPipeWithLocation(Location blockLoc) {
-
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
-			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-				return pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
+			BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
+			if (pipeMap.containsKey(bl)) {
+				return pipeMap.get(bl);
 			}
 		}
 		return null;

@@ -28,6 +28,7 @@ public class PipeMID extends Pipe {
 		//@formatter:on
 		lastDir = -1;
 	}
+
 	private int lastDir;
 
 	@Override
@@ -41,8 +42,8 @@ public class PipeMID extends Pipe {
 		}
 		if (!clonedList.isEmpty()) {
 			lastDir++;
-			if(lastDir>=clonedList.size()) {
-				lastDir=0;
+			if (lastDir >= clonedList.size()) {
+				lastDir = 0;
 			}
 			return clonedList.get(lastDir);
 		}

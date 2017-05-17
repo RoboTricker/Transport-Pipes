@@ -61,7 +61,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before) {
 		//all directions in which is an other pipe or inventory-block
-		List<PipeDirection> connectionDirections = PipeUtils.getPipeConnections(blockLoc);
+		List<PipeDirection> connectionDirections = PipeUtils.getPipeConnections(blockLoc, pipeColor, false);
 
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection dir : pipeNeighborBlocks) {
