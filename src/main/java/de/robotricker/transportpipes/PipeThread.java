@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class PipeThread extends Thread {
 	private final static int VIEW_DISTANCE_TICK_DIFF = 3;
 
 	//jedes iteraten durch diese Map MUSS mit synchronized(tickList){} sein!
-	private static final Map<Runnable, Integer> tickList = Collections.synchronizedMap(new HashMap<Runnable, Integer>());
+	private static final Map<Runnable, Integer> tickList = Collections.synchronizedMap(new LinkedHashMap<Runnable, Integer>());
 
 	private static int calculatedTps = 0;
 	private static boolean running = false;
@@ -112,7 +113,7 @@ public class PipeThread extends Thread {
 
 				long timeBefore = System.nanoTime();
 
-				//in this list are the items stored which are already processed in this tick (that no item is processed 2 times in 1 tick)
+				//in this list are the items stored which are already processed in this tick (in order to not process 1 item 2 times in 1 tick)
 				List<PipeItem> roundItems = new ArrayList<>();
 
 				//update pipes

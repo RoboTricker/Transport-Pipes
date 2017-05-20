@@ -109,34 +109,34 @@ public class PipeUtils {
 	 * invoke this if you want to destroy a pipe. This will remove the pipe from the pipe list and destroys it for all players
 	 */
 	public static void destroyPipe(final Pipe pipeToDestroy, final boolean dropItem) {
-		PipeThread.runTask(new Runnable() {
 
-			@Override
-			public void run() {
+		final Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
+		if (pipeMap != null) {
+			//only remove the pipe if it is in the pipe list!
+			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc))) {
+				pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
 
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
-				if (pipeMap != null) {
-					//only remove the pipe if it is in the pipe list!
-					if (pipeMap.containsKey(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc))) {
-						pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
+				TransportPipes.pipePacketManager.destroyPipeSync(pipeToDestroy);
 
-						TransportPipes.pipePacketManager.destroyPipeSync(pipeToDestroy);
+				//drop all items in old pipe
+				for (final PipeItem item : pipeToDestroy.pipeItems.keySet()) {
+					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
-						//drop all items in old pipe
-						for (final PipeItem item : pipeToDestroy.pipeItems.keySet()) {
-							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-								@Override
-								public void run() {
-									pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
-								}
-							});
-							//destroy item for players
-							TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+						@Override
+						public void run() {
+							pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
 						}
-						//and clear old pipe items map
-						pipeToDestroy.pipeItems.clear();
+					});
+					//destroy item for players
+					TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+				}
+				//and clear old pipe items map
+				pipeToDestroy.pipeItems.clear();
 
+				PipeThread.runTask(new Runnable() {
+
+					@Override
+					public void run() {
 						//update neighbor pipes
 						for (PipeDirection dir : PipeDirection.values()) {
 							BlockLoc blockLocLong = TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
@@ -144,14 +144,14 @@ public class PipeUtils {
 								pipeMap.get(blockLocLong).updatePipeShape();
 							}
 						}
-
-						pipeToDestroy.destroy(dropItem);
-
 					}
-				}
+				}, 0);
+
+				pipeToDestroy.destroy(dropItem);
 
 			}
-		}, 0);
+		}
+
 	}
 
 	/**

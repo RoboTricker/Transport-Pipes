@@ -47,11 +47,22 @@ public class HitboxListener implements Listener {
 		} else {
 			return;
 		}
-
+		
 		Class<? extends Pipe> placeablePipe = HitboxUtils.getPipeWithPipePlaceableItem(clickedItem);
 
-		//right click on pipe or a block (its irrelevant if you are looking on a block below the pipe or not)
-		if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
+		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
+			//****************************** LEFT CLICKED ON PIPE *******************************************
+			if (pipeBlock != null) {
+				e.setCancelled(true);
+				if (TransportPipes.canBuild(p, pipeBlock)) {
+					PipeUtils.destroyPipe(PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
+				}
+			}
+
+			//right click on pipe or a block (its irrelevant if you are looking on a block below the pipe or not)
+		} else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 
@@ -126,16 +137,6 @@ public class HitboxListener implements Listener {
 				}
 			}
 
-			//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
-		} else if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
-			//****************************** LEFT CLICKED ON PIPE *******************************************
-			if (pipeBlock != null) {
-				e.setCancelled(true);
-				if (TransportPipes.canBuild(p, pipeBlock)) {
-					PipeUtils.destroyPipe(PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
-				}
-			}
 		}
 
 	}

@@ -389,6 +389,7 @@ public abstract class Pipe {
 	public void saveToNBTTag(HashMap<String, Tag> tags) {
 		tags.put("PipeClassName", new StringTag("PipeClassName", getClass().getName()));
 		tags.put("PipeLocation", new StringTag("PipeLocation", PipeUtils.LocToString(blockLoc)));
+		tags.put("PipeColor", new StringTag("PipeColor", pipeColor.name()));
 		List<Tag> itemList = new ArrayList<>();
 
 		for (PipeItem pipeItem : pipeItems.keySet()) {
