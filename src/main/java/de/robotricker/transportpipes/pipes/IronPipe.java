@@ -18,6 +18,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
 import de.robotricker.transportpipes.pipes.interfaces.Editable;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
@@ -28,10 +29,10 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 	private HashMap<PipeDirection, ArmorStandData> outputASDs = new HashMap<>();
 	private PipeDirection currentOutputDir;
 
-	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks) {
+	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
-		super(blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
+		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
 				new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_IRON_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
 				new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
 				new ArmorStandData(new RelLoc(0.5f - 0.26f, -0.255f, 0.5f), new Vector(-1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
@@ -114,7 +115,7 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 
 				@Override
 				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.IRON_PIPE_ITEM);
+					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getIronPipeItem());
 				}
 			});
 		}

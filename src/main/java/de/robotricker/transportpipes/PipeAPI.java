@@ -10,6 +10,7 @@ import org.bukkit.World;
 
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 /**
@@ -24,8 +25,8 @@ public class PipeAPI {
 	/**
 	 * builds a pipe on the given location
 	 */
-	public static void buildPipe(Location blockLoc) {
-		PipeUtils.buildPipe(blockLoc);
+	public static void buildPipe(Location blockLoc, PipeColor pipeColor) {
+		PipeUtils.buildPipe(blockLoc, pipeColor);
 	}
 
 	/**

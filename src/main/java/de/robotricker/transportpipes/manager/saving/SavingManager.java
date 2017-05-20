@@ -27,6 +27,7 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class SavingManager implements Listener {
@@ -74,7 +75,7 @@ public class SavingManager implements Listener {
 					} else {
 						datFile.createNewFile();
 					}
-					
+
 					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
 
 					HashMap<String, Tag> tags = new HashMap<>();
@@ -93,7 +94,7 @@ public class SavingManager implements Listener {
 					out.writeTag(compound);
 					out.close();
 				} catch (FileNotFoundException e) {
-					
+
 				}
 			}
 
@@ -119,11 +120,11 @@ public class SavingManager implements Listener {
 			int pipesCount = 0;
 
 			File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
-			
+
 			if (!datFile.exists()) {
 				return;
 			}
-			
+
 			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile));
 
 			CompoundTag compound = (CompoundTag) in.readTag();
@@ -137,9 +138,10 @@ public class SavingManager implements Listener {
 
 				String className = ((StringTag) pipeTag.getValue().get("PipeClassName")).getValue();
 				Location pipeLoc = PipeUtils.StringToLoc(((StringTag) pipeTag.getValue().get("PipeLocation")).getValue());
+				String pipeColorString = ((StringTag) pipeTag.getValue().getOrDefault("PipeColor", new StringTag("PipeColor", PipeColor.WHITE.name()))).getValue();
 
 				if (pipeLoc != null) {
-					Pipe pipe = (Pipe) Class.forName(className).getConstructor(Location.class, List.class).newInstance(pipeLoc, PipeUtils.getPipeNeighborBlocksSync(pipeLoc));
+					Pipe pipe = PipeUtils.createPipeObject((Class<? extends Pipe>) Class.forName(className), pipeLoc, PipeUtils.getPipeNeighborBlocksSync(pipeLoc), PipeColor.valueOf(pipeColorString));
 					pipe.loadFromNBTTag(pipeTag);
 
 					//load and spawn pipe

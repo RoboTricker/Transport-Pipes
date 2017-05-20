@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class HitboxListener implements Listener {
@@ -46,11 +47,22 @@ public class HitboxListener implements Listener {
 		} else {
 			return;
 		}
-
+		
 		Class<? extends Pipe> placeablePipe = HitboxUtils.getPipeWithPipePlaceableItem(clickedItem);
 
-		//right click on pipe or a block (its irrelevant if you are looking on a block below the pipe or not)
-		if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
+		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
+			//****************************** LEFT CLICKED ON PIPE *******************************************
+			if (pipeBlock != null) {
+				e.setCancelled(true);
+				if (TransportPipes.canBuild(p, pipeBlock)) {
+					PipeUtils.destroyPipe(PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
+				}
+			}
+
+			//right click on pipe or a block (its irrelevant if you are looking on a block below the pipe or not)
+		} else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 
@@ -60,7 +72,7 @@ public class HitboxListener implements Listener {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					//cancel block placement if the player clicked at the pipe with a wrench
-					if (!clickedItem.isSimilar(TransportPipes.WRENCH_ITEM)) {
+					if (!clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (HitboxUtils.placeBlock(p, placeBlock, clickedItem.getTypeId(), clickedItem.getData().getData())) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
@@ -88,7 +100,7 @@ public class HitboxListener implements Listener {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					if (TransportPipes.canBuild(p, placeBlock)) {
-						if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe)) {
+						if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
 						}
@@ -103,7 +115,7 @@ public class HitboxListener implements Listener {
 					}
 					if (canPlace) {
 						if (TransportPipes.canBuild(p, placeBlock)) {
-							if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe)) {
+							if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
 								return;
@@ -116,7 +128,7 @@ public class HitboxListener implements Listener {
 			if (pipeBlock != null) {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof Clickable) {
-					if (clickedItem.isSimilar(TransportPipes.WRENCH_ITEM)) {
+					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock())) {
 							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
@@ -125,16 +137,6 @@ public class HitboxListener implements Listener {
 				}
 			}
 
-			//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
-		} else if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
-			//****************************** LEFT CLICKED ON PIPE *******************************************
-			if (pipeBlock != null) {
-				e.setCancelled(true);
-				if (TransportPipes.canBuild(p, pipeBlock)) {
-					PipeUtils.destroyPipe(PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
-				}
-			}
 		}
 
 	}

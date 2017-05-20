@@ -35,7 +35,7 @@ public class GoldenPipeInv implements Listener {
 		}
 
 		ItemStack glass_pane = SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), String.valueOf(ChatColor.RESET));
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(pipe.blockLoc);
+		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(pipe.blockLoc, pipe.getPipeColor(), false);
 
 		Material material;
 		String filteringMode;

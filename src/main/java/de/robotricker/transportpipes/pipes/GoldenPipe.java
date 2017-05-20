@@ -21,6 +21,7 @@ import de.robotricker.transportpipes.manager.settings.GoldenPipeInv;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
@@ -33,10 +34,10 @@ public class GoldenPipe extends Pipe implements Clickable {
 	private ItemData[][] outputItems = new ItemData[6][8];
 	private boolean ignoreNBT = false;
 
-	public GoldenPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks) {
+	public GoldenPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
-		super(blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
+		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
 				new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_GOLD_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
 				new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
 				new ArmorStandData(new RelLoc(0.5f - 0.26f, -0.255f, 0.5f), new Vector(-1, 0, 0), true, ITEM_CARPET_YELLOW, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
@@ -60,7 +61,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before) {
 		//all directions in which is an other pipe or inventory-block
-		List<PipeDirection> connectionDirections = PipeUtils.getPipeConnections(blockLoc);
+		List<PipeDirection> connectionDirections = PipeUtils.getPipeConnections(blockLoc, pipeColor, false);
 
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection dir : pipeNeighborBlocks) {
@@ -214,7 +215,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 				@Override
 				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.GOLDEN_PIPE_ITEM);
+					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getGoldenPipeItem());
 				}
 			});
 		}

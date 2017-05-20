@@ -13,6 +13,8 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipes.GoldenPipe;
+import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeEW;
 import de.robotricker.transportpipes.pipes.PipeMID;
@@ -21,14 +23,14 @@ import de.robotricker.transportpipes.pipes.PipeUD;
 
 public class PipeUtils {
 
-	public static boolean buildPipe(final Location blockLoc) {
-		return buildPipe(blockLoc, Pipe.class);
+	public static boolean buildPipe(Location blockLoc, PipeColor pipeColor) {
+		return buildPipe(blockLoc, Pipe.class, pipeColor);
 	}
 
 	/**
 	 * invoke this if you want to build a new pipe at this location. If there is a pipe already, it will do nothing. Otherwise it will place the pipe and send the packets to the players near. don't call this if you only want to update the pipe! returns whether the pipe could be placed
 	 */
-	public static boolean buildPipe(final Location blockLoc, Class<? extends Pipe> pipeClass) {
+	public static boolean buildPipe(final Location blockLoc, Class<? extends Pipe> pipeClass, PipeColor pipeColor) {
 
 		//check if there is already a pipe at this position
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
@@ -45,7 +47,7 @@ public class PipeUtils {
 		}
 
 		//calculate all neighbor blocks and pipes
-		final List<PipeDirection> pipeConnections = getPipeConnections(blockLoc);
+		final List<PipeDirection> pipeConnections = getPipeConnections(blockLoc, pipeColor, pipeClass == null || pipeClass == Pipe.class);
 		//ONLY SYNC!!!
 		final List<PipeDirection> pipeNeighborBlocks = getPipeNeighborBlocksSync(blockLoc);
 
@@ -68,7 +70,7 @@ public class PipeUtils {
 		if (newPipeClass != null) {
 			Pipe pipe;
 			try {
-				pipe = newPipeClass.getConstructor(Location.class, List.class).newInstance(blockLoc, pipeNeighborBlocks);
+				pipe = createPipeObject(newPipeClass, blockLoc, pipeNeighborBlocks, pipeColor);
 				TransportPipes.putPipe(pipe);
 
 				final Pipe finalPipe = pipe;
@@ -107,34 +109,48 @@ public class PipeUtils {
 	 * invoke this if you want to destroy a pipe. This will remove the pipe from the pipe list and destroys it for all players
 	 */
 	public static void destroyPipe(final Pipe pipeToDestroy, final boolean dropItem) {
-		PipeThread.runTask(new Runnable() {
 
-			@Override
-			public void run() {
+		final Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
+		if (pipeMap != null) {
+			//only remove the pipe if it is in the pipe list!
+			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc))) {
+				pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
 
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
-				if (pipeMap != null) {
-					//only remove the pipe if it is in the pipe list!
-					if (pipeMap.containsKey(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc))) {
-						pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
+				TransportPipes.pipePacketManager.destroyPipeSync(pipeToDestroy);
 
-						TransportPipes.pipePacketManager.destroyPipeSync(pipeToDestroy);
+				//drop all items in old pipe
+				List<PipeItem> itemsToDrop = new ArrayList<PipeItem>();
+				itemsToDrop.addAll(pipeToDestroy.pipeItems.keySet());
+				for (PipeItem item : pipeToDestroy.tempPipeItems.keySet()) {
+					if (!itemsToDrop.contains(item)) {
+						itemsToDrop.add(item);
+					}
+				}
+				for (PipeItem item : pipeToDestroy.tempPipeItemsWithSpawn.keySet()) {
+					if (!itemsToDrop.contains(item)) {
+						itemsToDrop.add(item);
+					}
+				}
+				for (final PipeItem item : itemsToDrop) {
+					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
-						//drop all items in old pipe
-						for (final PipeItem item : pipeToDestroy.pipeItems.keySet()) {
-							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-								@Override
-								public void run() {
-									pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
-								}
-							});
-							//destroy item for players
-							TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+						@Override
+						public void run() {
+							pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
 						}
-						//and clear old pipe items map
-						pipeToDestroy.pipeItems.clear();
+					});
+					//destroy item for players
+					TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+				}
+				//and clear old pipe items map
+				pipeToDestroy.pipeItems.clear();
+				pipeToDestroy.tempPipeItems.clear();
+				pipeToDestroy.tempPipeItemsWithSpawn.clear();
 
+				PipeThread.runTask(new Runnable() {
+
+					@Override
+					public void run() {
 						//update neighbor pipes
 						for (PipeDirection dir : PipeDirection.values()) {
 							BlockLoc blockLocLong = TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
@@ -142,29 +158,43 @@ public class PipeUtils {
 								pipeMap.get(blockLocLong).updatePipeShape();
 							}
 						}
-
-						pipeToDestroy.destroy(dropItem);
-
 					}
-				}
+				}, 0);
+
+				pipeToDestroy.destroy(dropItem);
 
 			}
-		}, 0);
+		}
+
 	}
 
 	/**
 	 * gets all pipe connection directions (not block connections)
+	 * 
+	 * @param normalPipe
+	 *            determines if the pipe at pipeLoc (for which the neighbor pipe check is done) is a normal pipe or a special pipe (golden, iron pipe)
 	 */
-	public static List<PipeDirection> getPipeConnections(final Location pipeLoc) {
+	public static List<PipeDirection> getPipeConnections(Location pipeLoc, PipeColor pipeColor, boolean normalPipe) {
 
 		List<PipeDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeLoc.getWorld());
+
+		if (pipeColor == null) {
+			BlockLoc pipeLocBlockLoc = TransportPipes.convertBlockLoc(pipeLoc);
+			pipeColor = pipeMap.containsKey(pipeLocBlockLoc) ? pipeMap.get(pipeLocBlockLoc).getPipeColor() : null;
+		}
 		if (pipeMap != null) {
 			for (PipeDirection dir : PipeDirection.values()) {
 				Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-					dirs.add(dir);
+				BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
+				if (pipeMap.containsKey(bl)) {
+					Pipe connectedPipe = pipeMap.get(bl);
+					if (connectedPipe instanceof GoldenPipe || connectedPipe instanceof IronPipe || !normalPipe) {
+						dirs.add(dir);
+					} else if (pipeColor == null || connectedPipe.getPipeColor().equals(pipeColor)) {
+						dirs.add(dir);
+					}
 				}
 			}
 		}
@@ -290,12 +320,21 @@ public class PipeUtils {
 	}
 
 	public static Pipe getPipeWithLocation(Location blockLoc) {
-
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
-			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-				return pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
+			BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
+			if (pipeMap.containsKey(bl)) {
+				return pipeMap.get(bl);
 			}
+		}
+		return null;
+	}
+
+	public static Pipe createPipeObject(Class<? extends Pipe> pipeClass, Location loc, List list, PipeColor pipeColor) {
+		try {
+			return pipeClass.getConstructor(Location.class, List.class, PipeColor.class).newInstance(loc, list, pipeColor);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
