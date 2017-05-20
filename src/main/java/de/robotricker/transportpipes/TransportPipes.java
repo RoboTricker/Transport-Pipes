@@ -17,16 +17,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.manager.saving.SavingManager;
 import de.robotricker.transportpipes.manager.settings.GoldenPipeInv;
 import de.robotricker.transportpipes.manager.settings.SettingsInv;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
@@ -54,13 +52,13 @@ public class TransportPipes extends JavaPlugin {
 	public String PREFIX_CONSOLE;
 
 	public String PIPE_NAME;
-	private static ItemStack PIPE_ITEM;
+	public static ItemStack PIPE_ITEM;
 	public String GOLDEN_PIPE_NAME;
-	private static ItemStack GOLDEN_PIPE_ITEM;
+	public static ItemStack GOLDEN_PIPE_ITEM;
 	public String IRON_PIPE_NAME;
-	private static ItemStack IRON_PIPE_ITEM;
+	public static ItemStack IRON_PIPE_ITEM;
 	public String WRENCH_NAME;
-	private static ItemStack WRENCH_ITEM;
+	public static ItemStack WRENCH_ITEM;
 
 	//x << 34 | y << 26 | z
 	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
@@ -150,6 +148,7 @@ public class TransportPipes extends JavaPlugin {
 			}
 		});
 		Bukkit.getPluginManager().registerEvents(settingsInv, this);
+		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new SavingManager(), this);
 		Bukkit.getPluginManager().registerEvents(new PipeNeighborBlockListener(), this);
@@ -177,45 +176,7 @@ public class TransportPipes extends JavaPlugin {
 		meta.setDisplayName(WRENCH_NAME);
 		WRENCH_ITEM.setItemMeta(meta);
 
-		//Recipes
-		ItemStack result = PIPE_ITEM.clone();
-		result.setAmount(2);
-		ShapedRecipe recipe = new ShapedRecipe(result);
-		recipe.shape("AAA", "BBB", "AAA");
-		recipe.setIngredient('A', new MaterialData(Material.STICK, (byte) 0));
-		recipe.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
-		Bukkit.addRecipe(recipe);
-
-		result = GOLDEN_PIPE_ITEM.clone();
-		result.setAmount(1);
-		recipe = new ShapedRecipe(result);
-		recipe.shape("XAX", "ABA", "XAX");
-		recipe.setIngredient('A', new MaterialData(Material.GOLD_INGOT, (byte) 0));
-		recipe.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
-		Bukkit.addRecipe(recipe);
-
-		result = IRON_PIPE_ITEM.clone();
-		result.setAmount(2);
-		recipe = new ShapedRecipe(result);
-		recipe.shape("XAX", "ABA", "XAX");
-		recipe.setIngredient('A', new MaterialData(Material.IRON_INGOT, (byte) 0));
-		recipe.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
-		Bukkit.addRecipe(recipe);
-
-		result = WRENCH_ITEM.clone();
-		result.setAmount(1);
-		recipe = new ShapedRecipe(result);
-		recipe.shape("XAX", "ABA", "XAX");
-		recipe.setIngredient('A', new MaterialData(Material.REDSTONE, (byte) 0));
-		recipe.setIngredient('B', new MaterialData(Material.STICK, (byte) 0));
-		Bukkit.addRecipe(recipe);
-
-		for (PipeColor pipeColor : PipeColor.values()) {
-			ShapelessRecipe recipeShapeless = new ShapelessRecipe(getPipeItem(pipeColor));
-			recipeShapeless.addIngredient(Material.BLAZE_ROD);
-			recipeShapeless.addIngredient(pipeColor.getDyeItem().getData());
-			Bukkit.addRecipe(recipeShapeless);
-		}
+		CraftUtils.initRecipes();
 
 	}
 

@@ -119,7 +119,19 @@ public class PipeUtils {
 				TransportPipes.pipePacketManager.destroyPipeSync(pipeToDestroy);
 
 				//drop all items in old pipe
-				for (final PipeItem item : pipeToDestroy.pipeItems.keySet()) {
+				List<PipeItem> itemsToDrop = new ArrayList<PipeItem>();
+				itemsToDrop.addAll(pipeToDestroy.pipeItems.keySet());
+				for (PipeItem item : pipeToDestroy.tempPipeItems.keySet()) {
+					if (!itemsToDrop.contains(item)) {
+						itemsToDrop.add(item);
+					}
+				}
+				for (PipeItem item : pipeToDestroy.tempPipeItemsWithSpawn.keySet()) {
+					if (!itemsToDrop.contains(item)) {
+						itemsToDrop.add(item);
+					}
+				}
+				for (final PipeItem item : itemsToDrop) {
 					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 						@Override
@@ -132,6 +144,8 @@ public class PipeUtils {
 				}
 				//and clear old pipe items map
 				pipeToDestroy.pipeItems.clear();
+				pipeToDestroy.tempPipeItems.clear();
+				pipeToDestroy.tempPipeItemsWithSpawn.clear();
 
 				PipeThread.runTask(new Runnable() {
 
