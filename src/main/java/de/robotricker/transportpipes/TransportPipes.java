@@ -231,6 +231,11 @@ public class TransportPipes extends JavaPlugin {
 				canBuild = faction.getMPlayers().contains(mp);
 			}
 		}
+		if (Bukkit.getPluginManager().isPluginEnabled("GriefPrevention") && canBuild) {
+			me.ryanhamshire.GriefPrevention.GriefPrevention gp = (me.ryanhamshire.GriefPrevention.GriefPrevention) Bukkit.getPluginManager().getPlugin("GriefPrevention");
+			String errorMsg = gp.allowBuild(p, b.getLocation());
+			canBuild = errorMsg == null || errorMsg.isEmpty();
+		}
 		return canBuild || p.isOp();
 	}
 
