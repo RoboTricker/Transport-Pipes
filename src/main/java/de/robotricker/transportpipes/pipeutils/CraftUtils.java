@@ -69,14 +69,17 @@ public class CraftUtils implements Listener {
 			}
 		} else if (isPipeItemStack(e.getInventory().getRecipe().getResult())) {
 			boolean realPipeItem = false;
+			boolean changeColorRecipe = false;
 			for (int i = 1; i < 10; i++) {
 				ItemStack is = e.getInventory().getItem(i);
+				if (is != null && is.getType() == Material.INK_SACK) {
+					changeColorRecipe = true;
+				}
 				if (isPipeItemStack(is)) {
 					realPipeItem = true;
-					break;
 				}
 			}
-			if (!realPipeItem) {
+			if (!realPipeItem && changeColorRecipe) {
 				e.getInventory().setResult(null);
 			}
 		}
