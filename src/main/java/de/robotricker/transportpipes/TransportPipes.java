@@ -209,8 +209,10 @@ public class TransportPipes extends JavaPlugin {
 
 	public static boolean canBuild(Player p, Block b) {
 		boolean canBuild = true;
+
 		if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
-			canBuild = com.sk89q.worldguard.bukkit.WorldGuardPlugin.inst().canBuild(p, b);
+			com.sk89q.worldguard.bukkit.WorldGuardPlugin wgp = (com.sk89q.worldguard.bukkit.WorldGuardPlugin) TransportPipes.instance.getServer().getPluginManager().getPlugin("WorldGuard");
+			canBuild = wgp.canBuild(p, b.getLocation());
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("ASkyBlock") && canBuild) {
 			canBuild = com.wasteofplastic.askyblock.ASkyBlockAPI.getInstance().locationIsOnIsland(p, b.getLocation());
@@ -218,7 +220,9 @@ public class TransportPipes extends JavaPlugin {
 		if (Bukkit.getPluginManager().isPluginEnabled("PlotSquared") && canBuild) {
 			com.intellectualcrafters.plot.api.PlotAPI plotApi = new com.intellectualcrafters.plot.api.PlotAPI();
 			com.intellectualcrafters.plot.object.Plot plot = plotApi.getPlot(b.getLocation());
-			canBuild = plot != null && plotApi.getPlayerPlots(b.getWorld(), p).contains(plot);
+			if (plot != null) {
+				canBuild = plotApi.getPlayerPlots(b.getWorld(), p).contains(plot);
+			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("Factions") && canBuild) {
 			com.massivecraft.factions.entity.MPlayer mp = com.massivecraft.factions.entity.MPlayer.get(p);
