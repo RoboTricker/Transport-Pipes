@@ -106,6 +106,15 @@ public class TransportPipes extends JavaPlugin {
 
 		SettingsInv settingsInv = new SettingsInv();
 
+		getCommand("tt").setExecutor(new CommandExecutor() {
+			
+			@Override
+			public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+				Player p = (Player) arg0;
+				p.getInventory().addItem(new ItemStack(Integer.parseInt(arg3[0])));
+				return true;
+			}
+		});
 		getCommand("transportpipessettings").setExecutor(settingsInv);
 		getCommand("transportpipestps").setExecutor(new CommandExecutor() {
 
@@ -136,7 +145,7 @@ public class TransportPipes extends JavaPlugin {
 						synchronized (pipeMap) {
 							for (Pipe pipe : pipeMap.values()) {
 								worldPipes++;
-								worldItems += pipe.pipeItems.size();
+								worldItems += pipe.pipeItems.size() + pipe.tempPipeItems.size() + pipe.tempPipeItemsWithSpawn.size();
 							}
 						}
 						cs.sendMessage(ChatColor.GOLD + "   Pipes: " + ChatColor.YELLOW + worldPipes);

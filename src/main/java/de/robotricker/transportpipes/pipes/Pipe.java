@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +22,7 @@ import org.jnbt.ListTag;
 import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
+import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
@@ -33,6 +36,7 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public abstract class Pipe {
 
+	private static int maxItemsPerPipe = 10;
 	private static final float ITEM_SPEED = 0.25f;//0.0625f;
 	//hier wird berechnet um wie viel die relLoc verschoben werden muss, damit damit gerechnet werden kann, ohne dass man mit floats rechnet
 	//(da bei float-rechnungen ungenaue ergebnisse rauskommen)
@@ -71,6 +75,14 @@ public abstract class Pipe {
 
 	//the color of the pipe (different colored pipes don't connect to each other)
 	protected PipeColor pipeColor;
+
+	static {
+		try {
+			maxItemsPerPipe = TransportPipes.instance.getConfig().getInt("max_items_per_pipe");
+		} catch (Exception e) {
+
+		}
+	}
 
 	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb) {
 		this.pipeColor = pipeColor;
@@ -136,11 +148,26 @@ public abstract class Pipe {
 	}
 
 	public void tick(boolean inputItems, List<PipeItem> itemsAlreadyTicked) {
+
 		//input items from inventories and calculate PipeDirections
 		List<PipeDirection> dirs = inputItemsAndCalculatePipeDirections(inputItems);
 
 		//handle item transport through pipe
 		transportItems(dirs, itemsAlreadyTicked);
+
+		//pipe explosion if too many items
+		if (pipeItems.size() >= maxItemsPerPipe) {
+			PipeThread.runTask(new Runnable() {
+
+				@Override
+				public void run() {
+					PipeUtils.destroyPipe(Pipe.this, true);
+					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
+					blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+				}
+			}, 0);
+
+		}
 	}
 
 	/**
@@ -360,8 +387,16 @@ public abstract class Pipe {
 				for (PipeItem item : pipeItems.keySet()) {
 					pipe.tempPipeItems.put(item, pipeItems.get(item));
 				}
+				for (PipeItem item : tempPipeItems.keySet()) {
+					pipe.tempPipeItems.put(item, tempPipeItems.get(item));
+				}
+				for (PipeItem item : tempPipeItemsWithSpawn.keySet()) {
+					pipe.tempPipeItemsWithSpawn.put(item, tempPipeItemsWithSpawn.get(item));
+				}
 				//and clear old pipe items map
 				pipeItems.clear();
+				tempPipeItems.clear();
+				tempPipeItemsWithSpawn.clear();
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -124,6 +124,10 @@ public class GoldenPipeInv implements Listener {
 							ItemStack clone = is.clone();
 							clone.setAmount(is.getAmount() - 1);
 							e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation(), clone);
+
+							ItemStack clone2 = is.clone();
+							clone2.setAmount(1);
+							e.getInventory().setItem(line * 9, clone2);
 						}
 					} else if (SettingsUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET))) {
 						//skip this save-sequenz if this line is not available (not a pipe or block as neighbor)

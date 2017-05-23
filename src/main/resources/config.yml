@@ -1,4 +1,5 @@
 prefix: '[TransportPipes] '
+max_items_per_pipe: 10
 pipename:
   pipe: 'Pipe'
   golden_pipe: 'Golden-Pipe'

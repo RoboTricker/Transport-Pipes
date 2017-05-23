@@ -9,3 +9,4 @@ commands:
     aliases: [tpsettings]
   transportpipestps:
     aliases: [tptps]
+  tt:
