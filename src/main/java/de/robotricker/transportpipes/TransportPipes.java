@@ -70,6 +70,7 @@ public class TransportPipes extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		System.out.println(Bukkit.getVersion());
 		instance = this;
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
@@ -106,15 +107,6 @@ public class TransportPipes extends JavaPlugin {
 
 		SettingsInv settingsInv = new SettingsInv();
 
-		getCommand("tt").setExecutor(new CommandExecutor() {
-			
-			@Override
-			public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
-				Player p = (Player) arg0;
-				p.getInventory().addItem(new ItemStack(Integer.parseInt(arg3[0])));
-				return true;
-			}
-		});
 		getCommand("transportpipessettings").setExecutor(settingsInv);
 		getCommand("transportpipestps").setExecutor(new CommandExecutor() {
 
@@ -134,6 +126,7 @@ public class TransportPipes extends JavaPlugin {
 				}
 
 				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
+				cs.sendMessage(ChatColor.GOLD + "TransportPipes " + ChatColor.YELLOW + "v." + ChatColor.GOLD + TransportPipes.this.getDescription().getVersion() + " by RoboTricker");
 				cs.sendMessage(ChatColor.GOLD + "TPS: " + colour + tps + " " + ChatColor.GOLD + "/ " + ChatColor.DARK_GREEN + PipeThread.WANTED_TPS);
 				cs.sendMessage(ChatColor.GOLD + "Tick: " + colour + (PipeThread.timeTick / 10000) / 100f);
 				for (World world : Bukkit.getWorlds()) {

@@ -121,4 +121,8 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 		}
 	}
 
+	public PipeDirection getCurrentOutputDir(){
+		return currentOutputDir;
+	}
+	
 }

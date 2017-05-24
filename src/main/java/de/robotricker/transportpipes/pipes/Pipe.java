@@ -310,36 +310,44 @@ public abstract class Pipe {
 
 			if (!dirAvailable) {
 				if (isPipeNeighborBlock(dir)) {
-					dirAvailable = true;
-
-					//input items
-					if (inputItems) {
-						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-							@Override
-							public void run() {
-								try {
-									if (Pipe.this.blockLoc.getBlock().isBlockIndirectlyPowered()) {
-										if (blockLoc.getBlock().getState() instanceof InventoryHolder) {
-											InventoryHolder invH = (InventoryHolder) blockLoc.getBlock().getState();
-
-											PipeDirection itemDir = dir.getOpposite();
-
-											ItemStack taken = InventoryUtils.takeItemFromInventoryHolder(invH, Pipe.this, itemDir);
-											if (taken != null) {
-												PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
-												tempPipeItemsWithSpawn.put(pi, itemDir);
-											}
-										}
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						});
-
+					if (this instanceof IronPipe) {
+						IronPipe ip = (IronPipe) this;
+						if (!ip.getCurrentOutputDir().equals(dir)) {
+							dirAvailable = true;
+						}
+					} else {
+						dirAvailable = true;
 					}
 
+					if (dirAvailable) {
+						//input items
+						if (inputItems) {
+							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+								@Override
+								public void run() {
+									try {
+										if (Pipe.this.blockLoc.getBlock().isBlockIndirectlyPowered()) {
+											if (blockLoc.getBlock().getState() instanceof InventoryHolder) {
+												InventoryHolder invH = (InventoryHolder) blockLoc.getBlock().getState();
+
+												PipeDirection itemDir = dir.getOpposite();
+
+												ItemStack taken = InventoryUtils.takeItemFromInventoryHolder(invH, Pipe.this, itemDir);
+												if (taken != null) {
+													PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
+													tempPipeItemsWithSpawn.put(pi, itemDir);
+												}
+											}
+										}
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							});
+						}
+
+					}
 				}
 			}
 

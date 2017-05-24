@@ -82,6 +82,9 @@ public class InventoryUtils {
 			} else {
 				overflow.add(item);
 			}
+		} else if (ih instanceof org.bukkit.block.ShulkerBox) {
+			org.bukkit.block.ShulkerBox sb = (org.bukkit.block.ShulkerBox) ih;
+			overflow.addAll(sb.getInventory().addItem(item).values());
 		}
 
 		return overflow;
@@ -187,6 +190,20 @@ public class InventoryUtils {
 			if (fi.getResult() != null) {
 				taken = createOneAmountItemStack(fi.getResult());
 				fi.setResult(decreaseAmountWithOne(fi.getResult()));
+			}
+		} else if (ih instanceof org.bukkit.block.ShulkerBox) {
+			org.bukkit.block.ShulkerBox i = (org.bukkit.block.ShulkerBox) ih;
+			for (int x = i.getInventory().getSize() - 1; x >= 0; x--) {
+				if (i.getInventory().getItem(x) != null) {
+					//only take item if this item wouldn't go back immediatly because of a golden-pipe (in this case this item is skipped)
+					ItemData id = new ItemData(i.getInventory().getItem(x));
+					List<PipeDirection> possibleDirections = gp != null ? gp.getPossibleDirectionsForItem(id, direction) : null;
+					if (gp == null || !(possibleDirections.size() == 1 && possibleDirections.get(0).equals(direction.getOpposite()))) {
+						taken = createOneAmountItemStack(i.getInventory().getItem(x));
+						i.getInventory().setItem(x, decreaseAmountWithOne(i.getInventory().getItem(x)));
+						break;
+					}
+				}
 			}
 		}
 		return taken;

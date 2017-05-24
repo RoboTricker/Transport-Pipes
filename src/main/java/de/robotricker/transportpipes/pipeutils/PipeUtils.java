@@ -304,7 +304,8 @@ public class PipeUtils {
 	 * checks if this blockID is an InventoryHolder
 	 */
 	public static boolean isIdInventoryHolder(int id) {
-		return id == 54 || id == 146 || id == 154 || id == 61 || id == 62 || id == 379 || id == 23 || id == 158 || id == 117;
+		boolean v1_9or1_10 = Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10");
+		return id == 54 || id == 146 || id == 154 || id == 61 || id == 62 || id == 379 || id == 23 || id == 158 || id == 117 || (!v1_9or1_10 && id >= 219 && id <= 234);
 	}
 
 	public static String LocToString(Location loc) {
