@@ -70,7 +70,6 @@ public class TransportPipes extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		System.out.println(Bukkit.getVersion());
 		instance = this;
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
@@ -227,12 +226,21 @@ public class TransportPipes extends JavaPlugin {
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("Factions") && canBuild) {
-			com.massivecraft.factions.entity.MPlayer mp = com.massivecraft.factions.entity.MPlayer.get(p);
-			com.massivecraft.factions.entity.Faction faction = com.massivecraft.factions.entity.BoardColl.get().getFactionAt(com.massivecraft.massivecore.ps.PS.valueOf(b));
-			if (faction != null) {
-				canBuild = faction.getMPlayers().contains(mp);
+			try {
+				com.massivecraft.factions.entity.MPlayer mp = com.massivecraft.factions.entity.MPlayer.get(p);
+				com.massivecraft.factions.entity.Faction faction = com.massivecraft.factions.entity.BoardColl.get().getFactionAt(com.massivecraft.massivecore.ps.PS.valueOf(b));
+				if (faction != null) {
+					canBuild = faction.getMPlayers().contains(mp);
+				}
+			} catch (NoClassDefFoundError e) {
+				com.massivecraft.factions.FPlayer fp = com.massivecraft.factions.FPlayers.getInstance().getByPlayer(p);
+				com.massivecraft.factions.Faction faction = com.massivecraft.factions.Board.getInstance().getFactionAt(new com.massivecraft.factions.FLocation(b));
+				if (faction != null && !faction.isWilderness()) {
+					canBuild = faction.getFPlayers().contains(fp);
+				}
 			}
 		}
+
 		if (Bukkit.getPluginManager().isPluginEnabled("GriefPrevention") && canBuild) {
 			me.ryanhamshire.GriefPrevention.GriefPrevention gp = (me.ryanhamshire.GriefPrevention.GriefPrevention) Bukkit.getPluginManager().getPlugin("GriefPrevention");
 			String errorMsg = gp.allowBuild(p, b.getLocation());

@@ -4,7 +4,7 @@
 
 	<groupId>de.robotricker</groupId>
 	<artifactId>transportpipes</artifactId>
-	<version>3.8.10</version>
+	<version>3.8.11</version>
 	<packaging>jar</packaging>
 
 	<name>TransportPipes</name>
@@ -153,6 +153,13 @@
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/Factions.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.massivecraft</groupId>
+			<artifactId>FactionsUUID</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/FactionsUUID.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.massivecraft</groupId>
