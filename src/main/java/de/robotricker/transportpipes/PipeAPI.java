@@ -16,7 +16,9 @@ import de.robotricker.transportpipes.pipeutils.PipeUtils;
 /**
  * 
  * This class is the interface between the TransportPipes plugin and other plugins.<br>
- * It allows you to build/destroy pipes programmatically and gather some extra information about the PipeThread etc.
+ * It allows you to build/destroy pipes programmatically and gather some extra information about the PipeThread etc.<br>
+ * There are also some new events called "PlayerPlacePipeEvent", "PlayerDestroyPipeEvent" and "PipeExplodeEvent (async!)" for which you can register your<br>
+ * listeners and cancel them if you want to.
  * 
  * @author RoboTricker
  */
@@ -26,7 +28,7 @@ public class PipeAPI {
 	 * builds a pipe on the given location
 	 */
 	public static void buildPipe(Location blockLoc, PipeColor pipeColor) {
-		PipeUtils.buildPipe(blockLoc, pipeColor);
+		PipeUtils.buildPipe(null, blockLoc, pipeColor);
 	}
 
 	/**
@@ -38,7 +40,7 @@ public class PipeAPI {
 	public static void destroyPipe(Location blockLoc, boolean dropItem) {
 		Pipe pipe = PipeUtils.getPipeWithLocation(blockLoc);
 		if (pipe != null) {
-			PipeUtils.destroyPipe(pipe, dropItem);
+			PipeUtils.destroyPipe(null, pipe, dropItem);
 		}
 	}
 

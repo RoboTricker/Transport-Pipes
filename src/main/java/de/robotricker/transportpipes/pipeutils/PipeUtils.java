@@ -8,10 +8,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
+import de.robotricker.transportpipes.events.PlayerDestroyPipeEvent;
+import de.robotricker.transportpipes.events.PlayerPlacePipeEvent;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.GoldenPipe;
 import de.robotricker.transportpipes.pipes.IronPipe;
@@ -23,14 +26,14 @@ import de.robotricker.transportpipes.pipes.PipeUD;
 
 public class PipeUtils {
 
-	public static boolean buildPipe(Location blockLoc, PipeColor pipeColor) {
-		return buildPipe(blockLoc, Pipe.class, pipeColor);
+	public static boolean buildPipe(Player player, Location blockLoc, PipeColor pipeColor) {
+		return buildPipe(player, blockLoc, Pipe.class, pipeColor);
 	}
 
 	/**
 	 * invoke this if you want to build a new pipe at this location. If there is a pipe already, it will do nothing. Otherwise it will place the pipe and send the packets to the players near. don't call this if you only want to update the pipe! returns whether the pipe could be placed
 	 */
-	public static boolean buildPipe(final Location blockLoc, Class<? extends Pipe> pipeClass, PipeColor pipeColor) {
+	public static boolean buildPipe(Player player, final Location blockLoc, Class<? extends Pipe> pipeClass, PipeColor pipeColor) {
 
 		//check if there is already a pipe at this position
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
@@ -71,11 +74,20 @@ public class PipeUtils {
 			Pipe pipe;
 			try {
 				pipe = createPipeObject(newPipeClass, blockLoc, pipeNeighborBlocks, pipeColor);
-				TransportPipes.putPipe(pipe);
 
-				final Pipe finalPipe = pipe;
-
-				TransportPipes.pipePacketManager.spawnPipeSync(finalPipe);
+				if (player != null) {
+					PlayerPlacePipeEvent ppe = new PlayerPlacePipeEvent(player, pipe);
+					Bukkit.getPluginManager().callEvent(ppe);
+					if (!ppe.isCancelled()) {
+						TransportPipes.putPipe(pipe);
+						TransportPipes.pipePacketManager.spawnPipeSync(pipe);
+					} else {
+						return false;
+					}
+				} else {
+					TransportPipes.putPipe(pipe);
+					TransportPipes.pipePacketManager.spawnPipeSync(pipe);
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -108,7 +120,15 @@ public class PipeUtils {
 	/**
 	 * invoke this if you want to destroy a pipe. This will remove the pipe from the pipe list and destroys it for all players
 	 */
-	public static void destroyPipe(final Pipe pipeToDestroy, final boolean dropItem) {
+	public static void destroyPipe(Player player, final Pipe pipeToDestroy, final boolean dropItem) {
+
+		if (player != null) {
+			PlayerDestroyPipeEvent pde = new PlayerDestroyPipeEvent(player, pipeToDestroy);
+			Bukkit.getPluginManager().callEvent(pde);
+			if (pde.isCancelled()) {
+				return;
+			}
+		}
 
 		final Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeToDestroy.blockLoc.getWorld());
 		if (pipeMap != null) {

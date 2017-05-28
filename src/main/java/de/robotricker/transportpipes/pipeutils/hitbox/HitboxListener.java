@@ -57,7 +57,7 @@ public class HitboxListener implements Listener {
 			if (pipeBlock != null) {
 				e.setCancelled(true);
 				if (TransportPipes.canBuild(p, pipeBlock)) {
-					PipeUtils.destroyPipe(PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
+					PipeUtils.destroyPipe(e.getPlayer(), PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
 				}
 			}
 
@@ -100,7 +100,7 @@ public class HitboxListener implements Listener {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					if (TransportPipes.canBuild(p, placeBlock)) {
-						if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
+						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
 						}
@@ -115,7 +115,7 @@ public class HitboxListener implements Listener {
 					}
 					if (canPlace) {
 						if (TransportPipes.canBuild(p, placeBlock)) {
-							if (PipeUtils.buildPipe(placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
+							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
 								return;

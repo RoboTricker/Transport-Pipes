@@ -25,6 +25,7 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
+import de.robotricker.transportpipes.events.PipeExplodeEvent;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
@@ -157,16 +158,19 @@ public abstract class Pipe {
 
 		//pipe explosion if too many items
 		if (pipeItems.size() >= maxItemsPerPipe) {
-			PipeThread.runTask(new Runnable() {
+			PipeExplodeEvent pee = new PipeExplodeEvent(this);
+			Bukkit.getPluginManager().callEvent(pee);
+			if (!pee.isCancelled()) {
+				PipeThread.runTask(new Runnable() {
 
-				@Override
-				public void run() {
-					PipeUtils.destroyPipe(Pipe.this, true);
-					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
-					blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
-				}
-			}, 0);
-
+					@Override
+					public void run() {
+						PipeUtils.destroyPipe(null, Pipe.this, true);
+						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
+						blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+					}
+				}, 0);
+			}
 		}
 	}
 

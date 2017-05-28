@@ -33,11 +33,26 @@ import de.robotricker.transportpipes.pipeutils.PipeUtils;
 public class SavingManager implements Listener {
 
 	private static List<World> loadedWorlds = new ArrayList<>();
+	private static boolean saving = false;
+
+	public static void savePipesAsync() {
+		Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				savePipesSync();
+			}
+		});
+	}
 
 	public static void savePipesSync() {
+		if (saving) {
+			return;
+		}
+		saving = true;
 		int pipesCount = 0;
 		try {
-			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<>();
+			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<World, List<HashMap<String, Tag>>>();
 
 			//cache worlds
 			for (World world : Bukkit.getWorlds()) {
@@ -102,6 +117,7 @@ public class SavingManager implements Listener {
 			e.printStackTrace();
 		}
 		System.out.println("[TransportPipes] saved " + pipesCount + " pipes in " + Bukkit.getWorlds().size() + " worlds");
+		saving = false;
 	}
 
 	/**
@@ -166,7 +182,7 @@ public class SavingManager implements Listener {
 	@EventHandler
 	public void onWorldSave(WorldSaveEvent e) {
 		if (e.getWorld().equals(Bukkit.getWorlds().get(0))) {
-			savePipesSync();
+			savePipesAsync();
 		}
 	}
 
