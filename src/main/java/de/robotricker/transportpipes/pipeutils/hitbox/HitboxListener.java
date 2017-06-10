@@ -47,7 +47,7 @@ public class HitboxListener implements Listener {
 		} else {
 			return;
 		}
-		
+
 		Class<? extends Pipe> placeablePipe = HitboxUtils.getPipeWithPipePlaceableItem(clickedItem);
 
 		//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
@@ -56,7 +56,7 @@ public class HitboxListener implements Listener {
 			//****************************** LEFT CLICKED ON PIPE *******************************************
 			if (pipeBlock != null) {
 				e.setCancelled(true);
-				if (TransportPipes.canBuild(p, pipeBlock)) {
+				if (TransportPipes.canBuild(p, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 					PipeUtils.destroyPipe(e.getPlayer(), PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
 				}
 			}
@@ -73,7 +73,7 @@ public class HitboxListener implements Listener {
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					//cancel block placement if the player clicked at the pipe with a wrench
 					if (!clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
-						if (HitboxUtils.placeBlock(p, placeBlock, clickedItem.getTypeId(), clickedItem.getData().getData())) {
+						if (HitboxUtils.placeBlock(p, placeBlock, clickedItem.getTypeId(), clickedItem.getData().getData(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
 						}
@@ -99,7 +99,7 @@ public class HitboxListener implements Listener {
 				if (pipeBlock != null) {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
-					if (TransportPipes.canBuild(p, placeBlock)) {
+					if (TransportPipes.canBuild(p, placeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
@@ -114,7 +114,7 @@ public class HitboxListener implements Listener {
 						canPlace = p.isSneaking();
 					}
 					if (canPlace) {
-						if (TransportPipes.canBuild(p, placeBlock)) {
+						if (TransportPipes.canBuild(p, placeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
@@ -129,7 +129,7 @@ public class HitboxListener implements Listener {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof Clickable) {
 					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
-						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock())) {
+						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}

@@ -4,7 +4,7 @@
 
 	<groupId>de.robotricker</groupId>
 	<artifactId>transportpipes</artifactId>
-	<version>3.8.12</version>
+	<version>3.8.13</version>
 	<packaging>jar</packaging>
 
 	<name>TransportPipes</name>
@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.11-R0.1-SNAPSHOT</version>
+			<version>1.12-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- JNBT -->
@@ -123,56 +123,6 @@
 			<groupId>com.comphenix.packetwrapper</groupId>
 			<artifactId>PacketWrapper</artifactId>
 			<version>1.11-R0.1-SNAPSHOT</version>
-		</dependency>
-		<!-- WorldGuard -->
-		<dependency>
-			<groupId>com.sk89q.worldguard</groupId>
-			<artifactId>worldguard-legacy</artifactId>
-			<version>6.2</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- ASkyBlock -->
-		<dependency>
-			<groupId>com.wasteofplastic</groupId>
-			<artifactId>askyblock</artifactId>
-			<version>3.0.5</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- PlotSquared -->
-		<dependency>
-			<groupId>com.intellectualcrafters</groupId>
-			<artifactId>PlotSquared</artifactId>
-			<version>3.5.1-SNAPSHOT</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/PlotSquared-3.5.1-SNAPSHOT.jar</systemPath>
-		</dependency>
-		<!-- Factions -->
-		<dependency>
-			<groupId>com.massivecraft</groupId>
-			<artifactId>Factions</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/Factions.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>com.massivecraft</groupId>
-			<artifactId>FactionsUUID</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/FactionsUUID.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>com.massivecraft</groupId>
-			<artifactId>MassiveCore</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/MassiveCore.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>com.github.TechFortress</groupId>
-			<artifactId>GriefPrevention</artifactId>
-			<version>16.7.1</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

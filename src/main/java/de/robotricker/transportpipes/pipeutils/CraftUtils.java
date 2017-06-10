@@ -59,6 +59,10 @@ public class CraftUtils implements Listener {
 	@EventHandler
 	public void onPrepareCraft(PrepareItemCraftEvent e) {
 
+		if (e.getInventory().getRecipe() == null) {
+			return;
+		}
+
 		if (e.getInventory().getRecipe().getResult().getType() == Material.BLAZE_POWDER || e.getInventory().getRecipe().getResult().getType() == Material.BREWING_STAND_ITEM) {
 			for (int i = 1; i < 10; i++) {
 				ItemStack is = e.getInventory().getItem(i);

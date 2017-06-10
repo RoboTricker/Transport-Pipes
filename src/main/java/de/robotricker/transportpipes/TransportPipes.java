@@ -16,6 +16,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -208,44 +210,13 @@ public class TransportPipes extends JavaPlugin {
 		pipeMap.put(convertBlockLoc(pipe.blockLoc), pipe);
 	}
 
-	public static boolean canBuild(Player p, Block b) {
+	public static boolean canBuild(Player p, Block b, EquipmentSlot es) {
 		boolean canBuild = true;
 
-		if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
-			com.sk89q.worldguard.bukkit.WorldGuardPlugin wgp = (com.sk89q.worldguard.bukkit.WorldGuardPlugin) TransportPipes.instance.getServer().getPluginManager().getPlugin("WorldGuard");
-			canBuild = wgp.canBuild(p, b.getLocation());
-		}
-		if (Bukkit.getPluginManager().isPluginEnabled("ASkyBlock") && canBuild) {
-			canBuild = com.wasteofplastic.askyblock.ASkyBlockAPI.getInstance().locationIsOnIsland(p, b.getLocation());
-		}
-		if (Bukkit.getPluginManager().isPluginEnabled("PlotSquared") && canBuild) {
-			com.intellectualcrafters.plot.api.PlotAPI plotApi = new com.intellectualcrafters.plot.api.PlotAPI();
-			com.intellectualcrafters.plot.object.Plot plot = plotApi.getPlot(b.getLocation());
-			if (plot != null) {
-				canBuild = plotApi.getPlayerPlots(b.getWorld(), p).contains(plot);
-			}
-		}
-		if (Bukkit.getPluginManager().isPluginEnabled("Factions") && canBuild) {
-			try {
-				com.massivecraft.factions.entity.MPlayer mp = com.massivecraft.factions.entity.MPlayer.get(p);
-				com.massivecraft.factions.entity.Faction faction = com.massivecraft.factions.entity.BoardColl.get().getFactionAt(com.massivecraft.massivecore.ps.PS.valueOf(b));
-				if (faction != null) {
-					canBuild = faction.getMPlayers().contains(mp);
-				}
-			} catch (NoClassDefFoundError e) {
-				com.massivecraft.factions.FPlayer fp = com.massivecraft.factions.FPlayers.getInstance().getByPlayer(p);
-				com.massivecraft.factions.Faction faction = com.massivecraft.factions.Board.getInstance().getFactionAt(new com.massivecraft.factions.FLocation(b));
-				if (faction != null && !faction.isWilderness()) {
-					canBuild = faction.getFPlayers().contains(fp);
-				}
-			}
-		}
+		BlockPlaceEvent bpe = new BlockPlaceEvent(b, b.getState(), b, es == EquipmentSlot.HAND ? p.getInventory().getItemInMainHand() : p.getInventory().getItemInOffHand(), p, true, es);
+		Bukkit.getPluginManager().callEvent(bpe);
+		canBuild = !bpe.isCancelled() && bpe.canBuild();
 
-		if (Bukkit.getPluginManager().isPluginEnabled("GriefPrevention") && canBuild) {
-			me.ryanhamshire.GriefPrevention.GriefPrevention gp = (me.ryanhamshire.GriefPrevention.GriefPrevention) Bukkit.getPluginManager().getPlugin("GriefPrevention");
-			String errorMsg = gp.allowBuild(p, b.getLocation());
-			canBuild = errorMsg == null || errorMsg.isEmpty();
-		}
 		return canBuild || p.isOp();
 	}
 

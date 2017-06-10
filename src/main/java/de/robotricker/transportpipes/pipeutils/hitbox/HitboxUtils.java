@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.NoteBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Button;
@@ -138,8 +139,8 @@ public class HitboxUtils {
 	/**
 	 * "simulate" a block place when you click on the side of a pipe
 	 */
-	public static boolean placeBlock(Player p, Block b, int id, byte data) {
-		if (!TransportPipes.canBuild(p, b)) {
+	public static boolean placeBlock(Player p, Block b, int id, byte data, EquipmentSlot es) {
+		if (!TransportPipes.canBuild(p, b, es)) {
 			return false;
 		}
 		//check if there is already a pipe at this position
