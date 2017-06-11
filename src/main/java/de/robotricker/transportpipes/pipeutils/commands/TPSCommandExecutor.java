@@ -37,10 +37,11 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 			}
 		}
 
-		cs.sendMessage(TransportPipes.instance.PREFIX + ChatColor.GOLD + "TransportPipes " + ChatColor.YELLOW + "v" + ChatColor.GOLD + TransportPipes.instance.getDescription().getVersion());
-		cs.sendMessage(TransportPipes.instance.PREFIX + ChatColor.GOLD + "TPS: " + colour + tps + " " + ChatColor.GOLD + "/ " + ChatColor.DARK_GREEN + PipeThread.WANTED_TPS);
-		cs.sendMessage(TransportPipes.instance.PREFIX + ChatColor.GOLD + "Tick duration: " + colour + (PipeThread.timeTick / 10000) / 100f + "ms");
-		cs.sendMessage(TransportPipes.instance.PREFIX + ChatColor.GOLD + "Armorstands sent since server start: " + ChatColor.YELLOW + armorStandSendsSinceServerStart);
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Tick duration: " + colour + (PipeThread.timeTick / 10000) / 100f + "ms"));
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6TPS: " + colour + tps + " &6/ §2" + PipeThread.WANTED_TPS));
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Armorstands sent since server start: &e" + armorStandSendsSinceServerStart));
+
 		for (World world : Bukkit.getWorlds()) {
 			int worldPipes = 0;
 			int worldItems = 0;
@@ -52,9 +53,11 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 						worldItems += pipe.pipeItems.size() + pipe.tempPipeItems.size() + pipe.tempPipeItemsWithSpawn.size();
 					}
 				}
-				cs.sendMessage(TransportPipes.instance.PREFIX + ChatColor.GOLD + world.getName() + ": " + ChatColor.YELLOW + "" + worldPipes + " " + ChatColor.GOLD + "pipes, " + ChatColor.YELLOW + "" + worldItems + " " + ChatColor.GOLD + "items");
+				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
 			}
 		}
+
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
 
 	}
 

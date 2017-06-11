@@ -29,6 +29,7 @@ import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
+import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -112,6 +113,7 @@ public class TransportPipes extends JavaPlugin {
 
 		final SettingsInv settingsInv = new SettingsInv();
 		final TPSCommandExecutor tpsCmdExec = new TPSCommandExecutor();
+		final ReloadConfigCommandExecutor reloadConfigCmdExec = new ReloadConfigCommandExecutor();
 
 		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
@@ -138,8 +140,7 @@ public class TransportPipes extends JavaPlugin {
 								showFailInfo = false;
 								if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
 									noPerm = false;
-									reloadConfig();
-									cs.sendMessage(PREFIX + "Config reloaded");
+									reloadConfigCmdExec.onCommand(cs, new String[0]);
 								}
 							} else if (args[1].equalsIgnoreCase("pipes")) {
 								showFailInfo = false;
@@ -154,18 +155,15 @@ public class TransportPipes extends JavaPlugin {
 				}
 
 				if (showFailInfo) {
-					cs.sendMessage(PREFIX + ChatColor.DARK_RED + "/tpipes settings");
-					cs.sendMessage(PREFIX + ChatColor.RED + "Opens a settings inventory in which you can change the render distance of the pipes.");
-					if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps"))) {
-						cs.sendMessage(PREFIX + ChatColor.DARK_RED + "/tpipes tps");
-						cs.sendMessage(PREFIX + ChatColor.RED + "Shows some general information about the pipes in all worlds and the ticks per second of the plugin thread.");
-					}
-					if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
-						cs.sendMessage(PREFIX + ChatColor.DARK_RED + "/tpipes reload <config|pipes>");
-						cs.sendMessage(PREFIX + ChatColor.RED + "Reloads all pipes / the config");
-					}
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- &bOpens a settings menu in which you can change the render distance of the pipes."));
+					if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps")))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- &bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread."));
+					if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload")))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- &bReloads all pipes or the config."));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
 				} else if (noPerm) {
-					cs.sendMessage(PREFIX + ChatColor.RED + "You don't have permission to perform this command.");
+					cs.sendMessage(ChatColor.RED + "You don't have permission to perform this command.");
 				}
 
 				return true;
