@@ -20,6 +20,7 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObje
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 
 import de.robotricker.transportpipes.PipeThread;
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
 
@@ -163,6 +164,17 @@ public class ArmorStandProtocol {
 					}
 				}
 			}, 1);
+
+			List<Integer> entityIds = null;
+			if (TransportPipes.pipePacketManager.allWorldEntityIds.containsKey(blockLoc.getWorld())) {
+				entityIds = TransportPipes.pipePacketManager.allWorldEntityIds.get(blockLoc.getWorld());
+			} else {
+				entityIds = new ArrayList<Integer>();
+				TransportPipes.pipePacketManager.allWorldEntityIds.put(blockLoc.getWorld(), entityIds);
+			}
+			if (!entityIds.contains(asd.getEntityID())) {
+				entityIds.add(asd.getEntityID());
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

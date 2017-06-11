@@ -15,6 +15,11 @@ import de.robotricker.transportpipes.TransportPipes;
 public class CraftUtils implements Listener {
 
 	public static void initRecipes() {
+
+		if (TransportPipes.instance.getConfig().getBoolean("disable_crafting", false)) {
+			return;
+		}
+
 		//Recipes
 		ItemStack result = TransportPipes.PIPE_ITEM.clone();
 		result.setAmount(2);

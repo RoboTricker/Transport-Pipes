@@ -7,8 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,8 +17,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.pipeutils.commands.PipesCommandExecutor;
 
-public class SettingsInv implements Listener, CommandExecutor {
+public class SettingsInv implements Listener, PipesCommandExecutor {
 
 	public static List<String> lore = new ArrayList<String>();
 
@@ -94,13 +93,10 @@ public class SettingsInv implements Listener, CommandExecutor {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
-
+	public void onCommand(CommandSender cs, String[] args) {
 		if (cs instanceof Player) {
 			updateSettingsInventory(null, (Player) cs);
 		}
-
-		return true;
 	}
 
 }

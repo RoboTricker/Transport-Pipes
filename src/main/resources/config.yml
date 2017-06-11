@@ -1,5 +1,9 @@
-prefix: '[TransportPipes] '
+prefix: '&7[&6TransportPipes&7] &6'
 max_items_per_pipe: 10
+disable_crafting: false
+permissions:
+  tps: 'tp.tps'
+  reload: 'tp.reload'
 pipename:
   pipe: 'Pipe'
   golden_pipe: 'Golden-Pipe'

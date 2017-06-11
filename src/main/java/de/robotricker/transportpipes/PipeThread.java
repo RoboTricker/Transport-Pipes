@@ -57,7 +57,7 @@ public class PipeThread extends Thread {
 
 	@Override
 	public void run() {
-		System.out.println(TransportPipes.instance.PREFIX_CONSOLE + "starting TransportPipes-Thread");
+		System.out.println(TransportPipes.instance.PREFIX + "starting TransportPipes-Thread");
 		while (running) {
 
 			try {
@@ -172,7 +172,7 @@ public class PipeThread extends Thread {
 				e.printStackTrace();
 			}
 		}
-		System.out.println(TransportPipes.instance.PREFIX_CONSOLE + "finishing TransportPipes-Thread");
+		System.out.println(TransportPipes.instance.PREFIX + "finishing TransportPipes-Thread");
 
 	}
 

@@ -29,6 +29,7 @@ import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
+import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
@@ -51,7 +52,7 @@ import de.robotricker.transportpipes.protocol.PipePacketManager;
 
 public class TransportPipes extends JavaPlugin {
 
-	public String PREFIX_CONSOLE;
+	public String PREFIX;
 
 	public String PIPE_NAME;
 	public static ItemStack PIPE_ITEM;
@@ -92,10 +93,13 @@ public class TransportPipes extends JavaPlugin {
 		if (getConfig().getString("pipename.wrench").startsWith("&c")) {
 			getConfig().set("pipename.wrench", getConfig().getString("pipename.wrench").substring(2));
 		}
+		if (!getConfig().getString("prefix").contains("&")) {
+			getConfig().set("prefix", "&7[&6TransportPipes&7] &6");
+		}
 		saveConfig();
 
-		PREFIX_CONSOLE = ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix"));
-		PIPE_NAME = ChatColor.translateAlternateColorCodes('&', getConfig().getString("pipename.pipe"));
+		PREFIX = getFormattedConfigString("prefix");
+		PIPE_NAME = getFormattedConfigString("pipename.pipe");
 		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&6" + getConfig().getString("pipename.golden_pipe"));
 		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&7" + getConfig().getString("pipename.iron_pipe"));
 		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
@@ -106,50 +110,68 @@ public class TransportPipes extends JavaPlugin {
 		pipeThread.setPriority(Thread.MIN_PRIORITY);
 		pipeThread.start();
 
-		SettingsInv settingsInv = new SettingsInv();
+		final SettingsInv settingsInv = new SettingsInv();
+		final TPSCommandExecutor tpsCmdExec = new TPSCommandExecutor();
 
-		getCommand("transportpipessettings").setExecutor(settingsInv);
-		getCommand("transportpipestps").setExecutor(new CommandExecutor() {
+		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
 			@Override
 			public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
 
-				int tps = PipeThread.getCalculatedTps();
-				ChatColor colour = ChatColor.DARK_GREEN;
-				if (tps <= 1) {
-					colour = ChatColor.DARK_RED;
-				} else if (tps <= 3) {
-					colour = ChatColor.RED;
-				} else if (tps <= 4) {
-					colour = ChatColor.GOLD;
-				} else if (tps <= 5) {
-					colour = ChatColor.GREEN;
-				}
+				boolean showFailInfo = true;
+				boolean noPerm = true;
 
-				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
-				cs.sendMessage(ChatColor.GOLD + "TransportPipes " + ChatColor.YELLOW + "v." + ChatColor.GOLD + TransportPipes.this.getDescription().getVersion() + " by RoboTricker");
-				cs.sendMessage(ChatColor.GOLD + "TPS: " + colour + tps + " " + ChatColor.GOLD + "/ " + ChatColor.DARK_GREEN + PipeThread.WANTED_TPS);
-				cs.sendMessage(ChatColor.GOLD + "Tick: " + colour + (PipeThread.timeTick / 10000) / 100f);
-				for (World world : Bukkit.getWorlds()) {
-					int worldPipes = 0;
-					int worldItems = 0;
-					Map<BlockLoc, Pipe> pipeMap = getPipeMap(world);
-					if (pipeMap != null) {
-						cs.sendMessage(ChatColor.YELLOW + world.getName() + ":");
-						synchronized (pipeMap) {
-							for (Pipe pipe : pipeMap.values()) {
-								worldPipes++;
-								worldItems += pipe.pipeItems.size() + pipe.tempPipeItems.size() + pipe.tempPipeItemsWithSpawn.size();
+				if (args.length >= 1) {
+					if (args[0].equalsIgnoreCase("tps")) {
+						showFailInfo = false;
+						if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps"))) {
+							noPerm = false;
+							tpsCmdExec.onCommand(cs, new String[0]);
+						}
+					} else if (args[0].equalsIgnoreCase("settings")) {
+						showFailInfo = false;
+						noPerm = false;
+						settingsInv.onCommand(cs, new String[0]);
+					} else if (args[0].equalsIgnoreCase("reload")) {
+						if (args.length >= 2) {
+							if (args[1].equalsIgnoreCase("config")) {
+								showFailInfo = false;
+								if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
+									noPerm = false;
+									reloadConfig();
+									cs.sendMessage(PREFIX + "Config reloaded");
+								}
+							} else if (args[1].equalsIgnoreCase("pipes")) {
+								showFailInfo = false;
+								if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
+									noPerm = false;
+									pipePacketManager.reloadPipesAndItems();
+									cs.sendMessage(PREFIX + "Pipes reloaded");
+								}
 							}
 						}
-						cs.sendMessage(ChatColor.GOLD + "   Pipes: " + ChatColor.YELLOW + worldPipes);
-						cs.sendMessage(ChatColor.GOLD + "   Items: " + ChatColor.YELLOW + worldItems);
 					}
 				}
-				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-&6-&e-"));
-				return false;
+
+				if (showFailInfo) {
+					cs.sendMessage(PREFIX + ChatColor.DARK_RED + "/tpipes settings");
+					cs.sendMessage(PREFIX + ChatColor.RED + "Opens a settings inventory in which you can change the render distance of the pipes.");
+					if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps"))) {
+						cs.sendMessage(PREFIX + ChatColor.DARK_RED + "/tpipes tps");
+						cs.sendMessage(PREFIX + ChatColor.RED + "Shows some general information about the pipes in all worlds and the ticks per second of the plugin thread.");
+					}
+					if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
+						cs.sendMessage(PREFIX + ChatColor.DARK_RED + "/tpipes reload <config|pipes>");
+						cs.sendMessage(PREFIX + ChatColor.RED + "Reloads all pipes / the config");
+					}
+				} else if (noPerm) {
+					cs.sendMessage(PREFIX + ChatColor.RED + "You don't have permission to perform this command.");
+				}
+
+				return true;
 			}
 		});
+
 		Bukkit.getPluginManager().registerEvents(settingsInv, this);
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);

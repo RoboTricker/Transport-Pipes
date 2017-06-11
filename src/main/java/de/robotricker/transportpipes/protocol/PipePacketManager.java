@@ -26,6 +26,7 @@ import de.robotricker.transportpipes.pipes.Pipe;
 public class PipePacketManager implements Listener {
 
 	//not really(!) thread safe! Handle in main thread!
+	public Map<World, List<Integer>> allWorldEntityIds = Collections.synchronizedMap(new HashMap<World, List<Integer>>());
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 
@@ -156,6 +157,57 @@ public class PipePacketManager implements Listener {
 										putAndSpawnItem(on, item);
 									} else {
 										removeAndDestroyItem(on, item);
+									}
+								}
+
+							}
+						} catch (IllegalStateException e) {
+							handleAsyncError(e);
+						}
+
+					}
+				}
+
+			}
+		}
+	}
+
+	public void reloadPipesAndItems() {
+
+		pipesForPlayers.clear();
+		itemsForPlayers.clear();
+
+		synchronized (allWorldEntityIds) {
+			for (World w : allWorldEntityIds.keySet()) {
+				List<Integer> entityIds = allWorldEntityIds.get(w);
+				int[] entityIdsArray = new int[entityIds.size()];
+				for (int i = 0; i < entityIds.size(); i++) {
+					entityIdsArray[i] = entityIds.get(i);
+				}
+				for (Player p : w.getPlayers()) {
+					TransportPipes.armorStandProtocol.removeArmorStandDatas(p, entityIdsArray);
+				}
+			}
+		}
+
+		allWorldEntityIds.clear();
+
+		for (World world : Bukkit.getWorlds()) {
+			Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+			if (pipeMap != null) {
+				synchronized (pipeMap) {
+					for (Pipe pipe : pipeMap.values()) {
+						try {
+							for (Player on : world.getPlayers()) {
+								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
+									//spawn pipe if not spawned
+									putAndSpawnPipe(on, pipe);
+								}
+
+								for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
+									PipeItem item = (PipeItem) pipe.pipeItems.keySet().toArray()[i2];
+									if (item.getBlockLoc().distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
+										putAndSpawnItem(on, item);
 									}
 								}
 
