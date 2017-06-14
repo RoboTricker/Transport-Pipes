@@ -124,12 +124,12 @@
 			<artifactId>PacketWrapper</artifactId>
 			<version>1.11-R0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
 			<version>1.12</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/craftbukkit-1.12.jar</systemPath>
-		</dependency>
+		</dependency>-->
 	</dependencies>
 </project>
