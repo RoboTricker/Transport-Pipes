@@ -19,16 +19,16 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class PipeNS extends Pipe {
 
-	public PipeNS(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor) {
+	public PipeNS(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean detectorPipe) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
-		super(pipeColor, blockLoc, new AxisAlignedBB(0.22, 0.22, 0, 0.78, 0.78, 1), pipeNeighborBlocks,
+		super(pipeColor, blockLoc, new AxisAlignedBB(0.22, 0.22, 0, 0.78, 0.78, 1), detectorPipe, pipeNeighborBlocks,
 			  new ArmorStandData(new RelLoc(0.5f - 0.44f, -0.35f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)),
 			  new ArmorStandData(new RelLoc(0.5f - 0.86f, -1.0307f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 135f)),
 			  new ArmorStandData(new RelLoc(0.5f - 0.37f, -1.0307f - 0.45f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 135f)),
 			  new ArmorStandData(new RelLoc(0.5f - 0.93f, -0.35f - 0.45f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)),
-			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f + 0.3f), new Vector(0, 0, -1), true, pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
-			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f - 0.2f), new Vector(0, 0, -1), true, pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f + 0.3f), new Vector(0, 0, -1), true, detectorPipe ? TransportPipes.REDSTONE_BLOCK : pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
+			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f - 0.2f), new Vector(0, 0, -1), true, detectorPipe ? TransportPipes.REDSTONE_BLOCK : pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		//@formatter:on
 	}
 
@@ -54,9 +54,15 @@ public class PipeNS extends Pipe {
 
 				@Override
 				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getPipeItem(pipeColor));
+					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getPipeItem(pipeColor, detectorPipe));
 				}
 			});
 		}
 	}
+	
+	@Override
+	public boolean isNormalPipe(){
+		return !detectorPipe;
+	}
+	
 }

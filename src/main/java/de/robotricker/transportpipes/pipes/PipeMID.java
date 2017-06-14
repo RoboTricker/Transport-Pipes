@@ -20,11 +20,11 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class PipeMID extends Pipe {
 
-	public PipeMID(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor) {
+	public PipeMID(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean detectorPipe) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
-		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
-			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), detectorPipe, pipeNeighborBlocks,
+			  new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, detectorPipe ? TransportPipes.REDSTONE_BLOCK : pipeColor.getGlassItem(), null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		//@formatter:on
 		lastDir = -1;
 	}
@@ -68,9 +68,15 @@ public class PipeMID extends Pipe {
 
 				@Override
 				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getPipeItem(pipeColor));
+					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getPipeItem(pipeColor, detectorPipe));
 				}
 			});
 		}
 	}
+	
+	@Override
+	public boolean isNormalPipe(){
+		return !detectorPipe;
+	}
+	
 }

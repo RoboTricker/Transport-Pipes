@@ -37,6 +37,8 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public abstract class Pipe {
 
+	public static List<Location> detectorRedstoneBlocks = new ArrayList<Location>();
+
 	private static int maxItemsPerPipe = 10;
 	private static final float ITEM_SPEED = 0.25f;//0.0625f;
 	//hier wird berechnet um wie viel die relLoc verschoben werden muss, damit damit gerechnet werden kann, ohne dass man mit floats rechnet
@@ -77,6 +79,9 @@ public abstract class Pipe {
 	//the color of the pipe (different colored pipes don't connect to each other)
 	protected PipeColor pipeColor;
 
+	//wether this pipe is a detector pipe - Golden- and Iron-Pipes can't be Detector-Pipes
+	protected boolean detectorPipe;
+
 	static {
 		try {
 			maxItemsPerPipe = TransportPipes.instance.getConfig().getInt("max_items_per_pipe");
@@ -85,15 +90,16 @@ public abstract class Pipe {
 		}
 	}
 
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb) {
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean detectorPipe) {
 		this.pipeColor = pipeColor;
 		this.blockLoc = blockLoc;
 		this.aabb = aabb;
 		armorStandList = new ArrayList<ArmorStandData>();
+		this.detectorPipe = detectorPipe;
 	}
 
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
-		this(pipeColor, blockLoc, aabb);
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean detectorPipe, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
+		this(pipeColor, blockLoc, aabb, detectorPipe);
 		Collections.addAll(armorStandList, list);
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection pd : pipeNeighborBlocks) {
@@ -172,6 +178,37 @@ public abstract class Pipe {
 				}, 0);
 			}
 		}
+
+		//Detector Pipe functionality
+		if (detectorPipe) {
+			if (!pipeItems.isEmpty()) {
+				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+					@Override
+					public void run() {
+						if (!detectorRedstoneBlocks.contains(blockLoc)) {
+							detectorRedstoneBlocks.add(blockLoc);
+							blockLoc.getBlock().setType(Material.REDSTONE_BLOCK);
+						}
+					}
+
+				});
+
+			} else {
+				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+					@Override
+					public void run() {
+						if (detectorRedstoneBlocks.contains(blockLoc)) {
+							blockLoc.getBlock().setType(Material.AIR);
+							detectorRedstoneBlocks.remove(blockLoc);
+						}
+					}
+
+				});
+			}
+		}
+
 	}
 
 	/**
@@ -181,7 +218,7 @@ public abstract class Pipe {
 
 	private void transportItems(List<PipeDirection> dirs, List<PipeItem> itemsAlreadyTicked) {
 
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc, pipeColor, !(this instanceof GoldenPipe || this instanceof IronPipe));
+		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc, pipeColor, isNormalPipe());
 
 		HashMap<PipeItem, PipeDirection> mapCopy = (HashMap<PipeItem, PipeDirection>) pipeItems.clone();
 		for (final PipeItem item : mapCopy.keySet()) {
@@ -289,6 +326,7 @@ public abstract class Pipe {
 								e.printStackTrace(); //this should be not there when exporting
 							}
 						}
+
 					});
 
 				}
@@ -301,7 +339,7 @@ public abstract class Pipe {
 	private List<PipeDirection> inputItemsAndCalculatePipeDirections(boolean inputItems) {
 
 		List<PipeDirection> dirs = new ArrayList<>();
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this.blockLoc, pipeColor, !(this instanceof GoldenPipe || this instanceof IronPipe));
+		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this.blockLoc, pipeColor, isNormalPipe());
 
 		for (final PipeDirection dir : PipeDirection.values()) {
 
@@ -370,7 +408,7 @@ public abstract class Pipe {
 	public void updatePipeShape() {
 
 		//sum all neighbor blocks and pipes
-		final List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc, pipeColor, !(this instanceof GoldenPipe || this instanceof IronPipe));
+		final List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc, pipeColor, isNormalPipe());
 		List<PipeDirection> combi = new ArrayList<>();
 		combi.addAll(pipeConnections);
 		synchronized (this.pipeNeighborBlocks) {
@@ -387,7 +425,7 @@ public abstract class Pipe {
 		if (newPipeClass != null && !newPipeClass.equals(this.getClass())) {
 			Pipe pipe = null;
 			try {
-				pipe = PipeUtils.createPipeObject(newPipeClass, blockLoc, this.pipeNeighborBlocks, pipeColor);
+				pipe = PipeUtils.createPipeObject(newPipeClass, blockLoc, this.pipeNeighborBlocks, pipeColor, detectorPipe);
 
 				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 				pipeMap.put(TransportPipes.convertBlockLoc(pipe.blockLoc), pipe);
@@ -437,6 +475,8 @@ public abstract class Pipe {
 		tags.put("PipeClassName", new StringTag("PipeClassName", getClass().getName()));
 		tags.put("PipeLocation", new StringTag("PipeLocation", PipeUtils.LocToString(blockLoc)));
 		tags.put("PipeColor", new StringTag("PipeColor", pipeColor.name()));
+		tags.put("DetectorPipe", new ByteTag("DetectorPipe", detectorPipe ? (byte) 1 : (byte) 0));
+		tags.put("DetectorPipeActive", new ByteTag("DetectorPipeActive", detectorRedstoneBlocks.contains(blockLoc) ? (byte) 1 : (byte) 0));
 		List<Tag> itemList = new ArrayList<>();
 
 		for (PipeItem pipeItem : pipeItems.keySet()) {
@@ -475,6 +515,11 @@ public abstract class Pipe {
 
 	public void loadFromNBTTag(CompoundTag tag) {
 		Map<String, Tag> compoundValues = tag.getValue();
+
+		byte detectorPipeActive = ((ByteTag) compoundValues.getOrDefault("DetectorPipeActive", new ByteTag("DetectorPipeActive", detectorRedstoneBlocks.contains(blockLoc) ? (byte) 1 : (byte) 0))).getValue();
+		if (detectorPipe && detectorPipeActive == (byte) 1 && !detectorRedstoneBlocks.contains(blockLoc)) {
+			detectorRedstoneBlocks.add(blockLoc);
+		}
 
 		ListTag pipeItems = (ListTag) compoundValues.get("PipeItems");
 		for (Tag itemTag : pipeItems.getValue()) {
@@ -519,5 +564,11 @@ public abstract class Pipe {
 	public PipeColor getPipeColor() {
 		return pipeColor;
 	}
+
+	public boolean isDetectorPipe() {
+		return detectorPipe;
+	}
+
+	public abstract boolean isNormalPipe();
 
 }

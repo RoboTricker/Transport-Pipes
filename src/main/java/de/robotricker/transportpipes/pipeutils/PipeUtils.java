@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -16,8 +17,6 @@ import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.api.PlayerDestroyPipeEvent;
 import de.robotricker.transportpipes.api.PlayerPlacePipeEvent;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.GoldenPipe;
-import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeEW;
 import de.robotricker.transportpipes.pipes.PipeMID;
@@ -26,14 +25,18 @@ import de.robotricker.transportpipes.pipes.PipeUD;
 
 public class PipeUtils {
 
-	public static boolean buildPipe(Player player, Location blockLoc, PipeColor pipeColor) {
-		return buildPipe(player, blockLoc, Pipe.class, pipeColor);
+	public static boolean buildPipe(Player player, Location blockLoc, PipeColor pipeColor, boolean detectorPipe) {
+		return buildPipe(player, blockLoc, Pipe.class, pipeColor, detectorPipe);
 	}
 
 	/**
 	 * invoke this if you want to build a new pipe at this location. If there is a pipe already, it will do nothing. Otherwise it will place the pipe and send the packets to the players near. don't call this if you only want to update the pipe! returns whether the pipe could be placed
 	 */
-	public static boolean buildPipe(Player player, final Location blockLoc, Class<? extends Pipe> pipeClass, PipeColor pipeColor) {
+	public static boolean buildPipe(Player player, final Location blockLoc, Class<? extends Pipe> pipeClass, PipeColor pipeColor, boolean detectorPipe) {
+
+		if (detectorPipe) {
+			pipeColor = PipeColor.WHITE;
+		}
 
 		//check if there is already a pipe at this position
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
@@ -50,7 +53,7 @@ public class PipeUtils {
 		}
 
 		//calculate all neighbor blocks and pipes
-		final List<PipeDirection> pipeConnections = getPipeConnections(blockLoc, pipeColor, pipeClass == null || pipeClass == Pipe.class);
+		final List<PipeDirection> pipeConnections = getPipeConnections(blockLoc, pipeColor, (pipeClass == null || pipeClass == Pipe.class) && !detectorPipe);
 		//ONLY SYNC!!!
 		final List<PipeDirection> pipeNeighborBlocks = getPipeNeighborBlocksSync(blockLoc);
 
@@ -73,7 +76,7 @@ public class PipeUtils {
 		if (newPipeClass != null) {
 			Pipe pipe;
 			try {
-				pipe = createPipeObject(newPipeClass, blockLoc, pipeNeighborBlocks, pipeColor);
+				pipe = createPipeObject(newPipeClass, blockLoc, pipeNeighborBlocks, pipeColor, detectorPipe);
 
 				if (player != null) {
 					PlayerPlacePipeEvent ppe = new PlayerPlacePipeEvent(player, pipe);
@@ -162,6 +165,16 @@ public class PipeUtils {
 					//destroy item for players
 					TransportPipes.pipePacketManager.destroyPipeItemSync(item);
 				}
+				if (pipeToDestroy.isDetectorPipe() && Pipe.detectorRedstoneBlocks.contains(pipeToDestroy.blockLoc)) {
+					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+						@Override
+						public void run() {
+							pipeToDestroy.blockLoc.getBlock().setType(Material.AIR);
+							Pipe.detectorRedstoneBlocks.remove(pipeToDestroy.blockLoc);
+						}
+					});
+				}
 				//and clear old pipe items map
 				pipeToDestroy.pipeItems.clear();
 				pipeToDestroy.tempPipeItems.clear();
@@ -192,7 +205,7 @@ public class PipeUtils {
 	 * gets all pipe connection directions (not block connections)
 	 * 
 	 * @param normalPipe
-	 *            determines if the pipe at pipeLoc (for which the neighbor pipe check is done) is a normal pipe or a special pipe (golden, iron pipe)
+	 *            determines if the pipe at pipeLoc (for which the neighbor pipe check is done) is a normal pipe or a special pipe (golden, iron or detector pipe)
 	 */
 	public static List<PipeDirection> getPipeConnections(Location pipeLoc, PipeColor pipeColor, boolean normalPipe) {
 
@@ -210,7 +223,7 @@ public class PipeUtils {
 				BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
 				if (pipeMap.containsKey(bl)) {
 					Pipe connectedPipe = pipeMap.get(bl);
-					if (connectedPipe instanceof GoldenPipe || connectedPipe instanceof IronPipe || !normalPipe) {
+					if (!connectedPipe.isNormalPipe() || !normalPipe) {
 						dirs.add(dir);
 					} else if (pipeColor == null || connectedPipe.getPipeColor().equals(pipeColor)) {
 						dirs.add(dir);
@@ -351,13 +364,20 @@ public class PipeUtils {
 		return null;
 	}
 
-	public static Pipe createPipeObject(Class<? extends Pipe> pipeClass, Location loc, List list, PipeColor pipeColor) {
+	public static Pipe createPipeObject(Class<? extends Pipe> pipeClass, Location loc, List list, PipeColor pipeColor, boolean detectorPipe) {
 		try {
-			return pipeClass.getConstructor(Location.class, List.class, PipeColor.class).newInstance(loc, list, pipeColor);
+			return pipeClass.getConstructor(Location.class, List.class, PipeColor.class, boolean.class).newInstance(loc, list, pipeColor, detectorPipe);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static boolean isPipeItemDetectorPipe(ItemStack pipeItem) {
+		if (pipeItem.hasItemMeta() && pipeItem.getItemMeta().hasDisplayName()) {
+			return pipeItem.getItemMeta().getDisplayName().equals(TransportPipes.instance.DETECTOR_PIPE_NAME);
+		}
+		return false;
 	}
 
 }

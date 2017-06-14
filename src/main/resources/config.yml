@@ -8,6 +8,7 @@ pipename:
   pipe: 'Pipe'
   golden_pipe: 'Golden-Pipe'
   iron_pipe: 'Iron-Pipe'
+  detector_pipe: 'Detector-Pipe'
   wrench: 'Wrench'
 goldpipeinv:
   nameinv: '&rGolden Pipe'

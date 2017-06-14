@@ -29,10 +29,10 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 	private HashMap<PipeDirection, ArmorStandData> outputASDs = new HashMap<>();
 	private PipeDirection currentOutputDir;
 
-	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor) {
+	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean detectorPipe) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
-		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), pipeNeighborBlocks,
+		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), false, pipeNeighborBlocks,
 				new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_IRON_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
 				new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
 				new ArmorStandData(new RelLoc(0.5f - 0.26f, -0.255f, 0.5f), new Vector(-1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
@@ -123,6 +123,11 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 
 	public PipeDirection getCurrentOutputDir(){
 		return currentOutputDir;
+	}
+	
+	@Override
+	public boolean isNormalPipe(){
+		return false;
 	}
 	
 }
