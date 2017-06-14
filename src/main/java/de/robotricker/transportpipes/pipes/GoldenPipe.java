@@ -17,7 +17,6 @@ import org.jnbt.ListTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.manager.settings.GoldenPipeInv;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;

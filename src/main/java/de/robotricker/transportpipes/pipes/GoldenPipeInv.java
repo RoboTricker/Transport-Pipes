@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.manager.settings;
+package de.robotricker.transportpipes.pipes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,8 +16,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.manager.settings.SettingsUtils;
 import de.robotricker.transportpipes.pipeitems.ItemData;
-import de.robotricker.transportpipes.pipes.GoldenPipe;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 

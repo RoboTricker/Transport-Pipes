@@ -23,8 +23,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.manager.saving.SavingManager;
-import de.robotricker.transportpipes.manager.settings.GoldenPipeInv;
 import de.robotricker.transportpipes.manager.settings.SettingsInv;
+import de.robotricker.transportpipes.pipes.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
