@@ -25,7 +25,7 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.events.PipeExplodeEvent;
+import de.robotricker.transportpipes.api.PipeExplodeEvent;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;

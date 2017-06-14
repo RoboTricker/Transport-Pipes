@@ -4,6 +4,6 @@ import org.bukkit.command.CommandSender;
 
 public interface PipesCommandExecutor {
 
-	void onCommand(CommandSender cs, String[] args);
+	boolean onCommand(CommandSender cs);
 
 }

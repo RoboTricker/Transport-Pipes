@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.events;
+package de.robotricker.transportpipes.api;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 import de.robotricker.transportpipes.pipes.Pipe;
 
-public class PlayerDestroyPipeEvent extends Event implements Cancellable {
+public class PlayerPlacePipeEvent extends Event implements Cancellable {
 
 	private boolean cancelled;
 	private Player player;
@@ -16,7 +16,7 @@ public class PlayerDestroyPipeEvent extends Event implements Cancellable {
 	private Location loc;
 	private static final HandlerList handlers = new HandlerList();
 
-	public PlayerDestroyPipeEvent(Player player, Pipe pipe) {
+	public PlayerPlacePipeEvent(Player player, Pipe pipe) {
 		super();
 		this.cancelled = false;
 		this.player = player;
@@ -43,10 +43,10 @@ public class PlayerDestroyPipeEvent extends Event implements Cancellable {
 		this.cancelled = cancelled;
 	}
 
-	public Player getPlayer(){
+	public Player getPlayer() {
 		return player;
 	}
-	
+
 	public Pipe getPipe() {
 		return pipe;
 	}

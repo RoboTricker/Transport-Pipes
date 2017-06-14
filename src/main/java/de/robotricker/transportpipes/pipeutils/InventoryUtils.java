@@ -108,6 +108,7 @@ public class InventoryUtils {
 					List<PipeDirection> possibleDirections = gp != null ? gp.getPossibleDirectionsForItem(id, direction) : null;
 					if (gp == null || !(possibleDirections.size() == 1 && possibleDirections.get(0).equals(direction.getOpposite()))) {
 						taken = createOneAmountItemStack(i.getInventory().getItem(x));
+
 						i.getInventory().setItem(x, decreaseAmountWithOne(i.getInventory().getItem(x)));
 						break;
 					}

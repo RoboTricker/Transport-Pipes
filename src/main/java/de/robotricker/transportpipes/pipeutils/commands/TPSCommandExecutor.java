@@ -16,7 +16,10 @@ import de.robotricker.transportpipes.pipes.Pipe;
 public class TPSCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public void onCommand(CommandSender cs, String[] args) {
+	public boolean onCommand(CommandSender cs) {
+		if (!cs.hasPermission(TransportPipes.instance.getConfig().getString("permissions.tps", "tp.tps"))) {
+			return false;
+		}
 		int tps = PipeThread.getCalculatedTps();
 		ChatColor colour = ChatColor.DARK_GREEN;
 		if (tps <= 1) {
@@ -58,6 +61,8 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 		}
 
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
+
+		return true;
 
 	}
 

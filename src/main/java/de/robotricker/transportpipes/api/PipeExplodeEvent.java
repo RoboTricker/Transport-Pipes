@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.events;
+package de.robotricker.transportpipes.api;
 
 import org.bukkit.Location;
 import org.bukkit.event.Cancellable;

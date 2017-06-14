@@ -93,10 +93,11 @@ public class SettingsInv implements Listener, PipesCommandExecutor {
 	}
 
 	@Override
-	public void onCommand(CommandSender cs, String[] args) {
+	public boolean onCommand(CommandSender cs) {
 		if (cs instanceof Player) {
 			updateSettingsInventory(null, (Player) cs);
 		}
+		return true;
 	}
 
 }

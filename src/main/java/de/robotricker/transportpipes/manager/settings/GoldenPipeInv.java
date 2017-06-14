@@ -94,6 +94,7 @@ public class GoldenPipeInv implements Listener {
 					}
 					pipe.setIgnoreNBT(!pipe.isIgnoreNBT());
 					// Update inv
+					saveGoldenPipeInv((Player) e.getWhoClicked(), e.getInventory());
 					openGoldenPipeInv((Player) e.getWhoClicked(), pipe);
 				}
 				e.setCancelled(true);
@@ -103,11 +104,15 @@ public class GoldenPipeInv implements Listener {
 
 	@EventHandler
 	public void onClose(InventoryCloseEvent e) {
-		if (e.getInventory() != null && pipe_invs.containsValue(e.getInventory())) {
+		saveGoldenPipeInv((Player) e.getPlayer(), e.getInventory());
+	}
+	
+	private void saveGoldenPipeInv(Player p, Inventory inv){
+		if (inv != null && pipe_invs.containsValue(inv)) {
 			GoldenPipe pipe = null;
 			//get pipe with inventory
 			for (GoldenPipe gp : pipe_invs.keySet()) {
-				if (pipe_invs.get(gp).equals(e.getInventory())) {
+				if (pipe_invs.get(gp).equals(inv)) {
 					pipe = gp;
 					break;
 				}
@@ -116,18 +121,18 @@ public class GoldenPipeInv implements Listener {
 			linefor: for (int line = 0; line < 6; line++) {
 				List<ItemData> items = new ArrayList<>();
 				for (int i = 1; i < 9; i++) {
-					ItemStack is = e.getInventory().getItem(line * 9 + i);
+					ItemStack is = inv.getItem(line * 9 + i);
 					//make sure the glass pane won't be saved
 					if (is != null && !SettingsUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET))) {
 						items.add(new ItemData(is));
 						if (is.getAmount() > 1) {
 							ItemStack clone = is.clone();
 							clone.setAmount(is.getAmount() - 1);
-							e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation(), clone);
+							p.getWorld().dropItem(p.getLocation(), clone);
 
 							ItemStack clone2 = is.clone();
 							clone2.setAmount(1);
-							e.getInventory().setItem(line * 9, clone2);
+							inv.setItem(line * 9, clone2);
 						}
 					} else if (SettingsUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET))) {
 						//skip this save-sequenz if this line is not available (not a pipe or block as neighbor)

@@ -30,6 +30,7 @@ import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -114,47 +115,32 @@ public class TransportPipes extends JavaPlugin {
 		final SettingsInv settingsInv = new SettingsInv();
 		final TPSCommandExecutor tpsCmdExec = new TPSCommandExecutor();
 		final ReloadConfigCommandExecutor reloadConfigCmdExec = new ReloadConfigCommandExecutor();
+		final ReloadPipesCommandExecutor reloadPipesCmdExec = new ReloadPipesCommandExecutor();
 
 		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
 			@Override
 			public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
 
-				boolean showFailInfo = true;
-				boolean noPerm = true;
+				boolean noPerm = false;
 
-				if (args.length >= 1) {
-					if (args[0].equalsIgnoreCase("tps")) {
-						showFailInfo = false;
-						if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps"))) {
-							noPerm = false;
-							tpsCmdExec.onCommand(cs, new String[0]);
-						}
-					} else if (args[0].equalsIgnoreCase("settings")) {
-						showFailInfo = false;
-						noPerm = false;
-						settingsInv.onCommand(cs, new String[0]);
-					} else if (args[0].equalsIgnoreCase("reload")) {
-						if (args.length >= 2) {
-							if (args[1].equalsIgnoreCase("config")) {
-								showFailInfo = false;
-								if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
-									noPerm = false;
-									reloadConfigCmdExec.onCommand(cs, new String[0]);
-								}
-							} else if (args[1].equalsIgnoreCase("pipes")) {
-								showFailInfo = false;
-								if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload"))) {
-									noPerm = false;
-									pipePacketManager.reloadPipesAndItems();
-									cs.sendMessage(PREFIX + "Pipes reloaded");
-								}
-							}
-						}
+				if (args.length >= 1 && args[0].equalsIgnoreCase("tps")) {
+					if (!tpsCmdExec.onCommand(cs)) {
+						noPerm = true;
 					}
-				}
-
-				if (showFailInfo) {
+				} else if (args.length >= 1 && args[0].equalsIgnoreCase("settings")) {
+					if (!settingsInv.onCommand(cs)) {
+						noPerm = true;
+					}
+				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("config")) {
+					if (!reloadConfigCmdExec.onCommand(cs)) {
+						noPerm = true;
+					}
+				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("pipes")) {
+					if (!reloadPipesCmdExec.onCommand(cs)) {
+						noPerm = true;
+					}
+				} else {
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- &bOpens a settings menu in which you can change the render distance of the pipes."));
 					if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps")))
@@ -162,7 +148,10 @@ public class TransportPipes extends JavaPlugin {
 					if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload")))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- &bReloads all pipes or the config."));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
-				} else if (noPerm) {
+					return true;
+				}
+
+				if (noPerm) {
 					cs.sendMessage(ChatColor.RED + "You don't have permission to perform this command.");
 				}
 
