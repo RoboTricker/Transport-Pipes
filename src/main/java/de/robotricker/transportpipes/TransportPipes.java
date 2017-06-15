@@ -1,10 +1,7 @@
 package de.robotricker.transportpipes;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -24,15 +21,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.comphenix.packetwrapper.WrapperPlayServerBlockChange;
-import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 
 import de.robotricker.transportpipes.manager.saving.SavingManager;
 import de.robotricker.transportpipes.manager.settings.SettingsInv;
@@ -74,12 +62,12 @@ public class TransportPipes extends JavaPlugin {
 	public static ItemStack GOLDEN_PIPE_ITEM;
 	public String IRON_PIPE_NAME;
 	public static ItemStack IRON_PIPE_ITEM;
-	public String DETECTOR_PIPE_NAME;
-	public static ItemStack DETECTOR_PIPE_ITEM;
+	public String ICE_PIPE_NAME;
+	public static ItemStack ICE_PIPE_ITEM;
 	public String WRENCH_NAME;
 	public static ItemStack WRENCH_ITEM;
 
-	public static ItemStack REDSTONE_BLOCK;
+	public static ItemStack ICE_BLOCK;
 
 	//x << 34 | y << 26 | z
 	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
@@ -120,10 +108,10 @@ public class TransportPipes extends JavaPlugin {
 		PIPE_NAME = getFormattedConfigString("pipename.pipe");
 		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&6" + getConfig().getString("pipename.golden_pipe"));
 		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&7" + getConfig().getString("pipename.iron_pipe"));
-		DETECTOR_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&4" + getConfig().getString("pipename.detector_pipe"));
+		ICE_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&b" + getConfig().getString("pipename.ice_pipe"));
 		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
 
-		REDSTONE_BLOCK = new ItemStack(Material.REDSTONE_BLOCK);
+		ICE_BLOCK = new ItemStack(Material.ICE);
 
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
@@ -205,11 +193,11 @@ public class TransportPipes extends JavaPlugin {
 		meta = IRON_PIPE_ITEM.getItemMeta();
 		meta.setDisplayName(IRON_PIPE_NAME);
 		IRON_PIPE_ITEM.setItemMeta(meta);
-		//Detector Pipe
-		DETECTOR_PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
-		meta = DETECTOR_PIPE_ITEM.getItemMeta();
-		meta.setDisplayName(DETECTOR_PIPE_NAME);
-		DETECTOR_PIPE_ITEM.setItemMeta(meta);
+		//Ice Pipe
+		ICE_PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
+		meta = ICE_PIPE_ITEM.getItemMeta();
+		meta.setDisplayName(ICE_PIPE_NAME);
+		ICE_PIPE_ITEM.setItemMeta(meta);
 		//Wrench
 		WRENCH_ITEM = new ItemStack(Material.REDSTONE);
 		meta = WRENCH_ITEM.getItemMeta();
@@ -218,57 +206,6 @@ public class TransportPipes extends JavaPlugin {
 
 		CraftUtils.initRecipes();
 
-		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.BLOCK_CHANGE, PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
-
-			@Override
-			public void onPacketSending(PacketEvent e) {
-				if (e.getPacketType() == PacketType.Play.Server.BLOCK_CHANGE) {
-					WrapperPlayServerBlockChange wrapper = new WrapperPlayServerBlockChange(e.getPacket());
-					if (isLocationInDetectorRedstoneBlocksList(wrapper.getBukkitLocation(e.getPlayer().getWorld()))) {
-						e.setCancelled(true);
-					}
-				} else {
-					WrapperPlayServerMultiBlockChange wrapper = new WrapperPlayServerMultiBlockChange(e.getPacket());
-					List<MultiBlockChangeInfo> infoList = new ArrayList<MultiBlockChangeInfo>();
-					for (MultiBlockChangeInfo i : wrapper.getRecords()) {
-						infoList.add(i);
-					}
-					Iterator<MultiBlockChangeInfo> it = infoList.iterator();
-					while (it.hasNext()) {
-						if (isLocationInDetectorRedstoneBlocksList(it.next().getLocation(e.getPlayer().getWorld()))) {
-							it.remove();
-						}
-					}
-					if (infoList.isEmpty()) {
-						e.setCancelled(true);
-					} else {
-						MultiBlockChangeInfo[] newInfoList = new MultiBlockChangeInfo[infoList.size()];
-						for (int i = 0; i < newInfoList.length; i++) {
-							newInfoList[i] = infoList.get(i);
-						}
-						wrapper.setRecords(newInfoList);
-						e.setPacket(wrapper.getHandle());
-					}
-				}
-
-			}
-		});
-
-	}
-
-	private boolean isLocationInDetectorRedstoneBlocksList(Location loc) {
-		for (Location b : Pipe.detectorRedstoneBlocks) {
-			if (b.getWorld().equals(loc.getWorld())) {
-				if (b.getBlockX() == loc.getBlockX()) {
-					if (b.getBlockY() == loc.getBlockY()) {
-						if (b.getBlockZ() == loc.getBlockZ()) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -316,12 +253,12 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getPipeItem(PipeColor pipeColor, boolean detectorPipe) {
+	public ItemStack getPipeItem(PipeColor pipeColor, boolean icePipe) {
 		ItemStack result = PIPE_ITEM.clone();
 		result.setAmount(1);
 		ItemMeta itemMeta = result.getItemMeta();
-		if (detectorPipe) {
-			itemMeta.setDisplayName(DETECTOR_PIPE_NAME);
+		if (icePipe) {
+			itemMeta.setDisplayName(ICE_PIPE_NAME);
 		} else {
 			itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
 		}
@@ -337,8 +274,8 @@ public class TransportPipes extends JavaPlugin {
 		return IRON_PIPE_ITEM;
 	}
 
-	public ItemStack getDetectorPipeItem() {
-		return DETECTOR_PIPE_ITEM;
+	public ItemStack getIcePipeItem() {
+		return ICE_PIPE_ITEM;
 	}
 
 	public ItemStack getWrenchItem() {

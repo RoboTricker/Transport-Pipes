@@ -29,7 +29,7 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 	private HashMap<PipeDirection, ArmorStandData> outputASDs = new HashMap<>();
 	private PipeDirection currentOutputDir;
 
-	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean detectorPipe) {
+	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean icePipe) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
 		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), false, pipeNeighborBlocks,

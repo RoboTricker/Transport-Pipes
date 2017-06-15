@@ -45,11 +45,11 @@ public class CraftUtils implements Listener {
 		recipe.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(recipe);
 
-		result = TransportPipes.DETECTOR_PIPE_ITEM.clone();
+		result = TransportPipes.ICE_PIPE_ITEM.clone();
 		result.setAmount(1);
 		recipe = new ShapedRecipe(result);
 		recipe.shape("XAX", "ABA", "XAX");
-		recipe.setIngredient('A', new MaterialData(Material.REDSTONE_BLOCK, (byte) 0));
+		recipe.setIngredient('A', new MaterialData(Material.SNOW_BLOCK, (byte) 0));
 		recipe.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(recipe);
 
@@ -111,7 +111,7 @@ public class CraftUtils implements Listener {
 				return true;
 			} else if (d.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
 				return true;
-			} else if (d.equals(TransportPipes.instance.DETECTOR_PIPE_NAME)) {
+			} else if (d.equals(TransportPipes.instance.ICE_PIPE_NAME)) {
 				return true;
 			}
 		}

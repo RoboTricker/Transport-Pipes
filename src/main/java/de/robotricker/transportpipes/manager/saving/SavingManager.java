@@ -156,10 +156,10 @@ public class SavingManager implements Listener {
 				String className = ((StringTag) pipeTag.getValue().get("PipeClassName")).getValue();
 				Location pipeLoc = PipeUtils.StringToLoc(((StringTag) pipeTag.getValue().get("PipeLocation")).getValue());
 				String pipeColorString = ((StringTag) pipeTag.getValue().getOrDefault("PipeColor", new StringTag("PipeColor", PipeColor.WHITE.name()))).getValue();
-				byte detectorPipe = ((ByteTag) pipeTag.getValue().getOrDefault("DetectorPipe", new ByteTag("DetectorPipe", (byte) 0))).getValue();
+				byte icePipe = ((ByteTag) pipeTag.getValue().getOrDefault("IcePipe", new ByteTag("IcePipe", (byte) 0))).getValue();
 
 				if (pipeLoc != null) {
-					Pipe pipe = PipeUtils.createPipeObject((Class<? extends Pipe>) Class.forName(className), pipeLoc, PipeUtils.getPipeNeighborBlocksSync(pipeLoc), PipeColor.valueOf(pipeColorString), detectorPipe == (byte) 1);
+					Pipe pipe = PipeUtils.createPipeObject((Class<? extends Pipe>) Class.forName(className), pipeLoc, PipeUtils.getPipeNeighborBlocksSync(pipeLoc), PipeColor.valueOf(pipeColorString), icePipe == (byte) 1);
 					pipe.loadFromNBTTag(pipeTag);
 
 					//load and spawn pipe

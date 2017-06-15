@@ -37,8 +37,6 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public abstract class Pipe {
 
-	public static List<Location> detectorRedstoneBlocks = new ArrayList<Location>();
-
 	private static int maxItemsPerPipe = 10;
 	private static final float ITEM_SPEED = 0.25f;//0.0625f;
 	//hier wird berechnet um wie viel die relLoc verschoben werden muss, damit damit gerechnet werden kann, ohne dass man mit floats rechnet
@@ -79,8 +77,8 @@ public abstract class Pipe {
 	//the color of the pipe (different colored pipes don't connect to each other)
 	protected PipeColor pipeColor;
 
-	//wether this pipe is a detector pipe - Golden- and Iron-Pipes can't be Detector-Pipes
-	protected boolean detectorPipe;
+	//whether this pipe is an ice pipe - Golden- and Iron-Pipes can't be Ice-Pipes
+	protected boolean icePipe;
 
 	static {
 		try {
@@ -90,16 +88,16 @@ public abstract class Pipe {
 		}
 	}
 
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean detectorPipe) {
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean icePipe) {
 		this.pipeColor = pipeColor;
 		this.blockLoc = blockLoc;
 		this.aabb = aabb;
 		armorStandList = new ArrayList<ArmorStandData>();
-		this.detectorPipe = detectorPipe;
+		this.icePipe = icePipe;
 	}
 
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean detectorPipe, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
-		this(pipeColor, blockLoc, aabb, detectorPipe);
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean icePipe, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
+		this(pipeColor, blockLoc, aabb, icePipe);
 		Collections.addAll(armorStandList, list);
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection pd : pipeNeighborBlocks) {
@@ -176,36 +174,6 @@ public abstract class Pipe {
 						blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
 					}
 				}, 0);
-			}
-		}
-
-		//Detector Pipe functionality
-		if (detectorPipe) {
-			if (!pipeItems.isEmpty()) {
-				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-					@Override
-					public void run() {
-						if (!detectorRedstoneBlocks.contains(blockLoc)) {
-							detectorRedstoneBlocks.add(blockLoc);
-							blockLoc.getBlock().setType(Material.REDSTONE_BLOCK);
-						}
-					}
-
-				});
-
-			} else {
-				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-					@Override
-					public void run() {
-						if (detectorRedstoneBlocks.contains(blockLoc)) {
-							blockLoc.getBlock().setType(Material.AIR);
-							detectorRedstoneBlocks.remove(blockLoc);
-						}
-					}
-
-				});
 			}
 		}
 
@@ -425,7 +393,7 @@ public abstract class Pipe {
 		if (newPipeClass != null && !newPipeClass.equals(this.getClass())) {
 			Pipe pipe = null;
 			try {
-				pipe = PipeUtils.createPipeObject(newPipeClass, blockLoc, this.pipeNeighborBlocks, pipeColor, detectorPipe);
+				pipe = PipeUtils.createPipeObject(newPipeClass, blockLoc, this.pipeNeighborBlocks, pipeColor, icePipe);
 
 				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 				pipeMap.put(TransportPipes.convertBlockLoc(pipe.blockLoc), pipe);
@@ -475,8 +443,7 @@ public abstract class Pipe {
 		tags.put("PipeClassName", new StringTag("PipeClassName", getClass().getName()));
 		tags.put("PipeLocation", new StringTag("PipeLocation", PipeUtils.LocToString(blockLoc)));
 		tags.put("PipeColor", new StringTag("PipeColor", pipeColor.name()));
-		tags.put("DetectorPipe", new ByteTag("DetectorPipe", detectorPipe ? (byte) 1 : (byte) 0));
-		tags.put("DetectorPipeActive", new ByteTag("DetectorPipeActive", detectorRedstoneBlocks.contains(blockLoc) ? (byte) 1 : (byte) 0));
+		tags.put("IcePipe", new ByteTag("IcePipe", icePipe ? (byte) 1 : (byte) 0));
 		List<Tag> itemList = new ArrayList<>();
 
 		for (PipeItem pipeItem : pipeItems.keySet()) {
@@ -515,11 +482,6 @@ public abstract class Pipe {
 
 	public void loadFromNBTTag(CompoundTag tag) {
 		Map<String, Tag> compoundValues = tag.getValue();
-
-		byte detectorPipeActive = ((ByteTag) compoundValues.getOrDefault("DetectorPipeActive", new ByteTag("DetectorPipeActive", detectorRedstoneBlocks.contains(blockLoc) ? (byte) 1 : (byte) 0))).getValue();
-		if (detectorPipe && detectorPipeActive == (byte) 1 && !detectorRedstoneBlocks.contains(blockLoc)) {
-			detectorRedstoneBlocks.add(blockLoc);
-		}
 
 		ListTag pipeItems = (ListTag) compoundValues.get("PipeItems");
 		for (Tag itemTag : pipeItems.getValue()) {
@@ -565,8 +527,8 @@ public abstract class Pipe {
 		return pipeColor;
 	}
 
-	public boolean isDetectorPipe() {
-		return detectorPipe;
+	public boolean isIcePipe() {
+		return icePipe;
 	}
 
 	public abstract boolean isNormalPipe();

@@ -33,7 +33,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 	private ItemData[][] outputItems = new ItemData[6][8];
 	private boolean ignoreNBT = false;
 
-	public GoldenPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean detectorPipe) {
+	public GoldenPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean icePipe) {
 		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
 		//@formatter:off
 		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), false, pipeNeighborBlocks,
