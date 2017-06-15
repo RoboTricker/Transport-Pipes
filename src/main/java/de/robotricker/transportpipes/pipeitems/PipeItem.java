@@ -23,28 +23,28 @@ public class PipeItem {
 		relLoc = new RelLoc(itemDir.getX() > 0 ? 0 : (itemDir.getX() < 0 ? 1 : 0.5f), itemDir.getY() > 0 ? 0 : (itemDir.getY() < 0 ? 1 : 0.5f), itemDir.getZ() > 0 ? 0 : (itemDir.getZ() < 0 ? 1 : 0.5f));
 		relLocDiff = new RelLoc(0, 0, 0);
 	}
-	
-	public ItemStack getItem(){
+
+	public ItemStack getItem() {
 		return item;
 	}
-	
-	public Location getBlockLoc(){
+
+	public Location getBlockLoc() {
 		return blockLoc;
 	}
-	
-	public void setBlockLoc(Location blockLoc){
+
+	public void setBlockLoc(Location blockLoc) {
 		this.blockLoc = blockLoc;
 	}
-	
-	public RelLoc changeRelLoc(){
+
+	public RelLoc changeRelLoc() {
 		return relLoc;
 	}
-	
-	public RelLoc changeRelLocDiff(){
+
+	public RelLoc changeRelLocDiff() {
 		return relLocDiff;
 	}
-	
-	public ArmorStandData getArmorStand(){
+
+	public ArmorStandData getArmorStand() {
 		return itemArmorStand;
 	}
 

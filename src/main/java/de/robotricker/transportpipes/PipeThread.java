@@ -18,7 +18,7 @@ import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
 public class PipeThread extends Thread {
 
-	public final static int WANTED_TPS = 7;
+	public final static int WANTED_TPS = 10;
 
 	private final static long TICK_DIFF = 1000 / WANTED_TPS;
 	private final static int INPUT_ITEMS_TICK_DIFF = 3;

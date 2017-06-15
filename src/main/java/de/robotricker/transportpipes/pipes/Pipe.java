@@ -38,7 +38,8 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 public abstract class Pipe {
 
 	private static int maxItemsPerPipe = 10;
-	private static final float ITEM_SPEED = 0.25f;//0.0625f;
+	public static final float ITEM_SPEED = 0.125f;//0.0625f;
+	public static final float ICE_ITEM_SPEED = 0.5f;
 	//hier wird berechnet um wie viel die relLoc verschoben werden muss, damit damit gerechnet werden kann, ohne dass man mit floats rechnet
 	//(da bei float-rechnungen ungenaue ergebnisse rauskommen)
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Float.toString(ITEM_SPEED).split("\\.")[1].length()));
@@ -199,9 +200,9 @@ public abstract class Pipe {
 			}
 
 			RelLoc relLoc = item.changeRelLoc();
-			float xSpeed = dir.getX() * ITEM_SPEED;
-			float ySpeed = dir.getY() * ITEM_SPEED;
-			float zSpeed = dir.getZ() * ITEM_SPEED;
+			float xSpeed = dir.getX() * getPipeItemSpeed();
+			float ySpeed = dir.getY() * getPipeItemSpeed();
+			float zSpeed = dir.getZ() * getPipeItemSpeed();
 			//update relLoc (the real movement)
 			relLoc.set((long) (relLoc.getLongX() + xSpeed * FLOAT_PRECISION), (long) (relLoc.getLongY() + ySpeed * FLOAT_PRECISION), (long) (relLoc.getLongZ() + zSpeed * FLOAT_PRECISION));
 
@@ -532,5 +533,9 @@ public abstract class Pipe {
 	}
 
 	public abstract boolean isNormalPipe();
+
+	public float getPipeItemSpeed() {
+		return icePipe ? ICE_ITEM_SPEED : ITEM_SPEED;
+	}
 
 }
