@@ -53,9 +53,9 @@ public class PipeAPI {
 	}
 
 	/**
-	 * builds a detector pipe at the given location.
+	 * builds an ice pipe at the given location.
 	 */
-	public static void buildDetectorPipe(Location blockLoc) {
+	public static void buildIcePipe(Location blockLoc) {
 		PipeUtils.buildPipe(null, blockLoc, PipeColor.WHITE, true);
 	}
 
