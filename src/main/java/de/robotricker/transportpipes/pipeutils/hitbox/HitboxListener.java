@@ -26,10 +26,6 @@ public class HitboxListener implements Listener {
 		ItemStack clickedItem;
 		boolean mainHand;
 		
-		if(p.getName().equalsIgnoreCase("RoboTricker")){
-			p.sendMessage("interact cancelled: " + e.isCancelled());
-		}
-
 		if (e.getHand() == EquipmentSlot.HAND) {
 			clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
 			mainHand = true;
@@ -60,7 +56,7 @@ public class HitboxListener implements Listener {
 			//****************************** LEFT CLICKED ON PIPE *******************************************
 			if (pipeBlock != null) {
 				e.setCancelled(true);
-				if (TransportPipes.canDestroy(p, pipeBlock)) {
+				if (TransportPipes.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 					PipeUtils.destroyPipe(e.getPlayer(), PipeUtils.getPipeWithLocation(pipeBlock.getLocation()), true);
 				}
 			}
@@ -133,7 +129,7 @@ public class HitboxListener implements Listener {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof Clickable) {
 					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
-						if (TransportPipes.canDestroy(p, pipeClickedAt.blockLoc.getBlock())) {
+						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}

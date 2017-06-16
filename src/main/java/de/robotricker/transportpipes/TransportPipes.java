@@ -16,7 +16,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -240,28 +239,15 @@ public class TransportPipes extends JavaPlugin {
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
 		BlockPlaceEvent bpe = new BlockPlaceEvent(b, b.getState(), placedAgainst, es == EquipmentSlot.HAND ? p.getInventory().getItemInMainHand() : p.getInventory().getItemInOffHand(), p, true, es);
 		Bukkit.getPluginManager().callEvent(bpe);
-		
-		if (p.getName().equalsIgnoreCase("RoboTricker")) {
-			p.sendMessage(bpe.canBuild() + ":" + bpe.isCancelled());
-			for(RegisteredListener rl : bpe.getHandlers().getRegisteredListeners()){
+
+		if (p.isOp()) {
+			p.sendMessage("cancelled:" + bpe.isCancelled());
+			for (RegisteredListener rl : bpe.getHandlers().getRegisteredListeners()) {
 				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getListener().getClass().getSimpleName());
 			}
 			p.sendMessage(".............");
 		}
 		return !bpe.isCancelled() || p.isOp();
-	}
-
-	public static boolean canDestroy(Player p, Block b) {
-		BlockBreakEvent bbe = new BlockBreakEvent(b, p);
-		Bukkit.getPluginManager().callEvent(bbe);
-		if (p.getName().equalsIgnoreCase("RoboTricker")) {
-			p.sendMessage(bbe.isCancelled() + "");
-			for(RegisteredListener rl : bbe.getHandlers().getRegisteredListeners()){
-				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getListener().getClass().getSimpleName());
-			}
-			p.sendMessage(".......");
-		}
-		return !bbe.isCancelled() || p.isOp();
 	}
 
 	public static BlockLoc convertBlockLoc(Location blockLoc) {
