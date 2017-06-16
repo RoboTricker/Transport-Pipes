@@ -12,6 +12,10 @@ public class ReloadConfigCommandExecutor implements PipesCommandExecutor {
 			return false;
 		}
 		TransportPipes.instance.reloadConfig();
+
+		TransportPipes.antiCheatPlugins.clear();
+		TransportPipes.antiCheatPlugins.addAll(TransportPipes.instance.getConfig().getStringList("anticheat"));
+
 		cs.sendMessage(TransportPipes.instance.PREFIX + "Config reloaded");
 		return true;
 	}

@@ -25,7 +25,7 @@ public class HitboxListener implements Listener {
 		Block clickedBlock = e.getClickedBlock();
 		ItemStack clickedItem;
 		boolean mainHand;
-		
+
 		if (e.getHand() == EquipmentSlot.HAND) {
 			clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
 			mainHand = true;

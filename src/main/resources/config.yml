@@ -32,3 +32,6 @@ settingsinv:
   - '&7This represents the Radius in Blocks'
   - '&7in which you can see the pipes.'
   - '&7If you have too less FPS, decrease this option.'
+  
+#If you have any AntiCheat plugins installed, list them here:
+anticheat: [NoCheatPlus, CompatNoCheatPlus, AntiCheatPlus]

@@ -1,7 +1,9 @@
 package de.robotricker.transportpipes;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -16,7 +18,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -78,6 +80,8 @@ public class TransportPipes extends JavaPlugin {
 	public static PipeThread pipeThread;
 	public static PipePacketManager pipePacketManager;
 
+	public static List<String> antiCheatPlugins = new ArrayList<String>();
+
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -113,6 +117,9 @@ public class TransportPipes extends JavaPlugin {
 		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
 
 		ICE_BLOCK = new ItemStack(Material.ICE);
+
+		antiCheatPlugins.clear();
+		antiCheatPlugins.addAll(getConfig().getStringList("anticheat"));
 
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
@@ -237,17 +244,27 @@ public class TransportPipes extends JavaPlugin {
 	}
 
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
-		BlockPlaceEvent bpe = new BlockPlaceEvent(b, b.getState(), placedAgainst, es == EquipmentSlot.HAND ? p.getInventory().getItemInMainHand() : p.getInventory().getItemInOffHand(), p, true, es);
-		Bukkit.getPluginManager().callEvent(bpe);
+		BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 
-		if (p.isOp()) {
-			p.sendMessage("cancelled:" + bpe.isCancelled());
-			for (RegisteredListener rl : bpe.getHandlers().getRegisteredListeners()) {
-				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getListener().getClass().getSimpleName());
+		//unregister anticheat listeners
+		List<RegisteredListener> unregisterListeners = new ArrayList<RegisteredListener>();
+		for (RegisteredListener rl : bbe.getHandlers().getRegisteredListeners()) {
+			for (String antiCheat : antiCheatPlugins) {
+				if (rl.getPlugin().getName().equalsIgnoreCase(antiCheat)) {
+					unregisterListeners.add(rl);
+				}
 			}
-			p.sendMessage(".............");
 		}
-		return !bpe.isCancelled() || p.isOp();
+		for (RegisteredListener rl : unregisterListeners) {
+			bbe.getHandlers().unregister(rl);
+		}
+
+		Bukkit.getPluginManager().callEvent(bbe);
+
+		//register anticheat listeners
+		bbe.getHandlers().registerAll(unregisterListeners);
+
+		return !bbe.isCancelled() || p.isOp();
 	}
 
 	public static BlockLoc convertBlockLoc(Location blockLoc) {
