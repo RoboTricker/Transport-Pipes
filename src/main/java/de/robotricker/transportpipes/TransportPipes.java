@@ -244,7 +244,7 @@ public class TransportPipes extends JavaPlugin {
 		if (p.getName().equalsIgnoreCase("RoboTricker")) {
 			p.sendMessage(bpe.canBuild() + ":" + bpe.isCancelled());
 			for(RegisteredListener rl : bpe.getHandlers().getRegisteredListeners()){
-				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getClass().getSimpleName());
+				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getListener().getClass().getSimpleName());
 			}
 			p.sendMessage(".............");
 		}
@@ -257,7 +257,7 @@ public class TransportPipes extends JavaPlugin {
 		if (p.getName().equalsIgnoreCase("RoboTricker")) {
 			p.sendMessage(bbe.isCancelled() + "");
 			for(RegisteredListener rl : bbe.getHandlers().getRegisteredListeners()){
-				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getClass().getSimpleName());
+				p.sendMessage(rl.getPlugin().getName() + ":" + rl.getListener().getClass().getSimpleName());
 			}
 			p.sendMessage(".......");
 		}
