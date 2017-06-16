@@ -139,8 +139,8 @@ public class HitboxUtils {
 	/**
 	 * "simulate" a block place when you click on the side of a pipe
 	 */
-	public static boolean placeBlock(Player p, Block b, int id, byte data, EquipmentSlot es) {
-		if (!TransportPipes.canBuild(p, b, es)) {
+	public static boolean placeBlock(Player p, Block b, Block placedAgainst, int id, byte data, EquipmentSlot es) {
+		if (!TransportPipes.canBuild(p, b, placedAgainst, es)) {
 			return false;
 		}
 		//check if there is already a pipe at this position
