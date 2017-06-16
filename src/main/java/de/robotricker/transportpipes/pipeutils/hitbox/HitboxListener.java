@@ -25,6 +25,10 @@ public class HitboxListener implements Listener {
 		Block clickedBlock = e.getClickedBlock();
 		ItemStack clickedItem;
 		boolean mainHand;
+		
+		if(p.getName().equalsIgnoreCase("RoboTricker")){
+			p.sendMessage("interact cancelled: " + e.isCancelled());
+		}
 
 		if (e.getHand() == EquipmentSlot.HAND) {
 			clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
