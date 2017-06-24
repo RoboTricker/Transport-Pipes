@@ -4,6 +4,7 @@ disable_crafting: false
 permissions:
   tps: 'tp.tps'
   reload: 'tp.reload'
+  update: 'tp.update'
 pipename:
   pipe: 'Pipe'
   golden_pipe: 'Golden-Pipe'

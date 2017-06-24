@@ -35,9 +35,11 @@ import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
+import de.robotricker.transportpipes.update.UpdateManager;
 
 /**
  * <h1>TransportPipes Spigot/Bukkit Plugin for Minecraft 1.9+</h1>
@@ -74,11 +76,13 @@ public class TransportPipes extends JavaPlugin {
 
 	//x << 34 | y << 26 | z
 	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
+	
+	public static TransportPipes instance;
 
 	public static ArmorStandProtocol armorStandProtocol;
-	public static TransportPipes instance;
 	public static PipeThread pipeThread;
 	public static PipePacketManager pipePacketManager;
+	public static UpdateManager updateManager;
 
 	public static List<String> antiCheatPlugins = new ArrayList<String>();
 
@@ -131,6 +135,7 @@ public class TransportPipes extends JavaPlugin {
 		final TPSCommandExecutor tpsCmdExec = new TPSCommandExecutor();
 		final ReloadConfigCommandExecutor reloadConfigCmdExec = new ReloadConfigCommandExecutor();
 		final ReloadPipesCommandExecutor reloadPipesCmdExec = new ReloadPipesCommandExecutor();
+		final UpdateCommandExecutor updateCmdExec = new UpdateCommandExecutor();
 
 		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
@@ -145,6 +150,10 @@ public class TransportPipes extends JavaPlugin {
 					}
 				} else if (args.length >= 1 && args[0].equalsIgnoreCase("settings")) {
 					if (!settingsInv.onCommand(cs)) {
+						noPerm = true;
+					}
+				} else if (args.length >= 1 && args[0].equalsIgnoreCase("update")) {
+					if (!updateCmdExec.onCommand(cs)) {
 						noPerm = true;
 					}
 				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("config")) {
@@ -162,6 +171,8 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- &bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread."));
 					if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload")))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- &bReloads all pipes or the config."));
+					if (cs.hasPermission(getConfig().getString("permissions.update", "tp.update")))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- &bChecks for a new plugin version at SpigotMC and updates the plugin if possible."));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
 					return true;
 				}
@@ -181,6 +192,7 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new PipeNeighborBlockListener(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
+		Bukkit.getPluginManager().registerEvents(updateManager = new UpdateManager(this), this);
 
 		for (World world : Bukkit.getWorlds()) {
 			SavingManager.loadPipesSync(world);
