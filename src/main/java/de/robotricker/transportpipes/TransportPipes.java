@@ -39,6 +39,17 @@ import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeGOLDENModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeIRONModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeNORMALModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeEWModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeGOLDENModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeIRONModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeMIDModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeNSModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeUDModel;
 import de.robotricker.transportpipes.update.UpdateManager;
 
 /**
@@ -72,11 +83,9 @@ public class TransportPipes extends JavaPlugin {
 	public String WRENCH_NAME;
 	public static ItemStack WRENCH_ITEM;
 
-	public static ItemStack ICE_BLOCK;
-
 	//x << 34 | y << 26 | z
 	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
-	
+
 	public static TransportPipes instance;
 
 	public static ArmorStandProtocol armorStandProtocol;
@@ -85,6 +94,16 @@ public class TransportPipes extends JavaPlugin {
 	public static UpdateManager updateManager;
 
 	public static List<String> antiCheatPlugins = new ArrayList<String>();
+
+	public static ModelledPipeModel modelledNormalModel = new ModelledPipeNORMALModel();
+	public static ModelledPipeModel modelledIronModel = new ModelledPipeIRONModel();
+	public static ModelledPipeModel modelledGoldenModel = new ModelledPipeGOLDENModel();
+	public static VanillaPipeModel vanillaEwModel = new VanillaPipeEWModel();
+	public static VanillaPipeModel vanillaNsModel = new VanillaPipeNSModel();
+	public static VanillaPipeModel vanillaUdModel = new VanillaPipeUDModel();
+	public static VanillaPipeModel vanillaMidModel = new VanillaPipeMIDModel();
+	public static VanillaPipeModel vanillaGoldenModel = new VanillaPipeGOLDENModel();
+	public static VanillaPipeModel vanillaIronModel = new VanillaPipeIRONModel();
 
 	@Override
 	public void onEnable() {
@@ -119,8 +138,6 @@ public class TransportPipes extends JavaPlugin {
 		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&7" + getConfig().getString("pipename.iron_pipe"));
 		ICE_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&b" + getConfig().getString("pipename.ice_pipe"));
 		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
-
-		ICE_BLOCK = new ItemStack(Material.ICE);
 
 		antiCheatPlugins.clear();
 		antiCheatPlugins.addAll(getConfig().getStringList("anticheat"));

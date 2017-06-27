@@ -36,6 +36,7 @@ public class ArmorStandProtocol {
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
 	public ArmorStandProtocol() {
+
 	}
 
 	public void sendPipe(final Player p, Pipe pipe) {

@@ -33,7 +33,8 @@ import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
-import de.robotricker.transportpipes.protocol.ArmorStandData;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeModel;
 
 public abstract class Pipe {
 
@@ -54,7 +55,8 @@ public abstract class Pipe {
 	protected static final ItemStack ITEM_CARPET_RED = new ItemStack(Material.CARPET, 1, (short) 14);
 	protected static final ItemStack ITEM_CARPET_BLACK = new ItemStack(Material.CARPET, 1, (short) 15);
 
-	private List<ArmorStandData> armorStandList;
+	private ModelledPipeModel mpm;
+	private VanillaPipeModel vpm;
 
 	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<PipeItem, PipeDirection>();
 
@@ -93,13 +95,13 @@ public abstract class Pipe {
 		this.pipeColor = pipeColor;
 		this.blockLoc = blockLoc;
 		this.aabb = aabb;
-		armorStandList = new ArrayList<ArmorStandData>();
 		this.icePipe = icePipe;
+		this.mpm = TransportPipes.modelledNormalModel;
+		this.vpm = TransportPipes.vanillaMidModel;
 	}
 
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean icePipe, List<PipeDirection> pipeNeighborBlocks, ArmorStandData... list) {
+	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean icePipe, List<PipeDirection> pipeNeighborBlocks) {
 		this(pipeColor, blockLoc, aabb, icePipe);
-		Collections.addAll(armorStandList, list);
 		synchronized (pipeNeighborBlocks) {
 			for (PipeDirection pd : pipeNeighborBlocks) {
 				this.pipeNeighborBlocks.add(pd);
@@ -116,10 +118,6 @@ public abstract class Pipe {
 	 */
 	public boolean isPipeNeighborBlock(PipeDirection dir) {
 		return this.pipeNeighborBlocks.contains(dir);
-	}
-
-	public List<ArmorStandData> getArmorStandList() {
-		return armorStandList;
 	}
 
 	public Location getBlockLoc() {
