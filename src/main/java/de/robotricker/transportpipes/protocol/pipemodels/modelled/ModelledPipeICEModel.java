@@ -7,10 +7,10 @@ import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 
-public class ModelledPipeGOLDENModel extends ModelledPipeModel {
+public class ModelledPipeICEModel extends ModelledPipeModel {
 
 	public ArmorStandData createMIDArmorStandData() {
-		ItemStack hoe = ITEM_HOE_MID_GOLDEN;
+		ItemStack hoe = ITEM_HOE_MID_ICE;
 
 		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
 
@@ -18,7 +18,7 @@ public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 	}
 
 	public ArmorStandData createCONNArmorStandData(PipeDirection pd) {
-		ItemStack hoe = ITEM_HOE_CONN_GOLDEN;
+		ItemStack hoe = ITEM_HOE_CONN_ICE;
 		ArmorStandData asd = null;
 
 		if (pd == PipeDirection.UP) {
@@ -31,4 +31,5 @@ public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 
 		return asd;
 	}
+
 }

@@ -22,6 +22,7 @@ import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.manager.settings.SettingsManager;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class PipePacketManager implements Listener {
 
@@ -29,6 +30,8 @@ public class PipePacketManager implements Listener {
 	public Map<World, List<Integer>> allWorldEntityIds = Collections.synchronizedMap(new HashMap<World, List<Integer>>());
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
+	
+	private Map<Player, PipeManager> pipeManagers = Collections.synchronizedMap(new HashMap<Player, PipeManager>());
 
 	/**
 	 * only removes or sends the edited ArmorStands in this pipe! Does not edit the Pipe-ArmorStand List

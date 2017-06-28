@@ -28,13 +28,9 @@ import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.api.PipeExplodeEvent;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
-import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeModel;
-import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeModel;
 
 public abstract class Pipe {
 
@@ -55,9 +51,6 @@ public abstract class Pipe {
 	protected static final ItemStack ITEM_CARPET_RED = new ItemStack(Material.CARPET, 1, (short) 14);
 	protected static final ItemStack ITEM_CARPET_BLACK = new ItemStack(Material.CARPET, 1, (short) 15);
 
-	private ModelledPipeModel mpm;
-	private VanillaPipeModel vpm;
-
 	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<PipeItem, PipeDirection>();
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
@@ -74,15 +67,6 @@ public abstract class Pipe {
 	//jedes iteraten durch diese List MUSS mit synchronized(pipeNeighborBlocks){} sein!
 	public List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
 
-	//the Hitbox for this pipe
-	private AxisAlignedBB aabb;
-
-	//the color of the pipe (different colored pipes don't connect to each other)
-	protected PipeColor pipeColor;
-
-	//whether this pipe is an ice pipe - Golden- and Iron-Pipes can't be Ice-Pipes
-	protected boolean icePipe;
-
 	static {
 		try {
 			maxItemsPerPipe = TransportPipes.instance.getConfig().getInt("max_items_per_pipe");
@@ -91,26 +75,8 @@ public abstract class Pipe {
 		}
 	}
 
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean icePipe) {
-		this.pipeColor = pipeColor;
+	public Pipe(Location blockLoc) {
 		this.blockLoc = blockLoc;
-		this.aabb = aabb;
-		this.icePipe = icePipe;
-		this.mpm = TransportPipes.modelledNormalModel;
-		this.vpm = TransportPipes.vanillaMidModel;
-	}
-
-	public Pipe(PipeColor pipeColor, Location blockLoc, AxisAlignedBB aabb, boolean icePipe, List<PipeDirection> pipeNeighborBlocks) {
-		this(pipeColor, blockLoc, aabb, icePipe);
-		synchronized (pipeNeighborBlocks) {
-			for (PipeDirection pd : pipeNeighborBlocks) {
-				this.pipeNeighborBlocks.add(pd);
-			}
-		}
-	}
-
-	public AxisAlignedBB getAABB() {
-		return aabb;
 	}
 
 	/**
@@ -521,16 +487,6 @@ public abstract class Pipe {
 		}
 
 	}
-
-	public PipeColor getPipeColor() {
-		return pipeColor;
-	}
-
-	public boolean isIcePipe() {
-		return icePipe;
-	}
-
-	public abstract boolean isNormalPipe();
 
 	public float getPipeItemSpeed() {
 		return icePipe ? ICE_ITEM_SPEED : ITEM_SPEED;

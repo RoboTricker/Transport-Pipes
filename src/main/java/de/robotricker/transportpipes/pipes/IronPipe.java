@@ -9,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
 import org.jnbt.Tag;
@@ -18,36 +17,16 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
 import de.robotricker.transportpipes.pipes.interfaces.Editable;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.RelLoc;
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class IronPipe extends Pipe implements Editable, Clickable {
 
-	private HashMap<PipeDirection, ArmorStandData> outputASDs = new HashMap<>();
 	private PipeDirection currentOutputDir;
 
-	public IronPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean icePipe) {
-		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
-		//@formatter:off
-		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), false, pipeNeighborBlocks,
-				new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_IRON_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f - 0.26f, -0.255f, 0.5f), new Vector(-1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f + 0.26f), new Vector(0, 0, 1), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f - 0.26f), new Vector(0, 0, -1), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f + 0.26f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_YELLOW, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f - 0.26f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f)));
-		//@formatter:on
-		for (int i = 0; i < PipeDirection.values().length; i++) {
-			ArmorStandData tempASD = getArmorStandList().get(i + 1);
-			if (tempASD.getHeadItem() != null && tempASD.getHeadItem().equals(ITEM_CARPET_YELLOW)) {
-				currentOutputDir = PipeDirection.values()[i];
-			}
-			outputASDs.put(PipeDirection.values()[i], tempASD);
-		}
+	public IronPipe(Location blockLoc) {
+		super(blockLoc);
+		currentOutputDir = PipeDirection.UP;
 	}
 
 	@Override
@@ -121,13 +100,8 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 		}
 	}
 
-	public PipeDirection getCurrentOutputDir(){
+	public PipeDirection getCurrentOutputDir() {
 		return currentOutputDir;
 	}
-	
-	@Override
-	public boolean isNormalPipe(){
-		return false;
-	}
-	
+
 }

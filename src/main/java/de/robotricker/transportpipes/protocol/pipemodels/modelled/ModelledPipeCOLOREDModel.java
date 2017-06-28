@@ -3,32 +3,23 @@ package de.robotricker.transportpipes.protocol.pipemodels.modelled;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 
-public class ModelledPipeNORMALModel extends ModelledPipeModel {
+public class ModelledPipeCOLOREDModel extends ModelledPipeModel {
 
-	@Override
-	public ArmorStandData createMIDArmorStandData(PipeType pt, PipeColor pc) {
+	public ArmorStandData createMIDArmorStandData(PipeColor pc) {
 		ItemStack hoe = pc.getModelledModel_MidHoeItem();
-		if (pt == PipeType.ICE) {
-			hoe = ITEM_HOE_MID_ICE;
-		}
 
 		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
 
 		return asd;
 	}
 
-	@Override
-	public ArmorStandData createCONNArmorStandData(PipeType pt, PipeColor pc, PipeDirection pd) {
+	public ArmorStandData createCONNArmorStandData(PipeColor pc, PipeDirection pd) {
 		ItemStack hoe = pc.getModelledModel_ConnHoeItem();
-		if (pt == PipeType.ICE) {
-			hoe = ITEM_HOE_CONN_ICE;
-		}
 		ArmorStandData asd = null;
 
 		if (pd == PipeDirection.UP) {

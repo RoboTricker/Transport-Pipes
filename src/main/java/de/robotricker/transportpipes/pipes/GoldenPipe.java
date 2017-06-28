@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.jnbt.CompoundTag;
 import org.jnbt.ListTag;
 import org.jnbt.Tag;
@@ -20,12 +19,8 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
-import de.robotricker.transportpipes.pipeutils.RelLoc;
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
-import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class GoldenPipe extends Pipe implements Clickable {
 
@@ -33,18 +28,8 @@ public class GoldenPipe extends Pipe implements Clickable {
 	private ItemData[][] outputItems = new ItemData[6][8];
 	private boolean ignoreNBT = false;
 
-	public GoldenPipe(Location blockLoc, List<PipeDirection> pipeNeighborBlocks, PipeColor pipeColor, boolean icePipe) {
-		//PipeLoc | Body Direction | isSmall | HeadItem | HandItem | headRotation | handRotation
-		//@formatter:off
-		super(pipeColor, blockLoc, new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75), false, pipeNeighborBlocks,
-				new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_GOLD_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f - 0.26f, -0.255f, 0.5f), new Vector(-1, 0, 0), true, ITEM_CARPET_YELLOW, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f + 0.26f), new Vector(0, 0, 1), true, ITEM_CARPET_GREEN, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f - 0.26f), new Vector(0, 0, -1), true, ITEM_CARPET_BLUE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f + 0.26f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_RED, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)),
-				new ArmorStandData(new RelLoc(0.5f, -0.255f - 0.26f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_BLACK, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f)));
-		//@formatter:on
+	public GoldenPipe(Location blockLoc) {
+		super(blockLoc);
 	}
 
 	@Override
@@ -233,11 +218,6 @@ public class GoldenPipe extends Pipe implements Clickable {
 				}
 			}
 		}
-	}
-	
-	@Override
-	public boolean isNormalPipe(){
-		return false;
 	}
 
 }
