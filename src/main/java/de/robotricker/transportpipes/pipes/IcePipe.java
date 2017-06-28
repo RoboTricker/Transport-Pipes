@@ -23,4 +23,9 @@ public class IcePipe extends Pipe {
 
 	}
 
+	@Override
+	public PipeType getPipeType() {
+		return PipeType.ICE;
+	}
+	
 }

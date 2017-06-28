@@ -1,7 +1,10 @@
 package de.robotricker.transportpipes.protocol;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -23,6 +26,7 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class ArmorStandProtocol {
 
@@ -35,10 +39,20 @@ public class ArmorStandProtocol {
 	private static final Serializer vectorSerializer = Registry.get(ReflectionManager.getVector3fClass());
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
-	public ArmorStandProtocol() {
+	private Map<Player, PipeManager> pipeManagers;
 
+	public ArmorStandProtocol() {
+		pipeManagers = Collections.synchronizedMap(new HashMap<Player, PipeManager>());
 	}
 
+	public PipeManager getPlayerPipeManager(Player p) {
+		if (pipeManagers.containsKey(p)) {
+			return pipeManagers.get(p);
+		}
+		pipeManagers.put(p, TransportPipes.vanillaPipeManager);
+		return TransportPipes.vanillaPipeManager;
+	}
+	
 	public void sendPipe(final Player p, Pipe pipe) {
 		for (ArmorStandData asd : pipe.getArmorStandList()) {
 			sendArmorStandData(p, pipe.getBlockLoc(), asd, new Vector(0f, 0f, 0f));

@@ -17,8 +17,8 @@ public class ModelledPipeIRONModel extends ModelledPipeModel {
 		return asd;
 	}
 
-	public ArmorStandData createCONNArmorStandData(PipeDirection pd) {
-		ItemStack hoe = ITEM_HOE_CONN_IRON;
+	public ArmorStandData createCONNArmorStandData(PipeDirection pd, boolean output) {
+		ItemStack hoe = output ? ITEM_HOE_CONN_IRON_OUTPUT : ITEM_HOE_CONN_IRON;
 		ArmorStandData asd = null;
 
 		if (pd == PipeDirection.UP) {

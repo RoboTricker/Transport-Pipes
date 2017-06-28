@@ -488,8 +488,11 @@ public abstract class Pipe {
 
 	}
 
-	public float getPipeItemSpeed() {
-		return icePipe ? ICE_ITEM_SPEED : ITEM_SPEED;
-	}
+	/**
+	 * get the items that will be dropped on pipe destroy
+	 */
+	protected abstract List<ItemStack> getDroppedItems();
+	
+	public abstract PipeType getPipeType();
 
 }

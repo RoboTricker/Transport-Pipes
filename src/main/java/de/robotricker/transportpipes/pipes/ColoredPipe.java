@@ -31,4 +31,9 @@ public class ColoredPipe extends Pipe{
 		return pipeColor;
 	}
 
+	@Override
+	public PipeType getPipeType() {
+		return PipeType.COLORED;
+	}
+	
 }

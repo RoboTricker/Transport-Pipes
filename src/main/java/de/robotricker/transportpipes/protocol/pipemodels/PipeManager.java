@@ -1,18 +1,24 @@
 package de.robotricker.transportpipes.protocol.pipemodels;
 
-import org.bukkit.entity.Player;
-
 import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 
 public abstract class PipeManager {
 
-	public abstract void sendPipe(Player p, Pipe pipe);
+	protected ArmorStandProtocol protocol;
 
-	public abstract void updatePipeShape(Player p, Pipe pipe);
+	public PipeManager(ArmorStandProtocol protocol) {
+		this.protocol = protocol;
+	}
 
-	public abstract void updateIronPipe(Player p, IronPipe pipe);
-	
-	public abstract void removePipe(Player p, Pipe pipe);
+	public abstract void sendPipe(Pipe pipe);
+
+	public abstract void updatePipeShape(Pipe pipe);
+
+	public abstract void updateIronPipe(IronPipe pipe, PipeDirection oldOutput, PipeDirection newOutput);
+
+	public abstract void removePipe(Pipe pipe);
 
 }

@@ -219,5 +219,10 @@ public class GoldenPipe extends Pipe implements Clickable {
 			}
 		}
 	}
+	
+	@Override
+	public PipeType getPipeType() {
+		return PipeType.GOLDEN;
+	}
 
 }

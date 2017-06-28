@@ -39,6 +39,9 @@ import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
+import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeManager;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeManager;
 import de.robotricker.transportpipes.update.UpdateManager;
 
 /**
@@ -83,6 +86,9 @@ public class TransportPipes extends JavaPlugin {
 	public static UpdateManager updateManager;
 
 	public static List<String> antiCheatPlugins = new ArrayList<String>();
+	
+	public static PipeManager vanillaPipeManager;
+	public static PipeManager modelledPipeManager;
 
 	@Override
 	public void onEnable() {
@@ -90,6 +96,9 @@ public class TransportPipes extends JavaPlugin {
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
 
+		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
+		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
+		
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 

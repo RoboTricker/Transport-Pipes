@@ -17,10 +17,12 @@ import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.api.PlayerDestroyPipeEvent;
 import de.robotricker.transportpipes.api.PlayerPlacePipeEvent;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipes.ColoredPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeEW;
 import de.robotricker.transportpipes.pipes.PipeMID;
 import de.robotricker.transportpipes.pipes.PipeNS;
+import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUD;
 
 public class PipeUtils {
@@ -197,25 +199,23 @@ public class PipeUtils {
 	 * @param normalPipe
 	 *            determines if the pipe at pipeLoc (for which the neighbor pipe check is done) is a normal pipe or a special pipe (golden, iron or detector pipe)
 	 */
-	public static List<PipeDirection> getPipeConnections(Location pipeLoc, PipeColor pipeColor, boolean normalPipe) {
+	public static List<PipeDirection> getPipeConnections(Location pipeLoc, PipeType type, PipeColor color) {
 
 		List<PipeDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipeLoc.getWorld());
 
-		if (pipeColor == null) {
-			BlockLoc pipeLocBlockLoc = TransportPipes.convertBlockLoc(pipeLoc);
-			pipeColor = pipeMap.containsKey(pipeLocBlockLoc) ? pipeMap.get(pipeLocBlockLoc).getPipeColor() : null;
-		}
 		if (pipeMap != null) {
 			for (PipeDirection dir : PipeDirection.values()) {
 				Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
 				BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
 				if (pipeMap.containsKey(bl)) {
 					Pipe connectedPipe = pipeMap.get(bl);
-					if (!connectedPipe.isNormalPipe() || !normalPipe) {
-						dirs.add(dir);
-					} else if (pipeColor == null || connectedPipe.getPipeColor().equals(pipeColor)) {
+					if (connectedPipe.getPipeType() == PipeType.COLORED && type == PipeType.COLORED) {
+						if (((ColoredPipe) connectedPipe).getPipeColor().equals(color)) {
+							dirs.add(dir);
+						}
+					} else {
 						dirs.add(dir);
 					}
 				}

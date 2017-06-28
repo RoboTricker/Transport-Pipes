@@ -13,5 +13,6 @@ public abstract class ModelledPipeModel extends PipeModel{
 	protected static final ItemStack ITEM_HOE_CONN_GOLDEN = new ItemStack(Material.WOOD_HOE, 1, (short) 11);
 	protected static final ItemStack ITEM_HOE_MID_IRON = new ItemStack(Material.WOOD_HOE, 1, (short) 10);
 	protected static final ItemStack ITEM_HOE_CONN_IRON = new ItemStack(Material.WOOD_HOE, 1, (short) 11);
-	
+	protected static final ItemStack ITEM_HOE_CONN_IRON_OUTPUT = new ItemStack(Material.WOOD_HOE, 1, (short) 12);
+
 }

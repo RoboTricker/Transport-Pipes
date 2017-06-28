@@ -1,33 +1,127 @@
 package de.robotricker.transportpipes.protocol.pipemodels.vanilla;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.bukkit.entity.Player;
-
+import de.robotricker.transportpipes.pipes.ColoredPipe;
 import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeUtils;
+import de.robotricker.transportpipes.pipeutils.RelLoc;
+import de.robotricker.transportpipes.protocol.ArmorStandData;
+import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class VanillaPipeManager extends PipeManager {
 
+	private Map<Pipe, List<ArmorStandData>> pipeAsd = new HashMap<Pipe, List<ArmorStandData>>();
+
+	public VanillaPipeManager(ArmorStandProtocol protocol) {
+		super(protocol);
+	}
+
 	@Override
-	public void sendPipe(Player p, Pipe pipe) {
+	public void sendPipe(Pipe pipe) {
+		if (pipeAsd.containsKey(pipe)) {
+			return;
+		}
+
+		PipeColor pc = PipeColor.WHITE;
+		if (pipe.getPipeType() == PipeType.COLORED) {
+			pc = ((ColoredPipe) pipe).getPipeColor();
+		}
+		List<PipeDirection> conns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
+
+		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(conns);
+		if (pipe.getPipeType() == PipeType.COLORED) {
+			pipeAsd.put(pipe, shape.getModel().createColoredPipeArmorStandData(pc));
+		} else if (pipe.getPipeType() == PipeType.ICE) {
+			pipeAsd.put(pipe, shape.getModel().createIcePipeArmorStandData());
+		} else if (pipe.getPipeType() == PipeType.GOLDEN) {
+			pipeAsd.put(pipe, ((VanillaPipeMIDModel) shape.getModel()).createGoldenPipeArmorStandData());
+		} else if (pipe.getPipeType() == PipeType.IRON) {
+			pipeAsd.put(pipe, ((VanillaPipeMIDModel) shape.getModel()).createIronPipeArmorStandData());
+		}
+
+		if (pipeAsd.containsKey(pipe)) {
+
+			//SEND TO CLIENTS
+
+		}
+	}
+
+	@Override
+	public void updatePipeShape(Pipe pipe) {
+		if (!pipeAsd.containsKey(pipe)) {
+			return;
+		}
+		List<ArmorStandData> asd = pipeAsd.get(pipe);
+
+		//SEND TO CLIENTS
+
+		asd.clear();
+
+		PipeColor pc = PipeColor.WHITE;
+		if (pipe.getPipeType() == PipeType.COLORED) {
+			pc = ((ColoredPipe) pipe).getPipeColor();
+		}
+		List<PipeDirection> conns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
+
+		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(conns);
+		if (pipe.getPipeType() == PipeType.COLORED) {
+			asd.addAll(shape.getModel().createColoredPipeArmorStandData(pc));
+		} else if (pipe.getPipeType() == PipeType.ICE) {
+			asd.addAll(shape.getModel().createIcePipeArmorStandData());
+		} else if (pipe.getPipeType() == PipeType.GOLDEN) {
+			asd.addAll(((VanillaPipeMIDModel) shape.getModel()).createGoldenPipeArmorStandData());
+		} else if (pipe.getPipeType() == PipeType.IRON) {
+			asd.addAll(((VanillaPipeMIDModel) shape.getModel()).createIronPipeArmorStandData());
+		}
+
+		//SEND TO CLIENTS
 
 	}
 
 	@Override
-	public void updatePipeShape(Player p, Pipe pipe) {
+	public void updateIronPipe(IronPipe pipe, PipeDirection oldOutput, PipeDirection newOutput) {
+		if (!pipeAsd.containsKey(pipe)) {
+			return;
+		}
+		List<ArmorStandData> asd = pipeAsd.get(pipe);
 
-	}
-	
-	@Override
-	public void updateIronPipe(Player p, IronPipe pipe){
+		ArmorStandData oldOutputNewAsd = ((VanillaPipeMIDModel) VanillaPipeShape.MID.getModel()).createIronPipeSideArmorStandData(oldOutput, false);
+		ArmorStandData newOutputNewAsd = ((VanillaPipeMIDModel) VanillaPipeShape.MID.getModel()).createIronPipeSideArmorStandData(newOutput, true);
+		ArmorStandData oldOutputOldAsd = null;
+		ArmorStandData newOutputOldAsd = null;
+
+		for (int i = 0; i < asd.size(); i++) {
+			ArmorStandData data = asd.get(i);
+			if (RelLoc.compare(data.getLoc(), oldOutputNewAsd.getLoc())) {
+				oldOutputOldAsd = data;
+				asd.set(i, oldOutputNewAsd);
+			}
+			if (RelLoc.compare(data.getLoc(), newOutputNewAsd.getLoc())) {
+				newOutputOldAsd = data;
+				asd.set(i, newOutputNewAsd);
+			}
+		}
 		
+		//SEND TO CLIENTS
+
 	}
 
 	@Override
-	public void removePipe(Player p, Pipe pipe) {
+	public void removePipe(Pipe pipe) {
+		if (!pipeAsd.containsKey(pipe)) {
+			return;
+		}
+		List<ArmorStandData> asd = pipeAsd.remove(pipe);
+
+		//SEND TO CLIENTS
 
 	}
 

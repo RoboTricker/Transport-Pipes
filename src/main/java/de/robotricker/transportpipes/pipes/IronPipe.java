@@ -103,5 +103,10 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 	public PipeDirection getCurrentOutputDir() {
 		return currentOutputDir;
 	}
+	
+	@Override
+	public PipeType getPipeType() {
+		return PipeType.IRON;
+	}
 
 }

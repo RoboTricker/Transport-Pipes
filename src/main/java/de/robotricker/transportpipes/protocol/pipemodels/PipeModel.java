@@ -9,16 +9,10 @@ import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
 public abstract class PipeModel {
 
-	public void sendPipe(Player p, Pipe pipe) {
+	public abstract void sendPipe(Player p, Pipe pipe);
 
-	}
+	public abstract void updatePipe(Player p, Pipe pipe, List<PipeDirection> oldConns, List<PipeDirection> newConns);
 
-	public void updatePipe(Player p, Pipe pipe, List<PipeDirection> oldConns, List<PipeDirection> newConns) {
-
-	}
-
-	public void removePipe(Player p, Pipe pipe) {
-
-	}
+	public abstract void removePipe(Player p, Pipe pipe);
 
 }
