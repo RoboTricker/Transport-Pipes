@@ -40,8 +40,8 @@ import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
-import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeManager;
-import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeManager;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.utils.ModelledPipeManager;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.utils.VanillaPipeManager;
 import de.robotricker.transportpipes.update.UpdateManager;
 
 /**

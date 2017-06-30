@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes.pipes;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
 import org.jnbt.Tag;
@@ -16,11 +16,9 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
-import de.robotricker.transportpipes.pipes.interfaces.Editable;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.protocol.ArmorStandData;
 
-public class IronPipe extends Pipe implements Editable, Clickable {
+public class IronPipe extends Pipe implements Clickable {
 
 	private PipeDirection currentOutputDir;
 
@@ -46,39 +44,12 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 		changeOutputDirection(PipeDirection.fromID(((IntTag) tag.getValue().get("OutputDirection")).getValue()));
 	}
 
-	//Override this method because this pipe musn't be updated
-	@Override
-	public void updatePipeShape() {
-
-	}
-
 	public void changeOutputDirection(PipeDirection newOutputDir) {
 		if (newOutputDir != null && newOutputDir != currentOutputDir) {
-			//destroy the old yellow side and the old white site + spawn the new white side and the new yellow site
-			ArmorStandData oldASD1 = outputASDs.get(currentOutputDir);
-			ArmorStandData newASD1 = oldASD1.clone(ITEM_CARPET_WHITE);
-
 			currentOutputDir = newOutputDir;
-
-			ArmorStandData oldASD2 = outputASDs.get(currentOutputDir);
-			ArmorStandData newASD2 = oldASD2.clone(ITEM_CARPET_YELLOW);
-
-			List<ArmorStandData> newList = new ArrayList<>();
-			newList.add(newASD1);
-			newList.add(newASD2);
-			List<ArmorStandData> oldList = new ArrayList<>();
-			oldList.add(oldASD1);
-			oldList.add(oldASD2);
-
-			editArmorStandDatas(newList, oldList);
+			TransportPipes.vanillaPipeManager.updatePipe(this);
+			TransportPipes.modelledPipeManager.updatePipe(this);
 		}
-	}
-
-	@Override
-	public void editArmorStandDatas(List<ArmorStandData> added, List<ArmorStandData> removed) {
-		getArmorStandList().addAll(added);
-		getArmorStandList().removeAll(removed);
-		TransportPipes.pipePacketManager.processPipeEdit(this, added, removed);
 	}
 
 	@Override
@@ -103,10 +74,15 @@ public class IronPipe extends Pipe implements Editable, Clickable {
 	public PipeDirection getCurrentOutputDir() {
 		return currentOutputDir;
 	}
-	
+
 	@Override
 	public PipeType getPipeType() {
 		return PipeType.IRON;
+	}
+
+	@Override
+	protected List<ItemStack> getDroppedItems() {
+		return null;
 	}
 
 }

@@ -1,19 +1,22 @@
-package de.robotricker.transportpipes.protocol.pipemodels.vanilla;
+package de.robotricker.transportpipes.protocol.pipemodels.vanilla.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.robotricker.transportpipes.pipes.ColoredPipe;
+import org.bukkit.entity.Player;
+
 import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeEWModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeMIDModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeNSModel;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.VanillaPipeUDModel;
 
 public class VanillaPipeManager extends PipeManager {
 
@@ -29,16 +32,10 @@ public class VanillaPipeManager extends PipeManager {
 			return;
 		}
 
-		PipeColor pc = PipeColor.WHITE;
-		if (pipe.getPipeType() == PipeType.COLORED) {
-			pc = ((ColoredPipe) pipe).getPipeColor();
-		}
-		List<PipeDirection> conns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
+		List<PipeDirection> conns = pipe.getAllConnections();
 		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(conns);
 
-		pipeAsd.put(pipe, shape.getModel().createASD(pipe.getPipeType(), PipeDirection.NORTH, pc));
-
-		//SEND TO CLIENTS
+		pipeAsd.put(pipe, shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe)));
 
 	}
 
@@ -48,28 +45,24 @@ public class VanillaPipeManager extends PipeManager {
 			return;
 		}
 
-		List<ArmorStandData> removeASD = new ArrayList<ArmorStandData>();
-		List<ArmorStandData> addASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> removedASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> addedASD = new ArrayList<ArmorStandData>();
 
 		List<ArmorStandData> oldASD = pipeAsd.get(pipe);
 
-		PipeColor pc = PipeColor.WHITE;
-		if (pipe.getPipeType() == PipeType.COLORED) {
-			pc = ((ColoredPipe) pipe).getPipeColor();
-		}
-		List<PipeDirection> conns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
+		List<PipeDirection> conns = pipe.getAllConnections();
 		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(conns);
 
-		List<ArmorStandData> newASD = shape.getModel().createASD(pipe.getPipeType(), PipeDirection.NORTH, pc);
+		List<ArmorStandData> newASD = shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe));
 
 		for (int i = 0; i < Math.max(oldASD.size(), newASD.size()); i++) {
 			ArmorStandData ASD1 = i < oldASD.size() ? oldASD.get(i) : null;
 			ArmorStandData ASD2 = i < newASD.size() ? newASD.get(i) : null;
 			if (!((ASD1 != null && ASD1.isSimilar(ASD2)) || ASD1 == ASD2)) {
 				if (ASD1 != null)
-					removeASD.add(ASD1);
+					removedASD.add(ASD1);
 				if (ASD2 != null)
-					addASD.add(ASD2);
+					addedASD.add(ASD2);
 			}
 		}
 
@@ -77,6 +70,18 @@ public class VanillaPipeManager extends PipeManager {
 		oldASD.addAll(newASD);
 
 		//SEND TO CLIENTS
+		List<Player> players = protocol.getPlayersWithPipeManager(this);
+		int[] removedIds = new int[removedASD.size()];
+		for (int i = 0; i < removedIds.length; i++) {
+			removedIds[i] = removedASD.get(i).getEntityID();
+			if (removedIds[i] == -1) {
+				System.err.println("ERRRRRROR: ______________________ -1");
+			}
+		}
+		for (Player p : players) {
+			protocol.removeArmorStandDatas(p, removedIds);
+			protocol.sendArmorStandDatas(p, pipe.getBlockLoc(), addedASD);
+		}
 
 	}
 
@@ -88,7 +93,23 @@ public class VanillaPipeManager extends PipeManager {
 		List<ArmorStandData> ASD = pipeAsd.remove(pipe);
 
 		//SEND TO CLIENTS
+		List<Player> players = protocol.getPlayersWithPipeManager(this);
+		int[] removedIds = new int[ASD.size()];
+		for (int i = 0; i < removedIds.length; i++) {
+			removedIds[i] = ASD.get(i).getEntityID();
+			if (removedIds[i] == -1) {
+				System.err.println("ERRRRRROR4444: ______________________ -1");
+			}
+		}
+		for (Player p : players) {
+			protocol.removeArmorStandDatas(p, removedIds);
+		}
 
+	}
+
+	@Override
+	public List<ArmorStandData> getASDForPipe(Pipe pipe) {
+		return pipeAsd.getOrDefault(pipe, null);
 	}
 
 	private enum VanillaPipeShape {

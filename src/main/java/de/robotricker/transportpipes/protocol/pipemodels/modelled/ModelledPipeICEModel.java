@@ -6,11 +6,13 @@ import org.bukkit.util.Vector;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.utils.ModelledPipeConnModelData;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.utils.ModelledPipeMidModelData;
 
 public class ModelledPipeICEModel extends ModelledPipeModel {
 
 	@Override
-	public ArmorStandData createIceMidASD() {
+	public ArmorStandData createMidASD(ModelledPipeMidModelData data) {
 		ItemStack hoe = ITEM_HOE_MID_ICE;
 
 		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
@@ -19,16 +21,16 @@ public class ModelledPipeICEModel extends ModelledPipeModel {
 	}
 
 	@Override
-	public ArmorStandData createIceConnASD(PipeDirection pd) {
+	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
 		ItemStack hoe = ITEM_HOE_CONN_ICE;
 		ArmorStandData asd = null;
 
-		if (pd == PipeDirection.UP) {
+		if (data.getConnDirection() == PipeDirection.UP) {
 			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f));
-		} else if (pd == PipeDirection.DOWN) {
+		} else if (data.getConnDirection() == PipeDirection.DOWN) {
 			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(-90f, 0f, 0f), new Vector(0f, 0f, 0f));
 		} else {
-			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(pd.getX(), 0, pd.getZ()), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
+			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(data.getConnDirection().getX(), 0, data.getConnDirection().getZ()), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
 		}
 
 		return asd;

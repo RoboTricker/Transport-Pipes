@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.protocol.pipemodels.modelled;
+package de.robotricker.transportpipes.protocol.pipemodels.modelled.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,17 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Color;
+import org.bukkit.entity.Player;
 
-import de.robotricker.transportpipes.pipes.ColoredPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeCOLOREDModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeGOLDENModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeICEModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeIRONModel;
+import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeModel;
 
 public class ModelledPipeManager extends PipeManager {
 
@@ -39,20 +41,14 @@ public class ModelledPipeManager extends PipeManager {
 			return;
 		}
 
-		PipeColor pc = PipeColor.WHITE;
-		if (pipe.getPipeType() == PipeType.COLORED) {
-			pc = ((ColoredPipe) pipe).getPipeColor();
-		}
-		List<PipeDirection> conns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
+		List<PipeDirection> conns = pipe.getAllConnections();
 
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
-		pipeMidAsd.put(pipe, model.createMidASD(pipe.getPipeType(), pc));
+		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
 		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
 		for (PipeDirection conn : conns) {
-			connsMap.put(conn, model.createConnASD(pipe.getPipeType(), conn, Color.RED, pc, false));
+			connsMap.put(conn, model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, conn)));
 		}
-
-		//SEND TO CLIENTS
 
 	}
 
@@ -68,15 +64,11 @@ public class ModelledPipeManager extends PipeManager {
 		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.get(pipe);
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 
-		PipeColor pc = PipeColor.WHITE;
-		if (pipe.getPipeType() == PipeType.COLORED) {
-			pc = ((ColoredPipe) pipe).getPipeColor();
-		}
-		List<PipeDirection> newConns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
+		List<PipeDirection> newConns = pipe.getAllConnections();
 		for (PipeDirection pd : PipeDirection.values()) {
 			if (connsMap.containsKey(pd) && newConns.contains(pd)) {
 				//direction was active before and after update
-				ArmorStandData newASD = model.createConnASD(pipe.getPipeType(), pd, Color.RED, pc, false);
+				ArmorStandData newASD = model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, pd));
 				if (!connsMap.get(pd).isSimilar(newASD)) {
 					//ASD changed after update in this direction
 					removedASD.add(connsMap.get(pd));
@@ -85,7 +77,7 @@ public class ModelledPipeManager extends PipeManager {
 				}
 			} else if (!connsMap.containsKey(pd) && newConns.contains(pd)) {
 				//direction wasn't active before update but direction IS active after update
-				ArmorStandData newASD = model.createConnASD(pipe.getPipeType(), pd, Color.RED, pc, false);
+				ArmorStandData newASD = model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, pd));
 				addedASD.add(newASD);
 				connsMap.put(pd, newASD);
 			} else if (connsMap.containsKey(pd) && !newConns.contains(pd)) {
@@ -96,6 +88,18 @@ public class ModelledPipeManager extends PipeManager {
 		}
 
 		//SEND TO CLIENTS
+		List<Player> players = protocol.getPlayersWithPipeManager(this);
+		int[] removedIds = new int[removedASD.size()];
+		for (int i = 0; i < removedIds.length; i++) {
+			removedIds[i] = removedASD.get(i).getEntityID();
+			if (removedIds[i] == -1) {
+				System.err.println("ERRRRRROR: ______________________ -1");
+			}
+		}
+		for (Player p : players) {
+			protocol.removeArmorStandDatas(p, removedIds);
+			protocol.sendArmorStandDatas(p, pipe.getBlockLoc(), addedASD);
+		}
 
 	}
 
@@ -109,7 +113,34 @@ public class ModelledPipeManager extends PipeManager {
 		Collection<ArmorStandData> connsASD = pipeConnsAsd.remove(pipe).values();
 
 		//SEND TO CLIENTS
+		List<Player> players = protocol.getPlayersWithPipeManager(this);
+		int[] removedIds = new int[connsASD.size() + 1];
+		removedIds[0] = midASD.getEntityID();
+		if (removedIds[0] == -1) {
+			System.err.println("ERRRRRROR2: ______________________ -1");
+		}
+		for (int i = 1; i < removedIds.length; i++) {
+			removedIds[i] = connsASD.toArray(new ArmorStandData[0])[i - 1].getEntityID();
+			if (removedIds[i] == -1) {
+				System.err.println("ERRRRRROR3: ______________________ -1");
+			}
+		}
+		for (Player p : players) {
+			protocol.removeArmorStandDatas(p, removedIds);
+		}
 
+	}
+
+	@Override
+	public List<ArmorStandData> getASDForPipe(Pipe pipe) {
+		List<ArmorStandData> ASD = new ArrayList<ArmorStandData>();
+		if (pipeMidAsd.containsKey(pipe)) {
+			ASD.add(pipeMidAsd.get(pipe));
+		}
+		if (pipeConnsAsd.containsKey(pipe)) {
+			ASD.addAll(pipeConnsAsd.get(pipe).values());
+		}
+		return ASD;
 	}
 
 }

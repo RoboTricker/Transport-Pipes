@@ -14,7 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -29,30 +28,6 @@ public class PipePacketManager implements Listener {
 	public Map<World, List<Integer>> allWorldEntityIds = Collections.synchronizedMap(new HashMap<World, List<Integer>>());
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
-	
-	/**
-	 * only removes or sends the edited ArmorStands in this pipe! Does not edit the Pipe-ArmorStand List
-	 */
-	public void processPipeEdit(final Pipe pipe, List<ArmorStandData> added, List<ArmorStandData> removed) {
-		try {
-			for (Player p : pipesForPlayers.keySet()) {
-				if (pipesForPlayers.get(p).contains(pipe)) {
-					//send ASDs
-					for (ArmorStandData asd : added) {
-						TransportPipes.armorStandProtocol.sendArmorStandData(p, pipe.getBlockLoc(), asd, new Vector(0, 0, 0));
-					}
-					//remove ASDs
-					int[] ids = new int[removed.size()];
-					for (int i = 0; i < removed.size(); i++) {
-						ids[i] = removed.get(i).getEntityID();
-					}
-					TransportPipes.armorStandProtocol.removeArmorStandDatas(p, ids);
-				}
-			}
-		} catch (IllegalStateException e) {
-			handleAsyncError(e);
-		}
-	}
 
 	private void putAndSpawnPipe(final Player p, final Pipe pipe) {
 		List<Pipe> list;
@@ -61,8 +36,11 @@ public class PipePacketManager implements Listener {
 		}
 		list = pipesForPlayers.get(p);
 		if (!list.contains(pipe)) {
-			list.add(pipe);
-			TransportPipes.armorStandProtocol.sendPipe(p, pipe);
+			List<ArmorStandData> ASD = TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getASDForPipe(pipe);
+			if (ASD != null && !ASD.isEmpty()) {
+				list.add(pipe);
+				TransportPipes.armorStandProtocol.sendArmorStandDatas(p, pipe.getBlockLoc(), ASD);
+			}
 		}
 	}
 
@@ -83,7 +61,17 @@ public class PipePacketManager implements Listener {
 			List<Pipe> list = pipesForPlayers.get(p);
 			if (list.contains(pipe)) {
 				list.remove(pipe);
-				TransportPipes.armorStandProtocol.removePipe(p, pipe);
+				List<ArmorStandData> ASD = TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getASDForPipe(pipe);
+				if (ASD != null && !ASD.isEmpty()) {
+					int[] ids = new int[ASD.size()];
+					for (int i = 0; i < ids.length; i++) {
+						ids[i] = ASD.get(i).getEntityID();
+						if (ids[i] == -1) {
+							System.err.println("ERROR: ________________________ ID = -1");
+						}
+					}
+					TransportPipes.armorStandProtocol.removeArmorStandDatas(p, ids);
+				}
 			}
 		}
 	}

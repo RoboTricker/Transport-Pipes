@@ -20,7 +20,6 @@ import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class GoldenPipe extends Pipe implements Clickable {
 
@@ -45,15 +44,7 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before) {
 		//all directions in which is an other pipe or inventory-block
-		List<PipeDirection> connectionDirections = PipeUtils.getPipeConnections(blockLoc, pipeColor, false);
-
-		synchronized (pipeNeighborBlocks) {
-			for (PipeDirection dir : pipeNeighborBlocks) {
-				if (!connectionDirections.contains(dir)) {
-					connectionDirections.add(dir);
-				}
-			}
-		}
+		List<PipeDirection> connectionDirections = getAllConnections();
 
 		//the possible directions in which the item could go
 		List<PipeDirection> possibleDirections = new ArrayList<>();
@@ -158,12 +149,6 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	}
 
-	//Override this method because this pipe musn't be updated
-	@Override
-	public void updatePipeShape() {
-
-	}
-
 	@Override
 	public void click(Player p, BlockFace side) {
 		GoldenPipeInv.openGoldenPipeInv(p, this);
@@ -223,6 +208,11 @@ public class GoldenPipe extends Pipe implements Clickable {
 	@Override
 	public PipeType getPipeType() {
 		return PipeType.GOLDEN;
+	}
+
+	@Override
+	protected List<ItemStack> getDroppedItems() {
+		return null;
 	}
 
 }

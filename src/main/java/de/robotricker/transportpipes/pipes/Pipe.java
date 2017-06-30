@@ -151,7 +151,7 @@ public abstract class Pipe {
 
 	private void transportItems(List<PipeDirection> dirs, List<PipeItem> itemsAlreadyTicked) {
 
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc, pipeColor, isNormalPipe());
+		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this);
 
 		HashMap<PipeItem, PipeDirection> mapCopy = (HashMap<PipeItem, PipeDirection>) pipeItems.clone();
 		for (final PipeItem item : mapCopy.keySet()) {
@@ -269,10 +269,14 @@ public abstract class Pipe {
 		}
 	}
 
+	protected float getPipeItemSpeed() {
+		return ITEM_SPEED;
+	}
+
 	private List<PipeDirection> inputItemsAndCalculatePipeDirections(boolean inputItems) {
 
 		List<PipeDirection> dirs = new ArrayList<>();
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this.blockLoc, pipeColor, isNormalPipe());
+		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this);
 
 		for (final PipeDirection dir : PipeDirection.values()) {
 
@@ -335,57 +339,16 @@ public abstract class Pipe {
 		return dirs;
 	}
 
-	/**
-	 * removes this pipe instance and creates a new one with the correct shape depending on the neighbor blocks/pipe (but only if necessary)
-	 */
-	public void updatePipeShape() {
-
-		//sum all neighbor blocks and pipes
-		final List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(blockLoc, pipeColor, isNormalPipe());
-		List<PipeDirection> combi = new ArrayList<>();
-		combi.addAll(pipeConnections);
+	public List<PipeDirection> getAllConnections() {
+		List<PipeDirection> connections = PipeUtils.getPipeConnections(this);
 		synchronized (this.pipeNeighborBlocks) {
 			for (PipeDirection dir : this.pipeNeighborBlocks) {
-				if (!combi.contains(dir)) {
-					combi.add(dir);
+				if (!connections.contains(dir)) {
+					connections.add(dir);
 				}
 			}
 		}
-
-		//build new pipe if necessary and remove 'this' pipe
-		Class<? extends Pipe> newPipeClass = PipeUtils.calculatePipeShapeWithDirList(combi);
-
-		if (newPipeClass != null && !newPipeClass.equals(this.getClass())) {
-			Pipe pipe = null;
-			try {
-				pipe = PipeUtils.createPipeObject(newPipeClass, blockLoc, this.pipeNeighborBlocks, pipeColor, icePipe);
-
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
-				pipeMap.put(TransportPipes.convertBlockLoc(pipe.blockLoc), pipe);
-
-				TransportPipes.pipePacketManager.destroyPipeSync(this);
-				TransportPipes.pipePacketManager.spawnPipeSync(pipe);
-
-				//put all items from old pipe in new pipe
-				for (PipeItem item : pipeItems.keySet()) {
-					pipe.tempPipeItems.put(item, pipeItems.get(item));
-				}
-				for (PipeItem item : tempPipeItems.keySet()) {
-					pipe.tempPipeItems.put(item, tempPipeItems.get(item));
-				}
-				for (PipeItem item : tempPipeItemsWithSpawn.keySet()) {
-					pipe.tempPipeItemsWithSpawn.put(item, tempPipeItemsWithSpawn.get(item));
-				}
-				//and clear old pipe items map
-				pipeItems.clear();
-				tempPipeItems.clear();
-				tempPipeItemsWithSpawn.clear();
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
+		return connections;
 	}
 
 	/**
@@ -407,8 +370,7 @@ public abstract class Pipe {
 	public void saveToNBTTag(HashMap<String, Tag> tags) {
 		tags.put("PipeClassName", new StringTag("PipeClassName", getClass().getName()));
 		tags.put("PipeLocation", new StringTag("PipeLocation", PipeUtils.LocToString(blockLoc)));
-		tags.put("PipeColor", new StringTag("PipeColor", pipeColor.name()));
-		tags.put("IcePipe", new ByteTag("IcePipe", icePipe ? (byte) 1 : (byte) 0));
+		tags.put("IcePipe", new ByteTag("IcePipe", getPipeType() == PipeType.ICE ? (byte) 1 : (byte) 0));
 		List<Tag> itemList = new ArrayList<>();
 
 		for (PipeItem pipeItem : pipeItems.keySet()) {
@@ -492,7 +454,7 @@ public abstract class Pipe {
 	 * get the items that will be dropped on pipe destroy
 	 */
 	protected abstract List<ItemStack> getDroppedItems();
-	
+
 	public abstract PipeType getPipeType();
 
 }

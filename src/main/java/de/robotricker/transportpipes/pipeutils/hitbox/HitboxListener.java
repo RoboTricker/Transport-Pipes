@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.interfaces.Clickable;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
@@ -100,7 +101,7 @@ public class HitboxListener implements Listener {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					if (TransportPipes.canBuild(p, placeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem), PipeUtils.isPipeItemIcePipe(clickedItem))) {
+						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), PipeType.COLORED, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
 						}
@@ -115,7 +116,7 @@ public class HitboxListener implements Listener {
 					}
 					if (canPlace) {
 						if (TransportPipes.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem), PipeUtils.isPipeItemIcePipe(clickedItem))) {
+							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), PipeType.COLORED, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
 								return;

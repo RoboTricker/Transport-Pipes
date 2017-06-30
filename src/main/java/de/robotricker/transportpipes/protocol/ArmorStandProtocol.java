@@ -25,7 +25,6 @@ import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class ArmorStandProtocol {
@@ -52,21 +51,17 @@ public class ArmorStandProtocol {
 		pipeManagers.put(p, TransportPipes.vanillaPipeManager);
 		return TransportPipes.vanillaPipeManager;
 	}
-	
-	public void sendPipe(final Player p, Pipe pipe) {
-		for (ArmorStandData asd : pipe.getArmorStandList()) {
-			sendArmorStandData(p, pipe.getBlockLoc(), asd, new Vector(0f, 0f, 0f));
-		}
-	}
 
-	public void removePipe(final Player p, Pipe pipe) {
-		int[] ids = new int[pipe.getArmorStandList().size()];
-		int i = 0;
-		for (ArmorStandData asd : pipe.getArmorStandList()) {
-			ids[i] = asd.getEntityID();
-			i++;
+	public List<Player> getPlayersWithPipeManager(PipeManager pipeManager) {
+		List<Player> players = new ArrayList<Player>();
+		synchronized (pipeManagers) {
+			for (Player p : pipeManagers.keySet()) {
+				if (pipeManagers.get(p).equals(pipeManager)) {
+					players.add(p);
+				}
+			}
 		}
-		removeArmorStandDatas(p, ids);
+		return players;
 	}
 
 	public void removePipeItem(final Player p, PipeItem item) {
@@ -193,6 +188,12 @@ public class ArmorStandProtocol {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void sendArmorStandDatas(Player p, Location blockLoc, List<ArmorStandData> asd) {
+		for (int i = 0; i < asd.size(); i++) {
+			sendArmorStandData(p, blockLoc, asd.get(i), new Vector(0f, 0f, 0f));
 		}
 	}
 

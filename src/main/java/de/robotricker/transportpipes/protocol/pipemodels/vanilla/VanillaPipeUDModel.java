@@ -6,14 +6,25 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
+import de.robotricker.transportpipes.protocol.pipemodels.vanilla.utils.VanillaPipeModelData;
 
 public class VanillaPipeUDModel extends VanillaPipeModel {
 
 	@Override
-	public List<ArmorStandData> createColoredASD(PipeColor pc) {
+	public List<ArmorStandData> createASD(VanillaPipeModelData data) {
+		if (data.getPipeType() == PipeType.COLORED) {
+			return createColoredASD(data.getColoredPipe_pipeColor());
+		} else if (data.getPipeType() == PipeType.ICE) {
+			return createIceASD();
+		}
+		return null;
+	}
+	
+	private List<ArmorStandData> createColoredASD(PipeColor pc) {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 		ItemStack block = pc.getVanillaModel_GlassItem();
 
@@ -28,8 +39,7 @@ public class VanillaPipeUDModel extends VanillaPipeModel {
 
 	}
 
-	@Override
-	public List<ArmorStandData> createIceASD() {
+	private List<ArmorStandData> createIceASD() {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 		ItemStack block = ITEM_ICE_BLOCK;
 
