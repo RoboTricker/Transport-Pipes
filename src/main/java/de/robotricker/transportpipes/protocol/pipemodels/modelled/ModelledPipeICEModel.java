@@ -9,7 +9,8 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class ModelledPipeICEModel extends ModelledPipeModel {
 
-	public ArmorStandData createMIDArmorStandData() {
+	@Override
+	public ArmorStandData createIceMidASD() {
 		ItemStack hoe = ITEM_HOE_MID_ICE;
 
 		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
@@ -17,7 +18,8 @@ public class ModelledPipeICEModel extends ModelledPipeModel {
 		return asd;
 	}
 
-	public ArmorStandData createCONNArmorStandData(PipeDirection pd) {
+	@Override
+	public ArmorStandData createIceConnASD(PipeDirection pd) {
 		ItemStack hoe = ITEM_HOE_CONN_ICE;
 		ArmorStandData asd = null;
 

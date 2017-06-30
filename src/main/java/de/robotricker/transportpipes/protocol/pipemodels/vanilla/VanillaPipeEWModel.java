@@ -13,7 +13,7 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 public class VanillaPipeEWModel extends VanillaPipeModel {
 
 	@Override
-	public List<ArmorStandData> createColoredPipeArmorStandData(PipeColor pc) {
+	public List<ArmorStandData> createColoredASD(PipeColor pc) {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 		ItemStack block = pc.getVanillaModel_GlassItem();
 
@@ -29,7 +29,7 @@ public class VanillaPipeEWModel extends VanillaPipeModel {
 	}
 
 	@Override
-	public List<ArmorStandData> createIcePipeArmorStandData() {
+	public List<ArmorStandData> createIceASD() {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 		ItemStack block = ITEM_ICE_BLOCK;
 

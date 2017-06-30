@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.protocol.pipemodels.modelled;
 
+import org.bukkit.Color;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -9,7 +10,8 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 
-	public ArmorStandData createMIDArmorStandData() {
+	@Override
+	public ArmorStandData createGoldenMidASD() {
 		ItemStack hoe = ITEM_HOE_MID_GOLDEN;
 
 		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
@@ -17,7 +19,8 @@ public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 		return asd;
 	}
 
-	public ArmorStandData createCONNArmorStandData(PipeDirection pd) {
+	@Override
+	public ArmorStandData createGoldenConnASD(Color c, PipeDirection pd) {
 		ItemStack hoe = ITEM_HOE_CONN_GOLDEN;
 		ArmorStandData asd = null;
 

@@ -10,7 +10,8 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public class ModelledPipeCOLOREDModel extends ModelledPipeModel {
 
-	public ArmorStandData createMIDArmorStandData(PipeColor pc) {
+	@Override
+	public ArmorStandData createColoredMidASD(PipeColor pc) {
 		ItemStack hoe = pc.getModelledModel_MidHoeItem();
 
 		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
@@ -18,7 +19,8 @@ public class ModelledPipeCOLOREDModel extends ModelledPipeModel {
 		return asd;
 	}
 
-	public ArmorStandData createCONNArmorStandData(PipeColor pc, PipeDirection pd) {
+	@Override
+	public ArmorStandData createColoredConnASD(PipeColor pc, PipeDirection pd) {
 		ItemStack hoe = pc.getModelledModel_ConnHoeItem();
 		ArmorStandData asd = null;
 

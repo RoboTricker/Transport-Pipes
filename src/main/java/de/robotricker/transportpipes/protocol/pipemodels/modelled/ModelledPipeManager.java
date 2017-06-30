@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Color;
+
 import de.robotricker.transportpipes.pipes.ColoredPipe;
-import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
@@ -44,97 +45,68 @@ public class ModelledPipeManager extends PipeManager {
 		}
 		List<PipeDirection> conns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
 
-		if (pipe.getPipeType() == PipeType.COLORED) {
-			ModelledPipeCOLOREDModel model = ((ModelledPipeCOLOREDModel) pipeModels.get(PipeType.COLORED));
-			pipeMidAsd.put(pipe, model.createMIDArmorStandData(pc));
-
-			Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
-			for (PipeDirection conn : conns)
-				connsMap.put(conn, model.createCONNArmorStandData(pc, conn));
-		} else if (pipe.getPipeType() == PipeType.GOLDEN) {
-			ModelledPipeGOLDENModel model = ((ModelledPipeGOLDENModel) pipeModels.get(PipeType.GOLDEN));
-			pipeMidAsd.put(pipe, model.createMIDArmorStandData());
-
-			Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
-			for (PipeDirection conn : conns)
-				connsMap.put(conn, model.createCONNArmorStandData(conn));
-		} else if (pipe.getPipeType() == PipeType.IRON) {
-			ModelledPipeIRONModel model = ((ModelledPipeIRONModel) pipeModels.get(PipeType.IRON));
-			pipeMidAsd.put(pipe, model.createMIDArmorStandData());
-
-			Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
-			for (PipeDirection conn : conns)
-				connsMap.put(conn, model.createCONNArmorStandData(conn, ((IronPipe) pipe).getCurrentOutputDir() == conn));
-		} else if (pipe.getPipeType() == PipeType.ICE) {
-			ModelledPipeICEModel model = ((ModelledPipeICEModel) pipeModels.get(PipeType.ICE));
-			pipeMidAsd.put(pipe, model.createMIDArmorStandData());
-
-			Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
-			for (PipeDirection conn : conns)
-				connsMap.put(conn, model.createCONNArmorStandData(conn));
+		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
+		pipeMidAsd.put(pipe, model.createMidASD(pipe.getPipeType(), pc));
+		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
+		for (PipeDirection conn : conns) {
+			connsMap.put(conn, model.createConnASD(pipe.getPipeType(), conn, Color.RED, pc, false));
 		}
 
-		if (pipeMidAsd.containsKey(pipe)) {
-
-			//SEND TO CLIENTS
-
-		}
+		//SEND TO CLIENTS
 
 	}
 
 	@Override
-	public void updatePipeShape(Pipe pipe) {
-		if (!pipeMidAsd.containsKey(pipe)) {
+	public void updatePipe(Pipe pipe) {
+		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe)) {
 			return;
 		}
+
+		List<ArmorStandData> removedASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> addedASD = new ArrayList<ArmorStandData>();
+
+		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.get(pipe);
+		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 
 		PipeColor pc = PipeColor.WHITE;
 		if (pipe.getPipeType() == PipeType.COLORED) {
 			pc = ((ColoredPipe) pipe).getPipeColor();
 		}
-		Collection<PipeDirection> newConns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
-		Collection<PipeDirection> oldConns = pipeConnsAsd.get(pipe).keySet();
-
-		List<ArmorStandData> removedAsd = new ArrayList<ArmorStandData>();
-		List<ArmorStandData> addAsd = new ArrayList<ArmorStandData>();
-
+		List<PipeDirection> newConns = PipeUtils.getPipeConnections(pipe.getBlockLoc(), pipe.getPipeType(), pc);
 		for (PipeDirection pd : PipeDirection.values()) {
-			if (oldConns.contains(pd) && !newConns.contains(pd)) {
-				removedAsd.add(pipeConnsAsd.get(pipe).get(pd));
-				pipeConnsAsd.get(pipe).remove(pd);
-			} else if (!oldConns.contains(pd) && newConns.contains(pd)) {
-				if (pipe.getPipeType() == PipeType.COLORED) {
-					ModelledPipeCOLOREDModel model = ((ModelledPipeCOLOREDModel) pipeModels.get(PipeType.COLORED));
-					addAsd.add(model.createCONNArmorStandData(pc, pd));
-				} else if (pipe.getPipeType() == PipeType.GOLDEN) {
-					ModelledPipeGOLDENModel model = ((ModelledPipeGOLDENModel) pipeModels.get(PipeType.GOLDEN));
-					addAsd.add(model.createCONNArmorStandData(pd));
-				} else if (pipe.getPipeType() == PipeType.IRON) {
-					ModelledPipeIRONModel model = ((ModelledPipeIRONModel) pipeModels.get(PipeType.IRON));
-					addAsd.add(model.createCONNArmorStandData(pd, ((IronPipe) pipe).getCurrentOutputDir() == pd));
-				} else if (pipe.getPipeType() == PipeType.ICE) {
-					ModelledPipeICEModel model = ((ModelledPipeICEModel) pipeModels.get(PipeType.ICE));
-					addAsd.add(model.createCONNArmorStandData(pd));
+			if (connsMap.containsKey(pd) && newConns.contains(pd)) {
+				//direction was active before and after update
+				ArmorStandData newASD = model.createConnASD(pipe.getPipeType(), pd, Color.RED, pc, false);
+				if (!connsMap.get(pd).isSimilar(newASD)) {
+					//ASD changed after update in this direction
+					removedASD.add(connsMap.get(pd));
+					addedASD.add(newASD);
+					connsMap.put(pd, newASD);
 				}
-				pipeConnsAsd.get(pipe).put(pd, addAsd.get(addAsd.size() - 1));
+			} else if (!connsMap.containsKey(pd) && newConns.contains(pd)) {
+				//direction wasn't active before update but direction IS active after update
+				ArmorStandData newASD = model.createConnASD(pipe.getPipeType(), pd, Color.RED, pc, false);
+				addedASD.add(newASD);
+				connsMap.put(pd, newASD);
+			} else if (connsMap.containsKey(pd) && !newConns.contains(pd)) {
+				//direction was active before update but isn't active after update
+				removedASD.add(connsMap.get(pd));
+				connsMap.remove(pd);
 			}
 		}
 
+		//SEND TO CLIENTS
+
 	}
 
 	@Override
-	public void updateIronPipe(IronPipe pipe, PipeDirection oldOutput, PipeDirection newOutput) {
-		
-	}
-
-	@Override
-	public void removePipe(Pipe pipe) {
-		if (!pipeMidAsd.containsKey(pipe)) {
+	public void destroyPipe(Pipe pipe) {
+		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe)) {
 			return;
 		}
 
-		ArmorStandData midData = pipeMidAsd.remove(pipe);
-		Map<PipeDirection, ArmorStandData> connMap = pipeConnsAsd.remove(pipe);
+		ArmorStandData midASD = pipeMidAsd.remove(pipe);
+		Collection<ArmorStandData> connsASD = pipeConnsAsd.remove(pipe).values();
 
 		//SEND TO CLIENTS
 

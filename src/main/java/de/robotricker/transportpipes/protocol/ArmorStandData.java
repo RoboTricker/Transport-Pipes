@@ -66,4 +66,26 @@ public class ArmorStandData {
 		return new ArmorStandData(loc, direction, small, headItem, handItem, headRotation, armRotation);
 	}
 
+	public boolean isSimilar(ArmorStandData asd) {
+		if(asd == null){
+			return false;
+		}
+		if (RelLoc.compare(this.loc, asd.loc)) {
+			if (direction.equals(asd.direction)) {
+				if (small == asd.small) {
+					if ((headItem != null && headItem.isSimilar(asd.headItem)) || headItem == asd.headItem) {
+						if ((handItem != null && handItem.isSimilar(asd.handItem)) || handItem == asd.handItem) {
+							if (headRotation.equals(asd.headRotation)) {
+								if (armRotation.equals(asd.armRotation)) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 }

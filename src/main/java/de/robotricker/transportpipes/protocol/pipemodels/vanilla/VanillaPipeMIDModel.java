@@ -14,7 +14,7 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 public class VanillaPipeMIDModel extends VanillaPipeModel {
 
 	@Override
-	public List<ArmorStandData> createColoredPipeArmorStandData(PipeColor pc) {
+	public List<ArmorStandData> createColoredASD(PipeColor pc) {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 		ItemStack block = pc.getVanillaModel_GlassItem();
 
@@ -25,7 +25,7 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 	}
 
 	@Override
-	public List<ArmorStandData> createIcePipeArmorStandData() {
+	public List<ArmorStandData> createIceASD() {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 		ItemStack block = ITEM_ICE_BLOCK;
 
@@ -35,7 +35,8 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 
 	}
 
-	public List<ArmorStandData> createGoldenPipeArmorStandData() {
+	@Override
+	public List<ArmorStandData> createGoldenASD() {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_GOLD_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
@@ -50,7 +51,8 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 
 	}
 
-	public List<ArmorStandData> createIronPipeArmorStandData() {
+	@Override
+	public List<ArmorStandData> createIronASD(PipeDirection outputPd) {
 		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_IRON_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
