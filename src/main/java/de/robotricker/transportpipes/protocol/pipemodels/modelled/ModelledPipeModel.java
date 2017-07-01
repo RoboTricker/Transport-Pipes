@@ -21,5 +21,5 @@ public abstract class ModelledPipeModel extends PipeModel {
 	public abstract ArmorStandData createMidASD(ModelledPipeMidModelData data);
 
 	public abstract ArmorStandData createConnASD(ModelledPipeConnModelData data);
-	
+
 }

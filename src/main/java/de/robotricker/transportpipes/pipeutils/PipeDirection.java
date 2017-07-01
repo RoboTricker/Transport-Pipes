@@ -81,4 +81,23 @@ public enum PipeDirection {
 		}
 	}
 
+	public BlockFace toBlockFace() {
+		switch (this) {
+		case EAST:
+			return BlockFace.EAST;
+		case WEST:
+			return BlockFace.WEST;
+		case SOUTH:
+			return BlockFace.SOUTH;
+		case NORTH:
+			return BlockFace.NORTH;
+		case UP:
+			return BlockFace.UP;
+		case DOWN:
+			return BlockFace.DOWN;
+		default:
+			return null;
+		}
+	}
+
 }

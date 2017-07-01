@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
@@ -24,6 +26,8 @@ public class ModelledPipeManager extends PipeManager {
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<Pipe, ArmorStandData>();
 	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<Pipe, Map<PipeDirection, ArmorStandData>>();
+	private AxisAlignedBB pipeMidAABB;
+	private Map<PipeDirection, AxisAlignedBB> pipeConnsAABBs = new HashMap<PipeDirection, AxisAlignedBB>();
 
 	private Map<PipeType, ModelledPipeModel> pipeModels = new HashMap<PipeType, ModelledPipeModel>();
 
@@ -33,6 +37,12 @@ public class ModelledPipeManager extends PipeManager {
 		pipeModels.put(PipeType.ICE, new ModelledPipeICEModel());
 		pipeModels.put(PipeType.GOLDEN, new ModelledPipeGOLDENModel());
 		pipeModels.put(PipeType.IRON, new ModelledPipeIRONModel());
+
+		pipeMidAABB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+		for (PipeDirection pd : PipeDirection.values()) {
+			pipeConnsAABBs.put(pd, new AxisAlignedBB(0, 0, 0, 0, 0, 0));
+		}
+
 	}
 
 	@Override
@@ -45,7 +55,8 @@ public class ModelledPipeManager extends PipeManager {
 
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
-		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.put(pipe, new HashMap<PipeDirection, ArmorStandData>());
+		Map<PipeDirection, ArmorStandData> connsMap = new HashMap<PipeDirection, ArmorStandData>();
+		pipeConnsAsd.put(pipe, connsMap);
 		for (PipeDirection conn : conns) {
 			connsMap.put(conn, model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, conn)));
 		}
@@ -141,6 +152,39 @@ public class ModelledPipeManager extends PipeManager {
 			ASD.addAll(pipeConnsAsd.get(pipe).values());
 		}
 		return ASD;
+	}
+
+	@Override
+	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
+		
+		if(pipe == null){
+			return null;
+		}
+
+		Vector ray = player.getEyeLocation().getDirection();
+		Vector origin = player.getEyeLocation().toVector();
+
+		List<PipeDirection> pipeConns = pipe.getAllConnections();
+		PipeDirection clickedMidFace = pipeMidAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
+		if (clickedMidFace != null && !pipeConns.contains(clickedMidFace)) {
+			return clickedMidFace;
+		} else {
+			double nearestDistanceSquared = Double.MAX_VALUE;
+			PipeDirection currentClickedConnFace = null;
+			for (PipeDirection pd : pipeConns) {
+				AxisAlignedBB connAABB = pipeConnsAABBs.get(pd);
+				double newDistanceSquared = connAABB.getAABBMiddle(pipe.getBlockLoc()).distanceSquared(origin);
+				if (newDistanceSquared < nearestDistanceSquared) {
+					PipeDirection clickedConnFace = connAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
+					if (clickedConnFace != null) {
+						nearestDistanceSquared = newDistanceSquared;
+						currentClickedConnFace = clickedConnFace;
+					}
+				}
+			}
+			return currentClickedConnFace;
+		}
+
 	}
 
 }

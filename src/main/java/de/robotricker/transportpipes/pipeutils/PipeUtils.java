@@ -49,12 +49,16 @@ public class PipeUtils {
 			Bukkit.getPluginManager().callEvent(ppe);
 			if (!ppe.isCancelled()) {
 				TransportPipes.putPipe(pipe);
+				TransportPipes.vanillaPipeManager.sendPipe(pipe);
+				TransportPipes.modelledPipeManager.sendPipe(pipe);
 				TransportPipes.pipePacketManager.spawnPipeSync(pipe);
 			} else {
 				return false;
 			}
 		} else {
 			TransportPipes.putPipe(pipe);
+			TransportPipes.vanillaPipeManager.sendPipe(pipe);
+			TransportPipes.modelledPipeManager.sendPipe(pipe);
 			TransportPipes.pipePacketManager.spawnPipeSync(pipe);
 		}
 

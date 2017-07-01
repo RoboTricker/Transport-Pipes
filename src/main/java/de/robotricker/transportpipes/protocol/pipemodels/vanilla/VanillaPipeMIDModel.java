@@ -10,10 +10,16 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.RelLoc;
+import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.pipemodels.vanilla.utils.VanillaPipeModelData;
 
 public class VanillaPipeMIDModel extends VanillaPipeModel {
+
+	public VanillaPipeMIDModel() {
+		super();
+		aabb = new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+	}
 
 	@Override
 	public List<ArmorStandData> createASD(VanillaPipeModelData data) {

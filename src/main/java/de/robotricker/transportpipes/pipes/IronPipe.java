@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
@@ -53,8 +52,8 @@ public class IronPipe extends Pipe implements Clickable {
 	}
 
 	@Override
-	public void click(Player p, BlockFace side) {
-		changeOutputDirection(PipeDirection.fromBlockFace(side));
+	public void click(Player p, PipeDirection side) {
+		changeOutputDirection(side);
 		p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 	}
 

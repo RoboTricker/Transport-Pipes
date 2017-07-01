@@ -2,7 +2,10 @@ package de.robotricker.transportpipes.protocol.pipemodels;
 
 import java.util.List;
 
+import org.bukkit.entity.Player;
+
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 
@@ -14,12 +17,23 @@ public abstract class PipeManager {
 		this.protocol = protocol;
 	}
 
+	/**
+	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe)
+	 */
 	public abstract void sendPipe(Pipe pipe);
 
+	/**
+	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe) also sends the removed and added ASD to all clients with this PipeManager
+	 */
 	public abstract void updatePipe(Pipe pipe);
 
+	/**
+	 * removes all ASD associated with this pipe and sends this removed ASD to all clients with this PipeManager
+	 */
 	public abstract void destroyPipe(Pipe pipe);
-	
+
 	public abstract List<ArmorStandData> getASDForPipe(Pipe pipe);
+	
+	public abstract PipeDirection getClickedPipeFace(Player player, Pipe pipe);
 
 }

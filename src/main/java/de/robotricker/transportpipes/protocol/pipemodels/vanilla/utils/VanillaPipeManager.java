@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -112,6 +113,19 @@ public class VanillaPipeManager extends PipeManager {
 		return pipeAsd.getOrDefault(pipe, null);
 	}
 
+	@Override
+	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
+
+		if (pipe == null) {
+			return null;
+		}
+
+		Vector ray = player.getEyeLocation().getDirection();
+		Vector origin = player.getEyeLocation().toVector();
+
+		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getAllConnections()).getModel().getAABB().rayIntersection(ray, origin, pipe.getBlockLoc());
+	}
+
 	private enum VanillaPipeShape {
 		EAST_WEST(new VanillaPipeEWModel()),
 		NORTH_SOUTH(new VanillaPipeNSModel()),
@@ -122,7 +136,6 @@ public class VanillaPipeManager extends PipeManager {
 
 		private VanillaPipeShape(VanillaPipeModel model) {
 			this.model = model;
-			model.getClass().cast(model);
 		}
 
 		public VanillaPipeModel getModel() {

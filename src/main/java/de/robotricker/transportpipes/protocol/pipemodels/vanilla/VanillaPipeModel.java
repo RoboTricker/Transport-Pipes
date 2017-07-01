@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeModel;
 import de.robotricker.transportpipes.protocol.pipemodels.vanilla.utils.VanillaPipeModelData;
@@ -22,6 +23,12 @@ public abstract class VanillaPipeModel extends PipeModel {
 	protected static final ItemStack ITEM_CARPET_RED = new ItemStack(Material.CARPET, 1, (short) 14);
 	protected static final ItemStack ITEM_CARPET_BLACK = new ItemStack(Material.CARPET, 1, (short) 15);
 
+	protected AxisAlignedBB aabb;
+
 	public abstract List<ArmorStandData> createASD(VanillaPipeModelData data);
-	
+
+	public AxisAlignedBB getAABB() {
+		return aabb;
+	}
+
 }

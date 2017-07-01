@@ -131,7 +131,7 @@ public class HitboxListener implements Listener {
 				if (pipeClickedAt instanceof Clickable) {
 					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
+							((Clickable) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}
 					}
