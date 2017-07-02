@@ -3,9 +3,12 @@ package de.robotricker.transportpipes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
@@ -37,6 +40,7 @@ import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecut
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
+import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
@@ -86,7 +90,7 @@ public class TransportPipes extends JavaPlugin {
 	public static UpdateManager updateManager;
 
 	public static List<String> antiCheatPlugins = new ArrayList<String>();
-	
+
 	public static PipeManager vanillaPipeManager;
 	public static PipeManager modelledPipeManager;
 
@@ -98,7 +102,7 @@ public class TransportPipes extends JavaPlugin {
 
 		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
 		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
-		
+
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
@@ -258,6 +262,8 @@ public class TransportPipes extends JavaPlugin {
 			ppipes.put(pipe.blockLoc.getWorld(), pipeMap);
 		}
 		pipeMap.put(convertBlockLoc(pipe.blockLoc), pipe);
+
+		TransportPipes.pipePacketManager.createPipe(pipe);
 	}
 
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
@@ -319,6 +325,27 @@ public class TransportPipes extends JavaPlugin {
 
 	public ItemStack getWrenchItem() {
 		return WRENCH_ITEM;
+	}
+
+	public PipeManager[] getAllPipeManagers() {
+		return new PipeManager[] { vanillaPipeManager, modelledPipeManager };
+	}
+
+	public int[] convertArmorStandListToEntityIdArray(List<ArmorStandData> ASD) {
+		Set<Integer> ids = new HashSet<Integer>();
+		if (ASD != null) {
+			for (ArmorStandData data : ASD) {
+				if (data.getEntityID() != -1) {
+					ids.add(data.getEntityID());
+				}
+			}
+		}
+		int[] idsArray = new int[ids.size()];
+		Iterator<Integer> it = ids.iterator();
+		for (int i = 0; it.hasNext(); i++) {
+			idsArray[i] = it.next();
+		}
+		return idsArray;
 	}
 
 	public static class BlockLoc implements Comparable<BlockLoc> {

@@ -164,7 +164,6 @@ public class SavingManager implements Listener {
 
 					//load and spawn pipe
 					TransportPipes.putPipe(pipe);
-					TransportPipes.pipePacketManager.spawnPipeSync(pipe);
 
 					pipesCount++;
 				}

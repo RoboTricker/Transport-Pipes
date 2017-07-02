@@ -1,7 +1,9 @@
 package de.robotricker.transportpipes.pipes;
 
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 
 public enum PipeType {
@@ -38,6 +40,25 @@ public enum PipeType {
 		for (PipeType pt : PipeType.values()) {
 			if (pt.getId() == id) {
 				return pt;
+			}
+		}
+		return null;
+	}
+
+	public static PipeType getFromPipeItem(ItemStack item) {
+		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+			String displayName = item.getItemMeta().getDisplayName();
+			if (displayName.equals(TransportPipes.instance.ICE_PIPE_NAME)) {
+				return PipeType.ICE;
+			}
+			if (displayName.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
+				return PipeType.GOLDEN;
+			}
+			if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
+				return PipeType.IRON;
+			}
+			if(PipeColor.getPipeColorByPipeItem(item) != null){
+				return PipeType.COLORED;
 			}
 		}
 		return null;

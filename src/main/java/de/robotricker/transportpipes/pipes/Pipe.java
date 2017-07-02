@@ -218,7 +218,7 @@ public abstract class Pipe {
 
 				if (itemHandling == ItemHandling.DROP) {
 
-					TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+					TransportPipes.pipePacketManager.destroyPipeItem(item);
 
 					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
@@ -237,7 +237,7 @@ public abstract class Pipe {
 						public void run() {
 							try {
 
-								TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+								TransportPipes.pipePacketManager.destroyPipeItem(item);
 
 								if (newBlockLoc.getBlock().getState() instanceof InventoryHolder) {
 									InventoryHolder invH = (InventoryHolder) newBlockLoc.getBlock().getState();

@@ -46,8 +46,7 @@ public class IronPipe extends Pipe implements Clickable {
 	public void changeOutputDirection(PipeDirection newOutputDir) {
 		if (newOutputDir != null && newOutputDir != currentOutputDir) {
 			currentOutputDir = newOutputDir;
-			TransportPipes.vanillaPipeManager.updatePipe(this);
-			TransportPipes.modelledPipeManager.updatePipe(this);
+			TransportPipes.pipePacketManager.updatePipe(this);
 		}
 	}
 

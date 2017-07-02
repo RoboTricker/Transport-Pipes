@@ -53,7 +53,7 @@ public class HitboxListener implements Listener {
 
 		//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
+			final Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 			//****************************** LEFT CLICKED ON PIPE *******************************************
 			if (pipeBlock != null) {
 				e.setCancelled(true);

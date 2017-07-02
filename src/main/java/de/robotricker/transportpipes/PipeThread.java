@@ -132,7 +132,7 @@ public class PipeThread extends Thread {
 											PipeDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
 											pipe.putPipeItem(pipeItem, dir);
 
-											TransportPipes.pipePacketManager.spawnPipeItemSync(pipeItem);
+											TransportPipes.pipePacketManager.createPipeItem(pipeItem);
 
 											itemIterator.remove();
 

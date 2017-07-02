@@ -1,7 +1,6 @@
 package de.robotricker.transportpipes.protocol.pipemodels.modelled.utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,7 @@ import java.util.Map;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -46,7 +46,7 @@ public class ModelledPipeManager extends PipeManager {
 	}
 
 	@Override
-	public void sendPipe(Pipe pipe) {
+	public void createPipeASD(Pipe pipe) {
 		if (pipeMidAsd.containsKey(pipe)) {
 			return;
 		}
@@ -64,7 +64,7 @@ public class ModelledPipeManager extends PipeManager {
 	}
 
 	@Override
-	public void updatePipe(Pipe pipe) {
+	public void updatePipeASD(Pipe pipe) {
 		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe)) {
 			return;
 		}
@@ -100,13 +100,7 @@ public class ModelledPipeManager extends PipeManager {
 
 		//SEND TO CLIENTS
 		List<Player> players = protocol.getPlayersWithPipeManager(this);
-		int[] removedIds = new int[removedASD.size()];
-		for (int i = 0; i < removedIds.length; i++) {
-			removedIds[i] = removedASD.get(i).getEntityID();
-			if (removedIds[i] == -1) {
-				System.err.println("ERRRRRROR: ______________________ -1");
-			}
-		}
+		int[] removedIds = TransportPipes.instance.convertArmorStandListToEntityIdArray(removedASD);
 		for (Player p : players) {
 			protocol.removeArmorStandDatas(p, removedIds);
 			protocol.sendArmorStandDatas(p, pipe.getBlockLoc(), addedASD);
@@ -115,31 +109,12 @@ public class ModelledPipeManager extends PipeManager {
 	}
 
 	@Override
-	public void destroyPipe(Pipe pipe) {
+	public void destroyPipeASD(Pipe pipe) {
 		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe)) {
 			return;
 		}
-
-		ArmorStandData midASD = pipeMidAsd.remove(pipe);
-		Collection<ArmorStandData> connsASD = pipeConnsAsd.remove(pipe).values();
-
-		//SEND TO CLIENTS
-		List<Player> players = protocol.getPlayersWithPipeManager(this);
-		int[] removedIds = new int[connsASD.size() + 1];
-		removedIds[0] = midASD.getEntityID();
-		if (removedIds[0] == -1) {
-			System.err.println("ERRRRRROR2: ______________________ -1");
-		}
-		for (int i = 1; i < removedIds.length; i++) {
-			removedIds[i] = connsASD.toArray(new ArmorStandData[0])[i - 1].getEntityID();
-			if (removedIds[i] == -1) {
-				System.err.println("ERRRRRROR3: ______________________ -1");
-			}
-		}
-		for (Player p : players) {
-			protocol.removeArmorStandDatas(p, removedIds);
-		}
-
+		pipeMidAsd.remove(pipe);
+		pipeConnsAsd.remove(pipe).values();
 	}
 
 	@Override
@@ -156,8 +131,8 @@ public class ModelledPipeManager extends PipeManager {
 
 	@Override
 	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
-		
-		if(pipe == null){
+
+		if (pipe == null) {
 			return null;
 		}
 

@@ -1,15 +1,16 @@
 package de.robotricker.transportpipes.pipeutils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -49,17 +50,11 @@ public class PipeUtils {
 			Bukkit.getPluginManager().callEvent(ppe);
 			if (!ppe.isCancelled()) {
 				TransportPipes.putPipe(pipe);
-				TransportPipes.vanillaPipeManager.sendPipe(pipe);
-				TransportPipes.modelledPipeManager.sendPipe(pipe);
-				TransportPipes.pipePacketManager.spawnPipeSync(pipe);
 			} else {
 				return false;
 			}
 		} else {
 			TransportPipes.putPipe(pipe);
-			TransportPipes.vanillaPipeManager.sendPipe(pipe);
-			TransportPipes.modelledPipeManager.sendPipe(pipe);
-			TransportPipes.pipePacketManager.spawnPipeSync(pipe);
 		}
 
 		//update neighbor pipes
@@ -73,8 +68,7 @@ public class PipeUtils {
 					for (PipeDirection dir : PipeDirection.values()) {
 						BlockLoc blockLocLong = TransportPipes.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 						if (pipeMap.containsKey(blockLocLong)) {
-							TransportPipes.vanillaPipeManager.updatePipe(pipeMap.get(blockLocLong));
-							TransportPipes.modelledPipeManager.updatePipe(pipeMap.get(blockLocLong));
+							TransportPipes.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
 						}
 					}
 				}
@@ -104,24 +98,16 @@ public class PipeUtils {
 			//only remove the pipe if it is in the pipe list!
 			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc))) {
 
-				TransportPipes.vanillaPipeManager.destroyPipe(pipeToDestroy);
-				TransportPipes.modelledPipeManager.destroyPipe(pipeToDestroy);
+				TransportPipes.pipePacketManager.destroyPipe(pipeToDestroy);
 
 				pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
 
 				//drop all items in old pipe
-				List<PipeItem> itemsToDrop = new ArrayList<PipeItem>();
+
+				Set<PipeItem> itemsToDrop = new HashSet<PipeItem>();
 				itemsToDrop.addAll(pipeToDestroy.pipeItems.keySet());
-				for (PipeItem item : pipeToDestroy.tempPipeItems.keySet()) {
-					if (!itemsToDrop.contains(item)) {
-						itemsToDrop.add(item);
-					}
-				}
-				for (PipeItem item : pipeToDestroy.tempPipeItemsWithSpawn.keySet()) {
-					if (!itemsToDrop.contains(item)) {
-						itemsToDrop.add(item);
-					}
-				}
+				itemsToDrop.addAll(pipeToDestroy.tempPipeItems.keySet());
+				itemsToDrop.addAll(pipeToDestroy.tempPipeItemsWithSpawn.keySet());
 				for (final PipeItem item : itemsToDrop) {
 					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
@@ -131,7 +117,7 @@ public class PipeUtils {
 						}
 					});
 					//destroy item for players
-					TransportPipes.pipePacketManager.destroyPipeItemSync(item);
+					TransportPipes.pipePacketManager.destroyPipeItem(item);
 				}
 				//and clear old pipe items map
 				pipeToDestroy.pipeItems.clear();
@@ -146,8 +132,7 @@ public class PipeUtils {
 						for (PipeDirection dir : PipeDirection.values()) {
 							BlockLoc blockLocLong = TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 							if (pipeMap.containsKey(blockLocLong)) {
-								TransportPipes.vanillaPipeManager.updatePipe(pipeMap.get(blockLocLong));
-								TransportPipes.modelledPipeManager.updatePipe(pipeMap.get(blockLocLong));
+								TransportPipes.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
 							}
 						}
 					}
@@ -232,8 +217,7 @@ public class PipeUtils {
 
 								@Override
 								public void run() {
-									TransportPipes.vanillaPipeManager.updatePipe(pipe);
-									TransportPipes.modelledPipeManager.updatePipe(pipe);
+									TransportPipes.pipePacketManager.updatePipe(pipe);
 								}
 							}, 0);
 						}
@@ -245,8 +229,7 @@ public class PipeUtils {
 
 								@Override
 								public void run() {
-									TransportPipes.vanillaPipeManager.updatePipe(pipe);
-									TransportPipes.modelledPipeManager.updatePipe(pipe);
+									TransportPipes.pipePacketManager.updatePipe(pipe);
 								}
 
 							}, 0);
@@ -286,22 +269,6 @@ public class PipeUtils {
 			}
 		}
 		return null;
-	}
-
-	public static Pipe createPipeObject(Class<? extends Pipe> pipeClass, Location loc, List list, PipeColor pipeColor, boolean icePipe) {
-		try {
-			return pipeClass.getConstructor(Location.class, List.class, PipeColor.class, boolean.class).newInstance(loc, list, pipeColor, icePipe);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public static boolean isPipeItemIcePipe(ItemStack pipeItem) {
-		if (pipeItem.hasItemMeta() && pipeItem.getItemMeta().hasDisplayName()) {
-			return pipeItem.getItemMeta().getDisplayName().equals(TransportPipes.instance.ICE_PIPE_NAME);
-		}
-		return false;
 	}
 
 }

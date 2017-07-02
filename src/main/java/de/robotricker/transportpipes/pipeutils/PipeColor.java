@@ -37,12 +37,12 @@ public enum PipeColor {
 	public ItemStack getVanillaModel_GlassItem() {
 		return vanillaModel_glassItem;
 	}
-	
-	public ItemStack getModelledModel_MidHoeItem(){
+
+	public ItemStack getModelledModel_MidHoeItem() {
 		return modelledModel_midHoeItem;
 	}
-	
-	public ItemStack getModelledModel_ConnHoeItem(){
+
+	public ItemStack getModelledModel_ConnHoeItem() {
 		return modelledModel_connHoeItem;
 	}
 
@@ -51,19 +51,18 @@ public enum PipeColor {
 	}
 
 	public static PipeColor getPipeColorByPipeItem(ItemStack item) {
-		if (item.getItemMeta().getDisplayName().contains(TransportPipes.instance.GOLDEN_PIPE_NAME) || item.getItemMeta().getDisplayName().contains(TransportPipes.instance.IRON_PIPE_NAME)) {
-			return PipeColor.WHITE;
-		}
-		if (item != null) {
-			for (PipeColor pipeColor : PipeColor.values()) {
-				if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-					if (item.getItemMeta().getDisplayName().startsWith(pipeColor.getColorCode())) {
-						return pipeColor;
+		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().substring(2).equalsIgnoreCase(TransportPipes.instance.PIPE_NAME)) {
+			if (item != null) {
+				for (PipeColor pipeColor : PipeColor.values()) {
+					if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+						if (item.getItemMeta().getDisplayName().startsWith(pipeColor.getColorCode())) {
+							return pipeColor;
+						}
 					}
 				}
 			}
 		}
-		return PipeColor.WHITE;
+		return null;
 	}
 
 }
