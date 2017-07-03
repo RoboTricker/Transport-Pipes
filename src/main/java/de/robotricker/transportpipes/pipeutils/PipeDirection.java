@@ -48,7 +48,6 @@ public enum PipeDirection {
 		return this.ordinal();
 	}
 
-	//checks if this direction is north/east/west/south
 	public boolean isSide() {
 		return this == NORTH || this == EAST || this == SOUTH || this == WEST;
 	}

@@ -34,7 +34,7 @@ import de.robotricker.transportpipes.pipes.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
-import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockListener;
+import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
@@ -198,7 +198,7 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new SavingManager(), this);
-		Bukkit.getPluginManager().registerEvents(new PipeNeighborBlockListener(), this);
+		Bukkit.getPluginManager().registerEvents(new PipeNeighborBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
 		Bukkit.getPluginManager().registerEvents(updateManager = new UpdateManager(this), this);
@@ -298,15 +298,11 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getPipeItem(PipeColor pipeColor, boolean icePipe) {
+	public ItemStack getColoredPipeItem(PipeColor pipeColor) {
 		ItemStack result = PIPE_ITEM.clone();
 		result.setAmount(1);
 		ItemMeta itemMeta = result.getItemMeta();
-		if (icePipe) {
-			itemMeta.setDisplayName(ICE_PIPE_NAME);
-		} else {
-			itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
-		}
+		itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
 		result.setItemMeta(itemMeta);
 		return result;
 	}

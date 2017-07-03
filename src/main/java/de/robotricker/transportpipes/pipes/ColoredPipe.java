@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.pipes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -26,11 +28,6 @@ public class ColoredPipe extends Pipe {
 		return null;
 	}
 
-	@Override
-	public void destroy(boolean dropPipeItem) {
-
-	}
-
 	public PipeColor getPipeColor() {
 		return pipeColor;
 	}
@@ -41,8 +38,10 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	protected List<ItemStack> getDroppedItems() {
-		return null;
+	public List<ItemStack> getDroppedItems() {
+		List<ItemStack> is = new ArrayList<ItemStack>();
+		is.add(TransportPipes.instance.getColoredPipeItem(getPipeColor()));
+		return is;
 	}
 
 	@Override

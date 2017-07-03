@@ -51,20 +51,22 @@ public abstract class Pipe {
 	protected static final ItemStack ITEM_CARPET_RED = new ItemStack(Material.CARPET, 1, (short) 14);
 	protected static final ItemStack ITEM_CARPET_BLACK = new ItemStack(Material.CARPET, 1, (short) 15);
 
+	//contains all items managed by this pipe
 	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<PipeItem, PipeDirection>();
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
-	//jedes iteraten durch diese Map MUSS mit synchronized(tempPipeItems){} sein!
+	//remember to synchronize while iterating
 	public final Map<PipeItem, PipeDirection> tempPipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should be spawned to the players
-	//jedes iteraten durch diese Map MUSS mit synchronized(tempPipeItemsWithSpawn){} sein!
+	//remember to synchronize while iterating
 	public final Map<PipeItem, PipeDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
+	//the blockLoc of this pipe
 	public Location blockLoc;
 
-	//that ONLY contains the neighbor BLOCKS, not the neighbor pipes!
-	//jedes iteraten durch diese List MUSS mit synchronized(pipeNeighborBlocks){} sein!
+	//contains all PipeDirections which refer to an inventory block
+	//remember to synchronize while iterating
 	public List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
 
 	static {
@@ -102,19 +104,14 @@ public abstract class Pipe {
 	 * gets the PipeItem direction in this pipe
 	 */
 	public PipeDirection getPipeItemDirection(PipeItem item) {
-		if (pipeItems.containsKey(item)) {
-			return pipeItems.get(item);
-		}
-		return null;
+		return pipeItems.getOrDefault(item, null);
 	}
 
 	/**
 	 * removes the PipeItem from this pipe. This should be called whenever the item leaves the pipe (for all ItemHandling cases)
 	 */
 	public void removePipeItem(PipeItem item) {
-		if (pipeItems.containsKey(item)) {
-			pipeItems.remove(item);
-		}
+		pipeItems.remove(item);
 	}
 
 	public void tick(boolean inputItems, List<PipeItem> itemsAlreadyTicked) {
@@ -145,13 +142,13 @@ public abstract class Pipe {
 	}
 
 	/**
-	 * Will be overridden by all pipe subclasses. This method is be called for all items that arrive in the middle of the pipe to calculate the direction they should go to
+	 * Will be overridden by all pipe subclasses. This method is be called for all items that arrive in the middle of the pipe to calculate the direction they should go next
 	 */
 	public abstract PipeDirection itemArrivedAtMiddle(PipeItem item, PipeDirection before, List<PipeDirection> dirs);
 
 	private void transportItems(List<PipeDirection> dirs, List<PipeItem> itemsAlreadyTicked) {
 
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this);
+		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
 
 		HashMap<PipeItem, PipeDirection> mapCopy = (HashMap<PipeItem, PipeDirection>) pipeItems.clone();
 		for (final PipeItem item : mapCopy.keySet()) {
@@ -275,9 +272,9 @@ public abstract class Pipe {
 
 	private List<PipeDirection> inputItemsAndCalculatePipeDirections(boolean inputItems) {
 
-		List<PipeDirection> dirs = new ArrayList<>();
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(this);
+		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
 
+		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
 		for (final PipeDirection dir : PipeDirection.values()) {
 
 			final Location blockLoc = this.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
@@ -289,7 +286,8 @@ public abstract class Pipe {
 
 			if (!dirAvailable) {
 				if (isPipeNeighborBlock(dir)) {
-					if (this instanceof IronPipe) {
+					//make sure that items won't be extracted if the extracting-pipe is an iron pipe pointing to the inventory block
+					if (getPipeType() == PipeType.IRON) {
 						IronPipe ip = (IronPipe) this;
 						if (!ip.getCurrentOutputDir().equals(dir)) {
 							dirAvailable = true;
@@ -340,7 +338,7 @@ public abstract class Pipe {
 	}
 
 	public List<PipeDirection> getAllConnections() {
-		List<PipeDirection> connections = PipeUtils.getPipeConnections(this);
+		List<PipeDirection> connections = PipeUtils.getOnlyPipeConnections(this);
 		synchronized (this.pipeNeighborBlocks) {
 			for (PipeDirection dir : this.pipeNeighborBlocks) {
 				if (!connections.contains(dir)) {
@@ -350,12 +348,6 @@ public abstract class Pipe {
 		}
 		return connections;
 	}
-
-	/**
-	 * You don't have to really destroy/remove the pipe or drop the items inside of the pipe while implementing this method.<br>
-	 * But you have to drop the pipe itself that it can be used again
-	 */
-	public abstract void destroy(boolean dropPipeItem);
 
 	/**
 	 * Determines wether the item should drop, be put in another pipe or be put in an inventory when it reaches the end of a pipe
@@ -453,7 +445,7 @@ public abstract class Pipe {
 	/**
 	 * get the items that will be dropped on pipe destroy
 	 */
-	protected abstract List<ItemStack> getDroppedItems();
+	public abstract List<ItemStack> getDroppedItems();
 
 	public abstract PipeType getPipeType();
 

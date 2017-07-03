@@ -9,8 +9,8 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -57,24 +57,7 @@ public class PipeUtils {
 			TransportPipes.putPipe(pipe);
 		}
 
-		//update neighbor pipes
-		PipeThread.runTask(new Runnable() {
-
-			@Override
-			public void run() {
-
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
-				if (pipeMap != null) {
-					for (PipeDirection dir : PipeDirection.values()) {
-						BlockLoc blockLocLong = TransportPipes.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
-						if (pipeMap.containsKey(blockLocLong)) {
-							TransportPipes.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
-						}
-					}
-				}
-
-			}
-		}, 0);
+		updatePipeNeighborPipes(pipe.getBlockLoc());
 
 		return true;
 
@@ -103,7 +86,6 @@ public class PipeUtils {
 				pipeMap.remove(TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc));
 
 				//drop all items in old pipe
-
 				Set<PipeItem> itemsToDrop = new HashSet<PipeItem>();
 				itemsToDrop.addAll(pipeToDestroy.pipeItems.keySet());
 				itemsToDrop.addAll(pipeToDestroy.tempPipeItems.keySet());
@@ -124,34 +106,50 @@ public class PipeUtils {
 				pipeToDestroy.tempPipeItems.clear();
 				pipeToDestroy.tempPipeItemsWithSpawn.clear();
 
-				PipeThread.runTask(new Runnable() {
+				updatePipeNeighborPipes(pipeToDestroy.blockLoc);
 
-					@Override
-					public void run() {
-						//update neighbor pipes
-						for (PipeDirection dir : PipeDirection.values()) {
-							BlockLoc blockLocLong = TransportPipes.convertBlockLoc(pipeToDestroy.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
-							if (pipeMap.containsKey(blockLocLong)) {
-								TransportPipes.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
+				if (dropItem) {
+					final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems();
+					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+						@Override
+						public void run() {
+							Location dropLoc = pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d);
+							for (ItemStack dropIs : droppedItems) {
+								dropLoc.getWorld().dropItem(dropLoc, dropIs);
 							}
 						}
-					}
-				}, 0);
-
-				pipeToDestroy.destroy(dropItem);
-
+					});
+				}
 			}
 		}
 
 	}
 
+	public static void updatePipeNeighborPipes(final Location blockLoc) {
+		PipeThread.runTask(new Runnable() {
+
+			@Override
+			public void run() {
+
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
+				if (pipeMap != null) {
+					for (PipeDirection dir : PipeDirection.values()) {
+						BlockLoc blockLocLong = TransportPipes.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
+						if (pipeMap.containsKey(blockLocLong)) {
+							TransportPipes.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
+						}
+					}
+				}
+
+			}
+		}, 0);
+	}
+
 	/**
 	 * gets all pipe connection directions (not block connections)
-	 * 
-	 * @param normalPipe
-	 *            determines if the pipe at pipeLoc (for which the neighbor pipe check is done) is a normal pipe or a special pipe (golden, iron or detector pipe)
-	 */
-	public static List<PipeDirection> getPipeConnections(Pipe pipe) {
+	 **/
+	public static List<PipeDirection> getOnlyPipeConnections(Pipe pipe) {
 
 		List<PipeDirection> dirs = new ArrayList<>();
 
@@ -178,74 +176,15 @@ public class PipeUtils {
 
 	}
 
-	/**
-	 * ONLY IN MAIN THREAD gets block connection dirs (not pipe connections)
-	 */
-	public static List<PipeDirection> getPipeNeighborBlocksSync(final Location pipeLoc) {
-		List<PipeDirection> dirs = new ArrayList<>();
-		for (PipeDirection dir : PipeDirection.values()) {
-			Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-			if (isIdInventoryHolder(blockLoc.getBlock().getTypeId())) {
-				dirs.add(dir);
-			}
-		}
-		return dirs;
-	}
-
-	/**
-	 * updates the "pipeNeighborBlocks" list of all pipes around this block
-	 * 
-	 * @param add
-	 *            true: block added | false: block removed
-	 */
-	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
-
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(toUpdate.getWorld());
-
+	public static Pipe getPipeWithLocation(Location blockLoc) {
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
-			for (PipeDirection pd : PipeDirection.values()) {
-				PipeDirection opposite = pd.getOpposite();
-				Location blockLoc = toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ());
-
-				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-					final Pipe pipe = pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
-					if (add) {
-						//add pipe neighbor block
-						if (!pipe.pipeNeighborBlocks.contains(opposite)) {
-							pipe.pipeNeighborBlocks.add(opposite);
-							PipeThread.runTask(new Runnable() {
-
-								@Override
-								public void run() {
-									TransportPipes.pipePacketManager.updatePipe(pipe);
-								}
-							}, 0);
-						}
-					} else {
-						//remove pipe neighbor block
-						if (pipe.pipeNeighborBlocks.contains(opposite)) {
-							pipe.pipeNeighborBlocks.remove(opposite);
-							PipeThread.runTask(new Runnable() {
-
-								@Override
-								public void run() {
-									TransportPipes.pipePacketManager.updatePipe(pipe);
-								}
-
-							}, 0);
-						}
-					}
-				}
+			BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
+			if (pipeMap.containsKey(bl)) {
+				return pipeMap.get(bl);
 			}
 		}
-	}
-
-	/**
-	 * checks if this blockID is an InventoryHolder
-	 */
-	public static boolean isIdInventoryHolder(int id) {
-		boolean v1_9or1_10 = Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10");
-		return id == 54 || id == 146 || id == 154 || id == 61 || id == 62 || id == 379 || id == 23 || id == 158 || id == 117 || (!v1_9or1_10 && id >= 219 && id <= 234);
+		return null;
 	}
 
 	public static String LocToString(Location loc) {
@@ -258,17 +197,6 @@ public class PipeUtils {
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	public static Pipe getPipeWithLocation(Location blockLoc) {
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(blockLoc.getWorld());
-		if (pipeMap != null) {
-			BlockLoc bl = TransportPipes.convertBlockLoc(blockLoc);
-			if (pipeMap.containsKey(bl)) {
-				return pipeMap.get(bl);
-			}
-		}
-		return null;
 	}
 
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -177,41 +176,22 @@ public class GoldenPipe extends Pipe implements Clickable {
 	}
 
 	@Override
-	public void destroy(boolean dropItem) {
-		if (dropItem) {
-			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-				@Override
-				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getGoldenPipeItem());
-				}
-			});
-		}
-		for (int line = 0; line < 6; line++) {
-			for (int i = 0; i < 8; i++) {
-				if (outputItems[line][i] != null) {
-					final ItemStack item = outputItems[line][i].toItemStack();
-					//otherwise: asynchronous entity add
-					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-						@Override
-						public void run() {
-							blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), item);
-						}
-					});
-				}
-			}
-		}
-	}
-	
-	@Override
 	public PipeType getPipeType() {
 		return PipeType.GOLDEN;
 	}
 
 	@Override
-	protected List<ItemStack> getDroppedItems() {
-		return null;
+	public List<ItemStack> getDroppedItems() {
+		List<ItemStack> is = new ArrayList<ItemStack>();
+		is.add(TransportPipes.instance.getGoldenPipeItem());
+		for (int line = 0; line < 6; line++) {
+			for (int i = 0; i < 8; i++) {
+				if (outputItems[line][i] != null) {
+					is.add(outputItems[line][i].toItemStack());
+				}
+			}
+		}
+		return is;
 	}
 
 }

@@ -22,10 +22,9 @@ import org.bukkit.material.TrapDoor;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.GoldenPipe;
-import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
@@ -35,7 +34,7 @@ public class HitboxUtils {
 	private final static Set<Material> LINE_OF_SIGHT_SET;
 
 	static {
-		LINE_OF_SIGHT_SET = new HashSet<>();
+		LINE_OF_SIGHT_SET = new HashSet<Material>();
 		LINE_OF_SIGHT_SET.add(Material.WATER);
 		LINE_OF_SIGHT_SET.add(Material.STATIONARY_WATER);
 		LINE_OF_SIGHT_SET.add(Material.LAVA);
@@ -158,8 +157,8 @@ public class HitboxUtils {
 		}
 		b.setTypeIdAndData(id, data, true);
 
-		if (PipeUtils.isIdInventoryHolder(id)) {
-			PipeUtils.updatePipeNeighborBlockSync(b, true);
+		if (PipeNeighborBlockUtils.isIdInventoryHolder(id)) {
+			PipeNeighborBlockUtils.updatePipeNeighborBlockSync(b, true);
 		}
 
 		return true;
@@ -206,27 +205,6 @@ public class HitboxUtils {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * returns the class of the pipe you can place with this item, or null if there is no pipe available for this item
-	 */
-	public static Class<? extends Pipe> getPipeWithPipePlaceableItem(ItemStack item) {
-		if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-			String displayName = item.getItemMeta().getDisplayName();
-			if (displayName != null) {
-				if (displayName.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
-					return GoldenPipe.class;
-				}
-				if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
-					return IronPipe.class;
-				}
-				if (displayName.contains(TransportPipes.instance.PIPE_NAME) && displayName.startsWith("§")) {
-					return Pipe.class;
-				}
-			}
-		}
-		return null;
 	}
 
 }

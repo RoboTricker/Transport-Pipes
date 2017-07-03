@@ -1,9 +1,9 @@
 package de.robotricker.transportpipes.pipes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -56,19 +56,6 @@ public class IronPipe extends Pipe implements Clickable {
 		p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 	}
 
-	@Override
-	public void destroy(boolean dropItem) {
-		if (dropItem) {
-			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-				@Override
-				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getIronPipeItem());
-				}
-			});
-		}
-	}
-
 	public PipeDirection getCurrentOutputDir() {
 		return currentOutputDir;
 	}
@@ -79,8 +66,10 @@ public class IronPipe extends Pipe implements Clickable {
 	}
 
 	@Override
-	protected List<ItemStack> getDroppedItems() {
-		return null;
+	public List<ItemStack> getDroppedItems() {
+		List<ItemStack> is = new ArrayList<ItemStack>();
+		is.add(TransportPipes.instance.getIronPipeItem());
+		return is;
 	}
 
 }

@@ -45,6 +45,9 @@ public enum PipeType {
 		return null;
 	}
 
+	/**
+	 * returns the pipeType you can place with this item, or null if there is no pipe available for this item
+	 */
 	public static PipeType getFromPipeItem(ItemStack item) {
 		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
 			String displayName = item.getItemMeta().getDisplayName();
@@ -57,7 +60,7 @@ public enum PipeType {
 			if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
 				return PipeType.IRON;
 			}
-			if(PipeColor.getPipeColorByPipeItem(item) != null){
+			if (PipeColor.getPipeColorByPipeItem(item) != null) {
 				return PipeType.COLORED;
 			}
 		}
