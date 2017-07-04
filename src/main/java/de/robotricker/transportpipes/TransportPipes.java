@@ -196,7 +196,11 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new PipeNeighborBlockListener(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
-		Bukkit.getPluginManager().registerEvents(updateManager = new UpdateManager(this), this);
+	
+		updateManager = new UpdateManager(this);
+		if(getConfig().getBoolean("check_updates_onjoin")) {
+			Bukkit.getPluginManager().registerEvents(updateManager, this);
+		}
 
 		for (World world : Bukkit.getWorlds()) {
 			SavingManager.loadPipesSync(world);
