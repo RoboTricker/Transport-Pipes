@@ -45,16 +45,18 @@ public class PipeUtils {
 
 		Pipe pipe = pt.createPipe(blockLoc, pipeColor);
 
+		List<PipeDirection> neighborPipes = getOnlyPipeConnections(pipe);
+
 		if (player != null) {
 			PlayerPlacePipeEvent ppe = new PlayerPlacePipeEvent(player, pipe);
 			Bukkit.getPluginManager().callEvent(ppe);
 			if (!ppe.isCancelled()) {
-				TransportPipes.putPipe(pipe);
+				TransportPipes.putPipe(pipe, neighborPipes);
 			} else {
 				return false;
 			}
 		} else {
-			TransportPipes.putPipe(pipe);
+			TransportPipes.putPipe(pipe, neighborPipes);
 		}
 
 		updatePipeNeighborPipes(pipe.getBlockLoc());
@@ -151,7 +153,7 @@ public class PipeUtils {
 	 **/
 	public static List<PipeDirection> getOnlyPipeConnections(Pipe pipe) {
 
-		List<PipeDirection> dirs = new ArrayList<>();
+		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(pipe.getBlockLoc().getWorld());
 

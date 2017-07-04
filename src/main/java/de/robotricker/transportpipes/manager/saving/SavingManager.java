@@ -17,19 +17,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.jnbt.CompoundTag;
-import org.jnbt.IntTag;
-import org.jnbt.ListTag;
-import org.jnbt.LongTag;
 import org.jnbt.NBTInputStream;
 import org.jnbt.NBTOutputStream;
-import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
+import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class SavingManager implements Listener {
@@ -97,15 +95,15 @@ public class SavingManager implements Listener {
 
 					HashMap<String, Tag> tags = new HashMap<>();
 
-					tags.put("PluginVersion", new StringTag("PluginVersion", TransportPipes.instance.getDescription().getVersion()));
-					tags.put("LastSave", new LongTag("LastSave", System.currentTimeMillis()));
+					NBTUtils.saveStringValue(tags, "PluginVersion", TransportPipes.instance.getDescription().getVersion());
+					NBTUtils.saveLongValue(tags, "LastSave", System.currentTimeMillis());
 
 					List<HashMap<String, Tag>> rawPipeList = worlds.get(world);
 					List<Tag> finalPipeList = new ArrayList<>();
 					for (HashMap<String, Tag> map : rawPipeList) {
 						finalPipeList.add(new CompoundTag("Pipe", map));
 					}
-					tags.put("Pipes", new ListTag("Pipes", CompoundTag.class, finalPipeList));
+					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalPipeList);
 
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);
@@ -147,23 +145,29 @@ public class SavingManager implements Listener {
 
 			CompoundTag compound = (CompoundTag) in.readTag();
 
-			//String pluginVersion = ((StringTag) compound.getValue().get("PluginVersion")).getValue();
-			//long lastSave = ((LongTag) compound.getValue().get("LastSave")).getValue();
-			List<Tag> pipeList = ((ListTag) compound.getValue().get("Pipes")).getValue();
+			String pluginVersion = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"), null);
+			long lastSave = NBTUtils.readLongTag(compound.getValue().get("LastSave"), 0);
+
+			List<Tag> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
 
 			for (Tag tag : pipeList) {
 				CompoundTag pipeTag = (CompoundTag) tag;
 
-				PipeType pt = PipeType.getFromId(((IntTag) pipeTag.getValue().getOrDefault("PipeType", new IntTag("PipeType", PipeType.COLORED.getId()))).getValue());
-				Location pipeLoc = PipeUtils.StringToLoc(((StringTag) pipeTag.getValue().get("PipeLocation")).getValue());
-				String pipeColorString = ((StringTag) pipeTag.getValue().getOrDefault("PipeColor", new StringTag("PipeColor", PipeColor.WHITE.name()))).getValue();
+				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
+				Location pipeLoc = PipeUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+
+				List<PipeDirection> neighborPipes = new ArrayList<PipeDirection>();
+				List<Tag> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
+				for (Tag neighborPipesEntry : neighborPipesList) {
+					neighborPipes.add(PipeDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
+				}
 
 				if (pipeLoc != null) {
-					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.valueOf(pipeColorString));
+					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.WHITE); //PipeColor is going to be replaced when loading from NBT inside pipe
 					pipe.loadFromNBTTag(pipeTag);
 
-					//load and spawn pipe
-					TransportPipes.putPipe(pipe);
+					//save and spawn pipe
+					TransportPipes.putPipe(pipe, neighborPipes);
 
 					pipesCount++;
 				}

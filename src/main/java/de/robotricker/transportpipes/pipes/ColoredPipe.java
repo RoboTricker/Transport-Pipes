@@ -6,17 +6,19 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.StringTag;
+import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
 public class ColoredPipe extends Pipe {
 
 	private PipeColor pipeColor;
+	private int lastOutputIndex = 0;
 
 	public ColoredPipe(Location blockLoc, PipeColor pipeColor) {
 		super(blockLoc);
@@ -24,8 +26,18 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	public PipeDirection itemArrivedAtMiddle(PipeItem item, PipeDirection before, List<PipeDirection> dirs) {
-		return null;
+	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs) {
+		if (possibleDirs.contains(before.getOpposite())) {
+			possibleDirs.remove(before.getOpposite());
+		}
+		lastOutputIndex++;
+		if (lastOutputIndex >= possibleDirs.size()) {
+			lastOutputIndex = 0;
+		}
+		if (possibleDirs.size() > 0) {
+			return possibleDirs.get(lastOutputIndex);
+		}
+		return before;
 	}
 
 	public PipeColor getPipeColor() {
@@ -47,7 +59,13 @@ public class ColoredPipe extends Pipe {
 	@Override
 	public void saveToNBTTag(HashMap<String, Tag> tags) {
 		super.saveToNBTTag(tags);
-		tags.put("PipeColor", new StringTag("PipeColor", pipeColor.name()));
+		NBTUtils.saveStringValue(tags, "PipeColor", pipeColor.name());
+	}
+
+	@Override
+	public void loadFromNBTTag(CompoundTag tag) {
+		super.loadFromNBTTag(tag);
+		pipeColor = PipeColor.valueOf(NBTUtils.readStringTag(tag.getValue().get("PipeColor"), PipeColor.WHITE.name()));
 	}
 
 }

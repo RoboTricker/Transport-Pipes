@@ -46,18 +46,16 @@ public class ModelledPipeManager extends PipeManager {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe) {
+	public void createPipeASD(Pipe pipe, List<PipeDirection> allConnections) {
 		if (pipeMidAsd.containsKey(pipe)) {
 			return;
 		}
-
-		List<PipeDirection> conns = pipe.getAllConnections();
 
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
 		Map<PipeDirection, ArmorStandData> connsMap = new HashMap<PipeDirection, ArmorStandData>();
 		pipeConnsAsd.put(pipe, connsMap);
-		for (PipeDirection conn : conns) {
+		for (PipeDirection conn : allConnections) {
 			connsMap.put(conn, model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, conn)));
 		}
 
@@ -65,7 +63,7 @@ public class ModelledPipeManager extends PipeManager {
 
 	@Override
 	public void updatePipeASD(Pipe pipe) {
-		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe)) {
+		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe) || pipeConnsAsd.get(pipe) == null) {
 			return;
 		}
 
@@ -110,11 +108,11 @@ public class ModelledPipeManager extends PipeManager {
 
 	@Override
 	public void destroyPipeASD(Pipe pipe) {
-		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe)) {
+		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe) || pipeConnsAsd.get(pipe) == null) {
 			return;
 		}
 		pipeMidAsd.remove(pipe);
-		pipeConnsAsd.remove(pipe).values();
+		pipeConnsAsd.remove(pipe);
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.manager.settings.SettingsManager;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class PipePacketManager implements Listener {
@@ -30,9 +31,9 @@ public class PipePacketManager implements Listener {
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 
-	public void createPipe(Pipe pipe) {
+	public void createPipe(Pipe pipe, List<PipeDirection> allConnections) {
 		for (PipeManager pm : TransportPipes.instance.getAllPipeManagers()) {
-			pm.createPipeASD(pipe);
+			pm.createPipeASD(pipe, allConnections);
 		}
 		//client update is done in the next tick
 	}

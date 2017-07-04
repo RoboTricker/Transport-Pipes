@@ -9,15 +9,15 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
-import org.jnbt.IntTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
+import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
-public class IronPipe extends Pipe implements Clickable {
+public class IronPipe extends Pipe implements ClickablePipe {
 
 	private PipeDirection currentOutputDir;
 
@@ -27,20 +27,20 @@ public class IronPipe extends Pipe implements Clickable {
 	}
 
 	@Override
-	public PipeDirection itemArrivedAtMiddle(PipeItem item, PipeDirection before, List<PipeDirection> dirs) {
+	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs) {
 		return currentOutputDir;
 	}
 
 	@Override
 	public void saveToNBTTag(HashMap<String, Tag> tags) {
 		super.saveToNBTTag(tags);
-		tags.put("OutputDirection", new IntTag("OutputDirection", currentOutputDir.getId()));
+		NBTUtils.saveIntValue(tags, "OutputDirection", currentOutputDir.getId());
 	}
 
 	@Override
 	public void loadFromNBTTag(CompoundTag tag) {
 		super.loadFromNBTTag(tag);
-		changeOutputDirection(PipeDirection.fromID(((IntTag) tag.getValue().get("OutputDirection")).getValue()));
+		changeOutputDirection(PipeDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0)));
 	}
 
 	public void changeOutputDirection(PipeDirection newOutputDir) {

@@ -34,6 +34,7 @@ import de.robotricker.transportpipes.pipes.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
+import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
@@ -255,7 +256,7 @@ public class TransportPipes extends JavaPlugin {
 		return null;
 	}
 
-	public static void putPipe(Pipe pipe) {
+	public static void putPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
 		Map<BlockLoc, Pipe> pipeMap = getPipeMap(pipe.blockLoc.getWorld());
 		if (pipeMap == null) {
 			pipeMap = Collections.synchronizedMap(new TreeMap<BlockLoc, Pipe>());
@@ -263,7 +264,26 @@ public class TransportPipes extends JavaPlugin {
 		}
 		pipeMap.put(convertBlockLoc(pipe.blockLoc), pipe);
 
-		TransportPipes.pipePacketManager.createPipe(pipe);
+		Bukkit.getScheduler().runTask(instance, new Runnable() {
+
+			@Override
+			public void run() {
+				//create a list with pipe- and block connections (pipe connections is already given as parameter)
+				List<PipeDirection> allConnections = new ArrayList<PipeDirection>();
+
+				List<PipeDirection> neighborBlocks = PipeNeighborBlockUtils.getOnlyNeighborBlocksConnectionsSync(pipe.getBlockLoc());
+				allConnections.addAll(neighborBlocks);
+				for (PipeDirection neighborPipe : neighborPipes) {
+					if (!allConnections.contains(neighborPipe)) {
+						allConnections.add(neighborPipe);
+					}
+				}
+				pipe.pipeNeighborBlocks.clear();
+				pipe.pipeNeighborBlocks.addAll(neighborBlocks);
+
+				TransportPipes.pipePacketManager.createPipe(pipe, allConnections);
+			}
+		});
 	}
 
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {

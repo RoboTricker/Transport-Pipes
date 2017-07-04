@@ -21,7 +21,7 @@ public abstract class PipeManager {
 	/**
 	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe)
 	 */
-	public abstract void createPipeASD(Pipe pipe);
+	public abstract void createPipeASD(Pipe pipe, List<PipeDirection> allConnections);
 
 	/**
 	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe) also sends the removed and added ASD to all clients with this PipeManager

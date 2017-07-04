@@ -10,6 +10,7 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -29,13 +30,12 @@ public class VanillaPipeManager extends PipeManager {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe) {
+	public void createPipeASD(Pipe pipe, List<PipeDirection> allConnections) {
 		if (pipeAsd.containsKey(pipe)) {
 			return;
 		}
 
-		List<PipeDirection> conns = pipe.getAllConnections();
-		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(conns);
+		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), allConnections);
 
 		pipeAsd.put(pipe, shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe)));
 
@@ -43,7 +43,7 @@ public class VanillaPipeManager extends PipeManager {
 
 	@Override
 	public void updatePipeASD(Pipe pipe) {
-		if (!pipeAsd.containsKey(pipe)) {
+		if (!pipeAsd.containsKey(pipe) || pipeAsd.get(pipe) == null) {
 			return;
 		}
 
@@ -53,7 +53,7 @@ public class VanillaPipeManager extends PipeManager {
 		List<ArmorStandData> oldASD = pipeAsd.get(pipe);
 
 		List<PipeDirection> conns = pipe.getAllConnections();
-		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(conns);
+		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), conns);
 
 		List<ArmorStandData> newASD = shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe));
 
@@ -92,7 +92,7 @@ public class VanillaPipeManager extends PipeManager {
 
 	@Override
 	public void destroyPipeASD(Pipe pipe) {
-		if (!pipeAsd.containsKey(pipe)) {
+		if (!pipeAsd.containsKey(pipe) || pipeAsd.get(pipe) == null) {
 			return;
 		}
 		pipeAsd.remove(pipe);
@@ -113,7 +113,7 @@ public class VanillaPipeManager extends PipeManager {
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
-		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getAllConnections()).getModel().getAABB().rayIntersection(ray, origin, pipe.getBlockLoc());
+		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), pipe.getAllConnections()).getModel().getAABB().rayIntersection(ray, origin, pipe.getBlockLoc());
 	}
 
 	private enum VanillaPipeShape {
@@ -132,7 +132,10 @@ public class VanillaPipeManager extends PipeManager {
 			return model;
 		}
 
-		public static VanillaPipeShape getPipeShapeFromConnections(List<PipeDirection> conn) {
+		public static VanillaPipeShape getPipeShapeFromConnections(PipeType pipeType, List<PipeDirection> conn) {
+			if (pipeType == PipeType.GOLDEN || pipeType == PipeType.IRON) {
+				return MID;
+			}
 			if (conn.size() == 1) {
 				PipeDirection pd = conn.get(0);
 				if (pd == PipeDirection.NORTH || pd == PipeDirection.SOUTH) {

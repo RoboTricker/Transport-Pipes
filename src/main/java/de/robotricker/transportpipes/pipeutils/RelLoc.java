@@ -2,6 +2,11 @@ package de.robotricker.transportpipes.pipeutils;
 
 import de.robotricker.transportpipes.pipes.Pipe;
 
+/**
+ * this class represents the location of a pipeItem inside a pipe.<br>
+ * the coordinates x, y and z are given in a range between 0 and 1 but are converted to long values in order to have no float-calculation issues.<br>
+ * Pipe.FLOAT_PRECISION is the power of 10 which converts from floats to longs and vice-versa.
+ */
 public class RelLoc {
 
 	private long x;
@@ -48,6 +53,20 @@ public class RelLoc {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	/**
+	 * switches all values in the following system:<br>
+	 * 1 -> 0<br>
+	 * 0 -> 1<br>
+	 * 0.5 -> 0.5
+	 */
+	public void switchValues() {
+		set(1f - getFloatX(), 1f - getFloatY(), 1f - getFloatZ());
+	}
+
+	public void addValues(float addX, float addY, float addZ) {
+		set(getFloatX() + addX, getFloatY() + addY, getFloatZ() + addZ);
 	}
 
 	@Override

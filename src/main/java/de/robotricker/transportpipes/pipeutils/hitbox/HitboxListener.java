@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
@@ -128,10 +128,10 @@ public class HitboxListener implements Listener {
 
 			if (pipeBlock != null) {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
-				if (pipeClickedAt instanceof Clickable) {
+				if (pipeClickedAt instanceof ClickablePipe) {
 					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							((Clickable) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
+							((ClickablePipe) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}
 					}

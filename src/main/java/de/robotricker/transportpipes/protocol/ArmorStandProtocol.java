@@ -73,16 +73,16 @@ public class ArmorStandProtocol {
 	 * not updating Item -> only sending (this is also sent when the player comes near enough to see the item even if the item is already in a pipe)
 	 */
 	public void sendPipeItem(Player p, PipeItem item) {
-		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.changeRelLoc().getFloatX() - 0.5d, item.changeRelLoc().getFloatY() - 0.5d, item.changeRelLoc().getFloatZ() - 0.5d));
+		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d, item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
 	}
 
 	public void updatePipeItem(Player p, PipeItem item) {
 		try {
 			WrapperPlayServerRelEntityMove moveWrapper = new WrapperPlayServerRelEntityMove();
 			moveWrapper.setEntityID(item.getArmorStand().getEntityID());
-			moveWrapper.setDx((int) ((item.changeRelLocDiff().getFloatX() * 32d) * 128));
-			moveWrapper.setDy((int) ((item.changeRelLocDiff().getFloatY() * 32d) * 128));
-			moveWrapper.setDz((int) ((item.changeRelLocDiff().getFloatZ() * 32d) * 128));
+			moveWrapper.setDx((int) ((item.relLocDerivation().getFloatX() * 32d) * 128));
+			moveWrapper.setDy((int) ((item.relLocDerivation().getFloatY() * 32d) * 128));
+			moveWrapper.setDz((int) ((item.relLocDerivation().getFloatZ() * 32d) * 128));
 			moveWrapper.setOnGround(true);
 			moveWrapper.sendPacket(p);
 		} catch (Exception e) {

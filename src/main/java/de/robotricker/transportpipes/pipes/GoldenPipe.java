@@ -10,16 +10,16 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
-import org.jnbt.ListTag;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
+import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
-public class GoldenPipe extends Pipe implements Clickable {
+public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
 	private ItemData[][] outputItems = new ItemData[6][8];
@@ -30,14 +30,10 @@ public class GoldenPipe extends Pipe implements Clickable {
 	}
 
 	@Override
-	public PipeDirection itemArrivedAtMiddle(PipeItem item, PipeDirection before, List<PipeDirection> dirs) {
-
-		ItemData itemMAD = new ItemData(item.getItem());
-
-		List<PipeDirection> possibleDirections = getPossibleDirectionsForItem(itemMAD, before);
-
+	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs) {
+		ItemData itemData = new ItemData(item.getItem());
+		List<PipeDirection> possibleDirections = getPossibleDirectionsForItem(itemData, before);
 		return possibleDirections.get(new Random().nextInt(possibleDirections.size()));
-
 	}
 
 	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before) {
@@ -45,7 +41,9 @@ public class GoldenPipe extends Pipe implements Clickable {
 		List<PipeDirection> connectionDirections = getAllConnections();
 
 		//the possible directions in which the item could go
-		List<PipeDirection> possibleDirections = new ArrayList<>();
+		List<PipeDirection> possibleDirections = new ArrayList<PipeDirection>();
+
+		List<PipeDirection> emptyPossibleDirections = new ArrayList<PipeDirection>();
 
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
@@ -53,7 +51,11 @@ public class GoldenPipe extends Pipe implements Clickable {
 			if (!connectionDirections.contains(dir)) {
 				continue;
 			}
+			boolean empty = true;
 			for (int i = 0; i < 8; i++) {
+				if (outputItems[line][i] != null) {
+					empty = false;
+				}
 				if (ignoreNBT) {
 					ItemStack item = itemData.toItemStack();
 					if (outputItems[line][i] != null) {
@@ -66,33 +68,17 @@ public class GoldenPipe extends Pipe implements Clickable {
 					possibleDirections.add(dir);
 				}
 			}
+			if (empty) {
+				emptyPossibleDirections.add(dir);
+			}
 		}
 
 		//if this item isn't in the list, it will take a random direction from the empty dirs
 		if (possibleDirections.isEmpty()) {
 
-			List<PipeDirection> emptyList = new ArrayList<>();
-
-			for (int line = 0; line < 6; line++) {
-				PipeDirection dir = PipeDirection.fromID(line);
-				//ignore the direction in which is no pipe or inv-block
-				if (!connectionDirections.contains(dir)) {
-					continue;
-				}
-				boolean empty = true;
-				for (int i = 0; i < 8; i++) {
-					if (outputItems[line][i] != null) {
-						empty = false;
-					}
-				}
-				if (empty) {
-					emptyList.add(dir);
-				}
-			}
-
-			for (PipeDirection dir : emptyList) {
+			for (PipeDirection dir : emptyPossibleDirections) {
 				//add all possible empty directions without the direction back. Only if this is the only possible way, it will go back.
-				if (dir != before.getOpposite() || emptyList.size() == 1) {
+				if (dir != before.getOpposite() || emptyPossibleDirections.size() == 1) {
 					possibleDirections.add(dir);
 				}
 			}
@@ -112,17 +98,16 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 		for (int line = 0; line < 6; line++) {
 			List<Tag> lineList = new ArrayList<Tag>();
-			ListTag lineTag = new ListTag("Line" + line, CompoundTag.class, lineList);
-
 			for (int i = 0; i < 8; i++) {
-				ItemData mad = outputItems[line][i];
-				if (mad != null) {
-					lineList.add(mad.toNBTTag());
+				ItemData itemData = outputItems[line][i];
+				if (itemData != null) {
+					lineList.add(itemData.toNBTTag());
 				}
 			}
-
-			tags.put("Line" + line, lineTag);
+			NBTUtils.saveListValue(tags, "Line" + line, CompoundTag.class, lineList);
 		}
+
+		NBTUtils.saveByteValue(tags, "IgnoreNBT", ignoreNBT ? (byte) 1 : (byte) 0);
 
 	}
 
@@ -131,19 +116,19 @@ public class GoldenPipe extends Pipe implements Clickable {
 		super.loadFromNBTTag(tag);
 
 		Map<String, Tag> map = tag.getValue();
-
 		for (int line = 0; line < 6; line++) {
 
-			ListTag lineTag = (ListTag) map.get("Line" + line);
-			List<Tag> lineList = lineTag.getValue();
-
+			List<Tag> lineList = NBTUtils.readListTag(map.get("Line" + line));
 			for (int i = 0; i < 8; i++) {
 				if (lineList.size() > i) {
-					ItemData mad = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
-					outputItems[line][i] = mad;
+					ItemData itemData = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
+					outputItems[line][i] = itemData;
 				}
 			}
 		}
+
+		boolean ignoreNBT = NBTUtils.readByteTag(map.get("IgnoreNBT"), (byte) 0) == (byte) 1;
+		setIgnoreNBT(ignoreNBT);
 
 	}
 
@@ -166,10 +151,9 @@ public class GoldenPipe extends Pipe implements Clickable {
 
 	public void changeOutputItems(PipeDirection pd, List<ItemData> items) {
 		for (int i = 0; i < outputItems[pd.getId()].length; i++) {
-			if (items.size() > i) {
+			if (i < items.size()) {
 				outputItems[pd.getId()][i] = items.get(i);
 			} else {
-				//set item null if the items size is too small -> when you take an item and decrease the items size it will don't override the item with null
 				outputItems[pd.getId()][i] = null;
 			}
 		}

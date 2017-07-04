@@ -36,11 +36,11 @@ public class PipeItem {
 		this.blockLoc = blockLoc;
 	}
 
-	public RelLoc changeRelLoc() {
+	public RelLoc relLoc() {
 		return relLoc;
 	}
 
-	public RelLoc changeRelLocDiff() {
+	public RelLoc relLocDerivation() {
 		return relLocDiff;
 	}
 
