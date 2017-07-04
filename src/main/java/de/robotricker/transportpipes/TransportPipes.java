@@ -71,31 +71,33 @@ public class TransportPipes extends JavaPlugin {
 	public static ItemStack ICE_PIPE_ITEM;
 	public String WRENCH_NAME;
 	public static ItemStack WRENCH_ITEM;
-
 	public static ItemStack ICE_BLOCK;
 
-	//x << 34 | y << 26 | z
-	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
-	
+	// TODO: private access
 	public static TransportPipes instance;
-
 	public static ArmorStandProtocol armorStandProtocol;
 	public static PipeThread pipeThread;
 	public static PipePacketManager pipePacketManager;
 	public static UpdateManager updateManager;
 
-	public static List<String> antiCheatPlugins = new ArrayList<String>();
+	//x << 34 | y << 26 | z
+	private static Map<World, Map<BlockLoc, Pipe>> ppipes;
+	private static List<String> antiCheatPlugins;
 
 	@Override
 	public void onEnable() {
 		instance = this;
+
+		// Prepare collections
+		ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
+		antiCheatPlugins = new ArrayList<>();
+
+		// Prepare managers
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
 
+		// Load config and update values
 		getConfig().options().copyDefaults(true);
-		saveConfig();
-
-		//version fix
 		if (getConfig().getString("pipename.pipe").startsWith("&f")) {
 			getConfig().set("pipename.pipe", getConfig().getString("pipename.pipe").substring(2));
 		}
@@ -113,6 +115,7 @@ public class TransportPipes extends JavaPlugin {
 		}
 		saveConfig();
 
+		// Load language data
 		PREFIX = getFormattedConfigString("prefix");
 		PIPE_NAME = getFormattedConfigString("pipename.pipe");
 		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&6" + getConfig().getString("pipename.golden_pipe"));
@@ -120,9 +123,10 @@ public class TransportPipes extends JavaPlugin {
 		ICE_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&b" + getConfig().getString("pipename.ice_pipe"));
 		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
 
+		// TODO: wtf? Should be added into config?
 		ICE_BLOCK = new ItemStack(Material.ICE);
 
-		antiCheatPlugins.clear();
+		// Load config
 		antiCheatPlugins.addAll(getConfig().getStringList("anticheat"));
 
 		PipeThread.setRunning(true);
@@ -259,7 +263,7 @@ public class TransportPipes extends JavaPlugin {
 		BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 
 		//unregister anticheat listeners
-		List<RegisteredListener> unregisterListeners = new ArrayList<RegisteredListener>();
+		List<RegisteredListener> unregisterListeners = new ArrayList<>();
 		for (RegisteredListener rl : bbe.getHandlers().getRegisteredListeners()) {
 			for (String antiCheat : antiCheatPlugins) {
 				if (rl.getPlugin().getName().equalsIgnoreCase(antiCheat)) {
