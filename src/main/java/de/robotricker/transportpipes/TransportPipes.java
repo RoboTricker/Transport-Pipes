@@ -89,7 +89,7 @@ public class TransportPipes extends JavaPlugin {
 
 	//x << 34 | y << 26 | z
 	private static Map<World, Map<BlockLoc, Pipe>> ppipes;
-	private static List<String> antiCheatPlugins;
+	public static List<String> antiCheatPlugins;
 
 	public static PipeManager vanillaPipeManager;
 	public static PipeManager modelledPipeManager;
