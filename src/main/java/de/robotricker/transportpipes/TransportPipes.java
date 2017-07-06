@@ -76,7 +76,7 @@ public class TransportPipes extends JavaPlugin {
 
 	//x << 34 | y << 26 | z
 	public static Map<World, Map<BlockLoc, Pipe>> ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
-	
+
 	public static TransportPipes instance;
 
 	public static ArmorStandProtocol armorStandProtocol;
@@ -287,15 +287,11 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getPipeItem(PipeColor pipeColor, boolean icePipe) {
+	public ItemStack getPipeItem(PipeColor pipeColor) {
 		ItemStack result = PIPE_ITEM.clone();
 		result.setAmount(1);
 		ItemMeta itemMeta = result.getItemMeta();
-		if (icePipe) {
-			itemMeta.setDisplayName(ICE_PIPE_NAME);
-		} else {
-			itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
-		}
+		itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
 		result.setItemMeta(itemMeta);
 		return result;
 	}

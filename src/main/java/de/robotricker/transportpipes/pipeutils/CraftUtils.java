@@ -62,7 +62,7 @@ public class CraftUtils implements Listener {
 		Bukkit.addRecipe(recipe);
 
 		for (PipeColor pipeColor : PipeColor.values()) {
-			ShapelessRecipe recipeShapeless = new ShapelessRecipe(TransportPipes.instance.getPipeItem(pipeColor, false));
+			ShapelessRecipe recipeShapeless = new ShapelessRecipe(TransportPipes.instance.getPipeItem(pipeColor));
 			recipeShapeless.addIngredient(Material.BLAZE_ROD);
 			recipeShapeless.addIngredient(pipeColor.getDyeItem().getData());
 			Bukkit.addRecipe(recipeShapeless);
