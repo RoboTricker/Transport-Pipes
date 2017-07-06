@@ -295,15 +295,11 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getPipeItem(PipeColor pipeColor, boolean icePipe) {
+	public ItemStack getPipeItem(PipeColor pipeColor) {
 		ItemStack result = PIPE_ITEM.clone();
 		result.setAmount(1);
 		ItemMeta itemMeta = result.getItemMeta();
-		if (icePipe) {
-			itemMeta.setDisplayName(ICE_PIPE_NAME);
-		} else {
-			itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
-		}
+		itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
 		result.setItemMeta(itemMeta);
 		return result;
 	}

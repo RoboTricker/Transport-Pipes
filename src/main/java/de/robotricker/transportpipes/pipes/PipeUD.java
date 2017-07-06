@@ -55,7 +55,7 @@ public class PipeUD extends Pipe {
 
 				@Override
 				public void run() {
-					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), TransportPipes.instance.getPipeItem(pipeColor, icePipe));
+					blockLoc.getWorld().dropItem(blockLoc.clone().add(0.5d, 0.5d, 0.5d), icePipe ? TransportPipes.instance.getIcePipeItem() : TransportPipes.instance.getPipeItem(pipeColor));
 				}
 			});
 		}

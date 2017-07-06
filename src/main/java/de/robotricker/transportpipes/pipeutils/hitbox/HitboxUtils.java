@@ -223,6 +223,9 @@ public class HitboxUtils {
 				if (displayName.contains(TransportPipes.instance.PIPE_NAME) && displayName.startsWith("§")) {
 					return Pipe.class;
 				}
+				if (displayName.contains(TransportPipes.instance.ICE_PIPE_NAME) && displayName.startsWith("§")) {
+					return Pipe.class;
+				}
 			}
 		}
 		return null;

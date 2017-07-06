@@ -23,7 +23,7 @@ public class UpdateManager implements Listener {
 
 	public UpdateManager(Plugin plugin) {
 		su = new SpigetUpdate(plugin, 20873);
-		su.setVersionComparator(VersionComparator.EQUAL);
+		su.setVersionComparator(VersionComparator.SEM_VER);
 	}
 
 	public void checkForUpdates(final CommandSender cs) {
