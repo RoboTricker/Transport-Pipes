@@ -175,7 +175,7 @@ public class TransportPipes extends JavaPlugin {
 						noPerm = true;
 					}
 				} else {
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-----------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m-----------"));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- &bOpens a settings menu in which you can change the render distance of the pipes."));
 					if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps")))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- &bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread."));
@@ -183,7 +183,7 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- &bReloads all pipes or the config."));
 					if (cs.hasPermission(getConfig().getString("permissions.update", "tp.update")))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- &bChecks for a new plugin version at SpigotMC and updates the plugin if possible."));
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-------------------------------------------"));
 					return true;
 				}
 
