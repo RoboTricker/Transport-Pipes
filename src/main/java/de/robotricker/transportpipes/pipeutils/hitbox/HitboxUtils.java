@@ -8,7 +8,6 @@ import java.util.Set;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.NoteBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -23,10 +22,11 @@ import org.bukkit.material.TrapDoor;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.GoldenPipe;
-import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
+import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class HitboxUtils {
 
@@ -34,7 +34,7 @@ public class HitboxUtils {
 	private final static Set<Material> LINE_OF_SIGHT_SET;
 
 	static {
-		LINE_OF_SIGHT_SET = new HashSet<>();
+		LINE_OF_SIGHT_SET = new HashSet<Material>();
 		LINE_OF_SIGHT_SET.add(Material.WATER);
 		LINE_OF_SIGHT_SET.add(Material.STATIONARY_WATER);
 		LINE_OF_SIGHT_SET.add(Material.LAVA);
@@ -54,11 +54,8 @@ public class HitboxUtils {
 		return p.getLineOfSight(LINE_OF_SIGHT_SET, HITBOX_RANGE);
 	}
 
-	/**
-	 * returns the BlockFace of the pipe this player is looking to. Only invoke this if you made sure that this player is looking on this pipe.
-	 */
-	public static BlockFace getBlockFaceOfPipeLookingTo(Player p, Pipe pipe) {
-		return pipe.getAABB().intersectRay(p.getEyeLocation().getDirection(), p.getEyeLocation(), pipe.blockLoc.getBlockX(), pipe.blockLoc.getBlockY(), pipe.blockLoc.getBlockZ());
+	public static PipeDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
+		return TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getClickedPipeFace(p, pipe);
 	}
 
 	public static Block getPipeLookingTo(Player p, Block clickedBlock) {
@@ -69,7 +66,10 @@ public class HitboxUtils {
 		int indexOfPipeBlock = -1;
 		int indexOfClickedBlock = -1;
 		int i = 0;
-		while (currentBlock == null || PipeUtils.getPipeWithLocation(currentBlock.getLocation()).getAABB().intersectRay(p.getEyeLocation().getDirection(), p.getEyeLocation(), currentBlock.getLocation().getBlockX(), currentBlock.getLocation().getBlockY(), currentBlock.getLocation().getBlockZ()) == null) {
+
+		PipeManager playerPipeManager = TransportPipes.armorStandProtocol.getPlayerPipeManager(p);
+
+		while (currentBlock == null || playerPipeManager.getClickedPipeFace(p, PipeUtils.getPipeWithLocation(currentBlock.getLocation())) == null) {
 
 			if (line.size() > i) {
 				//check if on this block is a pipe
@@ -78,7 +78,7 @@ public class HitboxUtils {
 					indexOfPipeBlock = i;
 				}
 				//check if the player looks on the hitbox of the pipe (the player could possibly look on a block with a pipe but not on the hitbox itself)
-				if (currentBlock != null && PipeUtils.getPipeWithLocation(currentBlock.getLocation()).getAABB().intersectRay(p.getEyeLocation().getDirection(), p.getEyeLocation(), currentBlock.getLocation().getBlockX(), currentBlock.getLocation().getBlockY(), currentBlock.getLocation().getBlockZ()) == null) {
+				if (currentBlock != null && playerPipeManager.getClickedPipeFace(p, PipeUtils.getPipeWithLocation(currentBlock.getLocation())) == null) {
 					currentBlock = null;
 					indexOfPipeBlock = -1;
 				}
@@ -109,8 +109,8 @@ public class HitboxUtils {
 	 * gets the neighbor block of the pipe (calculated by the player direction ray and the pipe hitbox)
 	 */
 	public static Block getRelativeBlockOfPipe(Player p, Block pipeLoc) {
-		BlockFace bf = PipeUtils.getPipeWithLocation(pipeLoc.getLocation()).getAABB().intersectRay(p.getEyeLocation().getDirection(), p.getEyeLocation(), pipeLoc.getLocation().getBlockX(), pipeLoc.getLocation().getBlockY(), pipeLoc.getLocation().getBlockZ());
-		return pipeLoc.getRelative(bf);
+		PipeDirection pd = TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
+		return pd != null ? pipeLoc.getRelative(pd.toBlockFace()) : null;
 	}
 
 	public static void decreaseItemInHand(Player p, boolean mainHand) {
@@ -157,8 +157,8 @@ public class HitboxUtils {
 		}
 		b.setTypeIdAndData(id, data, true);
 
-		if (PipeUtils.isIdInventoryHolder(id)) {
-			PipeUtils.updatePipeNeighborBlockSync(b, true);
+		if (PipeNeighborBlockUtils.isIdInventoryHolder(id)) {
+			PipeNeighborBlockUtils.updatePipeNeighborBlockSync(b, true);
 		}
 
 		return true;
@@ -205,27 +205,6 @@ public class HitboxUtils {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * returns the class of the pipe you can place with this item, or null if there is no pipe available for this item
-	 */
-	public static Class<? extends Pipe> getPipeWithPipePlaceableItem(ItemStack item) {
-		if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-			String displayName = item.getItemMeta().getDisplayName();
-			if (displayName != null) {
-				if (displayName.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
-					return GoldenPipe.class;
-				}
-				if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
-					return IronPipe.class;
-				}
-				if (displayName.contains(TransportPipes.instance.PIPE_NAME) && displayName.startsWith("§")) {
-					return Pipe.class;
-				}
-			}
-		}
-		return null;
 	}
 
 }

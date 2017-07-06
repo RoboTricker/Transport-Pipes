@@ -72,14 +72,14 @@ public class PipeThread extends Thread {
 					continue;
 				}
 
-				boolean inputItems = false;
+				boolean extractItems = false;
 				boolean checkViewDistance = false;
 
 				//input Items tick
 				inputItemsTick++;
 				if (inputItemsTick == INPUT_ITEMS_TICK_DIFF) {
 					inputItemsTick = 0;
-					inputItems = true;
+					extractItems = true;
 				}
 				//check view distance tick
 				viewDistanceTick++;
@@ -113,8 +113,8 @@ public class PipeThread extends Thread {
 
 				long timeBefore = System.nanoTime();
 
-				//in this list are the items stored which are already processed in this tick (in order to not process 1 item 2 times in 1 tick)
-				List<PipeItem> roundItems = new ArrayList<>();
+				//in this list are the items stored which are already processed in this tick (in order to not process an item 2 times in one tick)
+				List<PipeItem> itemsTicked = new ArrayList<PipeItem>();
 
 				//update pipes
 				for (World world : Bukkit.getWorlds()) {
@@ -122,21 +122,18 @@ public class PipeThread extends Thread {
 					if (pipeMap != null) {
 						synchronized (pipeMap) {
 							for (Pipe pipe : pipeMap.values()) {
-								//input items from "tempPipeItemsWithSpawn"
-								if (inputItems) {
-									synchronized (pipe.tempPipeItemsWithSpawn) {
-										Iterator<PipeItem> itemIterator = pipe.tempPipeItemsWithSpawn.keySet().iterator();
-										while (itemIterator.hasNext()) {
-											PipeItem pipeItem = itemIterator.next();
+								//insert items from "tempPipeItemsWithSpawn"
+								synchronized (pipe.tempPipeItemsWithSpawn) {
+									Iterator<PipeItem> itemIterator = pipe.tempPipeItemsWithSpawn.keySet().iterator();
+									while (itemIterator.hasNext()) {
+										PipeItem pipeItem = itemIterator.next();
 
-											PipeDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
-											pipe.putPipeItem(pipeItem, dir);
+										PipeDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
+										pipe.putPipeItem(pipeItem, dir);
 
-											TransportPipes.pipePacketManager.spawnPipeItemSync(pipeItem);
+										TransportPipes.pipePacketManager.createPipeItem(pipeItem);
 
-											itemIterator.remove();
-
-										}
+										itemIterator.remove();
 									}
 								}
 
@@ -146,7 +143,7 @@ public class PipeThread extends Thread {
 									while (itemIterator.hasNext()) {
 										PipeItem pipeItem = itemIterator.next();
 
-										if (!roundItems.contains(pipeItem)) {
+										if (!itemsTicked.contains(pipeItem)) {
 											PipeDirection dir = pipe.tempPipeItems.get(pipeItem);
 											pipe.putPipeItem(pipeItem, dir);
 											itemIterator.remove();
@@ -155,7 +152,7 @@ public class PipeThread extends Thread {
 								}
 
 								//tick pipe (move the pipe items etc.)
-								pipe.tick(inputItems, roundItems);
+								pipe.tick(extractItems, itemsTicked);
 
 							}
 						}

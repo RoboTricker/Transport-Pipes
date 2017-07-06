@@ -1,7 +1,10 @@
 package de.robotricker.transportpipes.protocol;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -22,7 +25,7 @@ import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 
 public class ArmorStandProtocol {
 
@@ -35,23 +38,30 @@ public class ArmorStandProtocol {
 	private static final Serializer vectorSerializer = Registry.get(ReflectionManager.getVector3fClass());
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
+	private Map<Player, PipeManager> pipeManagers;
+
 	public ArmorStandProtocol() {
+		pipeManagers = Collections.synchronizedMap(new HashMap<Player, PipeManager>());
 	}
 
-	public void sendPipe(final Player p, Pipe pipe) {
-		for (ArmorStandData asd : pipe.getArmorStandList()) {
-			sendArmorStandData(p, pipe.getBlockLoc(), asd, new Vector(0f, 0f, 0f));
+	public PipeManager getPlayerPipeManager(Player p) {
+		if (pipeManagers.containsKey(p)) {
+			return pipeManagers.get(p);
 		}
+		pipeManagers.put(p, TransportPipes.vanillaPipeManager);
+		return TransportPipes.vanillaPipeManager;
 	}
 
-	public void removePipe(final Player p, Pipe pipe) {
-		int[] ids = new int[pipe.getArmorStandList().size()];
-		int i = 0;
-		for (ArmorStandData asd : pipe.getArmorStandList()) {
-			ids[i] = asd.getEntityID();
-			i++;
+	public List<Player> getPlayersWithPipeManager(PipeManager pipeManager) {
+		List<Player> players = new ArrayList<Player>();
+		synchronized (pipeManagers) {
+			for (Player p : pipeManagers.keySet()) {
+				if (pipeManagers.get(p).equals(pipeManager)) {
+					players.add(p);
+				}
+			}
 		}
-		removeArmorStandDatas(p, ids);
+		return players;
 	}
 
 	public void removePipeItem(final Player p, PipeItem item) {
@@ -63,16 +73,16 @@ public class ArmorStandProtocol {
 	 * not updating Item -> only sending (this is also sent when the player comes near enough to see the item even if the item is already in a pipe)
 	 */
 	public void sendPipeItem(Player p, PipeItem item) {
-		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.changeRelLoc().getFloatX() - 0.5d, item.changeRelLoc().getFloatY() - 0.5d, item.changeRelLoc().getFloatZ() - 0.5d));
+		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d, item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
 	}
 
 	public void updatePipeItem(Player p, PipeItem item) {
 		try {
 			WrapperPlayServerRelEntityMove moveWrapper = new WrapperPlayServerRelEntityMove();
 			moveWrapper.setEntityID(item.getArmorStand().getEntityID());
-			moveWrapper.setDx((int) ((item.changeRelLocDiff().getFloatX() * 32d) * 128));
-			moveWrapper.setDy((int) ((item.changeRelLocDiff().getFloatY() * 32d) * 128));
-			moveWrapper.setDz((int) ((item.changeRelLocDiff().getFloatZ() * 32d) * 128));
+			moveWrapper.setDx((int) ((item.relLocDerivation().getFloatX() * 32d) * 128));
+			moveWrapper.setDy((int) ((item.relLocDerivation().getFloatY() * 32d) * 128));
+			moveWrapper.setDz((int) ((item.relLocDerivation().getFloatZ() * 32d) * 128));
 			moveWrapper.setOnGround(true);
 			moveWrapper.sendPacket(p);
 		} catch (Exception e) {
@@ -178,6 +188,12 @@ public class ArmorStandProtocol {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void sendArmorStandDatas(Player p, Location blockLoc, List<ArmorStandData> asd) {
+		for (int i = 0; i < asd.size(); i++) {
+			sendArmorStandData(p, blockLoc, asd.get(i), new Vector(0f, 0f, 0f));
 		}
 	}
 

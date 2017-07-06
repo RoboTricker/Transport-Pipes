@@ -48,7 +48,6 @@ public enum PipeDirection {
 		return this.ordinal();
 	}
 
-	//checks if this direction is north/east/west/south
 	public boolean isSide() {
 		return this == NORTH || this == EAST || this == SOUTH || this == WEST;
 	}
@@ -76,6 +75,25 @@ public enum PipeDirection {
 			return PipeDirection.UP;
 		case DOWN:
 			return PipeDirection.DOWN;
+		default:
+			return null;
+		}
+	}
+
+	public BlockFace toBlockFace() {
+		switch (this) {
+		case EAST:
+			return BlockFace.EAST;
+		case WEST:
+			return BlockFace.WEST;
+		case SOUTH:
+			return BlockFace.SOUTH;
+		case NORTH:
+			return BlockFace.NORTH;
+		case UP:
+			return BlockFace.UP;
+		case DOWN:
+			return BlockFace.DOWN;
 		default:
 			return null;
 		}

@@ -13,9 +13,8 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.GoldenPipe;
-import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
@@ -32,31 +31,10 @@ import de.robotricker.transportpipes.pipeutils.PipeUtils;
 public class PipeAPI {
 
 	/**
-	 * builds a normal pipe at the given location.
+	 * builds a pipe at the given location.
 	 */
-	public static void buildPipe(Location blockLoc, PipeColor pipeColor) {
-		PipeUtils.buildPipe(null, blockLoc, pipeColor, false);
-	}
-
-	/**
-	 * builds a golden pipe at the given location.
-	 */
-	public static void buildGoldenPipe(Location blockLoc) {
-		PipeUtils.buildPipe(null, blockLoc, GoldenPipe.class, PipeColor.WHITE, false);
-	}
-
-	/**
-	 * builds an iron pipe at the given location.
-	 */
-	public static void buildIronPipe(Location blockLoc) {
-		PipeUtils.buildPipe(null, blockLoc, IronPipe.class, PipeColor.WHITE, false);
-	}
-
-	/**
-	 * builds an ice pipe at the given location.
-	 */
-	public static void buildIcePipe(Location blockLoc) {
-		PipeUtils.buildPipe(null, blockLoc, PipeColor.WHITE, true);
+	public static void buildPipe(Location blockLoc, PipeType pt, PipeColor pipeColor) {
+		PipeUtils.buildPipe(null, blockLoc.getBlock().getLocation(), pt, pipeColor);
 	}
 
 	/**

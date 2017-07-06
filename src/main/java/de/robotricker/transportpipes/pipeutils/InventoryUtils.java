@@ -11,6 +11,8 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Dropper;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Hopper;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -293,6 +295,25 @@ public class InventoryUtils {
 		ItemStack copy = item.clone();
 		copy.setAmount(1);
 		return copy;
+	}
+
+	public static String ItemStackToString(ItemStack itemStack) {
+		YamlConfiguration yaml = new YamlConfiguration();
+		yaml.set("item", itemStack);
+		return yaml.saveToString();
+	}
+
+	public static ItemStack StringToItemStack(String string) {
+		if (string == null) {
+			return null;
+		}
+		YamlConfiguration yaml = new YamlConfiguration();
+		try {
+			yaml.loadFromString(string);
+		} catch (InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
+		return yaml.getItemStack("item", null);
 	}
 
 }

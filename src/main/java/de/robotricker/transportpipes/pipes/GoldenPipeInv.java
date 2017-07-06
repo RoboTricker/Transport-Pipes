@@ -19,7 +19,6 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.manager.settings.SettingsUtils;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class GoldenPipeInv implements Listener {
 
@@ -35,7 +34,7 @@ public class GoldenPipeInv implements Listener {
 		}
 
 		ItemStack glass_pane = SettingsUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), String.valueOf(ChatColor.RESET));
-		List<PipeDirection> pipeConnections = PipeUtils.getPipeConnections(pipe.blockLoc, pipe.getPipeColor(), false);
+		List<PipeDirection> pipeConnections = pipe.getAllConnections();
 
 		Material material;
 		String filteringMode;
@@ -55,7 +54,7 @@ public class GoldenPipeInv implements Listener {
 		inv.setItem(5 * 9, SettingsUtils.changeDisplayNameAndLore(new ItemStack(material, 1, (short) 15), TransportPipes.getFormattedConfigString("goldpipeinv.colors.black"), filteringMode, TransportPipes.getFormattedConfigString("goldpipeinv.filtering.clickToChange")));
 
 		for (int line = 0; line < 6; line++) {
-			if (!pipe.isPipeNeighborBlock(PipeDirection.values()[line]) && !pipeConnections.contains(PipeDirection.values()[line])) {
+			if (!pipeConnections.contains(PipeDirection.values()[line])) {
 				for (int i = 1; i < 9; i++) {
 					inv.setItem(line * 9 + i, glass_pane);
 				}
@@ -106,8 +105,8 @@ public class GoldenPipeInv implements Listener {
 	public void onClose(InventoryCloseEvent e) {
 		saveGoldenPipeInv((Player) e.getPlayer(), e.getInventory());
 	}
-	
-	private void saveGoldenPipeInv(Player p, Inventory inv){
+
+	private void saveGoldenPipeInv(Player p, Inventory inv) {
 		if (inv != null && pipe_invs.containsValue(inv)) {
 			GoldenPipe pipe = null;
 			//get pipe with inventory

@@ -13,7 +13,8 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipes.interfaces.Clickable;
+import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
@@ -30,7 +31,7 @@ public class HitboxListener implements Listener {
 			clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
 			mainHand = true;
 		} else if (e.getHand() == EquipmentSlot.OFF_HAND) {
-			if (!HitboxUtils.isInteractableItem(p.getInventory().getItemInMainHand()) && HitboxUtils.getPipeWithPipePlaceableItem(p.getInventory().getItemInMainHand()) == null) {
+			if (!HitboxUtils.isInteractableItem(p.getInventory().getItemInMainHand()) && PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) == null) {
 				clickedItem = e.getPlayer().getEquipment().getItemInOffHand();
 				mainHand = false;
 			} else {
@@ -38,7 +39,7 @@ public class HitboxListener implements Listener {
 				if (clickedBlock != null && HitboxUtils.isInteractableItem(p.getInventory().getItemInOffHand())) {
 					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
 					//cancel block placement if the block would be placed inside a pipe or the clickedItem in the mainHand is a pipe
-					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null || HitboxUtils.getPipeWithPipePlaceableItem(p.getInventory().getItemInMainHand()) != null) {
+					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null || PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) != null) {
 						e.setCancelled(true);
 					}
 				}
@@ -48,11 +49,11 @@ public class HitboxListener implements Listener {
 			return;
 		}
 
-		Class<? extends Pipe> placeablePipe = HitboxUtils.getPipeWithPipePlaceableItem(clickedItem);
+		PipeType placeablePipeType = PipeType.getFromPipeItem(clickedItem);
 
 		//left click on pipe (its irrelevant if you are looking on a block below the pipe or not)
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
+			final Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 			//****************************** LEFT CLICKED ON PIPE *******************************************
 			if (pipeBlock != null) {
 				e.setCancelled(true);
@@ -93,14 +94,14 @@ public class HitboxListener implements Listener {
 				}
 			}
 			//place pipe
-			if (placeablePipe != null) {
+			if (placeablePipeType != null) {
 				//clicked on pipe
 				//****************************** PLACE PIPE ON SIDE OF PIPE *******************************************
 				if (pipeBlock != null) {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					if (TransportPipes.canBuild(p, placeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem), PipeUtils.isPipeItemIcePipe(clickedItem))) {
+						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
 						}
@@ -115,7 +116,7 @@ public class HitboxListener implements Listener {
 					}
 					if (canPlace) {
 						if (TransportPipes.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipe, PipeColor.getPipeColorByPipeItem(clickedItem), PipeUtils.isPipeItemIcePipe(clickedItem))) {
+							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
 								return;
@@ -127,10 +128,10 @@ public class HitboxListener implements Listener {
 
 			if (pipeBlock != null) {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
-				if (pipeClickedAt instanceof Clickable) {
+				if (pipeClickedAt instanceof ClickablePipe) {
 					if (clickedItem.isSimilar(TransportPipes.instance.getWrenchItem())) {
 						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							((Clickable) pipeClickedAt).click(p, HitboxUtils.getBlockFaceOfPipeLookingTo(p, pipeClickedAt));
+							((ClickablePipe) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}
 					}
