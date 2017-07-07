@@ -6,11 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -22,7 +28,7 @@ import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeIC
 import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeIRONModel;
 import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeModel;
 
-public class ModelledPipeManager extends PipeManager {
+public class ModelledPipeManager extends PipeManager implements Listener {
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<Pipe, ArmorStandData>();
 	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<Pipe, Map<PipeDirection, ArmorStandData>>();
@@ -38,11 +44,13 @@ public class ModelledPipeManager extends PipeManager {
 		pipeModels.put(PipeType.GOLDEN, new ModelledPipeGOLDENModel());
 		pipeModels.put(PipeType.IRON, new ModelledPipeIRONModel());
 
-		pipeMidAABB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
-		for (PipeDirection pd : PipeDirection.values()) {
-			pipeConnsAABBs.put(pd, new AxisAlignedBB(0, 0, 0, 0, 0, 0));
-		}
-
+		pipeMidAABB = new AxisAlignedBB(4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d);
+		pipeConnsAABBs.put(PipeDirection.NORTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 0d / 16d, 12d / 16d, 12d / 16d, 4d / 16d));
+		pipeConnsAABBs.put(PipeDirection.EAST, new AxisAlignedBB(12d / 16d, 4d / 16d, 4d / 16d, 16d / 16d, 12d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(PipeDirection.SOUTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d, 16d / 16d));
+		pipeConnsAABBs.put(PipeDirection.WEST, new AxisAlignedBB(0d / 16d, 4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(PipeDirection.UP, new AxisAlignedBB(4d / 16d, 12d / 16d, 4d / 16d, 12d / 16d, 16d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(PipeDirection.DOWN, new AxisAlignedBB(4d / 16d, 0d / 16d, 4d / 16d, 12d / 16d, 4d / 16d, 12d / 16d));
 	}
 
 	@Override
@@ -158,6 +166,54 @@ public class ModelledPipeManager extends PipeManager {
 			return currentClickedConnFace;
 		}
 
+	}
+
+	@Override
+	public ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
+		switch (pipeType) {
+		case COLORED:
+			switch (pipeColor) {
+			case WHITE:
+				return ModelledPipeModel.ITEM_PIPE_WHITE;
+			case BLUE:
+				return ModelledPipeModel.ITEM_PIPE_BLUE;
+			case RED:
+				return ModelledPipeModel.ITEM_PIPE_RED;
+			case YELLOW:
+				return ModelledPipeModel.ITEM_PIPE_YELLOW;
+			case GREEN:
+				return ModelledPipeModel.ITEM_PIPE_GREEN;
+			case BLACK:
+				return ModelledPipeModel.ITEM_PIPE_BLACK;
+			default:
+				return null;
+			}
+		case GOLDEN:
+			return ModelledPipeModel.ITEM_PIPE_GOLDEN;
+		case IRON:
+			return ModelledPipeModel.ITEM_PIPE_IRON;
+		case ICE:
+			return ModelledPipeModel.ITEM_PIPE_ICE;
+		default:
+			return null;
+		}
+	}
+	
+	@Override
+	public ItemStack getWrenchItem() {
+		return ModelledPipeModel.ITEM_WRENCH;
+	}
+
+	@Override
+	public void initPlayer(Player p) {
+		p.setResourcePack("http://frontfight.net/TransportPipes-ResourcePack.zip");
+	}
+
+	@EventHandler
+	public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
+		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
+			e.getPlayer().sendMessage("§cResourcepack Download failed: Switched to the Vanilla Model System");
+		}
 	}
 
 }

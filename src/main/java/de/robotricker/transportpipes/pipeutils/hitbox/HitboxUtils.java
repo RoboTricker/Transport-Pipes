@@ -69,7 +69,7 @@ public class HitboxUtils {
 
 		PipeManager playerPipeManager = TransportPipes.armorStandProtocol.getPlayerPipeManager(p);
 
-		while (currentBlock == null || playerPipeManager.getClickedPipeFace(p, PipeUtils.getPipeWithLocation(currentBlock.getLocation())) == null) {
+		while (currentBlock == null) {
 
 			if (line.size() > i) {
 				//check if on this block is a pipe
@@ -82,6 +82,7 @@ public class HitboxUtils {
 					currentBlock = null;
 					indexOfPipeBlock = -1;
 				}
+
 			} else {
 				break;
 			}

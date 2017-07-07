@@ -1,11 +1,10 @@
 package de.robotricker.transportpipes.protocol.pipemodels.modelled.utils;
 
-import org.bukkit.Color;
-
 import de.robotricker.transportpipes.pipes.ColoredPipe;
 import de.robotricker.transportpipes.pipes.IronPipe;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.GoldenPipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 
@@ -13,7 +12,7 @@ public class ModelledPipeConnModelData {
 
 	private PipeType pipeType;
 	private PipeDirection connDirection;
-	private Color goldenPipe_color;
+	private GoldenPipeColor goldenPipe_color;
 	private boolean ironPipe_output;
 	private PipeColor coloredPipe_pipeColor;
 
@@ -22,7 +21,7 @@ public class ModelledPipeConnModelData {
 		this.connDirection = connDirection;
 	}
 
-	public ModelledPipeConnModelData(PipeType pipeType, PipeDirection connDirection, Color goldenPipe_color) {
+	public ModelledPipeConnModelData(PipeType pipeType, PipeDirection connDirection, GoldenPipeColor goldenPipe_color) {
 		this(pipeType, connDirection);
 		this.goldenPipe_color = goldenPipe_color;
 	}
@@ -45,7 +44,7 @@ public class ModelledPipeConnModelData {
 		return connDirection;
 	}
 
-	public Color getGoldenPipe_color() {
+	public GoldenPipeColor getGoldenPipe_color() {
 		return goldenPipe_color;
 	}
 
@@ -64,7 +63,7 @@ public class ModelledPipeConnModelData {
 		case ICE:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection);
 		case GOLDEN:
-			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, Color.RED);
+			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, GoldenPipeColor.getColorWithDirection(connDirection));
 		case IRON:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, ((IronPipe) pipe).getCurrentOutputDir() == connDirection);
 		default:

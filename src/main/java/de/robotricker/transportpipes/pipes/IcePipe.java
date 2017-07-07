@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
@@ -39,9 +40,9 @@ public class IcePipe extends Pipe {
 	}
 
 	@Override
-	public List<ItemStack> getDroppedItems() {
+	public List<ItemStack> getDroppedItems(Player p) {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getIcePipeItem());
+		is.add(TransportPipes.instance.getPipeItemForPlayer(p, PipeType.ICE, null));
 		return is;
 	}
 

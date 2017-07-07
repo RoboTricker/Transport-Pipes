@@ -3,9 +3,12 @@ package de.robotricker.transportpipes.protocol.pipemodels;
 import java.util.List;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -40,5 +43,11 @@ public abstract class PipeManager {
 	}
 
 	public abstract PipeDirection getClickedPipeFace(Player player, Pipe pipe);
+	
+	public abstract void initPlayer(Player p);
+	
+	public abstract ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor);
+	
+	public abstract ItemStack getWrenchItem();
 
 }

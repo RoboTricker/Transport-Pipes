@@ -14,7 +14,6 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -24,7 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +30,7 @@ import de.robotricker.transportpipes.manager.saving.SavingManager;
 import de.robotricker.transportpipes.manager.settings.SettingsInv;
 import de.robotricker.transportpipes.pipes.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
@@ -70,15 +69,10 @@ public class TransportPipes extends JavaPlugin {
 	public String PREFIX;
 
 	public String PIPE_NAME;
-	public static ItemStack PIPE_ITEM;
 	public String GOLDEN_PIPE_NAME;
-	public static ItemStack GOLDEN_PIPE_ITEM;
 	public String IRON_PIPE_NAME;
-	public static ItemStack IRON_PIPE_ITEM;
 	public String ICE_PIPE_NAME;
-	public static ItemStack ICE_PIPE_ITEM;
 	public String WRENCH_NAME;
-	public static ItemStack WRENCH_ITEM;
 
 	// TODO: private access
 	public static TransportPipes instance;
@@ -105,8 +99,6 @@ public class TransportPipes extends JavaPlugin {
 		// Prepare managers
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
-		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
-		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
 
 		// Load config and update values
 		getConfig().options().copyDefaults(true);
@@ -138,6 +130,9 @@ public class TransportPipes extends JavaPlugin {
 		// Load config
 		antiCheatPlugins.addAll(getConfig().getStringList("anticheat"));
 
+		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
+		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
+		
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
@@ -205,41 +200,16 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new PipeNeighborBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
-	
+		Bukkit.getPluginManager().registerEvents((ModelledPipeManager) modelledPipeManager, this);
+
 		updateManager = new UpdateManager(this);
-		if(getConfig().getBoolean("check_updates_onjoin")) {
+		if (getConfig().getBoolean("check_updates_onjoin")) {
 			Bukkit.getPluginManager().registerEvents(updateManager, this);
 		}
 
 		for (World world : Bukkit.getWorlds()) {
 			SavingManager.loadPipesSync(world);
 		}
-
-		//Pipe
-		PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
-		ItemMeta meta = PIPE_ITEM.getItemMeta();
-		meta.setDisplayName(PipeColor.WHITE.getColorCode() + PIPE_NAME);
-		PIPE_ITEM.setItemMeta(meta);
-		//Golden Pipe
-		GOLDEN_PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
-		meta = GOLDEN_PIPE_ITEM.getItemMeta();
-		meta.setDisplayName(GOLDEN_PIPE_NAME);
-		GOLDEN_PIPE_ITEM.setItemMeta(meta);
-		//Iron Pipe
-		IRON_PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
-		meta = IRON_PIPE_ITEM.getItemMeta();
-		meta.setDisplayName(IRON_PIPE_NAME);
-		IRON_PIPE_ITEM.setItemMeta(meta);
-		//Ice Pipe
-		ICE_PIPE_ITEM = new ItemStack(Material.BLAZE_ROD);
-		meta = ICE_PIPE_ITEM.getItemMeta();
-		meta.setDisplayName(ICE_PIPE_NAME);
-		ICE_PIPE_ITEM.setItemMeta(meta);
-		//Wrench
-		WRENCH_ITEM = new ItemStack(Material.REDSTONE);
-		meta = WRENCH_ITEM.getItemMeta();
-		meta.setDisplayName(WRENCH_NAME);
-		WRENCH_ITEM.setItemMeta(meta);
 
 		CraftUtils.initRecipes();
 
@@ -325,29 +295,12 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getColoredPipeItem(PipeColor pipeColor) {
-		ItemStack result = PIPE_ITEM.clone();
-		result.setAmount(1);
-		ItemMeta itemMeta = result.getItemMeta();
-		itemMeta.setDisplayName(pipeColor.getColorCode() + PIPE_NAME);
-		result.setItemMeta(itemMeta);
-		return result;
+	public ItemStack getPipeItemForPlayer(Player p, PipeType pt, PipeColor pc) {
+		return armorStandProtocol.getPlayerPipeManager(p).getPipeItem(pt, pc);
 	}
 
-	public ItemStack getGoldenPipeItem() {
-		return GOLDEN_PIPE_ITEM;
-	}
-
-	public ItemStack getIronPipeItem() {
-		return IRON_PIPE_ITEM;
-	}
-
-	public ItemStack getIcePipeItem() {
-		return ICE_PIPE_ITEM;
-	}
-
-	public ItemStack getWrenchItem() {
-		return WRENCH_ITEM;
+	public ItemStack getWrenchItemForPlayer(Player p) {
+		return armorStandProtocol.getPlayerPipeManager(p).getWrenchItem();
 	}
 
 	public PipeManager[] getAllPipeManagers() {

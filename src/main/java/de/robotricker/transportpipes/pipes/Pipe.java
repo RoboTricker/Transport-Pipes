@@ -11,6 +11,7 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
@@ -128,7 +129,7 @@ public abstract class Pipe {
 
 					@Override
 					public void run() {
-						PipeUtils.destroyPipe(null, Pipe.this, true);
+						PipeUtils.destroyPipe(null, Pipe.this);
 						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
 						blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
 					}
@@ -377,7 +378,7 @@ public abstract class Pipe {
 	/**
 	 * get the items that will be dropped on pipe destroy
 	 */
-	public abstract List<ItemStack> getDroppedItems();
+	public abstract List<ItemStack> getDroppedItems(Player p);
 
 	public abstract PipeType getPipeType();
 

@@ -40,19 +40,34 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	@Override
 	public void loadFromNBTTag(CompoundTag tag) {
 		super.loadFromNBTTag(tag);
-		changeOutputDirection(PipeDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0)));
+		currentOutputDir = PipeDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0));
 	}
 
-	public void changeOutputDirection(PipeDirection newOutputDir) {
-		if (newOutputDir != null && newOutputDir != currentOutputDir) {
-			currentOutputDir = newOutputDir;
+	public void cyleOutputDirection() {
+		List<PipeDirection> connections = getAllConnections();
+		if (connections.isEmpty()) {
+			return;
+		}
+
+		PipeDirection oldOutputDir = currentOutputDir;
+
+		do {
+			int dirId = currentOutputDir.getId();
+			dirId++;
+			if (PipeDirection.fromID(dirId) == null) {
+				dirId = 0;
+			}
+			currentOutputDir = PipeDirection.fromID(dirId);
+		} while (!connections.contains(currentOutputDir));
+
+		if (oldOutputDir != currentOutputDir) {
 			TransportPipes.pipePacketManager.updatePipe(this);
 		}
 	}
 
 	@Override
 	public void click(Player p, PipeDirection side) {
-		changeOutputDirection(side);
+		cyleOutputDirection();
 		p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 	}
 
@@ -66,9 +81,9 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public List<ItemStack> getDroppedItems() {
+	public List<ItemStack> getDroppedItems(Player p) {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getIronPipeItem());
+		is.add(TransportPipes.instance.getPipeItemForPlayer(p, PipeType.IRON, null));
 		return is;
 	}
 

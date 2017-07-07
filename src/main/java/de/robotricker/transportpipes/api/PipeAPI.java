@@ -43,10 +43,10 @@ public class PipeAPI {
 	 * @param dropItem
 	 *            if true the destroye pipe will drop the pipe item (blaze rod).
 	 */
-	public static void destroyPipe(Location blockLoc, boolean dropItem) {
+	public static void destroyPipe(Location blockLoc) {
 		Pipe pipe = PipeUtils.getPipeWithLocation(blockLoc);
 		if (pipe != null) {
-			PipeUtils.destroyPipe(null, pipe, dropItem);
+			PipeUtils.destroyPipe(null, pipe);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class PipeAPI {
 	 * @param dropItems
 	 *            if true the destroyed pipes will drop the pipe item (blaze rod).
 	 */
-	public static void destroyPipes(World world, boolean dropItems) {
+	public static void destroyPipes(World world) {
 		List<Pipe> toDestroy = new ArrayList<>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
@@ -120,7 +120,7 @@ public class PipeAPI {
 		}
 
 		for (Pipe pipe : toDestroy) {
-			destroyPipe(pipe.blockLoc, dropItems);
+			destroyPipe(pipe.blockLoc);
 		}
 	}
 

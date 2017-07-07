@@ -15,22 +15,22 @@ public class ModelledPipeIRONModel extends ModelledPipeModel {
 	public ArmorStandData createMidASD(ModelledPipeMidModelData data) {
 		ItemStack hoe = ITEM_HOE_MID_IRON;
 
-		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
+		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, 0.5f - 1.1875f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
 
 		return asd;
 	}
 
 	@Override
 	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
-		ItemStack hoe = data.isIronPipe_output() ? ITEM_HOE_CONN_IRON_OUTPUT : ITEM_HOE_CONN_IRON;
+		ItemStack hoe = data.isIronPipe_output() ? ITEM_HOE_CONN_IRON_OPENED : ITEM_HOE_CONN_IRON_CLOSED;
 		ArmorStandData asd = null;
 
 		if (data.getConnDirection() == PipeDirection.UP) {
-			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f));
+			asd = new ArmorStandData(new RelLoc(0.75f, 0.5f - 1.4369f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(-90f, 0f, 0f), new Vector(0f, 0f, 0f));
 		} else if (data.getConnDirection() == PipeDirection.DOWN) {
-			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(-90f, 0f, 0f), new Vector(0f, 0f, 0f));
+			asd = new ArmorStandData(new RelLoc(0.25f, 0.5f - 1.1885f - 0.25f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f));
 		} else {
-			asd = new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(data.getConnDirection().getX(), 0, data.getConnDirection().getZ()), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
+			asd = new ArmorStandData(new RelLoc(0.5f, 0.5f - 1.1875f, 0.5f), new Vector(data.getConnDirection().getX(), 0, data.getConnDirection().getZ()), false, hoe, null, new Vector(180f, 180f, 0f), new Vector(0f, 0f, 0f));
 		}
 
 		return asd;

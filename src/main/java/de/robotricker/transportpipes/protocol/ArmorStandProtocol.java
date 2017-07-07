@@ -45,11 +45,14 @@ public class ArmorStandProtocol {
 	}
 
 	public PipeManager getPlayerPipeManager(Player p) {
+		if(p == null){
+			return TransportPipes.modelledPipeManager;
+		}
 		if (pipeManagers.containsKey(p)) {
 			return pipeManagers.get(p);
 		}
-		pipeManagers.put(p, TransportPipes.vanillaPipeManager);
-		return TransportPipes.vanillaPipeManager;
+		pipeManagers.put(p, TransportPipes.modelledPipeManager);
+		return pipeManagers.get(p);
 	}
 
 	public List<Player> getPlayersWithPipeManager(PipeManager pipeManager) {

@@ -70,6 +70,7 @@ public class UpdateManager implements Listener {
 				@Override
 				public void run() {
 					TransportPipes.updateManager.checkForUpdates(e.getPlayer());
+					TransportPipes.modelledPipeManager.initPlayer(e.getPlayer());
 				}
 			}, 60L);
 		}

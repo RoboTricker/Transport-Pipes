@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -114,6 +116,47 @@ public class VanillaPipeManager extends PipeManager {
 		Vector origin = player.getEyeLocation().toVector();
 
 		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), pipe.getAllConnections()).getModel().getAABB().rayIntersection(ray, origin, pipe.getBlockLoc());
+	}
+
+	@Override
+	public void initPlayer(Player p) {
+
+	}
+
+	@Override
+	public ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
+		switch (pipeType) {
+		case COLORED:
+			switch (pipeColor) {
+			case WHITE:
+				return VanillaPipeModel.ITEM_PIPE_WHITE;
+			case BLUE:
+				return VanillaPipeModel.ITEM_PIPE_BLUE;
+			case RED:
+				return VanillaPipeModel.ITEM_PIPE_RED;
+			case YELLOW:
+				return VanillaPipeModel.ITEM_PIPE_YELLOW;
+			case GREEN:
+				return VanillaPipeModel.ITEM_PIPE_GREEN;
+			case BLACK:
+				return VanillaPipeModel.ITEM_PIPE_BLACK;
+			default:
+				return null;
+			}
+		case GOLDEN:
+			return VanillaPipeModel.ITEM_PIPE_GOLDEN;
+		case IRON:
+			return VanillaPipeModel.ITEM_PIPE_IRON;
+		case ICE:
+			return VanillaPipeModel.ITEM_PIPE_ICE;
+		default:
+			return null;
+		}
+	}
+
+	@Override
+	public ItemStack getWrenchItem() {
+		return VanillaPipeModel.ITEM_WRENCH;
 	}
 
 	private enum VanillaPipeShape {

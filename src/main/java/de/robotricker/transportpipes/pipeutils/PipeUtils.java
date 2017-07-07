@@ -68,7 +68,7 @@ public class PipeUtils {
 	/**
 	 * invoke this if you want to destroy a pipe. This will remove the pipe from the pipe list and destroys it for all players
 	 */
-	public static void destroyPipe(Player player, final Pipe pipeToDestroy, final boolean dropItem) {
+	public static void destroyPipe(Player player, final Pipe pipeToDestroy) {
 
 		if (player != null) {
 			PlayerDestroyPipeEvent pde = new PlayerDestroyPipeEvent(player, pipeToDestroy);
@@ -110,8 +110,8 @@ public class PipeUtils {
 
 				updatePipeNeighborPipes(pipeToDestroy.blockLoc);
 
-				if (dropItem) {
-					final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems();
+				if (player != null) {
+					final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems(player);
 					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 						@Override
