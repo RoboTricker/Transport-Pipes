@@ -110,7 +110,7 @@
 		</repository>
 		<repository>
 			<id>dmulloy2-repo</id>
-			<url>http://repo.dmulloy2.net/content/groups/public/</url>
+			<url>http://repo.dmulloy2.net/content/groups/public</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
@@ -118,7 +118,11 @@
 		</repository>
 		<repository>
 			<id>inventive-repo</id>
-			<url>https://repo.inventivetalent.org/content/groups/public/</url>
+			<url>https://repo.inventivetalent.org/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>xephi-repo</id>
+			<url>http://ci.xephi.fr/plugin/repository/everything</url>
 		</repository>
 	</repositories>
 
@@ -156,7 +160,7 @@
 		<dependency>
 			<groupId>org.jnbt</groupId>
 			<artifactId>jnbt</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.7-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<!-- ProtocolLib -->
