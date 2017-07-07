@@ -16,6 +16,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
+import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.PipeThread;
@@ -343,14 +344,14 @@ public abstract class Pipe {
 
 			itemList.add(new CompoundTag("PipeItem", itemMap));
 		}
-		NBTUtils.saveListValue(tags, "PipeItems", CompoundTag.class, itemList);
+		NBTUtils.saveListValue(tags, "PipeItems", NBTTagType.TAG_COMPOUND, itemList);
 
 		List<Tag> neighborPipesList = new ArrayList<Tag>();
 		List<PipeDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
 		for (PipeDirection pd : neighborPipes) {
 			neighborPipesList.add(new IntTag("Direction", pd.getId()));
 		}
-		NBTUtils.saveListValue(tags, "NeighborPipes", IntTag.class, neighborPipesList);
+		NBTUtils.saveListValue(tags, "NeighborPipes", NBTTagType.TAG_INT, neighborPipesList);
 
 	}
 

@@ -16,10 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
-import org.jnbt.CompoundTag;
-import org.jnbt.NBTInputStream;
-import org.jnbt.NBTOutputStream;
-import org.jnbt.Tag;
+import org.jnbt.*;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
@@ -103,7 +100,7 @@ public class SavingManager implements Listener {
 					for (HashMap<String, Tag> map : rawPipeList) {
 						finalPipeList.add(new CompoundTag("Pipe", map));
 					}
-					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalPipeList);
+					NBTUtils.saveListValue(tags, "Pipes", NBTTagType.TAG_COMPOUND, finalPipeList);
 
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);

@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
+import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
@@ -104,7 +105,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					lineList.add(itemData.toNBTTag());
 				}
 			}
-			NBTUtils.saveListValue(tags, "Line" + line, CompoundTag.class, lineList);
+			NBTUtils.saveListValue(tags, "Line" + line, NBTTagType.TAG_COMPOUND, lineList);
 		}
 
 		NBTUtils.saveByteValue(tags, "IgnoreNBT", ignoreNBT ? (byte) 1 : (byte) 0);
