@@ -123,21 +123,29 @@ public abstract class Pipe {
 
 		//pipe explosion if too many items
 		if (pipeItems.size() >= maxItemsPerPipe) {
-			PipeExplodeEvent pee = new PipeExplodeEvent(this);
-			Bukkit.getPluginManager().callEvent(pee);
-			if (!pee.isCancelled()) {
-				PipeThread.runTask(new Runnable() {
-
-					@Override
-					public void run() {
-						PipeUtils.destroyPipe(null, Pipe.this);
-						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
-						blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
-					}
-				}, 0);
+			synchronized (this) {
+				explode(true);
 			}
 		}
 
+	}
+
+	public void explode(boolean withSound) {
+		PipeExplodeEvent pee = new PipeExplodeEvent(this);
+		Bukkit.getPluginManager().callEvent(pee);
+		if (!pee.isCancelled()) {
+			PipeThread.runTask(new Runnable() {
+
+				@Override
+				public void run() {
+					PipeUtils.destroyPipe(null, Pipe.this);
+					if(withSound) {
+						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
+					}
+					blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+				}
+			}, 0);
+		}
 	}
 
 	/**

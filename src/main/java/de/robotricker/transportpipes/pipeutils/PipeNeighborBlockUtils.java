@@ -7,6 +7,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -19,6 +20,7 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 
 public class PipeNeighborBlockUtils implements Listener {
 
@@ -51,6 +53,26 @@ public class PipeNeighborBlockUtils implements Listener {
 			if (isIdInventoryHolder(b.getTypeId())) {
 				updatePipeNeighborBlockSync(b, false);
 			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onExplosionPrime(ExplosionPrimeEvent e) {
+		if(!TransportPipes.instance.getConfig().getBoolean("damageable_pipes")) {
+			return;
+		}
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(e.getEntity().getWorld());
+		if(pipeMap == null) {
+			return;
+		}
+
+		for(Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
+			BlockLoc blockLoc = TransportPipes.convertBlockLoc(block.getLocation());
+			Pipe pipe = pipeMap.get(blockLoc);
+			if(pipe == null) {
+				continue;
+			}
+			PipeThread.runTask(() -> pipe.explode(false), 0);
 		}
 	}
 

@@ -2,6 +2,7 @@ prefix: '&7[&6TransportPipes&7] &6'
 max_items_per_pipe: 10
 disable_crafting: false
 check_updates_onjoin: true
+damageable_pipes: false
 permissions:
   tps: 'tp.tps'
   reload: 'tp.reload'
