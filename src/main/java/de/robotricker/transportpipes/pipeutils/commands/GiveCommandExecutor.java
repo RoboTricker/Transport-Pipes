@@ -20,10 +20,11 @@ public class GiveCommandExecutor implements PipesCommandExecutor {
 		for (PipeType pipeType : PipeType.values()) {
 			if (pipeType == PipeType.COLORED) {
 				for (PipeColor pipeColor : PipeColor.values()) {
-					player.getInventory().addItem(TransportPipes.instance.getPipeItemForPlayer(null, pipeType, pipeColor));
+					player.getInventory().addItem(TransportPipes.instance.getPipeItemForPlayer(player, pipeType, pipeColor));
 				}
+			} else {
+				player.getInventory().addItem(TransportPipes.instance.getPipeItemForPlayer(player, pipeType, null));
 			}
-			player.getInventory().addItem(TransportPipes.instance.getPipeItemForPlayer(null, pipeType, null));
 		}
 		return true;
 	}

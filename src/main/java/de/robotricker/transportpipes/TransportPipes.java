@@ -183,6 +183,8 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- &bReloads all pipes or the config."));
 					if (cs.hasPermission(getConfig().getString("permissions.update", "tp.update")))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- &bChecks for a new plugin version at SpigotMC and updates the plugin if possible."));
+					if (cs.hasPermission(getConfig().getString("permissions.give", "tp.give")))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes give &7- &bGives you the full set of available pipes, useful for creative mode or testing."));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-------------------------------------------"));
 					return true;
 				}
