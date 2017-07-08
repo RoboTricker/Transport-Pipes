@@ -88,7 +88,7 @@ public class SavingManager implements Listener {
 						datFile.createNewFile();
 					}
 
-					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
+					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile), NBTCompression.UNCOMPRESSED);
 
 					HashMap<String, Tag> tags = new HashMap<>();
 
@@ -138,7 +138,7 @@ public class SavingManager implements Listener {
 				return;
 			}
 
-			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile));
+			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
 
 			CompoundTag compound = (CompoundTag) in.readTag();
 
