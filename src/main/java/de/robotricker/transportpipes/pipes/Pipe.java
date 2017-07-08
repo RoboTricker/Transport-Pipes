@@ -130,7 +130,7 @@ public abstract class Pipe {
 
 	}
 
-	public void explode(boolean withSound) {
+	public void explode(final boolean withSound) {
 		PipeExplodeEvent pee = new PipeExplodeEvent(this);
 		Bukkit.getPluginManager().callEvent(pee);
 		if (!pee.isCancelled()) {

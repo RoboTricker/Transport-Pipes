@@ -68,11 +68,16 @@ public class PipeNeighborBlockUtils implements Listener {
 
 		for(Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
 			BlockLoc blockLoc = TransportPipes.convertBlockLoc(block.getLocation());
-			Pipe pipe = pipeMap.get(blockLoc);
+			final Pipe pipe = pipeMap.get(blockLoc);
 			if(pipe == null) {
 				continue;
 			}
-			PipeThread.runTask(() -> pipe.explode(false), 0);
+			PipeThread.runTask(new Runnable() {
+				@Override
+				public void run() {
+					pipe.explode(false);
+				}
+			}, 0);
 		}
 	}
 
