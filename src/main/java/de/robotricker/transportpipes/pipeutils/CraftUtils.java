@@ -1,8 +1,5 @@
 package de.robotricker.transportpipes.pipeutils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -19,14 +16,6 @@ import de.robotricker.transportpipes.pipes.PipeType;
 
 public class CraftUtils implements Listener {
 
-	private static ShapedRecipe PIPE_ITEM_COLORED_RECIPE;
-	private static ShapedRecipe PIPE_ITEM_GOLDEN_RECIPE;
-	private static ShapedRecipe PIPE_ITEM_IRON_RECIPE;
-	private static ShapedRecipe PIPE_ITEM_ICE_RECIPE;
-	private static ShapedRecipe PIPE_ITEM_WRENCH_RECIPE;
-
-	private static Map<PipeColor, ShapelessRecipe> PIPE_ITEM_COLORED_RECIPES = new HashMap<PipeColor, ShapelessRecipe>();
-
 	public static void initRecipes() {
 
 		if (TransportPipes.instance.getConfig().getBoolean("disable_crafting", false)) {
@@ -34,42 +23,41 @@ public class CraftUtils implements Listener {
 		}
 
 		//Recipes
-		PIPE_ITEM_COLORED_RECIPE = new ShapedRecipe(TransportPipes.instance.getPipeItemForPlayer(null, PipeType.COLORED, PipeColor.WHITE));
+		ShapedRecipe PIPE_ITEM_COLORED_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.COLORED, PipeColor.WHITE));
 		PIPE_ITEM_COLORED_RECIPE.shape("AAA", "BBB", "AAA");
 		PIPE_ITEM_COLORED_RECIPE.setIngredient('A', new MaterialData(Material.STICK, (byte) 0));
 		PIPE_ITEM_COLORED_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_COLORED_RECIPE);
 
-		PIPE_ITEM_GOLDEN_RECIPE = new ShapedRecipe(TransportPipes.instance.getPipeItemForPlayer(null, PipeType.GOLDEN, null));
+		ShapedRecipe PIPE_ITEM_GOLDEN_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.GOLDEN, null));
 		PIPE_ITEM_GOLDEN_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_GOLDEN_RECIPE.setIngredient('A', new MaterialData(Material.GOLD_INGOT, (byte) 0));
 		PIPE_ITEM_GOLDEN_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_GOLDEN_RECIPE);
 
-		PIPE_ITEM_IRON_RECIPE = new ShapedRecipe(TransportPipes.instance.getPipeItemForPlayer(null, PipeType.IRON, null));
+		ShapedRecipe PIPE_ITEM_IRON_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.IRON, null));
 		PIPE_ITEM_IRON_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_IRON_RECIPE.setIngredient('A', new MaterialData(Material.IRON_INGOT, (byte) 0));
 		PIPE_ITEM_IRON_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_IRON_RECIPE);
 
-		PIPE_ITEM_ICE_RECIPE = new ShapedRecipe(TransportPipes.instance.getPipeItemForPlayer(null, PipeType.ICE, null));
+		ShapedRecipe PIPE_ITEM_ICE_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.ICE, null));
 		PIPE_ITEM_ICE_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_ICE_RECIPE.setIngredient('A', new MaterialData(Material.SNOW_BLOCK, (byte) 0));
 		PIPE_ITEM_ICE_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_ICE_RECIPE);
 
-		PIPE_ITEM_WRENCH_RECIPE = new ShapedRecipe(TransportPipes.instance.getWrenchItemForPlayer(null));
+		ShapedRecipe PIPE_ITEM_WRENCH_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getWrenchItem());
 		PIPE_ITEM_WRENCH_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_WRENCH_RECIPE.setIngredient('A', new MaterialData(Material.REDSTONE, (byte) 0));
 		PIPE_ITEM_WRENCH_RECIPE.setIngredient('B', new MaterialData(Material.STICK, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_WRENCH_RECIPE);
 
 		for (PipeColor pipeColor : PipeColor.values()) {
-			ShapelessRecipe recipeShapeless = new ShapelessRecipe(TransportPipes.instance.getPipeItemForPlayer(null, PipeType.COLORED, pipeColor));
-			recipeShapeless.addIngredient(Material.WOOD_PICKAXE);
+			ShapelessRecipe recipeShapeless = new ShapelessRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.COLORED, pipeColor));
+			recipeShapeless.addIngredient(Material.BLAZE_ROD);
 			recipeShapeless.addIngredient(pipeColor.getDyeItem().getData());
 			Bukkit.addRecipe(recipeShapeless);
-			PIPE_ITEM_COLORED_RECIPES.put(pipeColor, recipeShapeless);
 		}
 	}
 
@@ -84,12 +72,12 @@ public class CraftUtils implements Listener {
 		if (e.getInventory().getRecipe().getResult().getType() == Material.BLAZE_POWDER || e.getInventory().getRecipe().getResult().getType() == Material.BREWING_STAND_ITEM) {
 			for (int i = 1; i < 10; i++) {
 				ItemStack is = e.getInventory().getItem(i);
-				if (isPipeItemStack(is)) {
+				if (PipeType.getFromPipeItem(is) != null) {
 					e.getInventory().setResult(null);
 					break;
 				}
 			}
-		} else if (isPipeItemStack(e.getInventory().getRecipe().getResult())) {
+		} else if (PipeType.getFromPipeItem(e.getInventory().getRecipe().getResult()) != null) {
 			boolean realPipeItem = false;
 			boolean changeColorRecipe = false;
 			for (int i = 1; i < 10; i++) {
@@ -97,7 +85,7 @@ public class CraftUtils implements Listener {
 				if (is != null && is.getType() == Material.INK_SACK) {
 					changeColorRecipe = true;
 				}
-				if (isPipeItemStack(is)) {
+				if (PipeType.getFromPipeItem(is) != null) {
 					realPipeItem = true;
 				}
 			}
@@ -105,22 +93,6 @@ public class CraftUtils implements Listener {
 				e.getInventory().setResult(null);
 			}
 		}
-	}
-
-	private static boolean isPipeItemStack(ItemStack is) {
-		if (is != null && is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
-			String d = is.getItemMeta().getDisplayName();
-			if (d.startsWith("§") && d.endsWith(TransportPipes.instance.PIPE_NAME)) {
-				return true;
-			} else if (d.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
-				return true;
-			} else if (d.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
-				return true;
-			} else if (d.equals(TransportPipes.instance.ICE_PIPE_NAME)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 }

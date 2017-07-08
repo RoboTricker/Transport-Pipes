@@ -165,9 +165,9 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public List<ItemStack> getDroppedItems(Player p) {
+	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getPipeItemForPlayer(p, PipeType.GOLDEN, null));
+		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), null));
 		for (int line = 0; line < 6; line++) {
 			for (int i = 0; i < 8; i++) {
 				if (outputItems[line][i] != null) {

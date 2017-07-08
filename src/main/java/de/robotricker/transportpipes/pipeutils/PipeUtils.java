@@ -110,19 +110,17 @@ public class PipeUtils {
 
 				updatePipeNeighborPipes(pipeToDestroy.blockLoc);
 
-				if (player != null) {
-					final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems(player);
-					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+				final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems();
+				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
-						@Override
-						public void run() {
-							Location dropLoc = pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d);
-							for (ItemStack dropIs : droppedItems) {
-								dropLoc.getWorld().dropItem(dropLoc, dropIs);
-							}
+					@Override
+					public void run() {
+						Location dropLoc = pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d);
+						for (ItemStack dropIs : droppedItems) {
+							dropLoc.getWorld().dropItem(dropLoc, dropIs);
 						}
-					});
-				}
+					}
+				});
 			}
 		}
 

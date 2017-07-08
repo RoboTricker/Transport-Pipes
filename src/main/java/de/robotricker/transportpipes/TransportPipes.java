@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -35,6 +36,7 @@ import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
+import de.robotricker.transportpipes.pipeutils.ProtocolUtils;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
@@ -132,7 +134,7 @@ public class TransportPipes extends JavaPlugin {
 
 		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
 		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
-		
+
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
@@ -212,6 +214,8 @@ public class TransportPipes extends JavaPlugin {
 		}
 
 		CraftUtils.initRecipes();
+
+		ProtocolUtils.init();
 
 	}
 
@@ -295,12 +299,32 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getPipeItemForPlayer(Player p, PipeType pt, PipeColor pc) {
+	public ItemStack getPipeItemForPlayer2(Player p, PipeType pt, PipeColor pc) {
 		return armorStandProtocol.getPlayerPipeManager(p).getPipeItem(pt, pc);
 	}
 
-	public ItemStack getWrenchItemForPlayer(Player p) {
+	public ItemStack getWrenchItemForPlayer2(Player p) {
 		return armorStandProtocol.getPlayerPipeManager(p).getWrenchItem();
+	}
+
+	public ItemStack getVanillaPipeItem(PipeType pt, PipeColor pc) {
+		return vanillaPipeManager.getPipeItem(pt, pc);
+	}
+
+	public ItemStack getVanillaWrenchItem() {
+		return vanillaPipeManager.getWrenchItem();
+	}
+
+	public static boolean isItemStackWrench(ItemStack is) {
+		if (is == null) {
+			return false;
+		}
+		if (is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
+			if (is.getItemMeta().getDisplayName().equals(instance.WRENCH_NAME)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public PipeManager[] getAllPipeManagers() {
@@ -322,6 +346,76 @@ public class TransportPipes extends JavaPlugin {
 			idsArray[i] = it.next();
 		}
 		return idsArray;
+	}
+
+	public static ItemStack replaceVanillaWithModelledItemStack(ItemStack before) {
+		if (before == null || before.getType() == Material.AIR) {
+			return before;
+		}
+		for (PipeType pt : PipeType.values()) {
+			if (pt == PipeType.COLORED) {
+				for (PipeColor pc : PipeColor.values()) {
+					ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, pc);
+					ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, pc);
+					if (before.isSimilar(vanillaId)) {
+						ItemStack returnedIs = modelledIs.clone();
+						returnedIs.setAmount(before.getAmount());
+						return returnedIs;
+					}
+				}
+			} else {
+				ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, null);
+				ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, null);
+				if (before.isSimilar(vanillaId)) {
+					ItemStack returnedIs = modelledIs.clone();
+					returnedIs.setAmount(before.getAmount());
+					return returnedIs;
+				}
+			}
+		}
+		ItemStack modelledWrenchIs = modelledPipeManager.getWrenchItem();
+		ItemStack vanillaWrenchIs = vanillaPipeManager.getWrenchItem();
+		if (before.isSimilar(vanillaWrenchIs)) {
+			ItemStack returnedIs = modelledWrenchIs.clone();
+			returnedIs.setAmount(before.getAmount());
+			return returnedIs;
+		}
+		return before;
+	}
+
+	public static ItemStack replaceModelledWithVanillaItemStack(ItemStack before) {
+		if (before == null || before.getType() == Material.AIR) {
+			return before;
+		}
+		for (PipeType pt : PipeType.values()) {
+			if (pt == PipeType.COLORED) {
+				for (PipeColor pc : PipeColor.values()) {
+					ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, pc);
+					ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, pc);
+					if (before.isSimilar(modelledIs)) {
+						ItemStack returnedIs = vanillaId.clone();
+						returnedIs.setAmount(before.getAmount());
+						return returnedIs;
+					}
+				}
+			} else {
+				ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, null);
+				ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, null);
+				if (before.isSimilar(modelledIs)) {
+					ItemStack returnedIs = vanillaId.clone();
+					returnedIs.setAmount(before.getAmount());
+					return returnedIs;
+				}
+			}
+		}
+		ItemStack modelledWrenchIs = modelledPipeManager.getWrenchItem();
+		ItemStack vanillaWrenchIs = vanillaPipeManager.getWrenchItem();
+		if (before.isSimilar(modelledWrenchIs)) {
+			ItemStack returnedIs = vanillaWrenchIs.clone();
+			returnedIs.setAmount(before.getAmount());
+			return returnedIs;
+		}
+		return before;
 	}
 
 	public static class BlockLoc implements Comparable<BlockLoc> {

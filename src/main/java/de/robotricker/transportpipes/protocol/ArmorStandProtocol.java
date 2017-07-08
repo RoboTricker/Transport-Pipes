@@ -45,9 +45,6 @@ public class ArmorStandProtocol {
 	}
 
 	public PipeManager getPlayerPipeManager(Player p) {
-		if(p == null){
-			return TransportPipes.modelledPipeManager;
-		}
 		if (pipeManagers.containsKey(p)) {
 			return pipeManagers.get(p);
 		}
