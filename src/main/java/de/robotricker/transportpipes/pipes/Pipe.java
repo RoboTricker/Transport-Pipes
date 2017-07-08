@@ -101,7 +101,7 @@ public abstract class Pipe {
 	 * gets the PipeItem direction in this pipe
 	 */
 	public PipeDirection getPipeItemDirection(PipeItem item) {
-		return pipeItems.getOrDefault(item, null);
+		return pipeItems.get(item);
 	}
 
 	/**
