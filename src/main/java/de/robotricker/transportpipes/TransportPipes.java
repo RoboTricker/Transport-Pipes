@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
+import de.robotricker.transportpipes.pipeutils.commands.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -35,10 +36,6 @@ import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
-import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -144,6 +141,7 @@ public class TransportPipes extends JavaPlugin {
 		final ReloadConfigCommandExecutor reloadConfigCmdExec = new ReloadConfigCommandExecutor();
 		final ReloadPipesCommandExecutor reloadPipesCmdExec = new ReloadPipesCommandExecutor();
 		final UpdateCommandExecutor updateCmdExec = new UpdateCommandExecutor();
+		final GiveCommandExecutor giveCmdExec = new GiveCommandExecutor();
 
 		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
@@ -170,6 +168,10 @@ public class TransportPipes extends JavaPlugin {
 					}
 				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("pipes")) {
 					if (!reloadPipesCmdExec.onCommand(cs)) {
+						noPerm = true;
+					}
+				} else if (args.length >= 1 && args[0].equalsIgnoreCase("give")) {
+					if (!giveCmdExec.onCommand(cs)) {
 						noPerm = true;
 					}
 				} else {

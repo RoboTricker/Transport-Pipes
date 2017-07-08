@@ -58,7 +58,7 @@ public class PipeNeighborBlockUtils implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onExplosionPrime(ExplosionPrimeEvent e) {
-		if(!TransportPipes.instance.getConfig().getBoolean("damageable_pipes")) {
+		if(!TransportPipes.instance.getConfig().getBoolean("damageable_pipes", false)) {
 			return;
 		}
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(e.getEntity().getWorld());
