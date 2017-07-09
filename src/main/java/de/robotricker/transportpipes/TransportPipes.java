@@ -14,7 +14,6 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -346,76 +345,6 @@ public class TransportPipes extends JavaPlugin {
 			idsArray[i] = it.next();
 		}
 		return idsArray;
-	}
-
-	public static ItemStack replaceVanillaWithModelledItemStack(ItemStack before) {
-		if (before == null || before.getType() == Material.AIR) {
-			return before;
-		}
-		for (PipeType pt : PipeType.values()) {
-			if (pt == PipeType.COLORED) {
-				for (PipeColor pc : PipeColor.values()) {
-					ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, pc);
-					ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, pc);
-					if (before.isSimilar(vanillaId)) {
-						ItemStack returnedIs = modelledIs.clone();
-						returnedIs.setAmount(before.getAmount());
-						return returnedIs;
-					}
-				}
-			} else {
-				ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, null);
-				ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, null);
-				if (before.isSimilar(vanillaId)) {
-					ItemStack returnedIs = modelledIs.clone();
-					returnedIs.setAmount(before.getAmount());
-					return returnedIs;
-				}
-			}
-		}
-		ItemStack modelledWrenchIs = modelledPipeManager.getWrenchItem();
-		ItemStack vanillaWrenchIs = vanillaPipeManager.getWrenchItem();
-		if (before.isSimilar(vanillaWrenchIs)) {
-			ItemStack returnedIs = modelledWrenchIs.clone();
-			returnedIs.setAmount(before.getAmount());
-			return returnedIs;
-		}
-		return before;
-	}
-
-	public static ItemStack replaceModelledWithVanillaItemStack(ItemStack before) {
-		if (before == null || before.getType() == Material.AIR) {
-			return before;
-		}
-		for (PipeType pt : PipeType.values()) {
-			if (pt == PipeType.COLORED) {
-				for (PipeColor pc : PipeColor.values()) {
-					ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, pc);
-					ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, pc);
-					if (before.isSimilar(modelledIs)) {
-						ItemStack returnedIs = vanillaId.clone();
-						returnedIs.setAmount(before.getAmount());
-						return returnedIs;
-					}
-				}
-			} else {
-				ItemStack modelledIs = modelledPipeManager.getPipeItem(pt, null);
-				ItemStack vanillaId = vanillaPipeManager.getPipeItem(pt, null);
-				if (before.isSimilar(modelledIs)) {
-					ItemStack returnedIs = vanillaId.clone();
-					returnedIs.setAmount(before.getAmount());
-					return returnedIs;
-				}
-			}
-		}
-		ItemStack modelledWrenchIs = modelledPipeManager.getWrenchItem();
-		ItemStack vanillaWrenchIs = vanillaPipeManager.getWrenchItem();
-		if (before.isSimilar(modelledWrenchIs)) {
-			ItemStack returnedIs = vanillaWrenchIs.clone();
-			returnedIs.setAmount(before.getAmount());
-			return returnedIs;
-		}
-		return before;
 	}
 
 	public static class BlockLoc implements Comparable<BlockLoc> {
