@@ -50,4 +50,6 @@ public abstract class PipeManager {
 	
 	public abstract ItemStack getWrenchItem();
 
+	public abstract String getPipeRenderSystemName();
+	
 }

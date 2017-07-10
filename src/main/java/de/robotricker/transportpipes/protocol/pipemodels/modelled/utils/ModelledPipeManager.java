@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
@@ -36,6 +37,8 @@ public class ModelledPipeManager extends PipeManager implements Listener {
 	private Map<PipeDirection, AxisAlignedBB> pipeConnsAABBs = new HashMap<PipeDirection, AxisAlignedBB>();
 
 	private Map<PipeType, ModelledPipeModel> pipeModels = new HashMap<PipeType, ModelledPipeModel>();
+
+	private List<Player> loadedResourcePackPlayers = new ArrayList<Player>();
 
 	public ModelledPipeManager(ArmorStandProtocol protocol) {
 		super(protocol);
@@ -169,6 +172,11 @@ public class ModelledPipeManager extends PipeManager implements Listener {
 	}
 
 	@Override
+	public String getPipeRenderSystemName() {
+		return "Modelled";
+	}
+
+	@Override
 	public ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
 		switch (pipeType) {
 		case COLORED:
@@ -198,7 +206,7 @@ public class ModelledPipeManager extends PipeManager implements Listener {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public ItemStack getWrenchItem() {
 		return ModelledPipeModel.ITEM_WRENCH;
@@ -206,13 +214,43 @@ public class ModelledPipeManager extends PipeManager implements Listener {
 
 	@Override
 	public void initPlayer(Player p) {
-		p.setResourcePack("http://frontfight.net/TransportPipes-ResourcePack.zip");
+		if (!loadedResourcePackPlayers.contains(p)) {
+			p.closeInventory();
+			p.setResourcePack("http://frontfight.net/TransportPipes-ResourcePack2.zip");
+		}
 	}
 
 	@EventHandler
 	public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
 		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
+
+			PipeManager beforePm = TransportPipes.armorStandProtocol.getPlayerPipeManager(e.getPlayer());
+			if (beforePm.equals(TransportPipes.modelledPipeManager)) {
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(e.getPlayer().getWorld());
+				if (pipeMap != null) {
+					synchronized (pipeMap) {
+						for (Pipe pipe : pipeMap.values()) {
+							TransportPipes.pipePacketManager.despawnPipe(e.getPlayer(), pipe);
+						}
+					}
+				}
+
+				TransportPipes.armorStandProtocol.setPlayerPipeManager(e.getPlayer(), TransportPipes.vanillaPipeManager);
+				TransportPipes.vanillaPipeManager.initPlayer(e.getPlayer());
+
+				synchronized (pipeMap) {
+					if (pipeMap != null) {
+						for (Pipe pipe : pipeMap.values()) {
+							TransportPipes.pipePacketManager.spawnPipe(e.getPlayer(), pipe);
+						}
+					}
+				}
+			}
 			e.getPlayer().sendMessage("§cResourcepack Download failed: Switched to the Vanilla Model System");
+		} else {
+			if (!loadedResourcePackPlayers.contains(e.getPlayer())) {
+				loadedResourcePackPlayers.add(e.getPlayer());
+			}
 		}
 	}
 

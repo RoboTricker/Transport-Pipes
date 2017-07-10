@@ -120,7 +120,7 @@ public class VanillaPipeManager extends PipeManager {
 
 	@Override
 	public void initPlayer(Player p) {
-
+		p.updateInventory();
 	}
 
 	@Override
@@ -157,6 +157,11 @@ public class VanillaPipeManager extends PipeManager {
 	@Override
 	public ItemStack getWrenchItem() {
 		return VanillaPipeModel.ITEM_WRENCH;
+	}
+	
+	@Override
+	public String getPipeRenderSystemName() {
+		return "Vanilla";
 	}
 
 	private enum VanillaPipeShape {
