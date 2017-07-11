@@ -49,6 +49,9 @@ public enum PipeType {
 	 * returns the pipeType you can place with this item, or null if there is no pipe available for this item
 	 */
 	public static PipeType getFromPipeItem(ItemStack item) {
+		if (item == null) {
+			return null;
+		}
 		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
 			String displayName = item.getItemMeta().getDisplayName();
 			if (displayName.equals(TransportPipes.instance.ICE_PIPE_NAME)) {

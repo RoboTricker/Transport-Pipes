@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
@@ -51,9 +50,9 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	public List<ItemStack> getDroppedItems(Player p) {
+	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getPipeItemForPlayer(p, PipeType.COLORED, getPipeColor()));
+		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), getPipeColor()));
 		return is;
 	}
 

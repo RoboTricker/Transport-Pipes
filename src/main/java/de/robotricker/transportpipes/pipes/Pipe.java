@@ -11,7 +11,6 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
@@ -387,7 +386,7 @@ public abstract class Pipe {
 	/**
 	 * get the items that will be dropped on pipe destroy
 	 */
-	public abstract List<ItemStack> getDroppedItems(Player p);
+	public abstract List<ItemStack> getDroppedItems();
 
 	public abstract PipeType getPipeType();
 

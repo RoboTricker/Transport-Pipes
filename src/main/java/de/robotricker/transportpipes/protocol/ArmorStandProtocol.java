@@ -45,13 +45,10 @@ public class ArmorStandProtocol {
 	}
 
 	public PipeManager getPlayerPipeManager(Player p) {
-		if(p == null){
-			return TransportPipes.modelledPipeManager;
-		}
 		if (pipeManagers.containsKey(p)) {
 			return pipeManagers.get(p);
 		}
-		pipeManagers.put(p, TransportPipes.modelledPipeManager);
+		pipeManagers.put(p, TransportPipes.vanillaPipeManager);
 		return pipeManagers.get(p);
 	}
 
@@ -65,6 +62,10 @@ public class ArmorStandProtocol {
 			}
 		}
 		return players;
+	}
+	
+	public void setPlayerPipeManager(Player p, PipeManager pm){
+		pipeManagers.put(p, pm);
 	}
 
 	public void removePipeItem(final Player p, PipeItem item) {

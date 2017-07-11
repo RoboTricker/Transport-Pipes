@@ -81,9 +81,9 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public List<ItemStack> getDroppedItems(Player p) {
+	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getPipeItemForPlayer(p, PipeType.IRON, null));
+		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), null));
 		return is;
 	}
 

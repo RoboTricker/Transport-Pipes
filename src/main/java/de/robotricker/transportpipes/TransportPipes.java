@@ -36,6 +36,11 @@ import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
+import de.robotricker.transportpipes.pipeutils.ProtocolUtils;
+import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -129,7 +134,7 @@ public class TransportPipes extends JavaPlugin {
 
 		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
 		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
-		
+
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
@@ -217,6 +222,8 @@ public class TransportPipes extends JavaPlugin {
 
 		CraftUtils.initRecipes();
 
+		ProtocolUtils.init();
+
 	}
 
 	@Override
@@ -299,12 +306,32 @@ public class TransportPipes extends JavaPlugin {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
-	public ItemStack getPipeItemForPlayer(Player p, PipeType pt, PipeColor pc) {
+	public ItemStack getPipeItemForPlayer2(Player p, PipeType pt, PipeColor pc) {
 		return armorStandProtocol.getPlayerPipeManager(p).getPipeItem(pt, pc);
 	}
 
-	public ItemStack getWrenchItemForPlayer(Player p) {
+	public ItemStack getWrenchItemForPlayer2(Player p) {
 		return armorStandProtocol.getPlayerPipeManager(p).getWrenchItem();
+	}
+
+	public ItemStack getVanillaPipeItem(PipeType pt, PipeColor pc) {
+		return vanillaPipeManager.getPipeItem(pt, pc);
+	}
+
+	public ItemStack getVanillaWrenchItem() {
+		return vanillaPipeManager.getWrenchItem();
+	}
+
+	public static boolean isItemStackWrench(ItemStack is) {
+		if (is == null) {
+			return false;
+		}
+		if (is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
+			if (is.getItemMeta().getDisplayName().equals(instance.WRENCH_NAME)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public PipeManager[] getAllPipeManagers() {

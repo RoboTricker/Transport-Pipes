@@ -84,7 +84,7 @@ public class PipePacketManager implements Listener {
 		}
 	}
 
-	private void spawnPipe(final Player p, final Pipe pipe) {
+	public void spawnPipe(final Player p, final Pipe pipe) {
 		List<Pipe> list;
 		if (!pipesForPlayers.containsKey(p)) {
 			pipesForPlayers.put(p, new ArrayList<Pipe>());
@@ -99,7 +99,7 @@ public class PipePacketManager implements Listener {
 		}
 	}
 
-	private void spawnItem(final Player p, final PipeItem item) {
+	public void spawnItem(final Player p, final PipeItem item) {
 		List<PipeItem> list;
 		if (!itemsForPlayers.containsKey(p)) {
 			itemsForPlayers.put(p, new ArrayList<PipeItem>());
@@ -111,7 +111,7 @@ public class PipePacketManager implements Listener {
 		}
 	}
 
-	private void despawnPipe(final Player p, final Pipe pipe) {
+	public void despawnPipe(final Player p, final Pipe pipe) {
 		if (pipesForPlayers.containsKey(p)) {
 			List<Pipe> list = pipesForPlayers.get(p);
 			if (list.contains(pipe)) {
@@ -121,7 +121,7 @@ public class PipePacketManager implements Listener {
 		}
 	}
 
-	private void despawnItem(final Player p, final PipeItem item) {
+	public void despawnItem(final Player p, final PipeItem item) {
 		if (itemsForPlayers.containsKey(p)) {
 			List<PipeItem> list = itemsForPlayers.get(p);
 			if (list.contains(item)) {
