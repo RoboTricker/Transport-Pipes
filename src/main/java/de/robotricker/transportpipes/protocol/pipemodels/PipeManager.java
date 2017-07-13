@@ -7,8 +7,6 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -46,10 +44,8 @@ public abstract class PipeManager {
 	
 	public abstract void initPlayer(Player p);
 	
-	public abstract ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor);
-	
-	public abstract ItemStack getWrenchItem();
-
 	public abstract String getPipeRenderSystemName();
+	
+	public abstract ItemStack getRepresentationItem();
 	
 }

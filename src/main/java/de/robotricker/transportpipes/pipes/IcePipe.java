@@ -6,9 +6,9 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
 public class IcePipe extends Pipe {
 
@@ -41,7 +41,7 @@ public class IcePipe extends Pipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), null));
+		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		return is;
 	}
 

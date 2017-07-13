@@ -22,7 +22,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,12 +29,9 @@ import de.robotricker.transportpipes.manager.saving.SavingManager;
 import de.robotricker.transportpipes.manager.settings.SettingsInv;
 import de.robotricker.transportpipes.pipes.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
-import de.robotricker.transportpipes.pipeutils.ProtocolUtils;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
@@ -75,7 +71,7 @@ public class TransportPipes extends JavaPlugin {
 	public String ICE_PIPE_NAME;
 	public String WRENCH_NAME;
 
-	// TODO: private access
+	//TODO private access
 	public static TransportPipes instance;
 	public static ArmorStandProtocol armorStandProtocol;
 	public static PipeThread pipeThread;
@@ -214,8 +210,6 @@ public class TransportPipes extends JavaPlugin {
 
 		CraftUtils.initRecipes();
 
-		ProtocolUtils.init();
-
 	}
 
 	@Override
@@ -296,34 +290,6 @@ public class TransportPipes extends JavaPlugin {
 
 	public static String getFormattedConfigString(String key) {
 		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
-	}
-
-	public ItemStack getPipeItemForPlayer2(Player p, PipeType pt, PipeColor pc) {
-		return armorStandProtocol.getPlayerPipeManager(p).getPipeItem(pt, pc);
-	}
-
-	public ItemStack getWrenchItemForPlayer2(Player p) {
-		return armorStandProtocol.getPlayerPipeManager(p).getWrenchItem();
-	}
-
-	public ItemStack getVanillaPipeItem(PipeType pt, PipeColor pc) {
-		return vanillaPipeManager.getPipeItem(pt, pc);
-	}
-
-	public ItemStack getVanillaWrenchItem() {
-		return vanillaPipeManager.getWrenchItem();
-	}
-
-	public static boolean isItemStackWrench(ItemStack is) {
-		if (is == null) {
-			return false;
-		}
-		if (is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
-			if (is.getItemMeta().getDisplayName().equals(instance.WRENCH_NAME)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public PipeManager[] getAllPipeManagers() {

@@ -22,7 +22,7 @@ public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 
 	@Override
 	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
-		ItemStack hoe = createSwordItemStack(data.getGoldenPipe_color().getDamage());
+		ItemStack hoe = createToolItemStack(data.getGoldenPipe_color().getDamage());
 		ArmorStandData asd = null;
 
 		if (data.getConnDirection() == PipeDirection.UP) {

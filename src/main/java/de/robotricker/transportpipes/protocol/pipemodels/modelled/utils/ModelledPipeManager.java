@@ -19,6 +19,7 @@ import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -30,6 +31,8 @@ import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeIR
 import de.robotricker.transportpipes.protocol.pipemodels.modelled.ModelledPipeModel;
 
 public class ModelledPipeManager extends PipeManager implements Listener {
+
+	public static final ItemStack ITEM_PIPE_WHITE = PipeItemUtils.createToolItemStack(25, PipeColor.WHITE.getColorCode() + TransportPipes.instance.PIPE_NAME);
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<Pipe, ArmorStandData>();
 	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<Pipe, Map<PipeDirection, ArmorStandData>>();
@@ -177,39 +180,8 @@ public class ModelledPipeManager extends PipeManager implements Listener {
 	}
 
 	@Override
-	public ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
-		switch (pipeType) {
-		case COLORED:
-			switch (pipeColor) {
-			case WHITE:
-				return ModelledPipeModel.ITEM_PIPE_WHITE;
-			case BLUE:
-				return ModelledPipeModel.ITEM_PIPE_BLUE;
-			case RED:
-				return ModelledPipeModel.ITEM_PIPE_RED;
-			case YELLOW:
-				return ModelledPipeModel.ITEM_PIPE_YELLOW;
-			case GREEN:
-				return ModelledPipeModel.ITEM_PIPE_GREEN;
-			case BLACK:
-				return ModelledPipeModel.ITEM_PIPE_BLACK;
-			default:
-				return null;
-			}
-		case GOLDEN:
-			return ModelledPipeModel.ITEM_PIPE_GOLDEN;
-		case IRON:
-			return ModelledPipeModel.ITEM_PIPE_IRON;
-		case ICE:
-			return ModelledPipeModel.ITEM_PIPE_ICE;
-		default:
-			return null;
-		}
-	}
-
-	@Override
-	public ItemStack getWrenchItem() {
-		return ModelledPipeModel.ITEM_WRENCH;
+	public ItemStack getRepresentationItem() {
+		return ITEM_PIPE_WHITE;
 	}
 
 	@Override
@@ -238,8 +210,8 @@ public class ModelledPipeManager extends PipeManager implements Listener {
 				TransportPipes.armorStandProtocol.setPlayerPipeManager(e.getPlayer(), TransportPipes.vanillaPipeManager);
 				TransportPipes.vanillaPipeManager.initPlayer(e.getPlayer());
 
-				synchronized (pipeMap) {
-					if (pipeMap != null) {
+				if (pipeMap != null) {
+					synchronized (pipeMap) {
 						for (Pipe pipe : pipeMap.values()) {
 							TransportPipes.pipePacketManager.spawnPipe(e.getPlayer(), pipe);
 						}

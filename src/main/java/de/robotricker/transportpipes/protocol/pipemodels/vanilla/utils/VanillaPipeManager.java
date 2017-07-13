@@ -12,8 +12,8 @@ import org.bukkit.util.Vector;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Pipe;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
@@ -124,46 +124,15 @@ public class VanillaPipeManager extends PipeManager {
 	}
 
 	@Override
-	public ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
-		switch (pipeType) {
-		case COLORED:
-			switch (pipeColor) {
-			case WHITE:
-				return VanillaPipeModel.ITEM_PIPE_WHITE;
-			case BLUE:
-				return VanillaPipeModel.ITEM_PIPE_BLUE;
-			case RED:
-				return VanillaPipeModel.ITEM_PIPE_RED;
-			case YELLOW:
-				return VanillaPipeModel.ITEM_PIPE_YELLOW;
-			case GREEN:
-				return VanillaPipeModel.ITEM_PIPE_GREEN;
-			case BLACK:
-				return VanillaPipeModel.ITEM_PIPE_BLACK;
-			default:
-				return null;
-			}
-		case GOLDEN:
-			return VanillaPipeModel.ITEM_PIPE_GOLDEN;
-		case IRON:
-			return VanillaPipeModel.ITEM_PIPE_IRON;
-		case ICE:
-			return VanillaPipeModel.ITEM_PIPE_ICE;
-		default:
-			return null;
-		}
-	}
-
-	@Override
-	public ItemStack getWrenchItem() {
-		return VanillaPipeModel.ITEM_WRENCH;
-	}
-	
-	@Override
 	public String getPipeRenderSystemName() {
 		return "Vanilla";
 	}
 
+	@Override
+	public ItemStack getRepresentationItem() {
+		return PipeItemUtils.ITEM_PIPE_WHITE;
+	}
+	
 	private enum VanillaPipeShape {
 		EAST_WEST(new VanillaPipeEWModel()),
 		NORTH_SOUTH(new VanillaPipeNSModel()),

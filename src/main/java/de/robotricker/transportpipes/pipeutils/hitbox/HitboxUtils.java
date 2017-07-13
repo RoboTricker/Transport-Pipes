@@ -119,21 +119,23 @@ public class HitboxUtils {
 			return;
 		}
 		if (mainHand) {
-			ItemStack is = p.getInventory().getItemInMainHand();
-			if (is.getAmount() > 1) {
-				is.setAmount(is.getAmount() - 1);
+			int amountBefore = p.getInventory().getItemInMainHand().getAmount();
+			if (amountBefore - 1 == 0) {
+				p.getInventory().setItemInMainHand(null);
 			} else {
-				is = null;
+				ItemStack is = p.getInventory().getItemInMainHand();
+				is.setAmount(amountBefore - 1);
+				p.getInventory().setItemInMainHand(is);
 			}
-			p.getInventory().setItemInMainHand(is);
 		} else {
-			ItemStack is = p.getInventory().getItemInOffHand();
-			if (is.getAmount() > 1) {
-				is.setAmount(is.getAmount() - 1);
+			int amountBefore = p.getInventory().getItemInOffHand().getAmount();
+			if (amountBefore - 1 == 0) {
+				p.getInventory().setItemInOffHand(null);
 			} else {
-				is = null;
+				ItemStack is = p.getInventory().getItemInOffHand();
+				is.setAmount(amountBefore - 1);
+				p.getInventory().setItemInOffHand(is);
 			}
-			p.getInventory().setItemInOffHand(is);
 		}
 	}
 
