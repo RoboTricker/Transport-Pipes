@@ -9,11 +9,11 @@ import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
 
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
 public class ColoredPipe extends Pipe {
 
@@ -52,7 +52,7 @@ public class ColoredPipe extends Pipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), getPipeColor()));
+		is.add(PipeItemUtils.getPipeItem(getPipeType(), getPipeColor()));
 		return is;
 	}
 

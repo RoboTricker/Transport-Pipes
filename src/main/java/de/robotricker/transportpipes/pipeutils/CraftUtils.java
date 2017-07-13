@@ -23,38 +23,38 @@ public class CraftUtils implements Listener {
 		}
 
 		//Recipes
-		ShapedRecipe PIPE_ITEM_COLORED_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.COLORED, PipeColor.WHITE));
+		ShapedRecipe PIPE_ITEM_COLORED_RECIPE = new ShapedRecipe(PipeItemUtils.getPipeItem(PipeType.COLORED, PipeColor.WHITE));
 		PIPE_ITEM_COLORED_RECIPE.shape("AAA", "BBB", "AAA");
 		PIPE_ITEM_COLORED_RECIPE.setIngredient('A', new MaterialData(Material.STICK, (byte) 0));
 		PIPE_ITEM_COLORED_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_COLORED_RECIPE);
 
-		ShapedRecipe PIPE_ITEM_GOLDEN_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.GOLDEN, null));
+		ShapedRecipe PIPE_ITEM_GOLDEN_RECIPE = new ShapedRecipe(PipeItemUtils.getPipeItem(PipeType.GOLDEN, null));
 		PIPE_ITEM_GOLDEN_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_GOLDEN_RECIPE.setIngredient('A', new MaterialData(Material.GOLD_INGOT, (byte) 0));
 		PIPE_ITEM_GOLDEN_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_GOLDEN_RECIPE);
 
-		ShapedRecipe PIPE_ITEM_IRON_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.IRON, null));
+		ShapedRecipe PIPE_ITEM_IRON_RECIPE = new ShapedRecipe(PipeItemUtils.getPipeItem(PipeType.IRON, null));
 		PIPE_ITEM_IRON_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_IRON_RECIPE.setIngredient('A', new MaterialData(Material.IRON_INGOT, (byte) 0));
 		PIPE_ITEM_IRON_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_IRON_RECIPE);
 
-		ShapedRecipe PIPE_ITEM_ICE_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.ICE, null));
+		ShapedRecipe PIPE_ITEM_ICE_RECIPE = new ShapedRecipe(PipeItemUtils.getPipeItem(PipeType.ICE, null));
 		PIPE_ITEM_ICE_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_ICE_RECIPE.setIngredient('A', new MaterialData(Material.SNOW_BLOCK, (byte) 0));
 		PIPE_ITEM_ICE_RECIPE.setIngredient('B', new MaterialData(Material.GLASS, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_ICE_RECIPE);
 
-		ShapedRecipe PIPE_ITEM_WRENCH_RECIPE = new ShapedRecipe(TransportPipes.vanillaPipeManager.getWrenchItem());
+		ShapedRecipe PIPE_ITEM_WRENCH_RECIPE = new ShapedRecipe(PipeItemUtils.getWrenchItem());
 		PIPE_ITEM_WRENCH_RECIPE.shape("XAX", "ABA", "XAX");
 		PIPE_ITEM_WRENCH_RECIPE.setIngredient('A', new MaterialData(Material.REDSTONE, (byte) 0));
 		PIPE_ITEM_WRENCH_RECIPE.setIngredient('B', new MaterialData(Material.STICK, (byte) 0));
 		Bukkit.addRecipe(PIPE_ITEM_WRENCH_RECIPE);
 
 		for (PipeColor pipeColor : PipeColor.values()) {
-			ShapelessRecipe recipeShapeless = new ShapelessRecipe(TransportPipes.vanillaPipeManager.getPipeItem(PipeType.COLORED, pipeColor));
+			ShapelessRecipe recipeShapeless = new ShapelessRecipe(PipeItemUtils.getPipeItem(PipeType.COLORED, pipeColor));
 			recipeShapeless.addIngredient(Material.BLAZE_ROD);
 			recipeShapeless.addIngredient(pipeColor.getDyeItem().getData());
 			Bukkit.addRecipe(recipeShapeless);

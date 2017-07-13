@@ -24,8 +24,8 @@ public enum PipeColor {
 	private PipeColor(String colorCode, short glassMetadata, short midHoeMetadata, short connHoeMetadata, short dyeMetadata) {
 		this.colorCode = colorCode;
 		vanillaModel_glassItem = glassMetadata != -1 ? new ItemStack(Material.STAINED_GLASS, 1, glassMetadata) : new ItemStack(Material.GLASS);
-		modelledModel_midHoeItem = ModelledPipeModel.createSwordItemStack(midHoeMetadata);
-		modelledModel_connHoeItem = ModelledPipeModel.createSwordItemStack(connHoeMetadata);
+		modelledModel_midHoeItem = ModelledPipeModel.createToolItemStack(midHoeMetadata);
+		modelledModel_connHoeItem = ModelledPipeModel.createToolItemStack(connHoeMetadata);
 		dyeItem = new ItemStack(Material.INK_SACK, 1, dyeMetadata);
 	}
 

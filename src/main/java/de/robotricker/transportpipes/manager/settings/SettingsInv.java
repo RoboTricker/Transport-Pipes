@@ -20,8 +20,6 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
 import de.robotricker.transportpipes.pipeutils.commands.PipesCommandExecutor;
 import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
 import de.robotricker.transportpipes.protocol.pipemodels.vanilla.utils.VanillaPipeManager;
@@ -54,7 +52,7 @@ public class SettingsInv implements Listener, PipesCommandExecutor {
 		populateInventoryLine(inv, 0, glassPane, glassPane, decreaseBtn, glassPane, eye, glassPane, increaseBtn, glassPane, glassPane);
 
 		PipeManager pm = TransportPipes.armorStandProtocol.getPlayerPipeManager(viewer);
-		ItemStack currentSystem = pm.getPipeItem(PipeType.COLORED, PipeColor.WHITE).clone();
+		ItemStack currentSystem = pm.getRepresentationItem();
 		SettingsUtils.changeDisplayNameAndLore(currentSystem, "§6Current Pipe Render System: §b" + pm.getPipeRenderSystemName(), "§7Click to switch between Vanilla", "§7and Modelled Render Systems", "§7The Modelled Render System uses a resourcepack", "§7but looks much better. The Vanilla Render System", "§7uses the Vanilla Minecraft textures.");
 
 		populateInventoryLine(inv, 1, glassPane, glassPane, glassPane, glassPane, currentSystem, glassPane, glassPane, glassPane, glassPane);
@@ -122,9 +120,9 @@ public class SettingsInv implements Listener, PipesCommandExecutor {
 						TransportPipes.armorStandProtocol.setPlayerPipeManager(p, TransportPipes.vanillaPipeManager);
 						TransportPipes.vanillaPipeManager.initPlayer(p);
 					}
-
-					synchronized (pipeMap) {
-						if (pipeMap != null) {
+					
+					if (pipeMap != null) {
+						synchronized (pipeMap) {
 							for (Pipe pipe : pipeMap.values()) {
 								TransportPipes.pipePacketManager.spawnPipe(p, pipe);
 							}

@@ -16,7 +16,9 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
+//TODO: the current output has to be an real output where items can really go!
 public class IronPipe extends Pipe implements ClickablePipe {
 
 	private PipeDirection currentOutputDir;
@@ -83,7 +85,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), null));
+		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		return is;
 	}
 

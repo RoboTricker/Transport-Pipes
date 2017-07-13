@@ -13,12 +13,12 @@ import org.jnbt.CompoundTag;
 import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
 public class GoldenPipe extends Pipe implements ClickablePipe {
 
@@ -168,7 +168,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<ItemStack>();
-		is.add(TransportPipes.instance.getVanillaPipeItem(getPipeType(), null));
+		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		for (int line = 0; line < 6; line++) {
 			for (int i = 0; i < 8; i++) {
 				if (outputItems[line][i] != null) {
