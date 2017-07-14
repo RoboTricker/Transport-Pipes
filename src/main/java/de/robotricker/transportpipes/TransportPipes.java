@@ -36,6 +36,8 @@ import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecu
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.config.GeneralConf;
+import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -63,8 +65,6 @@ import de.robotricker.transportpipes.update.UpdateManager;
 
 public class TransportPipes extends JavaPlugin {
 
-	public String PREFIX;
-
 	public String PIPE_NAME;
 	public String GOLDEN_PIPE_NAME;
 	public String IRON_PIPE_NAME;
@@ -85,6 +85,9 @@ public class TransportPipes extends JavaPlugin {
 	public static PipeManager vanillaPipeManager;
 	public static PipeManager modelledPipeManager;
 
+	public LocConf locConf;
+	public GeneralConf generalConf;
+
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -97,35 +100,18 @@ public class TransportPipes extends JavaPlugin {
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
 
-		// Load config and update values
-		getConfig().options().copyDefaults(true);
-		if (getConfig().getString("pipename.pipe").startsWith("&f")) {
-			getConfig().set("pipename.pipe", getConfig().getString("pipename.pipe").substring(2));
-		}
-		if (getConfig().getString("pipename.golden_pipe").startsWith("&6")) {
-			getConfig().set("pipename.golden_pipe", getConfig().getString("pipename.golden_pipe").substring(2));
-		}
-		if (getConfig().getString("pipename.iron_pipe").startsWith("&7")) {
-			getConfig().set("pipename.iron_pipe", getConfig().getString("pipename.iron_pipe").substring(2));
-		}
-		if (getConfig().getString("pipename.wrench").startsWith("&c")) {
-			getConfig().set("pipename.wrench", getConfig().getString("pipename.wrench").substring(2));
-		}
-		if (!getConfig().getString("prefix").contains("&")) {
-			getConfig().set("prefix", "&7[&6TransportPipes&7] &6");
-		}
-		saveConfig();
+		locConf = new LocConf();
+		generalConf = new GeneralConf();
 
-		// Load language data
-		PREFIX = getFormattedConfigString("prefix");
-		PIPE_NAME = getFormattedConfigString("pipename.pipe");
-		GOLDEN_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&6" + getConfig().getString("pipename.golden_pipe"));
-		IRON_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&7" + getConfig().getString("pipename.iron_pipe"));
-		ICE_PIPE_NAME = ChatColor.translateAlternateColorCodes('&', "&b" + getConfig().getString("pipename.ice_pipe"));
-		WRENCH_NAME = ChatColor.translateAlternateColorCodes('&', "&c" + getConfig().getString("pipename.wrench"));
+		//color codes are applied for individual colored pipe names
+		PIPE_NAME = locConf.get(LocConf.PIPES_COLORED);
+		ICE_PIPE_NAME = "§b" + locConf.get(LocConf.PIPES_ICE);
+		GOLDEN_PIPE_NAME = "§6" + locConf.get(LocConf.PIPES_GOLDEN);
+		IRON_PIPE_NAME = "§7" + locConf.get(LocConf.PIPES_IRON);
+		WRENCH_NAME = "§c" + locConf.get(LocConf.PIPES_WRENCH);
 
 		// Load config
-		antiCheatPlugins.addAll(getConfig().getStringList("anticheat"));
+		antiCheatPlugins.addAll(generalConf.getAnticheatPlugins());
 
 		vanillaPipeManager = new VanillaPipeManager(armorStandProtocol);
 		modelledPipeManager = new ModelledPipeManager(armorStandProtocol);
@@ -171,19 +157,19 @@ public class TransportPipes extends JavaPlugin {
 					}
 				} else {
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-----------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m-----------"));
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- &bOpens a settings menu in which you can change the render distance of the pipes."));
-					if (cs.hasPermission(getConfig().getString("permissions.tps", "tp.tps")))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- &bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread."));
-					if (cs.hasPermission(getConfig().getString("permissions.reload", "tp.reload")))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- &bReloads all pipes or the config."));
-					if (cs.hasPermission(getConfig().getString("permissions.update", "tp.update")))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- &bChecks for a new plugin version at SpigotMC and updates the plugin if possible."));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
+					if (cs.hasPermission(generalConf.getPermissionTps()))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
+					if (cs.hasPermission(generalConf.getPermissionReload()))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
+					if (cs.hasPermission(generalConf.getPermissionUpdate()))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-------------------------------------------"));
 					return true;
 				}
 
 				if (noPerm) {
-					cs.sendMessage(ChatColor.RED + "You don't have permission to perform this command.");
+					cs.sendMessage(LocConf.load(LocConf.COMMANDS_NOPERM));
 				}
 
 				return true;
@@ -200,7 +186,7 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents((ModelledPipeManager) modelledPipeManager, this);
 
 		updateManager = new UpdateManager(this);
-		if (getConfig().getBoolean("check_updates_onjoin")) {
+		if (generalConf.isCheckUpdates()) {
 			Bukkit.getPluginManager().registerEvents(updateManager, this);
 		}
 
@@ -286,10 +272,6 @@ public class TransportPipes extends JavaPlugin {
 
 	public static BlockLoc convertBlockLoc(Location blockLoc) {
 		return new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
-	}
-
-	public static String getFormattedConfigString(String key) {
-		return ChatColor.translateAlternateColorCodes('&', TransportPipes.instance.getConfig().getString(key));
 	}
 
 	public PipeManager[] getAllPipeManagers() {

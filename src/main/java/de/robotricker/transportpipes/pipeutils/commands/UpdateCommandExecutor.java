@@ -9,7 +9,7 @@ public class UpdateCommandExecutor implements PipesCommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender cs) {
 
-		if (!cs.hasPermission(TransportPipes.instance.getConfig().getString("permissions.update", "tp.update"))) {
+		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionUpdate())) {
 			return false;
 		}
 
