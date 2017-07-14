@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes.pipeutils.commands;
 
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -17,7 +16,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs) {
-		if (!cs.hasPermission(TransportPipes.instance.getConfig().getString("permissions.tps", "tp.tps"))) {
+		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionTps())) {
 			return false;
 		}
 		int tps = PipeThread.getCalculatedTps();
@@ -32,18 +31,9 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 			colour = ChatColor.GREEN;
 		}
 
-		int armorStandSendsSinceServerStart = 0;
-		Map<World, List<Integer>> allWorldEntityIds = TransportPipes.pipePacketManager.allWorldEntityIds;
-		synchronized (allWorldEntityIds) {
-			for (World w : allWorldEntityIds.keySet()) {
-				armorStandSendsSinceServerStart += allWorldEntityIds.get(w).size();
-			}
-		}
-
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Tick duration: " + colour + (PipeThread.timeTick / 10000) / 100f + "ms"));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6TPS: " + colour + tps + " &6/ §2" + PipeThread.WANTED_TPS));
-		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Armorstands sent since server start: &e" + armorStandSendsSinceServerStart));
 
 		for (World world : Bukkit.getWorlds()) {
 			int worldPipes = 0;

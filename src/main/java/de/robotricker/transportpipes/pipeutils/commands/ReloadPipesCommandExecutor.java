@@ -8,11 +8,11 @@ public class ReloadPipesCommandExecutor implements PipesCommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs) {
-		if (!cs.hasPermission(TransportPipes.instance.getConfig().getString("permissions.reload", "tp.reload"))) {
+		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionReload())) {
 			return false;
 		}
 		TransportPipes.pipePacketManager.reloadPipesAndItems();
-		cs.sendMessage(TransportPipes.instance.PREFIX + "Pipes reloaded");
+		cs.sendMessage("§cPipes reloaded");
 		return true;
 	}
 

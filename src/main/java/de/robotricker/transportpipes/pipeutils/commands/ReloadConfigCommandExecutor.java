@@ -8,15 +8,13 @@ public class ReloadConfigCommandExecutor implements PipesCommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs) {
-		if (!cs.hasPermission(TransportPipes.instance.getConfig().getString("permissions.reload", "tp.reload"))) {
+		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionReload())) {
 			return false;
 		}
-		TransportPipes.instance.reloadConfig();
 
-		TransportPipes.antiCheatPlugins.clear();
-		TransportPipes.antiCheatPlugins.addAll(TransportPipes.instance.getConfig().getStringList("anticheat"));
-
-		cs.sendMessage(TransportPipes.instance.PREFIX + "Config reloaded");
+		//TODO: reload configs
+		
+		cs.sendMessage("§cConfig reloaded");
 		return true;
 	}
 
