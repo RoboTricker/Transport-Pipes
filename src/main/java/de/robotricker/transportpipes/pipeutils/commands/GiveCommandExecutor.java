@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.pipeutils.commands;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeColor;
+import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,10 +21,10 @@ public class GiveCommandExecutor implements PipesCommandExecutor {
 		for (PipeType pipeType : PipeType.values()) {
 			if (pipeType == PipeType.COLORED) {
 				for (PipeColor pipeColor : PipeColor.values()) {
-					player.getInventory().addItem(TransportPipes.instance.getPipeItemForPlayer2(player, pipeType, pipeColor));
+					player.getInventory().addItem(PipeItemUtils.getPipeItem(pipeType, pipeColor));
 				}
 			} else {
-				player.getInventory().addItem(TransportPipes.instance.getPipeItemForPlayer2(player, pipeType, null));
+				player.getInventory().addItem(PipeItemUtils.getPipeItem(pipeType, null));
 			}
 		}
 		return true;
