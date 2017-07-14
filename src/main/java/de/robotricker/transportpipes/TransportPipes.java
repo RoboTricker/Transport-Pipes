@@ -170,7 +170,7 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
 					if (cs.hasPermission(generalConf.getPermissionUpdate()))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
-					if (cs.hasPermission((generalConf.getPermissionGive())
+					if (cs.hasPermission(generalConf.getPermissionGive()))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes give &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_GIVE)));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-------------------------------------------"));
 					return true;

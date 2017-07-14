@@ -44,6 +44,10 @@ public class GeneralConf extends Conf {
 		return (String) read("permissions.update");
 	}
 
+	public String getPermissionGive() {
+		return (String) read("permissions.give");
+	}
+
 	public List<String> getAnticheatPlugins() {
 		return (List<String>) read("anticheat_plugins");
 	}

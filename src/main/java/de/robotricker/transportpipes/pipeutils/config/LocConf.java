@@ -34,6 +34,7 @@ public class LocConf extends Conf {
 	public static final String COMMANDS_DESCRIPTION_TPS = "commands.description.tps";
 	public static final String COMMANDS_DESCRIPTION_RELOAD = "commands.description.reload";
 	public static final String COMMANDS_DESCRIPTION_UPDATE = "commands.description.update";
+	public static final String COMMANDS_DESCRIPTION_GIVE = "commands.description.give";
 	public static final String COMMANDS_NOPERM = "commands.noperm";
 
 	public LocConf() {
@@ -62,6 +63,7 @@ public class LocConf extends Conf {
 		saveAsDefault(COMMANDS_DESCRIPTION_TPS, "&bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread");
 		saveAsDefault(COMMANDS_DESCRIPTION_RELOAD, "&bReloads all pipes or the config");
 		saveAsDefault(COMMANDS_DESCRIPTION_UPDATE, "&bChecks for a new plugin version at SpigotMC and updates the plugin if possible");
+		saveAsDefault(COMMANDS_DESCRIPTION_GIVE, "&bGives you the full set of available pipes, useful for creative mode or testing");
 		saveAsDefault(COMMANDS_NOPERM, "&4You don't have permission to perform this command.");
 		finishDefault();
 	}
