@@ -58,7 +58,7 @@ public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
 	
-	public static PipeThread pipeThread;
+	private static PipeThread pipeThread;
 	public static ArmorStandProtocol armorStandProtocol;
 	public static PipePacketManager pipePacketManager;
 
@@ -86,7 +86,7 @@ public class TransportPipes extends JavaPlugin {
 		locConf = new LocConf();
 		generalConf = new GeneralConf();
 
-		renderSystems = new ArrayList<PipeRenderSystem>();
+		renderSystems = new ArrayList<>();
 		renderSystems.add(new VanillaPipeManager(armorStandProtocol));
 		renderSystems.add(new ModelledPipeManager(armorStandProtocol));
 

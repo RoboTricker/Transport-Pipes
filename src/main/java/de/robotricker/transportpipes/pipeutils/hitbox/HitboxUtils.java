@@ -30,11 +30,11 @@ import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 
 public class HitboxUtils {
 
-	public final static int HITBOX_RANGE = 5;
+	private final static int HITBOX_RANGE = 5;
 	private final static Set<Material> LINE_OF_SIGHT_SET;
 
 	static {
-		LINE_OF_SIGHT_SET = new HashSet<Material>();
+		LINE_OF_SIGHT_SET = new HashSet<>();
 		LINE_OF_SIGHT_SET.add(Material.WATER);
 		LINE_OF_SIGHT_SET.add(Material.STATIONARY_WATER);
 		LINE_OF_SIGHT_SET.add(Material.LAVA);

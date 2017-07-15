@@ -15,15 +15,13 @@ public class ModelledPipeCOLOREDModel extends ModelledPipeModel {
 	public ArmorStandData createMidASD(ModelledPipeMidModelData data) {
 		ItemStack hoe = data.getColoredPipe_pipeColor().getModelledModel_MidHoeItem();
 
-		ArmorStandData asd = new ArmorStandData(new RelLoc(0.5f, 0.5f - 1.1875f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
-
-		return asd;
+		return new ArmorStandData(new RelLoc(0.5f, 0.5f - 1.1875f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
 	}
 
 	@Override
 	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
 		ItemStack hoe = data.getColoredPipe_pipeColor().getModelledModel_ConnHoeItem();
-		ArmorStandData asd = null;
+		ArmorStandData asd;
 
 		if (data.getConnDirection() == PipeDirection.UP) {
 			asd = new ArmorStandData(new RelLoc(0.75f, 0.5f - 1.4369f, 0.5f), new Vector(1, 0, 0), false, hoe, null, new Vector(-90f, 0f, 0f), new Vector(0f, 0f, 0f));

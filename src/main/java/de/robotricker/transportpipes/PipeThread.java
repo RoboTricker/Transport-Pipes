@@ -114,7 +114,7 @@ public class PipeThread extends Thread {
 				long timeBefore = System.nanoTime();
 
 				//in this list are the items stored which are already processed in this tick (in order to not process an item 2 times in one tick)
-				List<PipeItem> itemsTicked = new ArrayList<PipeItem>();
+				List<PipeItem> itemsTicked = new ArrayList<>();
 
 				//update pipes
 				for (World world : Bukkit.getWorlds()) {

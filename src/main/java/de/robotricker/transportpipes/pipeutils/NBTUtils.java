@@ -52,7 +52,7 @@ public class NBTUtils {
 
 	public static List<Tag> readListTag(Tag tag) {
 		if (tag == null) {
-			return new ArrayList<Tag>();
+			return new ArrayList<>();
 		}
 		return ((ListTag) tag).getValue();
 	}

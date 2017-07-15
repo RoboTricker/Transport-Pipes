@@ -7,7 +7,7 @@ permissions:
   tps: 'tp.tps'
   reload: 'tp.reload'
   update: 'tp.update'
-  give: 'tp.give'
+  creative: 'tp.creative'
 pipename:
   pipe: 'Pipe'
   golden_pipe: 'Golden-Pipe'

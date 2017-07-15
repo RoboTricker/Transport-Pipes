@@ -49,7 +49,7 @@ public class SavingManager implements Listener {
 		saving = true;
 		int pipesCount = 0;
 		try {
-			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<World, List<HashMap<String, Tag>>>();
+			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<>();
 
 			//cache worlds
 			for (World world : Bukkit.getWorlds()) {
@@ -62,7 +62,7 @@ public class SavingManager implements Listener {
 					synchronized (pipeMap) {
 						for (Pipe pipe : pipeMap.values()) {
 							//save individual pipe
-							HashMap<String, Tag> tags = new HashMap<String, Tag>();
+							HashMap<String, Tag> tags = new HashMap<>();
 							pipe.saveToNBTTag(tags);
 							pipeList.add(tags);
 							pipesCount++;
@@ -105,8 +105,7 @@ public class SavingManager implements Listener {
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);
 					out.close();
-				} catch (FileNotFoundException e) {
-
+				} catch (FileNotFoundException ignored) {
 				}
 			}
 
@@ -141,9 +140,6 @@ public class SavingManager implements Listener {
 			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
 
 			CompoundTag compound = (CompoundTag) in.readTag();
-
-			String pluginVersion = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"), null);
-			long lastSave = NBTUtils.readLongTag(compound.getValue().get("LastSave"), 0);
 
 			List<Tag> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
 

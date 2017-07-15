@@ -31,7 +31,7 @@ public class VanillaPipeNSModel extends VanillaPipeModel {
 	}
 
 	private List<ArmorStandData> createColoredASD(PipeColor pc) {
-		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> asds = new ArrayList<>();
 		ItemStack block = pc.getVanillaModel_GlassItem();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.44f, -0.35f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)));
@@ -46,7 +46,7 @@ public class VanillaPipeNSModel extends VanillaPipeModel {
 	}
 
 	private List<ArmorStandData> createIceASD() {
-		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> asds = new ArrayList<>();
 		ItemStack block = ITEM_ICE_BLOCK;
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.44f, -0.35f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)));
