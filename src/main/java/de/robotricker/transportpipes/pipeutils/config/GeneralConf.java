@@ -13,6 +13,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("max_items_per_pipe", 10);
 		saveAsDefault("crafting_enabled", true);
 		saveAsDefault("check_updates", true);
+		saveAsDefault("destroy_pipe_on_explosion", true);
 		saveAsDefault("permissions.tps", "tp.tps");
 		saveAsDefault("permissions.reload", "tp.reload");
 		saveAsDefault("permissions.update", "tp.update");
@@ -31,6 +32,10 @@ public class GeneralConf extends Conf {
 
 	public boolean isCheckUpdates() {
 		return (boolean) read("check_updates");
+	}
+
+	public boolean isDestroyPipeOnExplosion() {
+		return (boolean) read("destroy_pipe_on_explosion");
 	}
 
 	public String getPermissionTps() {

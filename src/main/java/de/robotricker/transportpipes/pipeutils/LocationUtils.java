@@ -1,15 +1,12 @@
 package de.robotricker.transportpipes.pipeutils;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class LocationUtils {
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 
-	private LocationUtils() {
-	}
+public class LocationUtils {
 
 	public static List<Block> getNearbyBlocks(Location location, int radius) {
 		List<Block> blocks = new ArrayList<>();
