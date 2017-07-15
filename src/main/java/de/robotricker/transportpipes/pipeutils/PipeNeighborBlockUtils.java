@@ -17,8 +17,9 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class PipeNeighborBlockUtils implements Listener {
 
@@ -62,15 +63,15 @@ public class PipeNeighborBlockUtils implements Listener {
 	 */
 	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(toUpdate.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(toUpdate.getWorld());
 
 		if (pipeMap != null) {
 			for (PipeDirection pd : PipeDirection.values()) {
 				PipeDirection opposite = pd.getOpposite();
 				Location blockLoc = toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
-				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-					final Pipe pipe = pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
+				if (pipeMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
+					final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(blockLoc));
 					if (add) {
 						//add pipe neighbor block
 						if (!pipe.pipeNeighborBlocks.contains(opposite)) {

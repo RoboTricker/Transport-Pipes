@@ -13,6 +13,7 @@ import org.bukkit.material.MaterialData;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipes.colored.PipeColor;
 
 public class CraftUtils implements Listener {
 

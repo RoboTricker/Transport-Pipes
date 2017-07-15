@@ -21,12 +21,12 @@ import org.bukkit.material.Lever;
 import org.bukkit.material.TrapDoor;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeDirection;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.PipeUtils;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
-import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
+import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 
 public class HitboxUtils {
 
@@ -55,7 +55,7 @@ public class HitboxUtils {
 	}
 
 	public static PipeDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
-		return TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getClickedPipeFace(p, pipe);
+		return TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, pipe);
 	}
 
 	public static Block getPipeLookingTo(Player p, Block clickedBlock) {
@@ -67,7 +67,7 @@ public class HitboxUtils {
 		int indexOfClickedBlock = -1;
 		int i = 0;
 
-		PipeManager playerPipeManager = TransportPipes.armorStandProtocol.getPlayerPipeManager(p);
+		PipeRenderSystem playerPipeManager = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p);
 
 		while (currentBlock == null) {
 
@@ -110,7 +110,7 @@ public class HitboxUtils {
 	 * gets the neighbor block of the pipe (calculated by the player direction ray and the pipe hitbox)
 	 */
 	public static Block getRelativeBlockOfPipe(Player p, Block pipeLoc) {
-		PipeDirection pd = TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
+		PipeDirection pd = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
 		return pd != null ? pipeLoc.getRelative(pd.toBlockFace()) : null;
 	}
 
@@ -143,14 +143,14 @@ public class HitboxUtils {
 	 * "simulate" a block place when you click on the side of a pipe
 	 */
 	public static boolean placeBlock(Player p, Block b, Block placedAgainst, int id, byte data, EquipmentSlot es) {
-		if (!TransportPipes.canBuild(p, b, placedAgainst, es)) {
+		if (!PipeUtils.canBuild(p, b, placedAgainst, es)) {
 			return false;
 		}
 		//check if there is already a pipe at this position
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(b.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(b.getWorld());
 		if (pipeMap != null) {
-			if (pipeMap.containsKey(TransportPipes.convertBlockLoc(b.getLocation()))) {
+			if (pipeMap.containsKey(BlockLoc.convertBlockLoc(b.getLocation()))) {
 				return false;
 			}
 		}

@@ -9,8 +9,8 @@ import org.bukkit.command.CommandSender;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class TPSCommandExecutor implements PipesCommandExecutor {
 
@@ -38,7 +38,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 		for (World world : Bukkit.getWorlds()) {
 			int worldPipes = 0;
 			int worldItems = 0;
-			Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+			Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 			if (pipeMap != null) {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {

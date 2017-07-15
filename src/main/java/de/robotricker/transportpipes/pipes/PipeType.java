@@ -3,24 +3,37 @@ package de.robotricker.transportpipes.pipes;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
+import de.robotricker.transportpipes.pipes.colored.PipeColor;
+import de.robotricker.transportpipes.pipes.types.ColoredPipe;
+import de.robotricker.transportpipes.pipes.types.GoldenPipe;
+import de.robotricker.transportpipes.pipes.types.IcePipe;
+import de.robotricker.transportpipes.pipes.types.IronPipe;
+import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public enum PipeType {
 
-	COLORED(0),
-	GOLDEN(1),
-	IRON(2),
-	ICE(3);
+	COLORED(0, "", LocConf.PIPES_COLORED),
+	GOLDEN(1, "§6", LocConf.PIPES_GOLDEN),
+	IRON(2, "§7", LocConf.PIPES_IRON),
+	ICE(3, "§b", LocConf.PIPES_ICE);
 
 	private int id;
+	private String pipeName_colorCode;
+	private String pipeName_locConfKey;
 
-	private PipeType(int id) {
+	private PipeType(int id, String pipeName_colorCode, String pipeName_locConfKey) {
 		this.id = id;
+		this.pipeName_colorCode = pipeName_colorCode;
+		this.pipeName_locConfKey = pipeName_locConfKey;
 	}
 
 	public int getId() {
 		return id;
+	}
+
+	public String getFormattedPipeName() {
+		return pipeName_colorCode + LocConf.load(pipeName_locConfKey);
 	}
 
 	public Pipe createPipe(Location blockLoc, PipeColor pc) {
@@ -54,17 +67,13 @@ public enum PipeType {
 		}
 		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
 			String displayName = item.getItemMeta().getDisplayName();
-			if (displayName.equals(TransportPipes.instance.ICE_PIPE_NAME)) {
-				return PipeType.ICE;
-			}
-			if (displayName.equals(TransportPipes.instance.GOLDEN_PIPE_NAME)) {
-				return PipeType.GOLDEN;
-			}
-			if (displayName.equals(TransportPipes.instance.IRON_PIPE_NAME)) {
-				return PipeType.IRON;
-			}
 			if (PipeColor.getPipeColorByPipeItem(item) != null) {
 				return PipeType.COLORED;
+			}
+			for (PipeType pt : PipeType.values()) {
+				if (displayName.equals(pt.getFormattedPipeName())) {
+					return pt;
+				}
 			}
 		}
 		return null;
