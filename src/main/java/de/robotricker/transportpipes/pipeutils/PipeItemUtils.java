@@ -7,21 +7,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipes.colored.PipeColor;
 
 public class PipeItemUtils {
 
-	public static final ItemStack ITEM_PIPE_WHITE = createNamedItemStack(Material.BLAZE_ROD, PipeColor.WHITE.getColorCode() + TransportPipes.instance.PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_BLUE = createNamedItemStack(Material.BLAZE_ROD, PipeColor.BLUE.getColorCode() + TransportPipes.instance.PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_RED = createNamedItemStack(Material.BLAZE_ROD, PipeColor.RED.getColorCode() + TransportPipes.instance.PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_YELLOW = createNamedItemStack(Material.BLAZE_ROD, PipeColor.YELLOW.getColorCode() + TransportPipes.instance.PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_GREEN = createNamedItemStack(Material.BLAZE_ROD, PipeColor.GREEN.getColorCode() + TransportPipes.instance.PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_BLACK = createNamedItemStack(Material.BLAZE_ROD, PipeColor.BLACK.getColorCode() + TransportPipes.instance.PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_GOLDEN = createNamedItemStack(Material.BLAZE_ROD, TransportPipes.instance.GOLDEN_PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_IRON = createNamedItemStack(Material.BLAZE_ROD, TransportPipes.instance.IRON_PIPE_NAME);
-	public static final ItemStack ITEM_PIPE_ICE = createNamedItemStack(Material.BLAZE_ROD, TransportPipes.instance.ICE_PIPE_NAME);
-	public static final ItemStack ITEM_WRENCH = createNamedItemStack(Material.STICK, TransportPipes.instance.WRENCH_NAME);
+	public static final ItemStack ITEM_PIPE_WHITE = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_BLUE = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_RED = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_YELLOW = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_GREEN = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_BLACK = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_GOLDEN = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_IRON = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_PIPE_ICE = new ItemStack(Material.BLAZE_ROD);
+	public static final ItemStack ITEM_WRENCH = new ItemStack(Material.STICK);
 
-	private static ItemStack createNamedItemStack(Material type, String name) {
+	public static ItemStack createNamedItemStack(Material type, String name) {
 		ItemStack is = new ItemStack(type, 1);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(name);
@@ -39,43 +40,50 @@ public class PipeItemUtils {
 		is.setItemMeta(im);
 		return is;
 	}
+	
+	public static ItemStack changeDisplayName(ItemStack is, String displayName){
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(displayName);
+		is.setItemMeta(im);
+		return is;
+	}
 
 	public static ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
 		switch (pipeType) {
 		case COLORED:
 			switch (pipeColor) {
 			case WHITE:
-				return ITEM_PIPE_WHITE;
+				return changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 			case BLUE:
-				return ITEM_PIPE_BLUE;
+				return changeDisplayName(ITEM_PIPE_BLUE, PipeColor.BLUE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 			case RED:
-				return ITEM_PIPE_RED;
+				return changeDisplayName(ITEM_PIPE_RED, PipeColor.RED.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 			case YELLOW:
-				return ITEM_PIPE_YELLOW;
+				return changeDisplayName(ITEM_PIPE_YELLOW, PipeColor.YELLOW.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 			case GREEN:
-				return ITEM_PIPE_GREEN;
+				return changeDisplayName(ITEM_PIPE_GREEN, PipeColor.GREEN.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 			case BLACK:
-				return ITEM_PIPE_BLACK;
+				return changeDisplayName(ITEM_PIPE_BLACK, PipeColor.BLACK.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 			default:
 				return null;
 			}
 		case GOLDEN:
-			return ITEM_PIPE_GOLDEN;
+			return changeDisplayName(ITEM_PIPE_GOLDEN, PipeType.GOLDEN.getFormattedPipeName());
 		case IRON:
-			return ITEM_PIPE_IRON;
+			return changeDisplayName(ITEM_PIPE_IRON, PipeType.IRON.getFormattedPipeName());
 		case ICE:
-			return ITEM_PIPE_ICE;
+			return changeDisplayName(ITEM_PIPE_ICE, PipeType.ICE.getFormattedPipeName());
 		default:
 			return null;
 		}
 	}
 
 	public static ItemStack getWrenchItem() {
-		return ITEM_WRENCH;
+		return changeDisplayName(ITEM_WRENCH, TransportPipes.instance.getFormattedWrenchName());
 	}
 
 	public static boolean isItemStackWrench(ItemStack clickedItem) {
-		return ITEM_WRENCH.isSimilar(clickedItem);
+		return changeDisplayName(ITEM_WRENCH, TransportPipes.instance.getFormattedWrenchName()).isSimilar(clickedItem);
 	}
 
 }

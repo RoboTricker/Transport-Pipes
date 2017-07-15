@@ -6,7 +6,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class PlayerDestroyPipeEvent extends Event implements Cancellable {
 

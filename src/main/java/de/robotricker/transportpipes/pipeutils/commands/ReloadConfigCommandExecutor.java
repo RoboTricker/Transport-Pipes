@@ -12,7 +12,8 @@ public class ReloadConfigCommandExecutor implements PipesCommandExecutor {
 			return false;
 		}
 
-		//TODO: reload configs
+		TransportPipes.instance.generalConf.reload();
+		TransportPipes.instance.locConf.reload();
 		
 		cs.sendMessage("§cConfig reloaded");
 		return true;

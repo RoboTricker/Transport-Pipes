@@ -17,29 +17,29 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.manager.settings.SettingsManager;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.settings.SettingsUtils;
 
 public class PipePacketManager implements Listener {
 
 	//not really(!) thread safe! Handle in main thread!
-	public Map<World, List<Integer>> allWorldEntityIds = Collections.synchronizedMap(new HashMap<World, List<Integer>>());
+	//public Map<World, List<Integer>> allWorldEntityIds = Collections.synchronizedMap(new HashMap<World, List<Integer>>());
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 
 	public void createPipe(Pipe pipe, List<PipeDirection> allConnections) {
-		for (PipeManager pm : TransportPipes.instance.getAllPipeManagers()) {
+		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.createPipeASD(pipe, allConnections);
 		}
 		//client update is done in the next tick
 	}
 
 	public void updatePipe(Pipe pipe) {
-		for (PipeManager pm : TransportPipes.instance.getAllPipeManagers()) {
+		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.updatePipeASD(pipe);
 		}
 		//client update is done inside the PipeManager method call (that's because here you don't know which ArmorStands to remove and which ones to add)
@@ -49,7 +49,7 @@ public class PipePacketManager implements Listener {
 		for (Player p : pipesForPlayers.keySet()) {
 			despawnPipe(p, pipe);
 		}
-		for (PipeManager pm : TransportPipes.instance.getAllPipeManagers()) {
+		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.destroyPipeASD(pipe);
 		}
 	}
@@ -57,7 +57,7 @@ public class PipePacketManager implements Listener {
 	public void createPipeItem(PipeItem pipeItem) {
 		try {
 			for (Player on : pipeItem.getBlockLoc().getWorld().getPlayers()) {
-				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
+				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 					spawnItem(on, pipeItem);
 				}
 			}
@@ -69,7 +69,7 @@ public class PipePacketManager implements Listener {
 	public void updatePipeItem(PipeItem pipeItem) {
 		try {
 			for (Player on : pipeItem.getBlockLoc().getWorld().getPlayers()) {
-				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
+				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 					TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
 				}
 			}
@@ -91,7 +91,7 @@ public class PipePacketManager implements Listener {
 		}
 		list = pipesForPlayers.get(p);
 		if (!list.contains(pipe)) {
-			List<ArmorStandData> ASD = TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getASDForPipe(pipe);
+			List<ArmorStandData> ASD = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDForPipe(pipe);
 			if (ASD != null && !ASD.isEmpty()) {
 				list.add(pipe);
 				TransportPipes.armorStandProtocol.sendArmorStandDatas(p, pipe.getBlockLoc(), ASD);
@@ -116,7 +116,7 @@ public class PipePacketManager implements Listener {
 			List<Pipe> list = pipesForPlayers.get(p);
 			if (list.contains(pipe)) {
 				list.remove(pipe);
-				TransportPipes.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.armorStandProtocol.getPlayerPipeManager(p).getASDIdsForPipe(pipe));
+				TransportPipes.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDIdsForPipe(pipe));
 			}
 		}
 	}
@@ -134,13 +134,13 @@ public class PipePacketManager implements Listener {
 	public void tickSync() {
 
 		for (World world : Bukkit.getWorlds()) {
-			Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+			Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 			if (pipeMap != null) {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {
 						try {
 							for (Player on : world.getPlayers()) {
-								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
+								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 									//spawn pipe if not spawned
 									spawnPipe(on, pipe);
 								} else {
@@ -150,61 +150,10 @@ public class PipePacketManager implements Listener {
 
 								for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
 									PipeItem item = (PipeItem) pipe.pipeItems.keySet().toArray()[i2];
-									if (item.getBlockLoc().distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
+									if (item.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 										spawnItem(on, item);
 									} else {
 										despawnItem(on, item);
-									}
-								}
-
-							}
-						} catch (IllegalStateException e) {
-							handleAsyncError(e);
-						}
-
-					}
-				}
-
-			}
-		}
-	}
-
-	public void reloadPipesAndItems() {
-
-		pipesForPlayers.clear();
-		itemsForPlayers.clear();
-
-		synchronized (allWorldEntityIds) {
-			for (World w : allWorldEntityIds.keySet()) {
-				List<Integer> entityIds = allWorldEntityIds.get(w);
-				int[] entityIdsArray = new int[entityIds.size()];
-				for (int i = 0; i < entityIds.size(); i++) {
-					entityIdsArray[i] = entityIds.get(i);
-				}
-				for (Player p : w.getPlayers()) {
-					TransportPipes.armorStandProtocol.removeArmorStandDatas(p, entityIdsArray);
-				}
-			}
-		}
-
-		allWorldEntityIds.clear();
-
-		for (World world : Bukkit.getWorlds()) {
-			Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
-			if (pipeMap != null) {
-				synchronized (pipeMap) {
-					for (Pipe pipe : pipeMap.values()) {
-						try {
-							for (Player on : world.getPlayers()) {
-								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
-									//spawn pipe if not spawned
-									spawnPipe(on, pipe);
-								}
-
-								for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
-									PipeItem item = (PipeItem) pipe.pipeItems.keySet().toArray()[i2];
-									if (item.getBlockLoc().distance(on.getLocation()) <= SettingsManager.getViewDistance(on)) {
-										spawnItem(on, item);
 									}
 								}
 

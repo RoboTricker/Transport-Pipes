@@ -49,7 +49,7 @@ public class UpdateManager implements Listener {
 
 			@Override
 			public void upToDate() {
-				
+
 			}
 		});
 	}
@@ -64,12 +64,12 @@ public class UpdateManager implements Listener {
 
 	@EventHandler
 	public void onJoin(final PlayerJoinEvent e) {
-		if (e.getPlayer().hasPermission(TransportPipes.instance.getConfig().getString("permissions.update", "tp.update"))) {
+		if (e.getPlayer().hasPermission(TransportPipes.instance.getConfig().getString("permissions.update", "tp.update")) && TransportPipes.instance.generalConf.isCheckUpdates()) {
 			Bukkit.getScheduler().runTaskLater(TransportPipes.instance, new Runnable() {
 
 				@Override
 				public void run() {
-					TransportPipes.updateManager.checkForUpdates(e.getPlayer());
+					checkForUpdates(e.getPlayer());
 				}
 			}, 60L);
 		}

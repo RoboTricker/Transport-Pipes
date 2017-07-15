@@ -30,15 +30,18 @@ public class LocConf extends Conf {
 	public static final String SETTINGS_RENDERDISTANCE_DECREASE = "settings.renderdistance.decrease";
 	public static final String SETTINGS_RENDERDISTANCE_INCREASE = "settings.renderdistance.increase";
 	public static final String SETTINGS_RENDERDISTANCE_DESCRIPTION = "settings.renderdistance.description";
+	public static final String SETTINGS_RENDERSYSTEM_TITLE = "settings.rendersystem.title";
+	public static final String SETTINGS_RENDERSYSTEM_DESCRIPTION = "settings.rendersystem.description";
 	public static final String COMMANDS_DESCRIPTION_SETTINGS = "commands.description.settings";
 	public static final String COMMANDS_DESCRIPTION_TPS = "commands.description.tps";
 	public static final String COMMANDS_DESCRIPTION_RELOAD = "commands.description.reload";
 	public static final String COMMANDS_DESCRIPTION_UPDATE = "commands.description.update";
-	public static final String COMMANDS_DESCRIPTION_GIVE = "commands.description.give";
+	public static final String COMMANDS_DESCRIPTION_CREATIVE = "commands.description.creative";
 	public static final String COMMANDS_NOPERM = "commands.noperm";
+	public static final String CREATIVE_TITLE = "creative.title";
 
 	public LocConf() {
-		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + "localization.yml"));
+		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "localization.yml"));
 		saveAsDefault(PIPES_COLORED, "Pipe");
 		saveAsDefault(PIPES_ICE, "Ice-Pipe");
 		saveAsDefault(PIPES_GOLDEN, "Golden-Pipe");
@@ -55,16 +58,19 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_FILTERING_CHECKNBT, "&7Current Mode: &aCHECK NBT");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
-		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%s%");
+		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DECREASE, "&6Decrease");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_INCREASE, "&6Increase");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DESCRIPTION, Arrays.asList("&7The Render Distance represents", "&7the distance in blocks in which you", "&7can see pipes."));
+		saveAsDefault(SETTINGS_RENDERSYSTEM_TITLE, "&6Your Pipe Render System: &b%s");
+		saveAsDefault(SETTINGS_RENDERSYSTEM_DESCRIPTION, Arrays.asList("&7Click to switch between Vanilla", "&7and Modelled Render System.", "&7The Modelled Render System uses a resourcepack.", "&7The Vanilla Render System", "&7uses the Vanilla Minecraft textures."));
 		saveAsDefault(COMMANDS_DESCRIPTION_SETTINGS, "&bOpens a player-specific settings menu");
 		saveAsDefault(COMMANDS_DESCRIPTION_TPS, "&bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread");
 		saveAsDefault(COMMANDS_DESCRIPTION_RELOAD, "&bReloads all pipes or the config");
 		saveAsDefault(COMMANDS_DESCRIPTION_UPDATE, "&bChecks for a new plugin version at SpigotMC and updates the plugin if possible");
-		saveAsDefault(COMMANDS_DESCRIPTION_GIVE, "&bGives you the full set of available pipes, useful for creative mode or testing");
+		saveAsDefault(COMMANDS_DESCRIPTION_CREATIVE, "&bOpens an inventory with every pipe inside it.");
 		saveAsDefault(COMMANDS_NOPERM, "&4You don't have permission to perform this command.");
+		saveAsDefault(CREATIVE_TITLE, "Pipe Overview");
 		finishDefault();
 	}
 

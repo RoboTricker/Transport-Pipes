@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.pipeutils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -17,10 +18,12 @@ import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
-import de.robotricker.transportpipes.pipes.GoldenPipe;
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.types.GoldenPipe;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
 
 public class InventoryUtils {
@@ -314,6 +317,27 @@ public class InventoryUtils {
 			e.printStackTrace();
 		}
 		return yaml.getItemStack("item", null);
+	}
+	
+
+	public static ItemStack changeDisplayNameAndLore(ItemStack is, String displayName, String... lore) {
+		ItemMeta meta = is.getItemMeta();
+		meta.setDisplayName(displayName);
+		meta.setLore(Arrays.asList(lore));
+		is.setItemMeta(meta);
+		return is;
+	}
+
+	public static boolean hasDisplayName(ItemStack is, String displayName) {
+		return is != null && is.hasItemMeta() && is.getItemMeta().hasDisplayName() && is.getItemMeta().getDisplayName().equals(displayName);
+	}
+
+	public static ItemStack changeDisplayNameAndLoreConfig(ItemStack is, String displayName, List<String> lore) {
+		ItemMeta meta = is.getItemMeta();
+		meta.setDisplayName(displayName);
+		meta.setLore(lore);
+		is.setItemMeta(meta);
+		return is;
 	}
 
 }

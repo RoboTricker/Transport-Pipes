@@ -11,7 +11,8 @@ public class ReloadPipesCommandExecutor implements PipesCommandExecutor {
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionReload())) {
 			return false;
 		}
-		TransportPipes.pipePacketManager.reloadPipesAndItems();
+		//TransportPipes.pipePacketManager.reloadPipesAndItems();
+		//TODO reload!
 		cs.sendMessage("§cPipes reloaded");
 		return true;
 	}

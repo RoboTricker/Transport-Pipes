@@ -1,12 +1,12 @@
 package de.robotricker.transportpipes.protocol;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -25,7 +25,10 @@ import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.protocol.pipemodels.PipeManager;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.settings.SettingsUtils;
 
 public class ArmorStandProtocol {
 
@@ -38,34 +41,23 @@ public class ArmorStandProtocol {
 	private static final Serializer vectorSerializer = Registry.get(ReflectionManager.getVector3fClass());
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
-	private Map<Player, PipeManager> pipeManagers;
-
-	public ArmorStandProtocol() {
-		pipeManagers = Collections.synchronizedMap(new HashMap<Player, PipeManager>());
+	public PipeRenderSystem getPlayerPipeRenderSystem(Player p) {
+		return SettingsUtils.loadPlayerSettings(p).getRenderSystem();
 	}
 
-	public PipeManager getPlayerPipeManager(Player p) {
-		if (pipeManagers.containsKey(p)) {
-			return pipeManagers.get(p);
-		}
-		pipeManagers.put(p, TransportPipes.vanillaPipeManager);
-		return pipeManagers.get(p);
-	}
-
-	public List<Player> getPlayersWithPipeManager(PipeManager pipeManager) {
+	public List<Player> getAllPlayersWithPipeManager(PipeRenderSystem renderSystem) {
 		List<Player> players = new ArrayList<Player>();
-		synchronized (pipeManagers) {
-			for (Player p : pipeManagers.keySet()) {
-				if (pipeManagers.get(p).equals(pipeManager)) {
-					players.add(p);
-				}
+		players.addAll(Bukkit.getOnlinePlayers());
+
+		Iterator<Player> it = players.iterator();
+		while (it.hasNext()) {
+			Player p = it.next();
+			//remove all players which don't use the given PipeRenderSystem
+			if (!getPlayerPipeRenderSystem(p).equals(renderSystem)) {
+				it.remove();
 			}
 		}
 		return players;
-	}
-	
-	public void setPlayerPipeManager(Player p, PipeManager pm){
-		pipeManagers.put(p, pm);
 	}
 
 	public void removePipeItem(final Player p, PipeItem item) {
@@ -91,6 +83,31 @@ public class ArmorStandProtocol {
 			moveWrapper.sendPacket(p);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void changePipeRenderSystem(Player p, PipeRenderSystem newRenderSystem) {
+		//despawn all old pipes
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
+		if (pipeMap != null) {
+			synchronized (pipeMap) {
+				for (Pipe pipe : pipeMap.values()) {
+					TransportPipes.pipePacketManager.despawnPipe(p, pipe);
+				}
+			}
+		}
+
+		//change render system
+		SettingsUtils.loadPlayerSettings(p).setRenderSystem(newRenderSystem.getRenderSystemId());
+		newRenderSystem.initPlayer(p);
+
+		//spawn all new pipes
+		if (pipeMap != null) {
+			synchronized (pipeMap) {
+				for (Pipe pipe : pipeMap.values()) {
+					TransportPipes.pipePacketManager.spawnPipe(p, pipe);
+				}
+			}
 		}
 	}
 
@@ -178,17 +195,6 @@ public class ArmorStandProtocol {
 					}
 				}
 			}, 1);
-
-			List<Integer> entityIds = null;
-			if (TransportPipes.pipePacketManager.allWorldEntityIds.containsKey(blockLoc.getWorld())) {
-				entityIds = TransportPipes.pipePacketManager.allWorldEntityIds.get(blockLoc.getWorld());
-			} else {
-				entityIds = new ArrayList<Integer>();
-				TransportPipes.pipePacketManager.allWorldEntityIds.put(blockLoc.getWorld(), entityIds);
-			}
-			if (!entityIds.contains(asd.getEntityID())) {
-				entityIds.add(asd.getEntityID());
-			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

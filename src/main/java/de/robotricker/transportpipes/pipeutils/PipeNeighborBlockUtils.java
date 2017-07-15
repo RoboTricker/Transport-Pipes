@@ -7,7 +7,6 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,9 +17,10 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.TransportPipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Pipe;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class PipeNeighborBlockUtils implements Listener {
 
@@ -61,13 +61,13 @@ public class PipeNeighborBlockUtils implements Listener {
 		if(!TransportPipes.instance.getConfig().getBoolean("damageable_pipes", false)) {
 			return;
 		}
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(e.getEntity().getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(e.getEntity().getWorld());
 		if(pipeMap == null) {
 			return;
 		}
 
 		for(Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
-			BlockLoc blockLoc = TransportPipes.convertBlockLoc(block.getLocation());
+			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
 			final Pipe pipe = pipeMap.get(blockLoc);
 			if(pipe == null) {
 				continue;
@@ -89,15 +89,15 @@ public class PipeNeighborBlockUtils implements Listener {
 	 */
 	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(toUpdate.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(toUpdate.getWorld());
 
 		if (pipeMap != null) {
 			for (PipeDirection pd : PipeDirection.values()) {
 				PipeDirection opposite = pd.getOpposite();
 				Location blockLoc = toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
-				if (pipeMap.containsKey(TransportPipes.convertBlockLoc(blockLoc))) {
-					final Pipe pipe = pipeMap.get(TransportPipes.convertBlockLoc(blockLoc));
+				if (pipeMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
+					final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(blockLoc));
 					if (add) {
 						//add pipe neighbor block
 						if (!pipe.pipeNeighborBlocks.contains(opposite)) {
@@ -141,7 +141,7 @@ public class PipeNeighborBlockUtils implements Listener {
 	 * ONLY IN MAIN THREAD gets block connection dirs (not pipe connections)
 	 */
 	public static List<PipeDirection> getOnlyNeighborBlocksConnectionsSync(final Location pipeLoc) {
-		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
+		List<PipeDirection> dirs = new ArrayList<>();
 		for (PipeDirection dir : PipeDirection.values()) {
 			Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
 			if (PipeNeighborBlockUtils.isIdInventoryHolder(blockLoc.getBlock().getTypeId())) {

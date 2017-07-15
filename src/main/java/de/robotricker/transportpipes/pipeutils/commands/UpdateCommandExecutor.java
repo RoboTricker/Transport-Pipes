@@ -13,7 +13,7 @@ public class UpdateCommandExecutor implements PipesCommandExecutor {
 			return false;
 		}
 
-		TransportPipes.updateManager.updatePlugin(cs);
+		TransportPipes.instance.getUpdateManager().updatePlugin(cs);
 
 		return true;
 	}

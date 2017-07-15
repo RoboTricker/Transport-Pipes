@@ -11,13 +11,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.ClickablePipe;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.interfaces.ClickablePipe;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
+import de.robotricker.transportpipes.pipes.PipeUtils;
+import de.robotricker.transportpipes.pipes.colored.PipeColor;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
 
 public class HitboxListener implements Listener {
 
@@ -58,7 +57,7 @@ public class HitboxListener implements Listener {
 			//****************************** LEFT CLICKED ON PIPE *******************************************
 			if (pipeBlock != null) {
 				e.setCancelled(true);
-				if (TransportPipes.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+				if (PipeUtils.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 					PipeUtils.destroyPipe(e.getPlayer(), PipeUtils.getPipeWithLocation(pipeBlock.getLocation()));
 				}
 			}
@@ -101,7 +100,7 @@ public class HitboxListener implements Listener {
 				if (pipeBlock != null) {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
-					if (TransportPipes.canBuild(p, placeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+					if (PipeUtils.canBuild(p, placeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 							HitboxUtils.decreaseItemInHand(p, mainHand);
 							return;
@@ -116,7 +115,7 @@ public class HitboxListener implements Listener {
 						canPlace = p.isSneaking();
 					}
 					if (canPlace) {
-						if (TransportPipes.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+						if (PipeUtils.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
 								e.setCancelled(true);
@@ -131,7 +130,7 @@ public class HitboxListener implements Listener {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof ClickablePipe) {
 					if (PipeItemUtils.isItemStackWrench(clickedItem)) {
-						if (TransportPipes.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+						if (PipeUtils.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							((ClickablePipe) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}

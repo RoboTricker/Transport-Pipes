@@ -11,13 +11,13 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.TransportPipes.BlockLoc;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.Pipe;
+import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeColor;
-import de.robotricker.transportpipes.pipeutils.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.PipeUtils;
+import de.robotricker.transportpipes.pipes.PipeUtils;
+import de.robotricker.transportpipes.pipes.colored.PipeColor;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 
 /**
  * 
@@ -62,7 +62,7 @@ public class PipeAPI {
 	public static int getPipeCount() {
 		int amount = 0;
 		for (World world : Bukkit.getWorlds()) {
-			Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+			Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 			if (pipeMap != null) {
 				amount += pipeMap.size();
 			}
@@ -74,7 +74,7 @@ public class PipeAPI {
 	 * returns the amount of pipes in the given world.
 	 */
 	public static int getPipeCount(World world) {
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 		if (pipeMap != null) {
 			return pipeMap.size();
 		}
@@ -94,8 +94,8 @@ public class PipeAPI {
 	public static Pipe getPipeAtLocation(Location blockLoc) {
 		World world = blockLoc.getWorld();
 		BlockLoc bl = new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
-		if (TransportPipes.getPipeMap(world) != null) {
-			return TransportPipes.getPipeMap(world).get(bl);
+		if (TransportPipes.instance.getPipeMap(world) != null) {
+			return TransportPipes.instance.getPipeMap(world).get(bl);
 		}
 		return null;
 	}
@@ -108,7 +108,7 @@ public class PipeAPI {
 	public static void destroyPipes(World world) {
 		List<Pipe> toDestroy = new ArrayList<>();
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.getPipeMap(world);
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 		if (pipeMap != null) {
 			synchronized (pipeMap) {
 				for (Pipe pipe : pipeMap.values()) {

@@ -3,7 +3,7 @@ package de.robotricker.transportpipes.protocol;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.pipeutils.RelLoc;
+import de.robotricker.transportpipes.pipeitems.RelLoc;
 
 public class ArmorStandData {
 
