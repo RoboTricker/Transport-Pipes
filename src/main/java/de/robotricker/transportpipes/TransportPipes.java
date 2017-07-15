@@ -136,6 +136,7 @@ public class TransportPipes extends JavaPlugin {
 						noPerm = true;
 					}
 				} else {
+					//TODO: header and footer in config
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-----------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m-----------"));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
 					if (cs.hasPermission(generalConf.getPermissionTps()))

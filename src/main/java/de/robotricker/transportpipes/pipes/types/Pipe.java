@@ -32,8 +32,7 @@ import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
 public abstract class Pipe {
 
-	private static int maxItemsPerPipe = 10;
-	private static final float ITEM_SPEED = 0.125f;//0.0625f;
+	public static final float ITEM_SPEED = 0.125f;//0.0625f;
 	public static final float ICE_ITEM_SPEED = 0.5f;
 	//calculate the amount of digits in 10^digits to shift all floats 
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
@@ -55,13 +54,6 @@ public abstract class Pipe {
 	//contains all PipeDirections which refer to an inventory block
 	//remember to synchronize while iterating
 	public final List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
-
-	static {
-		try {
-			maxItemsPerPipe = TransportPipes.instance.getConfig().getInt("max_items_per_pipe");
-		} catch (Exception ignored) {
-		}
-	}
 
 	public Pipe(Location blockLoc) {
 		this.blockLoc = blockLoc;
@@ -111,7 +103,7 @@ public abstract class Pipe {
 		transportItems(itemsTicked);
 
 		//pipe explosion if too many items
-		if (pipeItems.size() >= maxItemsPerPipe) {
+		if (pipeItems.size() >= TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
 			synchronized (this) {
 				explode(true);
 			}

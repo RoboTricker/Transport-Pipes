@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -58,21 +59,22 @@ public class PipeNeighborBlockUtils implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onExplosionPrime(ExplosionPrimeEvent e) {
-		if(!TransportPipes.instance.getConfig().getBoolean("damageable_pipes", false)) {
+		if (!TransportPipes.instance.generalConf.isDestroyPipeOnExplosion()) {
 			return;
 		}
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(e.getEntity().getWorld());
-		if(pipeMap == null) {
+		if (pipeMap == null) {
 			return;
 		}
 
-		for(Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
+		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
 			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
 			final Pipe pipe = pipeMap.get(blockLoc);
-			if(pipe == null) {
+			if (pipe == null) {
 				continue;
 			}
 			PipeThread.runTask(new Runnable() {
+
 				@Override
 				public void run() {
 					pipe.explode(false);
