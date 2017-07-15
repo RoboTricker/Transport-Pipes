@@ -4,14 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jnbt.ByteTag;
-import org.jnbt.DoubleTag;
-import org.jnbt.FloatTag;
-import org.jnbt.IntTag;
-import org.jnbt.ListTag;
-import org.jnbt.LongTag;
-import org.jnbt.StringTag;
-import org.jnbt.Tag;
+import org.jnbt.*;
 
 public class NBTUtils {
 
@@ -88,8 +81,8 @@ public class NBTUtils {
 		map.put(key, new ByteTag(key, value));
 	}
 
-	public static void saveListValue(Map<String, Tag> map, String key, Class<? extends Tag> tagClass, List<Tag> value) {
-		map.put(key, new ListTag(key, tagClass, value));
+	public static void saveListValue(Map<String, Tag> map, String key, NBTTagType tagType, List<Tag> value) {
+		map.put(key, new ListTag(key, tagType, value));
 	}
 
 }

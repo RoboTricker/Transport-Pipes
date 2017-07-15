@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.robotricker.transportpipes.pipeutils.commands.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -102,6 +103,7 @@ public class TransportPipes extends JavaPlugin {
 		final ReloadConfigCommandExecutor reloadConfigCmdExec = new ReloadConfigCommandExecutor();
 		final ReloadPipesCommandExecutor reloadPipesCmdExec = new ReloadPipesCommandExecutor();
 		final UpdateCommandExecutor updateCmdExec = new UpdateCommandExecutor();
+
 		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
 			@Override

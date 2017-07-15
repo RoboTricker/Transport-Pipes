@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -52,6 +53,31 @@ public class PipeNeighborBlockUtils implements Listener {
 			if (isIdInventoryHolder(b.getTypeId())) {
 				updatePipeNeighborBlockSync(b, false);
 			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onExplosionPrime(ExplosionPrimeEvent e) {
+		if(!TransportPipes.instance.getConfig().getBoolean("damageable_pipes", false)) {
+			return;
+		}
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(e.getEntity().getWorld());
+		if(pipeMap == null) {
+			return;
+		}
+
+		for(Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
+			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
+			final Pipe pipe = pipeMap.get(blockLoc);
+			if(pipe == null) {
+				continue;
+			}
+			PipeThread.runTask(new Runnable() {
+				@Override
+				public void run() {
+					pipe.explode(false);
+				}
+			}, 0);
 		}
 	}
 
@@ -115,7 +141,7 @@ public class PipeNeighborBlockUtils implements Listener {
 	 * ONLY IN MAIN THREAD gets block connection dirs (not pipe connections)
 	 */
 	public static List<PipeDirection> getOnlyNeighborBlocksConnectionsSync(final Location pipeLoc) {
-		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
+		List<PipeDirection> dirs = new ArrayList<>();
 		for (PipeDirection dir : PipeDirection.values()) {
 			Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
 			if (PipeNeighborBlockUtils.isIdInventoryHolder(blockLoc.getBlock().getTypeId())) {

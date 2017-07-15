@@ -48,7 +48,7 @@ public class GeneralConf extends Conf {
 	public String getPermissionCreative() {
 		return (String) read("permissions.creative");
 	}
-	
+
 	public List<String> getAnticheatPlugins() {
 		return (List<String>) read("anticheat_plugins");
 	}

@@ -40,8 +40,7 @@ public class PipeAPI {
 	/**
 	 * detroys the pipe on the given location.
 	 * 
-	 * @param dropItem
-	 *            if true the destroye pipe will drop the pipe item (blaze rod).
+	 * @param blockLoc location of the pipe
 	 */
 	public static void destroyPipe(Location blockLoc) {
 		Pipe pipe = PipeUtils.getPipeWithLocation(blockLoc);
@@ -96,7 +95,7 @@ public class PipeAPI {
 		World world = blockLoc.getWorld();
 		BlockLoc bl = new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
 		if (TransportPipes.instance.getPipeMap(world) != null) {
-			return TransportPipes.instance.getPipeMap(world).getOrDefault(bl, null);
+			return TransportPipes.instance.getPipeMap(world).get(bl);
 		}
 		return null;
 	}
@@ -104,8 +103,7 @@ public class PipeAPI {
 	/**
 	 * destroys all pipes in this world.
 	 * 
-	 * @param dropItems
-	 *            if true the destroyed pipes will drop the pipe item (blaze rod).
+	 * @param world world containing the pipes that nees to be destroyes
 	 */
 	public static void destroyPipes(World world) {
 		List<Pipe> toDestroy = new ArrayList<>();

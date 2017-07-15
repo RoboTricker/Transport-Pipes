@@ -16,10 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
-import org.jnbt.CompoundTag;
-import org.jnbt.NBTInputStream;
-import org.jnbt.NBTOutputStream;
-import org.jnbt.Tag;
+import org.jnbt.*;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
@@ -91,7 +88,7 @@ public class SavingManager implements Listener {
 						datFile.createNewFile();
 					}
 
-					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile));
+					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile), NBTCompression.UNCOMPRESSED);
 
 					HashMap<String, Tag> tags = new HashMap<>();
 
@@ -103,7 +100,7 @@ public class SavingManager implements Listener {
 					for (HashMap<String, Tag> map : rawPipeList) {
 						finalPipeList.add(new CompoundTag("Pipe", map));
 					}
-					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalPipeList);
+					NBTUtils.saveListValue(tags, "Pipes", NBTTagType.TAG_COMPOUND, finalPipeList);
 
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);
@@ -141,7 +138,7 @@ public class SavingManager implements Listener {
 				return;
 			}
 
-			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile));
+			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
 
 			CompoundTag compound = (CompoundTag) in.readTag();
 

@@ -15,6 +15,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
+import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.PipeThread;
@@ -100,7 +101,7 @@ public abstract class Pipe {
 	 * gets the PipeItem direction in this pipe
 	 */
 	public PipeDirection getPipeItemDirection(PipeItem item) {
-		return pipeItems.getOrDefault(item, null);
+		return pipeItems.get(item);
 	}
 
 	/**
@@ -122,21 +123,29 @@ public abstract class Pipe {
 
 		//pipe explosion if too many items
 		if (pipeItems.size() >= maxItemsPerPipe) {
-			PipeExplodeEvent pee = new PipeExplodeEvent(this);
-			Bukkit.getPluginManager().callEvent(pee);
-			if (!pee.isCancelled()) {
-				PipeThread.runTask(new Runnable() {
-
-					@Override
-					public void run() {
-						PipeUtils.destroyPipe(null, Pipe.this);
-						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
-						blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
-					}
-				}, 0);
+			synchronized (this) {
+				explode(true);
 			}
 		}
 
+	}
+
+	public void explode(final boolean withSound) {
+		PipeExplodeEvent pee = new PipeExplodeEvent(this);
+		Bukkit.getPluginManager().callEvent(pee);
+		if (!pee.isCancelled()) {
+			PipeThread.runTask(new Runnable() {
+
+				@Override
+				public void run() {
+					PipeUtils.destroyPipe(null, Pipe.this);
+					if(withSound) {
+						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
+					}
+					blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+				}
+			}, 0);
+		}
 	}
 
 	/**
@@ -343,14 +352,14 @@ public abstract class Pipe {
 
 			itemList.add(new CompoundTag("PipeItem", itemMap));
 		}
-		NBTUtils.saveListValue(tags, "PipeItems", CompoundTag.class, itemList);
+		NBTUtils.saveListValue(tags, "PipeItems", NBTTagType.TAG_COMPOUND, itemList);
 
 		List<Tag> neighborPipesList = new ArrayList<Tag>();
 		List<PipeDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
 		for (PipeDirection pd : neighborPipes) {
 			neighborPipesList.add(new IntTag("Direction", pd.getId()));
 		}
-		NBTUtils.saveListValue(tags, "NeighborPipes", IntTag.class, neighborPipesList);
+		NBTUtils.saveListValue(tags, "NeighborPipes", NBTTagType.TAG_INT, neighborPipesList);
 
 	}
 
