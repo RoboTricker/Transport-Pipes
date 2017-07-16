@@ -52,8 +52,7 @@ public class AxisAlignedBB {
 			return null;
 		}
 
-		double t = tMin;
-		Vector intersectionPoint = rayOrigin.clone().add(ray.clone().multiply(t));
+		Vector intersectionPoint = rayOrigin.clone().add(ray.clone().multiply(tMin));
 
 		Vector aabbMiddle = getAABBMiddle(pipeBlockLoc);
 		Vector faceMiddle = new Vector();

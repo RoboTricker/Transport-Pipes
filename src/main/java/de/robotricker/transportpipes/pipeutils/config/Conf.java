@@ -10,10 +10,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public abstract class Conf {
 
-	protected File configFile;
-	protected YamlConfiguration yamlConf;
-	private Map<String, Object> defaultValues = new HashMap<String, Object>();
-	private Map<String, Object> cachedValues = new HashMap<String, Object>();
+	private File configFile;
+	private YamlConfiguration yamlConf;
+	private Map<String, Object> defaultValues = new HashMap<>();
+	private Map<String, Object> cachedValues = new HashMap<>();
 
 	public Conf(File configFile) {
 		this.configFile = configFile;

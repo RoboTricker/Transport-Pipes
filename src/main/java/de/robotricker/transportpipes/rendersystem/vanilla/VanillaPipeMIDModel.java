@@ -36,7 +36,7 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 	}
 
 	private List<ArmorStandData> createColoredASD(PipeColor pc) {
-		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> asds = new ArrayList<>();
 		ItemStack block = pc.getVanillaModel_GlassItem();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, block, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
@@ -46,17 +46,16 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 	}
 
 	private List<ArmorStandData> createIceASD() {
-		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
-		ItemStack block = ITEM_ICE_BLOCK;
+		List<ArmorStandData> asds = new ArrayList<>();
 
-		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, block, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_ICE_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
 
 	}
 
 	private List<ArmorStandData> createGoldenASD() {
-		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> asds = new ArrayList<>();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_GOLD_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		asds.add(new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)));
@@ -71,7 +70,7 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 	}
 
 	private List<ArmorStandData> createIronASD(PipeDirection outputPd) {
-		List<ArmorStandData> asds = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> asds = new ArrayList<>();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_IRON_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		asds.add(new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), new Vector(1, 0, 0), true, outputPd == PipeDirection.EAST ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)));

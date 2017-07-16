@@ -183,7 +183,7 @@ public class PipePacketManager implements Listener {
 	public void onWorldChange(final PlayerChangedWorldEvent e) {
 		//remove cached pipes if the player changes world, so the pipe will be spawned if he switches back
 		if (pipesForPlayers.containsKey(e.getPlayer())) {
-			List<Pipe> rmList = new ArrayList<Pipe>();
+			List<Pipe> rmList = new ArrayList<>();
 			for (int i = 0; i < pipesForPlayers.get(e.getPlayer()).size(); i++) {
 				Pipe pipe = pipesForPlayers.get(e.getPlayer()).get(i);
 				if (pipe.getBlockLoc().getWorld().equals(e.getFrom())) {
@@ -195,7 +195,7 @@ public class PipePacketManager implements Listener {
 
 		//remove cached items if the player changes world, so the item will be spawned if he switches back
 		if (itemsForPlayers.containsKey(e.getPlayer())) {
-			List<PipeItem> rmList = new ArrayList<PipeItem>();
+			List<PipeItem> rmList = new ArrayList<>();
 			for (int i = 0; i < itemsForPlayers.get(e.getPlayer()).size(); i++) {
 				PipeItem pipeItem = itemsForPlayers.get(e.getPlayer()).get(i);
 				if (pipeItem.getBlockLoc().getWorld().equals(e.getFrom())) {

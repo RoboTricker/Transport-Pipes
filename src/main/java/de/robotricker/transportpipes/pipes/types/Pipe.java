@@ -37,18 +37,8 @@ public abstract class Pipe {
 	//calculate the amount of digits in 10^digits to shift all floats 
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
 
-	protected static final ItemStack ITEM_BLAZE = new ItemStack(Material.BLAZE_ROD);
-	protected static final ItemStack ITEM_GOLD_BLOCK = new ItemStack(Material.GOLD_BLOCK);
-	protected static final ItemStack ITEM_IRON_BLOCK = new ItemStack(Material.IRON_BLOCK);
-	protected static final ItemStack ITEM_CARPET_WHITE = new ItemStack(Material.CARPET, 1, (short) 0);
-	protected static final ItemStack ITEM_CARPET_YELLOW = new ItemStack(Material.CARPET, 1, (short) 4);
-	protected static final ItemStack ITEM_CARPET_GREEN = new ItemStack(Material.CARPET, 1, (short) 5);
-	protected static final ItemStack ITEM_CARPET_BLUE = new ItemStack(Material.CARPET, 1, (short) 11);
-	protected static final ItemStack ITEM_CARPET_RED = new ItemStack(Material.CARPET, 1, (short) 14);
-	protected static final ItemStack ITEM_CARPET_BLACK = new ItemStack(Material.CARPET, 1, (short) 15);
-
 	//contains all items managed by this pipe
-	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<PipeItem, PipeDirection>();
+	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<>();
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
 	//remember to synchronize while iterating
@@ -63,7 +53,7 @@ public abstract class Pipe {
 
 	//contains all PipeDirections which refer to an inventory block
 	//remember to synchronize while iterating
-	public List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
+	public final List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
 
 	public Pipe(Location blockLoc) {
 		this.blockLoc = blockLoc;
@@ -148,13 +138,13 @@ public abstract class Pipe {
 
 		List<PipeDirection> allConnections = getAllConnections();
 
-		HashMap<PipeItem, PipeDirection> itemsMap = (HashMap<PipeItem, PipeDirection>) pipeItems.clone();
+		HashMap<PipeItem, PipeDirection> itemsMap = new HashMap<>(pipeItems);
 		for (final PipeItem item : itemsMap.keySet()) {
 			PipeDirection itemDir = itemsMap.get(item);
 
 			//if the item arrives at the middle of the pipe
 			if (item.relLoc().getFloatX() == 0.5f && item.relLoc().getFloatY() == 0.5f && item.relLoc().getFloatZ() == 0.5f) {
-				List<PipeDirection> clonedAllConnections = new ArrayList<PipeDirection>();
+				List<PipeDirection> clonedAllConnections = new ArrayList<>();
 				clonedAllConnections.addAll(allConnections);
 
 				itemDir = calculateNextItemDirection(item, itemDir, clonedAllConnections);
@@ -209,8 +199,7 @@ public abstract class Pipe {
 										//e.g. removed with WorldEdit
 										newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
 									}
-								} catch (Exception e) {
-
+								} catch (Exception ignored) {
 								}
 							}
 
@@ -245,7 +234,6 @@ public abstract class Pipe {
 								newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
 							}
 						});
-						itemHandling = ItemHandling.DROP;
 					}
 				}
 				//END ITEM HANDLING CALC
@@ -333,7 +321,7 @@ public abstract class Pipe {
 		NBTUtils.saveIntValue(tags, "PipeType", getPipeType().getId());
 		NBTUtils.saveStringValue(tags, "PipeLocation", PipeUtils.LocToString(blockLoc));
 
-		List<Tag> itemList = new ArrayList<Tag>();
+		List<Tag> itemList = new ArrayList<>();
 		for (PipeItem pipeItem : pipeItems.keySet()) {
 			HashMap<String, Tag> itemMap = new HashMap<>();
 
@@ -345,7 +333,7 @@ public abstract class Pipe {
 		}
 		NBTUtils.saveListValue(tags, "PipeItems", NBTTagType.TAG_COMPOUND, itemList);
 
-		List<Tag> neighborPipesList = new ArrayList<Tag>();
+		List<Tag> neighborPipesList = new ArrayList<>();
 		List<PipeDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
 		for (PipeDirection pd : neighborPipes) {
 			neighborPipesList.add(new IntTag("Direction", pd.getId()));

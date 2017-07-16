@@ -46,7 +46,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 		currentOutputDir = PipeDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0));
 	}
 
-	public void cyleOutputDirection() {
+	public void cycleOutputDirection() {
 		List<PipeDirection> connections = getAllConnections();
 		if (connections.isEmpty()) {
 			return;
@@ -70,7 +70,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 
 	@Override
 	public void click(Player p, PipeDirection side) {
-		cyleOutputDirection();
+		cycleOutputDirection();
 		p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 	}
 
@@ -85,7 +85,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 
 	@Override
 	public List<ItemStack> getDroppedItems() {
-		List<ItemStack> is = new ArrayList<ItemStack>();
+		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		return is;
 	}

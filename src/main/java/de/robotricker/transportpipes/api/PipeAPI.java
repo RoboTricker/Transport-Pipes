@@ -111,9 +111,7 @@ public class PipeAPI {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 		if (pipeMap != null) {
 			synchronized (pipeMap) {
-				for (Pipe pipe : pipeMap.values()) {
-					toDestroy.add(pipe);
-				}
+				toDestroy.addAll(pipeMap.values());
 			}
 		}
 

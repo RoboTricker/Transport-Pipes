@@ -52,7 +52,7 @@ public class ColoredPipe extends Pipe {
 
 	@Override
 	public List<ItemStack> getDroppedItems() {
-		List<ItemStack> is = new ArrayList<ItemStack>();
+		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), getPipeColor()));
 		return is;
 	}

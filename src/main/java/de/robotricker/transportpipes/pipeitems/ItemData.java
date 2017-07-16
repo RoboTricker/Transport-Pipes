@@ -40,9 +40,8 @@ public class ItemData {
 
 	public static ItemData fromNBTTag(CompoundTag tag) {
 		Map<String, Tag> map = tag.getValue();
-		ItemStack item = null;
 		String rawItem = NBTUtils.readStringTag(map.get("Item"), null);
-		item = InventoryUtils.StringToItemStack(rawItem);
+		ItemStack item = InventoryUtils.StringToItemStack(rawItem);
 		return item != null ? new ItemData(item) : null;
 	}
 }

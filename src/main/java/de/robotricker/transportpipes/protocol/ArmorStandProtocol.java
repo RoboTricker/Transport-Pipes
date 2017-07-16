@@ -46,7 +46,7 @@ public class ArmorStandProtocol {
 	}
 
 	public List<Player> getAllPlayersWithPipeManager(PipeRenderSystem renderSystem) {
-		List<Player> players = new ArrayList<Player>();
+		List<Player> players = new ArrayList<>();
 		players.addAll(Bukkit.getOnlinePlayers());
 
 		Iterator<Player> it = players.iterator();
@@ -202,8 +202,8 @@ public class ArmorStandProtocol {
 	}
 
 	public void sendArmorStandDatas(Player p, Location blockLoc, List<ArmorStandData> asd) {
-		for (int i = 0; i < asd.size(); i++) {
-			sendArmorStandData(p, blockLoc, asd.get(i), new Vector(0f, 0f, 0f));
+		for (ArmorStandData anAsd : asd) {
+			sendArmorStandData(p, blockLoc, anAsd, new Vector(0f, 0f, 0f));
 		}
 	}
 

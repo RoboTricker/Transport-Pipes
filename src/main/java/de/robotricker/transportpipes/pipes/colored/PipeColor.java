@@ -21,7 +21,7 @@ public enum PipeColor {
 	private ItemStack modelledModel_connHoeItem;
 	private ItemStack dyeItem;
 
-	private PipeColor(String colorCode, short glassMetadata, short midHoeMetadata, short connHoeMetadata, short dyeMetadata) {
+	PipeColor(String colorCode, short glassMetadata, short midHoeMetadata, short connHoeMetadata, short dyeMetadata) {
 		this.colorCode = colorCode;
 		vanillaModel_glassItem = glassMetadata != -1 ? new ItemStack(Material.STAINED_GLASS, 1, glassMetadata) : new ItemStack(Material.GLASS);
 		modelledModel_midHoeItem = ModelledPipeModel.createToolItemStack(midHoeMetadata);
@@ -51,15 +51,13 @@ public enum PipeColor {
 
 	public static PipeColor getPipeColorByPipeItem(ItemStack item) {
 		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().substring(2).equalsIgnoreCase(PipeType.COLORED.getFormattedPipeName())) {
-			if (item != null) {
-				for (PipeColor pipeColor : PipeColor.values()) {
-					if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-						if (item.getItemMeta().getDisplayName().startsWith(pipeColor.getColorCode())) {
-							return pipeColor;
-						}
-					}
-				}
-			}
+			for (PipeColor pipeColor : PipeColor.values()) {
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+                    if (item.getItemMeta().getDisplayName().startsWith(pipeColor.getColorCode())) {
+                        return pipeColor;
+                    }
+                }
+            }
 		}
 		return null;
 	}

@@ -8,7 +8,7 @@ import java.util.Set;
 public class ProtocolUtils {
 
 	public static int[] convertArmorStandListToEntityIdArray(List<ArmorStandData> ASD) {
-		Set<Integer> ids = new HashSet<Integer>();
+		Set<Integer> ids = new HashSet<>();
 		if (ASD != null) {
 			for (ArmorStandData data : ASD) {
 				if (data.getEntityID() != -1) {

@@ -31,16 +31,16 @@ import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeModel;
 
 public class ModelledPipeManager extends PipeRenderSystem {
 
-	public static final ItemStack ITEM_PIPE_WHITE = PipeItemUtils.createToolItemStack(25, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+	private static final ItemStack ITEM_PIPE_WHITE = PipeItemUtils.createToolItemStack(25, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 
-	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<Pipe, ArmorStandData>();
-	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<Pipe, Map<PipeDirection, ArmorStandData>>();
+	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<>();
+	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<>();
 	private AxisAlignedBB pipeMidAABB;
-	private Map<PipeDirection, AxisAlignedBB> pipeConnsAABBs = new HashMap<PipeDirection, AxisAlignedBB>();
+	private Map<PipeDirection, AxisAlignedBB> pipeConnsAABBs = new HashMap<>();
 
-	private Map<PipeType, ModelledPipeModel> pipeModels = new HashMap<PipeType, ModelledPipeModel>();
+	private Map<PipeType, ModelledPipeModel> pipeModels = new HashMap<>();
 
-	private List<Player> loadedResourcePackPlayers = new ArrayList<Player>();
+	private List<Player> loadedResourcePackPlayers = new ArrayList<>();
 
 	public ModelledPipeManager(ArmorStandProtocol protocol) {
 		super(protocol);
@@ -66,7 +66,7 @@ public class ModelledPipeManager extends PipeRenderSystem {
 
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
-		Map<PipeDirection, ArmorStandData> connsMap = new HashMap<PipeDirection, ArmorStandData>();
+		Map<PipeDirection, ArmorStandData> connsMap = new HashMap<>();
 		pipeConnsAsd.put(pipe, connsMap);
 		for (PipeDirection conn : allConnections) {
 			connsMap.put(conn, model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, conn)));
@@ -80,8 +80,8 @@ public class ModelledPipeManager extends PipeRenderSystem {
 			return;
 		}
 
-		List<ArmorStandData> removedASD = new ArrayList<ArmorStandData>();
-		List<ArmorStandData> addedASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> removedASD = new ArrayList<>();
+		List<ArmorStandData> addedASD = new ArrayList<>();
 
 		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.get(pipe);
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
@@ -130,7 +130,7 @@ public class ModelledPipeManager extends PipeRenderSystem {
 
 	@Override
 	public List<ArmorStandData> getASDForPipe(Pipe pipe) {
-		List<ArmorStandData> ASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> ASD = new ArrayList<>();
 		if (pipeMidAsd.containsKey(pipe)) {
 			ASD.add(pipeMidAsd.get(pipe));
 		}

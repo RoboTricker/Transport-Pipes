@@ -25,7 +25,7 @@ import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeUDModel;
 
 public class VanillaPipeManager extends PipeRenderSystem {
 
-	private Map<Pipe, List<ArmorStandData>> pipeAsd = new HashMap<Pipe, List<ArmorStandData>>();
+	private Map<Pipe, List<ArmorStandData>> pipeAsd = new HashMap<>();
 
 	public VanillaPipeManager(ArmorStandProtocol protocol) {
 		super(protocol);
@@ -49,8 +49,8 @@ public class VanillaPipeManager extends PipeRenderSystem {
 			return;
 		}
 
-		List<ArmorStandData> removedASD = new ArrayList<ArmorStandData>();
-		List<ArmorStandData> addedASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> removedASD = new ArrayList<>();
+		List<ArmorStandData> addedASD = new ArrayList<>();
 
 		List<ArmorStandData> oldASD = pipeAsd.get(pipe);
 
@@ -59,7 +59,7 @@ public class VanillaPipeManager extends PipeRenderSystem {
 
 		List<ArmorStandData> newASD = shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe));
 
-		List<ArmorStandData> tempASD = new ArrayList<ArmorStandData>();
+		List<ArmorStandData> tempASD = new ArrayList<>();
 
 		for (int i = 0; i < Math.max(oldASD.size(), newASD.size()); i++) {
 			ArmorStandData ASDOld = i < oldASD.size() ? oldASD.get(i) : null;
@@ -102,7 +102,7 @@ public class VanillaPipeManager extends PipeRenderSystem {
 
 	@Override
 	public List<ArmorStandData> getASDForPipe(Pipe pipe) {
-		return pipeAsd.getOrDefault(pipe, null);
+		return pipeAsd.get(pipe);
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class VanillaPipeManager extends PipeRenderSystem {
 
 		private VanillaPipeModel model;
 
-		private VanillaPipeShape(VanillaPipeModel model) {
+		VanillaPipeShape(VanillaPipeModel model) {
 			this.model = model;
 		}
 

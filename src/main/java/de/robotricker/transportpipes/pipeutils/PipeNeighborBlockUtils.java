@@ -18,6 +18,7 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;

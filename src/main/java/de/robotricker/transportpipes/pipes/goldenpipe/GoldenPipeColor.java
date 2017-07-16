@@ -17,7 +17,7 @@ public enum GoldenPipeColor {
 	private String locConfKey;
 	private PipeDirection direction;
 
-	private GoldenPipeColor(int resourcePackDamage, int glassPaneDamage, String locConfKey, PipeDirection direction) {
+	GoldenPipeColor(int resourcePackDamage, int glassPaneDamage, String locConfKey, PipeDirection direction) {
 		this.resourcePackDamage = (short) resourcePackDamage;
 		this.glassPaneDamage = (short) glassPaneDamage;
 		this.locConfKey = locConfKey;

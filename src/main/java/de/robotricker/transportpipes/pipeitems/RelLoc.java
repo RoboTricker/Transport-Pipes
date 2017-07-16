@@ -75,8 +75,7 @@ public class RelLoc {
 	}
 
 	public static RelLoc fromString(String s) {
-		RelLoc rl = new RelLoc(Float.parseFloat(s.split(":")[0]), Float.parseFloat(s.split(":")[1]), Float.parseFloat(s.split(":")[2]));
-		return rl;
+		return new RelLoc(Float.parseFloat(s.split(":")[0]), Float.parseFloat(s.split(":")[1]), Float.parseFloat(s.split(":")[2]));
 	}
 
 	public static boolean compare(RelLoc rl1, RelLoc rl2) {

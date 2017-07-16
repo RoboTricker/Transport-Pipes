@@ -94,7 +94,7 @@ public class PipeUtils {
 				pipeMap.remove(BlockLoc.convertBlockLoc(pipeToDestroy.blockLoc));
 
 				//drop all items in old pipe
-				Set<PipeItem> itemsToDrop = new HashSet<PipeItem>();
+				Set<PipeItem> itemsToDrop = new HashSet<>();
 				itemsToDrop.addAll(pipeToDestroy.pipeItems.keySet());
 				itemsToDrop.addAll(pipeToDestroy.tempPipeItems.keySet());
 				itemsToDrop.addAll(pipeToDestroy.tempPipeItemsWithSpawn.keySet());
@@ -157,7 +157,7 @@ public class PipeUtils {
 	 **/
 	public static List<PipeDirection> getOnlyPipeConnections(Pipe pipe) {
 
-		List<PipeDirection> dirs = new ArrayList<PipeDirection>();
+		List<PipeDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.getBlockLoc().getWorld());
 
@@ -230,7 +230,7 @@ public class PipeUtils {
 			@Override
 			public void run() {
 				//create a list with pipe- and block connections (pipe connections is already given as parameter)
-				List<PipeDirection> allConnections = new ArrayList<PipeDirection>();
+				List<PipeDirection> allConnections = new ArrayList<>();
 
 				List<PipeDirection> neighborBlocks = PipeNeighborBlockUtils.getOnlyNeighborBlocksConnectionsSync(pipe.getBlockLoc());
 				allConnections.addAll(neighborBlocks);

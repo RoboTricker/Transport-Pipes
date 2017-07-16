@@ -78,6 +78,7 @@ public class LocConf extends Conf {
 		return ChatColor.translateAlternateColorCodes('&', (String) read(key));
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<String> getStringList(String key) {
 		List<String> list = (List<String>) read(key);
 		for (int i = 0; i < list.size(); i++) {

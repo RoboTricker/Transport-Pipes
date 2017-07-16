@@ -9,7 +9,7 @@ import de.robotricker.transportpipes.pipeutils.config.PlayerSettingsConf;
 
 public class SettingsUtils {
 
-	private static Map<Player, PlayerSettingsConf> cachedSettings = new HashMap<Player, PlayerSettingsConf>();
+	private static Map<Player, PlayerSettingsConf> cachedSettings = new HashMap<>();
 
 	public static PlayerSettingsConf loadPlayerSettings(Player p) {
 		if (!cachedSettings.containsKey(p)) {

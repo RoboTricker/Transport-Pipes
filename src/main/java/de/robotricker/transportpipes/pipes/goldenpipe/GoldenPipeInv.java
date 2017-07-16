@@ -23,7 +23,7 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class GoldenPipeInv implements Listener {
 
-	private static HashMap<GoldenPipe, Inventory> pipe_invs = new HashMap<GoldenPipe, Inventory>();
+	private static HashMap<GoldenPipe, Inventory> pipe_invs = new HashMap<>();
 
 	public static void updateGoldenPipeInventory(Player p, GoldenPipe pipe) {
 		Inventory inv;
@@ -117,7 +117,7 @@ public class GoldenPipeInv implements Listener {
 			}
 			//cache new items in golden pipe
 			linefor: for (int line = 0; line < 6; line++) {
-				List<ItemData> items = new ArrayList<ItemData>();
+				List<ItemData> items = new ArrayList<>();
 				for (int i = 1; i < 9; i++) {
 					ItemStack is = inv.getItem(line * 9 + i);
 					//make sure the glass pane won't be saved

@@ -22,7 +22,7 @@ public enum PipeType {
 	private String pipeName_colorCode;
 	private String pipeName_locConfKey;
 
-	private PipeType(int id, String pipeName_colorCode, String pipeName_locConfKey) {
+	PipeType(int id, String pipeName_colorCode, String pipeName_locConfKey) {
 		this.id = id;
 		this.pipeName_colorCode = pipeName_colorCode;
 		this.pipeName_locConfKey = pipeName_locConfKey;

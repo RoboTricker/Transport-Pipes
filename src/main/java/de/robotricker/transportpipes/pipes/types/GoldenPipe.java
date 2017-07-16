@@ -44,9 +44,9 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		List<PipeDirection> connectionDirections = getAllConnections();
 
 		//the possible directions in which the item could go
-		List<PipeDirection> possibleDirections = new ArrayList<PipeDirection>();
+		List<PipeDirection> possibleDirections = new ArrayList<>();
 
-		List<PipeDirection> emptyPossibleDirections = new ArrayList<PipeDirection>();
+		List<PipeDirection> emptyPossibleDirections = new ArrayList<>();
 
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
@@ -100,7 +100,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		super.saveToNBTTag(tags);
 
 		for (int line = 0; line < 6; line++) {
-			List<Tag> lineList = new ArrayList<Tag>();
+			List<Tag> lineList = new ArrayList<>();
 			for (int i = 0; i < 8; i++) {
 				ItemData itemData = outputItems[line][i];
 				if (itemData != null) {
@@ -169,7 +169,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	@Override
 	public List<ItemStack> getDroppedItems() {
-		List<ItemStack> is = new ArrayList<ItemStack>();
+		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		for (int line = 0; line < 6; line++) {
 			for (int i = 0; i < 8; i++) {
