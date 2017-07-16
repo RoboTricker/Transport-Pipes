@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.pipes.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +34,15 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs) {
-		ItemData itemData = new ItemData(item.getItem());
+	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+		ItemData itemData = item.getItem();
 		List<PipeDirection> possibleDirections = getPossibleDirectionsForItem(itemData, before);
 		return possibleDirections.get(new Random().nextInt(possibleDirections.size()));
 	}
 
 	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before) {
 		//all directions in which is an other pipe or inventory-block
-		List<PipeDirection> connectionDirections = getAllConnections();
+		Collection<PipeDirection> connectionDirections = getAllConnections();
 
 		//the possible directions in which the item could go
 		List<PipeDirection> possibleDirections = new ArrayList<>();

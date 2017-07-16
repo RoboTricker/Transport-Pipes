@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.rendersystem.modelled.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
@@ -59,7 +61,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe, List<PipeDirection> allConnections) {
+	public void createPipeASD(Pipe pipe, Collection<PipeDirection> allConnections) {
 		if (pipeMidAsd.containsKey(pipe)) {
 			return;
 		}
@@ -86,7 +88,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.get(pipe);
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 
-		List<PipeDirection> newConns = pipe.getAllConnections();
+		Collection<PipeDirection> newConns = pipe.getAllConnections();
 		for (PipeDirection pd : PipeDirection.values()) {
 			if (connsMap.containsKey(pd) && newConns.contains(pd)) {
 				//direction was active before and after update
@@ -150,7 +152,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
-		List<PipeDirection> pipeConns = pipe.getAllConnections();
+		Collection<PipeDirection> pipeConns = pipe.getAllConnections();
 		PipeDirection clickedMidFace = pipeMidAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
 		if (clickedMidFace != null && !pipeConns.contains(clickedMidFace)) {
 			return clickedMidFace;
@@ -175,7 +177,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public String getPipeRenderSystemName() {
-		return "Modelled";
+		return LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_MODELLED);
 	}
 
 	@Override

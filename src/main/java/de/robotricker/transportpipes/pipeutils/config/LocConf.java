@@ -32,6 +32,8 @@ public class LocConf extends Conf {
 	public static final String SETTINGS_RENDERDISTANCE_DESCRIPTION = "settings.renderdistance.description";
 	public static final String SETTINGS_RENDERSYSTEM_TITLE = "settings.rendersystem.title";
 	public static final String SETTINGS_RENDERSYSTEM_DESCRIPTION = "settings.rendersystem.description";
+	public static final String SETTINGS_RENDERSYSTEM_VANILLA = "settings.rendersystem.vanilla";
+	public static final String SETTINGS_RENDERSYSTEM_MODELLED = "settings.rendersystem.modelled";
 	public static final String COMMANDS_DESCRIPTION_SETTINGS = "commands.description.settings";
 	public static final String COMMANDS_DESCRIPTION_TPS = "commands.description.tps";
 	public static final String COMMANDS_DESCRIPTION_RELOAD = "commands.description.reload";
@@ -64,6 +66,8 @@ public class LocConf extends Conf {
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DESCRIPTION, Arrays.asList("&7The Render Distance represents", "&7the distance in blocks in which you", "&7can see pipes."));
 		saveAsDefault(SETTINGS_RENDERSYSTEM_TITLE, "&6Your Pipe Render System: &b%s");
 		saveAsDefault(SETTINGS_RENDERSYSTEM_DESCRIPTION, Arrays.asList("&7Click to switch between Vanilla", "&7and Modelled Render System.", "&7The Modelled Render System uses a resourcepack.", "&7The Vanilla Render System", "&7uses the Vanilla Minecraft textures."));
+		saveAsDefault(SETTINGS_RENDERSYSTEM_VANILLA, "Vanilla");
+		saveAsDefault(SETTINGS_RENDERSYSTEM_MODELLED, "Modelled");
 		saveAsDefault(COMMANDS_DESCRIPTION_SETTINGS, "&bOpens a player-specific settings menu");
 		saveAsDefault(COMMANDS_DESCRIPTION_TPS, "&bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread");
 		saveAsDefault(COMMANDS_DESCRIPTION_RELOAD, "&bReloads all pipes or the config");

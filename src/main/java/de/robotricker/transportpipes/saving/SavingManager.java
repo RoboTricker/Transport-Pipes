@@ -16,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
-
 import org.jnbt.CompoundTag;
 import org.jnbt.NBTCompression;
 import org.jnbt.NBTInputStream;
@@ -162,7 +161,7 @@ public class SavingManager implements Listener {
 				}
 
 				if (pipeLoc != null) {
-					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.WHITE); //PipeColor is going to be replaced when loading from NBT inside pipe
+					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.WHITE); //PipeColor will be replaced when loading from NBT inside pipe
 					pipe.loadFromNBTTag(pipeTag);
 
 					//save and spawn pipe

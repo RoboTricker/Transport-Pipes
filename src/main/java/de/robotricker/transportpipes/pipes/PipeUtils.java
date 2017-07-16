@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.pipes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PlayerDestroyPipeEvent;
 import de.robotricker.transportpipes.api.PlayerPlacePipeEvent;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
@@ -103,7 +105,7 @@ public class PipeUtils {
 
 						@Override
 						public void run() {
-							pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
+							pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem().toItemStack());
 						}
 					});
 					//destroy item for players
@@ -182,6 +184,29 @@ public class PipeUtils {
 
 	}
 
+	/**
+	 * gets all block connection directions (not pipe connections)
+	 **/
+	public static List<PipeDirection> getOnlyBlockConnections(Pipe pipe) {
+
+		List<PipeDirection> dirs = new ArrayList<>();
+
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.getBlockLoc().getWorld());
+
+		if (containerMap != null) {
+			for (PipeDirection dir : PipeDirection.values()) {
+				Location blockLoc = pipe.getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ());
+				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+				if (containerMap.containsKey(bl)) {
+					dirs.add(dir);
+				}
+			}
+		}
+
+		return dirs;
+
+	}
+
 	public static Pipe getPipeWithLocation(Location blockLoc) {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
@@ -216,7 +241,7 @@ public class PipeUtils {
 
 		return !bbe.isCancelled() || p.isOp();
 	}
-	
+
 	public static void putPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.blockLoc.getWorld());
 		if (pipeMap == null) {
@@ -229,18 +254,18 @@ public class PipeUtils {
 
 			@Override
 			public void run() {
-				//create a list with pipe- and block connections (pipe connections is already given as parameter)
-				List<PipeDirection> allConnections = new ArrayList<>();
 
-				List<PipeDirection> neighborBlocks = PipeNeighborBlockUtils.getOnlyNeighborBlocksConnectionsSync(pipe.getBlockLoc());
-				allConnections.addAll(neighborBlocks);
-				for (PipeDirection neighborPipe : neighborPipes) {
-					if (!allConnections.contains(neighborPipe)) {
-						allConnections.add(neighborPipe);
+				Collection<PipeDirection> allConnections = new HashSet<>();
+				allConnections.addAll(neighborPipes);
+
+				//update container blocks sync
+				for (PipeDirection pd : PipeDirection.values()) {
+					Block b = pipe.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()).getBlock();
+					if (PipeNeighborBlockUtils.isIdInventoryHolder(b.getTypeId())) {
+						allConnections.add(pd);
+						PipeNeighborBlockUtils.updatePipeNeighborBlockSync(b, true);
 					}
 				}
-				pipe.pipeNeighborBlocks.clear();
-				pipe.pipeNeighborBlocks.addAll(neighborBlocks);
 
 				TransportPipes.pipePacketManager.createPipe(pipe, allConnections);
 			}

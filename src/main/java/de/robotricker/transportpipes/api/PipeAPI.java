@@ -1,16 +1,18 @@
 package de.robotricker.transportpipes.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
@@ -40,7 +42,8 @@ public class PipeAPI {
 	/**
 	 * detroys the pipe on the given location.
 	 * 
-	 * @param blockLoc location of the pipe
+	 * @param blockLoc
+	 *            location of the pipe
 	 */
 	public static void destroyPipe(Location blockLoc) {
 		Pipe pipe = PipeUtils.getPipeWithLocation(blockLoc);
@@ -103,7 +106,8 @@ public class PipeAPI {
 	/**
 	 * destroys all pipes in this world.
 	 * 
-	 * @param world world containing the pipes that nees to be destroyes
+	 * @param world
+	 *            world containing the pipes that nees to be destroyes
 	 */
 	public static void destroyPipes(World world) {
 		List<Pipe> toDestroy = new ArrayList<>();
@@ -123,9 +127,36 @@ public class PipeAPI {
 	/**
 	 * puts any item (with an amount of 1!!!) into the given pipe object with a moving direction to "itemDirection".
 	 */
-	public static void putItemInPipe(Pipe pipe, ItemStack item, PipeDirection itemDirection) {
+	public static void putItemInPipe(Pipe pipe, ItemData item, PipeDirection itemDirection) {
 		PipeItem pi = new PipeItem(item, pipe.blockLoc, itemDirection);
 		pipe.tempPipeItemsWithSpawn.put(pi, itemDirection);
+	}
+
+	public static void registerTransportPipesContainer(Location blockLoc, TransportPipesContainer tpc) {
+		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+		if (containerMap == null) {
+			containerMap = Collections.synchronizedMap(new TreeMap<BlockLoc, TransportPipesContainer>());
+			TransportPipes.instance.getFullContainerMap().put(blockLoc.getWorld(), containerMap);
+		}
+		if (containerMap.containsKey(bl)) {
+			throw new IllegalArgumentException("There is already a TransportPipesContainer object registered at this location");
+		}
+		containerMap.put(bl, tpc);
+		System.out.println("registered " + blockLoc.getBlock().getState().getClass().getSimpleName());
+	}
+
+	public static void unregisterTransportPipesContainer(Location blockLoc) {
+		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+		if (containerMap != null) {
+			if (containerMap.containsKey(bl)) {
+				containerMap.remove(bl);
+				System.out.println("unregistered " + blockLoc.getBlock().getState().getClass().getSimpleName());
+			}
+		}
 	}
 
 }
