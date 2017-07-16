@@ -2,6 +2,7 @@ package de.robotricker.transportpipes.pipeutils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.SkullType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -19,7 +20,7 @@ public class CraftUtils implements Listener {
 
 	public static void initRecipes() {
 
-		if (TransportPipes.instance.getConfig().getBoolean("disable_crafting", false)) {
+		if (!TransportPipes.instance.generalConf.isCraftingEnabled()) {
 			return;
 		}
 
@@ -56,7 +57,7 @@ public class CraftUtils implements Listener {
 
 		for (PipeColor pipeColor : PipeColor.values()) {
 			ShapelessRecipe recipeShapeless = new ShapelessRecipe(PipeItemUtils.getPipeItem(PipeType.COLORED, pipeColor));
-			recipeShapeless.addIngredient(Material.BLAZE_ROD);
+			recipeShapeless.addIngredient(new MaterialData(Material.SKULL_ITEM, (byte) SkullType.PLAYER.ordinal()));
 			recipeShapeless.addIngredient(pipeColor.getDyeItem().getData());
 			Bukkit.addRecipe(recipeShapeless);
 		}
@@ -70,15 +71,8 @@ public class CraftUtils implements Listener {
 			return;
 		}
 
-		if (e.getInventory().getRecipe().getResult().getType() == Material.BLAZE_POWDER || e.getInventory().getRecipe().getResult().getType() == Material.BREWING_STAND_ITEM) {
-			for (int i = 1; i < 10; i++) {
-				ItemStack is = e.getInventory().getItem(i);
-				if (PipeType.getFromPipeItem(is) != null) {
-					e.getInventory().setResult(null);
-					break;
-				}
-			}
-		} else if (PipeType.getFromPipeItem(e.getInventory().getRecipe().getResult()) != null) {
+		//prevent colored pipe crafting if the given pipe is not a colored pipe
+		if (PipeType.getFromPipeItem(r.getResult()) != null) {
 			boolean realPipeItem = false;
 			boolean changeColorRecipe = false;
 			for (int i = 1; i < 10; i++) {
@@ -86,7 +80,7 @@ public class CraftUtils implements Listener {
 				if (is != null && is.getType() == Material.INK_SACK) {
 					changeColorRecipe = true;
 				}
-				if (PipeType.getFromPipeItem(is) != null) {
+				if (PipeType.getFromPipeItem(is) == PipeType.COLORED) {
 					realPipeItem = true;
 				}
 			}

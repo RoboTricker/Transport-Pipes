@@ -29,7 +29,7 @@ import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeICEModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeIRONModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeModel;
 
-public class ModelledPipeManager extends PipeRenderSystem {
+public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 	private static final ItemStack ITEM_PIPE_WHITE = PipeItemUtils.createToolItemStack(25, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 
@@ -42,7 +42,7 @@ public class ModelledPipeManager extends PipeRenderSystem {
 
 	private List<Player> loadedResourcePackPlayers = new ArrayList<>();
 
-	public ModelledPipeManager(ArmorStandProtocol protocol) {
+	public ModelledPipeRenderSystem(ArmorStandProtocol protocol) {
 		super(protocol);
 		pipeModels.put(PipeType.COLORED, new ModelledPipeCOLOREDModel());
 		pipeModels.put(PipeType.ICE, new ModelledPipeICEModel());

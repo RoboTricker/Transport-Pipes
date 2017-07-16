@@ -32,8 +32,8 @@ import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
-import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeManager;
-import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeManager;
+import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.saving.SavingManager;
 import de.robotricker.transportpipes.settings.SettingsInv;
 import de.robotricker.transportpipes.update.UpdateManager;
@@ -87,8 +87,8 @@ public class TransportPipes extends JavaPlugin {
 		generalConf = new GeneralConf();
 
 		renderSystems = new ArrayList<>();
-		renderSystems.add(new VanillaPipeManager(armorStandProtocol));
-		renderSystems.add(new ModelledPipeManager(armorStandProtocol));
+		renderSystems.add(new VanillaPipeRenderSystem(armorStandProtocol));
+		renderSystems.add(new ModelledPipeRenderSystem(armorStandProtocol));
 
 		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();

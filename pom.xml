@@ -4,7 +4,7 @@
 
 	<groupId>de.robotricker</groupId>
 	<artifactId>transportpipes</artifactId>
-	<version>4.0.17</version>
+	<version>4.0.18</version>
 	<packaging>jar</packaging>
 
 	<name>TransportPipes</name>
@@ -139,10 +139,6 @@
 					<artifactId>commons-lang</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
 					<groupId>com.googlecode.json-simple</groupId>
 					<artifactId>json-simple</artifactId>
 				</exclusion>
@@ -199,12 +195,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- CraftBukkit (installed in local repo - only uncomment when compiling)
+		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) -->
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
 			<version>1.12</version>
 			<scope>provided</scope>
-		</dependency>-->
+		</dependency>
 	</dependencies>
 </project>

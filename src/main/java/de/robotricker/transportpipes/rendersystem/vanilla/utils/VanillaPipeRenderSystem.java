@@ -23,11 +23,11 @@ import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeNSModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeUDModel;
 
-public class VanillaPipeManager extends PipeRenderSystem {
+public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 	private Map<Pipe, List<ArmorStandData>> pipeAsd = new HashMap<>();
 
-	public VanillaPipeManager(ArmorStandProtocol protocol) {
+	public VanillaPipeRenderSystem(ArmorStandProtocol protocol) {
 		super(protocol);
 	}
 
