@@ -58,7 +58,7 @@ public class HitboxListener implements Listener {
 			if (pipeBlock != null) {
 				e.setCancelled(true);
 				if (PipeUtils.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-					PipeUtils.destroyPipe(e.getPlayer(), PipeUtils.getPipeWithLocation(pipeBlock.getLocation()));
+					PipeUtils.destroyPipe(p, PipeUtils.getPipeWithLocation(pipeBlock.getLocation()));
 				}
 			}
 
