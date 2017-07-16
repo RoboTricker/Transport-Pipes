@@ -195,12 +195,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) -->
+		<!-- CraftBukkit (installed in local repo - only uncomment when compiling)
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
 			<version>1.12</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>-->
 	</dependencies>
 </project>
