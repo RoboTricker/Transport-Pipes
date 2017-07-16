@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.protocol;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +32,12 @@ public class PipePacketManager implements Listener {
 	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 
-	public void createPipe(Pipe pipe, List<PipeDirection> allConnections) {
+	public void createPipe(Pipe pipe, Collection<PipeDirection> allConnections) {
 		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.createPipeASD(pipe, allConnections);
 		}
+		//notify pipe that some connections might have changed. Knowing this the iron pipe can change its output direction for example.
+		pipe.notifyConnectionsChange();
 		//client update is done in the next tick
 	}
 
@@ -42,6 +45,8 @@ public class PipePacketManager implements Listener {
 		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.updatePipeASD(pipe);
 		}
+		//notify pipe that some connections might have changed. Knowing this the iron pipe can change its output direction for example.
+		pipe.notifyConnectionsChange();
 		//client update is done inside the PipeManager method call (that's because here you don't know which ArmorStands to remove and which ones to add)
 	}
 

@@ -284,7 +284,7 @@ public class InventoryUtils {
 		return inSlot;
 	}
 
-	private static ItemStack decreaseAmountWithOne(ItemStack item) {
+	public static ItemStack decreaseAmountWithOne(ItemStack item) {
 		ItemStack copy = item.clone();
 		if (item.getAmount() > 1) {
 			copy.setAmount(item.getAmount() - 1);
@@ -294,7 +294,7 @@ public class InventoryUtils {
 		return copy;
 	}
 
-	private static ItemStack createOneAmountItemStack(ItemStack item) {
+	public static ItemStack createOneAmountItemStack(ItemStack item) {
 		ItemStack copy = item.clone();
 		copy.setAmount(1);
 		return copy;

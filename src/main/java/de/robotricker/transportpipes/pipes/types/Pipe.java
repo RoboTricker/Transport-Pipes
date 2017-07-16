@@ -1,17 +1,18 @@
 package de.robotricker.transportpipes.pipes.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
@@ -21,6 +22,8 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeExplodeEvent;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.BlockLoc;
@@ -51,19 +54,8 @@ public abstract class Pipe {
 	//the blockLoc of this pipe
 	public Location blockLoc;
 
-	//contains all PipeDirections which refer to an inventory block
-	//remember to synchronize while iterating
-	public final List<PipeDirection> pipeNeighborBlocks = Collections.synchronizedList(new ArrayList<PipeDirection>());
-
 	public Pipe(Location blockLoc) {
 		this.blockLoc = blockLoc;
-	}
-
-	/**
-	 * checks if the neighbor block of this pipe in the direction "dir" is a block with an inventory (not a pipe)
-	 */
-	public boolean isPipeNeighborBlock(PipeDirection dir) {
-		return pipeNeighborBlocks.contains(dir);
 	}
 
 	public Location getBlockLoc() {
@@ -94,13 +86,16 @@ public abstract class Pipe {
 
 	public void tick(boolean extractItems, List<PipeItem> itemsTicked) {
 
+		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
+		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
+
 		if (extractItems) {
 			//extract items from inventories
-			extractItems();
+			extractItems(pipeConnections, blockConnections);
 		}
 
 		//handle item transport through pipe
-		transportItems(itemsTicked);
+		transportItems(pipeConnections, blockConnections, itemsTicked);
 
 		//pipe explosion if too many items
 		if (pipeItems.size() >= TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
@@ -120,7 +115,7 @@ public abstract class Pipe {
 				@Override
 				public void run() {
 					PipeUtils.destroyPipe(null, Pipe.this);
-					if(withSound) {
+					if (withSound) {
 						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
 					}
 					blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
@@ -132,11 +127,9 @@ public abstract class Pipe {
 	/**
 	 * This method is be called for all items that arrive in the middle of the pipe to calculate the direction they should go next
 	 */
-	public abstract PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs);
+	public abstract PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs);
 
-	private void transportItems(List<PipeItem> itemsTicked) {
-
-		List<PipeDirection> allConnections = getAllConnections();
+	private void transportItems(List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections, List<PipeItem> itemsTicked) {
 
 		HashMap<PipeItem, PipeDirection> itemsMap = new HashMap<>(pipeItems);
 		for (final PipeItem item : itemsMap.keySet()) {
@@ -144,8 +137,9 @@ public abstract class Pipe {
 
 			//if the item arrives at the middle of the pipe
 			if (item.relLoc().getFloatX() == 0.5f && item.relLoc().getFloatY() == 0.5f && item.relLoc().getFloatZ() == 0.5f) {
-				List<PipeDirection> clonedAllConnections = new ArrayList<>();
-				clonedAllConnections.addAll(allConnections);
+				Set<PipeDirection> clonedAllConnections = new HashSet<>();
+				clonedAllConnections.addAll(pipeConnections);
+				clonedAllConnections.addAll(blockConnections);
 
 				itemDir = calculateNextItemDirection(item, itemDir, clonedAllConnections);
 				pipeItems.put(item, itemDir);
@@ -175,10 +169,10 @@ public abstract class Pipe {
 
 				//ITEM HANDLING CALC
 				{
-					if (isPipeNeighborBlock(itemDir)) {
+					if (blockConnections.contains(itemDir)) {
 						TransportPipes.pipePacketManager.destroyPipeItem(item);
 
-						final ItemStack itemStack = item.getItem();
+						final ItemData itemData = item.getItem();
 						final PipeDirection finalDir = itemDir;
 						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
@@ -186,18 +180,20 @@ public abstract class Pipe {
 							public void run() {
 								try {
 
-									if (newBlockLoc.getBlock().getState() instanceof InventoryHolder) {
-										InventoryHolder invH = (InventoryHolder) newBlockLoc.getBlock().getState();
+									BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
+									TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
+									if (tpc != null) {
 										//put items in inv and put overflow items back in pipe
-										for (ItemStack resultItem : InventoryUtils.putItemInInventoryHolder(invH, itemStack, finalDir.getOpposite())) {
+										if(!tpc.insertItem(finalDir.getOpposite(), itemData)){
+											//move item in opposite direction if insertion failed
 											PipeDirection newItemDir = finalDir.getOpposite();
-											PipeItem pi = new PipeItem(resultItem, Pipe.this.blockLoc, newItemDir);
+											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
 											tempPipeItemsWithSpawn.put(pi, newItemDir);
 										}
 									} else {
-										//drop the item in case the inventory block is registered in the "pipeNeighborBlocks" list but is no longer in the world,
+										//drop the item in case the inventory block is registered but is no longer in the world,
 										//e.g. removed with WorldEdit
-										newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
+										newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
 									}
 								} catch (Exception ignored) {
 								}
@@ -208,7 +204,7 @@ public abstract class Pipe {
 					}
 
 					if (itemHandling == ItemHandling.NOTHING) {
-						if (allConnections.contains(itemDir)) {
+						if (pipeConnections.contains(itemDir)) {
 							Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(newBlockLoc.getWorld());
 							if (pipeMap != null) {
 								BlockLoc newBlockLocLong = BlockLoc.convertBlockLoc(newBlockLoc);
@@ -226,7 +222,7 @@ public abstract class Pipe {
 
 						TransportPipes.pipePacketManager.destroyPipeItem(item);
 
-						final ItemStack itemStack = item.getItem();
+						final ItemStack itemStack = item.getItem().toItemStack();
 						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 							@Override
@@ -250,13 +246,11 @@ public abstract class Pipe {
 		return ITEM_SPEED;
 	}
 
-	private void extractItems() {
+	private void extractItems(List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections) {
 
 		for (final PipeDirection dir : PipeDirection.values()) {
-
 			final Location blockLoc = this.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-
-			if (isPipeNeighborBlock(dir)) {
+			if (blockConnections.contains(dir)) {
 				//make sure that items won't be extracted if the extracting-pipe is an iron pipe pointing to the inventory block
 				if (getPipeType() == PipeType.IRON) {
 					IronPipe ip = (IronPipe) this;
@@ -272,12 +266,11 @@ public abstract class Pipe {
 					public void run() {
 						try {
 							if (Pipe.this.blockLoc.getBlock().isBlockIndirectlyPowered()) {
-								if (blockLoc.getBlock().getState() instanceof InventoryHolder) {
-									InventoryHolder invH = (InventoryHolder) blockLoc.getBlock().getState();
-
-									PipeDirection itemDir = dir.getOpposite();
-
-									ItemStack taken = InventoryUtils.takeItemFromInventoryHolder(invH, Pipe.this, itemDir);
+								BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+								TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
+								PipeDirection itemDir = dir.getOpposite();
+								if (tpc != null) {
+									ItemData taken = tpc.extractItem(itemDir);
 									if (taken != null) {
 										PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
 										tempPipeItemsWithSpawn.put(pi, itemDir);
@@ -295,15 +288,10 @@ public abstract class Pipe {
 		}
 	}
 
-	public List<PipeDirection> getAllConnections() {
-		List<PipeDirection> connections = PipeUtils.getOnlyPipeConnections(this);
-		synchronized (this.pipeNeighborBlocks) {
-			for (PipeDirection dir : this.pipeNeighborBlocks) {
-				if (!connections.contains(dir)) {
-					connections.add(dir);
-				}
-			}
-		}
+	public Collection<PipeDirection> getAllConnections() {
+		Set<PipeDirection> connections = new HashSet<>();
+		connections.addAll(PipeUtils.getOnlyPipeConnections(this));
+		connections.addAll(PipeUtils.getOnlyBlockConnections(this));
 		return connections;
 	}
 
@@ -327,7 +315,7 @@ public abstract class Pipe {
 
 			NBTUtils.saveStringValue(itemMap, "RelLoc", pipeItem.relLoc().toString());
 			NBTUtils.saveIntValue(itemMap, "Direction", pipeItems.get(pipeItem).getId());
-			NBTUtils.saveStringValue(itemMap, "Item", InventoryUtils.ItemStackToString(pipeItem.getItem()));
+			NBTUtils.saveStringValue(itemMap, "Item", InventoryUtils.ItemStackToString(pipeItem.getItem().toItemStack()));
 
 			itemList.add(new CompoundTag("PipeItem", itemMap));
 		}
@@ -355,7 +343,7 @@ public abstract class Pipe {
 			ItemStack itemStack = InventoryUtils.StringToItemStack(NBTUtils.readStringTag(itemMap.get("Item"), null));
 
 			if (itemStack != null) {
-				PipeItem newPipeItem = new PipeItem(itemStack, this.blockLoc, dir);
+				PipeItem newPipeItem = new PipeItem(new ItemData(itemStack), this.blockLoc, dir);
 				newPipeItem.relLoc().set(relLoc.getFloatX(), relLoc.getFloatY(), relLoc.getFloatZ());
 				tempPipeItemsWithSpawn.put(newPipeItem, dir);
 			}
@@ -369,5 +357,9 @@ public abstract class Pipe {
 	public abstract List<ItemStack> getDroppedItems();
 
 	public abstract PipeType getPipeType();
+
+	public void notifyConnectionsChange() {
+
+	}
 
 }

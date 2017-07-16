@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.rendersystem;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public abstract class PipeRenderSystem implements Listener {
 	/**
 	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe)
 	 */
-	public abstract void createPipeASD(Pipe pipe, List<PipeDirection> allConnections);
+	public abstract void createPipeASD(Pipe pipe, Collection<PipeDirection> allConnections);
 
 	/**
 	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe) also sends the removed and added ASD to all clients with this PipeManager

@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.rendersystem.vanilla.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
@@ -32,7 +34,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe, List<PipeDirection> allConnections) {
+	public void createPipeASD(Pipe pipe, Collection<PipeDirection> allConnections) {
 		if (pipeAsd.containsKey(pipe)) {
 			return;
 		}
@@ -54,7 +56,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 		List<ArmorStandData> oldASD = pipeAsd.get(pipe);
 
-		List<PipeDirection> conns = pipe.getAllConnections();
+		Collection<PipeDirection> conns = pipe.getAllConnections();
 		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), conns);
 
 		List<ArmorStandData> newASD = shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe));
@@ -125,19 +127,19 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public String getPipeRenderSystemName() {
-		return "Vanilla";
+		return LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_VANILLA);
 	}
 
 	@Override
 	public ItemStack getRepresentationItem() {
 		return PipeItemUtils.ITEM_PIPE_WHITE;
 	}
-	
+
 	@Override
 	public int getRenderSystemId() {
 		return 0;
 	}
-	
+
 	private enum VanillaPipeShape {
 		EAST_WEST(new VanillaPipeEWModel()),
 		NORTH_SOUTH(new VanillaPipeNSModel()),
@@ -154,12 +156,13 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 			return model;
 		}
 
-		public static VanillaPipeShape getPipeShapeFromConnections(PipeType pipeType, List<PipeDirection> conn) {
+		public static VanillaPipeShape getPipeShapeFromConnections(PipeType pipeType, Collection<PipeDirection> conn) {
+			PipeDirection[] array = conn.toArray(new PipeDirection[0]);
 			if (pipeType == PipeType.GOLDEN || pipeType == PipeType.IRON) {
 				return MID;
 			}
 			if (conn.size() == 1) {
-				PipeDirection pd = conn.get(0);
+				PipeDirection pd = array[0];
 				if (pd == PipeDirection.NORTH || pd == PipeDirection.SOUTH) {
 					return NORTH_SOUTH;
 				} else if (pd == PipeDirection.UP || pd == PipeDirection.DOWN) {
@@ -168,8 +171,8 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 					return EAST_WEST;
 				}
 			} else if (conn.size() == 2) {
-				PipeDirection pd1 = conn.get(0);
-				PipeDirection pd2 = conn.get(1);
+				PipeDirection pd1 = array[0];
+				PipeDirection pd2 = array[1];
 				if (pd1.getOpposite() == pd2) {
 					if (pd1 == PipeDirection.NORTH || pd1 == PipeDirection.SOUTH) {
 						return NORTH_SOUTH;

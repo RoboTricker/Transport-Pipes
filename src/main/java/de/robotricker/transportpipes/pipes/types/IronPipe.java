@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.pipes.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +20,6 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
-//TODO: the current output has to be an real output where items can really go!
 public class IronPipe extends Pipe implements ClickablePipe {
 
 	private PipeDirection currentOutputDir;
@@ -30,7 +30,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs) {
+	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
 		return currentOutputDir;
 	}
 
@@ -47,7 +47,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	public void cycleOutputDirection() {
-		List<PipeDirection> connections = getAllConnections();
+		Collection<PipeDirection> connections = getAllConnections();
 		if (connections.isEmpty()) {
 			return;
 		}
@@ -88,6 +88,14 @@ public class IronPipe extends Pipe implements ClickablePipe {
 		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		return is;
+	}
+
+	@Override
+	public void notifyConnectionsChange() {
+		Collection<PipeDirection> allConns = getAllConnections();
+		if (!allConns.isEmpty() && !allConns.contains(currentOutputDir)) {
+			cycleOutputDirection();
+		}
 	}
 
 }

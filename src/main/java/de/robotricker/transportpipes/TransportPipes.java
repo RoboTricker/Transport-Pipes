@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.robotricker.transportpipes.pipeutils.commands.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -15,6 +14,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -57,13 +57,14 @@ import de.robotricker.transportpipes.update.UpdateManager;
 public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
-	
+
 	private static PipeThread pipeThread;
 	public static ArmorStandProtocol armorStandProtocol;
 	public static PipePacketManager pipePacketManager;
 
 	//x << 34 | y << 26 | z
 	private Map<World, Map<BlockLoc, Pipe>> ppipes;
+	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
 	private List<PipeRenderSystem> renderSystems;
 	private UpdateManager updateManager;
@@ -78,6 +79,7 @@ public class TransportPipes extends JavaPlugin {
 
 		// Prepare collections
 		ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
+		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
 
 		// Prepare managers
 		armorStandProtocol = new ArmorStandProtocol();
@@ -160,7 +162,7 @@ public class TransportPipes extends JavaPlugin {
 		});
 
 		updateManager = new UpdateManager(this);
-		
+
 		//register listeners
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
@@ -182,10 +184,10 @@ public class TransportPipes extends JavaPlugin {
 
 	}
 
-	public UpdateManager getUpdateManager(){
+	public UpdateManager getUpdateManager() {
 		return updateManager;
 	}
-	
+
 	public List<PipeRenderSystem> getPipeRenderSystems() {
 		return renderSystems;
 	}
@@ -211,9 +213,20 @@ public class TransportPipes extends JavaPlugin {
 		}
 		return null;
 	}
-	
-	public Map<World, Map<BlockLoc, Pipe>> getFullPipeMap(){
+
+	public Map<World, Map<BlockLoc, Pipe>> getFullPipeMap() {
 		return ppipes;
+	}
+
+	public Map<BlockLoc, TransportPipesContainer> getContainerMap(World world) {
+		if (registeredContainers.containsKey(world)) {
+			return registeredContainers.get(world);
+		}
+		return null;
+	}
+
+	public Map<World, Map<BlockLoc, TransportPipesContainer>> getFullContainerMap() {
+		return registeredContainers;
 	}
 
 }

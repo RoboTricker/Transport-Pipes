@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.pipes.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,16 +28,17 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, List<PipeDirection> possibleDirs) {
+	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
 		if (possibleDirs.contains(before.getOpposite())) {
 			possibleDirs.remove(before.getOpposite());
 		}
+		PipeDirection[] array = possibleDirs.toArray(new PipeDirection[0]);
 		lastOutputIndex++;
 		if (lastOutputIndex >= possibleDirs.size()) {
 			lastOutputIndex = 0;
 		}
 		if (possibleDirs.size() > 0) {
-			return possibleDirs.get(lastOutputIndex);
+			return array[lastOutputIndex];
 		}
 		return before;
 	}

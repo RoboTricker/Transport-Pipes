@@ -1,12 +1,12 @@
 package de.robotricker.transportpipes.pipeutils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,7 +18,9 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
+import de.robotricker.transportpipes.api.PipeAPI;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.container.ChestContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -94,40 +96,39 @@ public class PipeNeighborBlockUtils implements Listener {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(toUpdate.getWorld());
 
 		if (pipeMap != null) {
-			for (PipeDirection pd : PipeDirection.values()) {
-				PipeDirection opposite = pd.getOpposite();
-				Location blockLoc = toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
-				if (pipeMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
-					final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(blockLoc));
-					if (add) {
-						//add pipe neighbor block
-						if (!pipe.pipeNeighborBlocks.contains(opposite)) {
-							pipe.pipeNeighborBlocks.add(opposite);
-							PipeThread.runTask(new Runnable() {
+			BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
+			boolean updateNeighborPipes = false;
 
-								@Override
-								public void run() {
-									TransportPipes.pipePacketManager.updatePipe(pipe);
-								}
-							}, 0);
-						}
-					} else {
-						//remove pipe neighbor block
-						if (pipe.pipeNeighborBlocks.contains(opposite)) {
-							pipe.pipeNeighborBlocks.remove(opposite);
-							PipeThread.runTask(new Runnable() {
+			if (add) {
+				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+					TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
+					PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
+					updateNeighborPipes = true;
+				}
+			} else {
+				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+					PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
+					updateNeighborPipes = true;
+				}
+			}
 
-								@Override
-								public void run() {
-									TransportPipes.pipePacketManager.updatePipe(pipe);
-								}
+			if (updateNeighborPipes) {
+				for (PipeDirection pd : PipeDirection.values()) {
+					Location blockLoc = toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ());
+					if (pipeMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
+						final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(blockLoc));
+						PipeThread.runTask(new Runnable() {
 
-							}, 0);
-						}
+							@Override
+							public void run() {
+								TransportPipes.pipePacketManager.updatePipe(pipe);
+							}
+						}, 0);
 					}
 				}
 			}
+
 		}
 	}
 
@@ -136,21 +137,14 @@ public class PipeNeighborBlockUtils implements Listener {
 	 */
 	public static boolean isIdInventoryHolder(int id) {
 		boolean v1_9or1_10 = Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10");
-		return id == 54 || id == 146 || id == 154 || id == 61 || id == 62 || id == 379 || id == 23 || id == 158 || id == 117 || (!v1_9or1_10 && id >= 219 && id <= 234);
+		return id == Material.CHEST.getId() || id == Material.TRAPPED_CHEST.getId() || id == Material.HOPPER.getId() || id == Material.FURNACE.getId() || id == Material.BURNING_FURNACE.getId() || id == 379 || id == Material.DISPENSER.getId() || id == Material.DROPPER.getId() || id == Material.BREWING_STAND.getId() || (!v1_9or1_10 && id >= Material.WHITE_SHULKER_BOX.getId() && id <= Material.BLACK_SHULKER_BOX.getId());
 	}
 
-	/**
-	 * ONLY IN MAIN THREAD gets block connection dirs (not pipe connections)
-	 */
-	public static List<PipeDirection> getOnlyNeighborBlocksConnectionsSync(final Location pipeLoc) {
-		List<PipeDirection> dirs = new ArrayList<>();
-		for (PipeDirection dir : PipeDirection.values()) {
-			Location blockLoc = pipeLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-			if (PipeNeighborBlockUtils.isIdInventoryHolder(blockLoc.getBlock().getTypeId())) {
-				dirs.add(dir);
-			}
+	public static TransportPipesContainer createContainerFromBlock(Block block) {
+		if (block.getState() instanceof Chest) {
+			return new ChestContainer(block);
 		}
-		return dirs;
+		return null;
 	}
 
 }
