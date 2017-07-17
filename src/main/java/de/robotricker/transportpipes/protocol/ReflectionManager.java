@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class ReflectionManager {
@@ -25,7 +26,7 @@ public class ReflectionManager {
 	public static Object createVector3f(float x, float y, float z) {
 		try {
 			Class<?> vectorClass = getVector3fClass();
-			if(vectorClass == null) {
+			if (vectorClass == null) {
 				return null;
 			}
 			Constructor<?> constructor = vectorClass.getConstructor(float.class, float.class, float.class);
@@ -67,17 +68,24 @@ public class ReflectionManager {
 		try {
 			Class<?> recipesFurnaceClass = Class.forName("net.minecraft.server." + version + ".RecipesFurnace");
 			Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
-			Method instanceMethod = recipesFurnaceClass.getDeclaredMethod("getInstance");
-			Object recipesFurnaceObj = instanceMethod.invoke(null);
-			Method getResult = recipesFurnaceClass.getDeclaredMethod("getResult", nmsItemStackClass);
-
 			Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
-			Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
-			Object nmsItemStackObj = asNMSCopy.invoke(null, item);
 
+			Method instanceMethod = recipesFurnaceClass.getDeclaredMethod("getInstance");
+			Method getResult = recipesFurnaceClass.getDeclaredMethod("getResult", nmsItemStackClass);
+			Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
+			Method asBukkitCopy = craftItemStackClass.getDeclaredMethod("asBukkitCopy", nmsItemStackClass);
+
+			Object recipesFurnaceObj = instanceMethod.invoke(null);
+			Object nmsItemStackObj = asNMSCopy.invoke(null, item);
 			Object resultObj = getResult.invoke(recipesFurnaceObj, nmsItemStackObj);
 
-			return resultObj != null;
+			if (resultObj == null) {
+				return false;
+			}
+			ItemStack resultItem = (ItemStack) asBukkitCopy.invoke(null, resultObj);
+			if (resultItem.getType() != Material.AIR) {
+				return true;
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

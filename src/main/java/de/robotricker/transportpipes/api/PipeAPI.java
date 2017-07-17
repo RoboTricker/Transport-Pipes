@@ -125,13 +125,22 @@ public class PipeAPI {
 	}
 
 	/**
-	 * puts any item (with an amount of 1!!!) into the given pipe object with a moving direction to "itemDirection".
+	 * puts any item (with an amount of 1) into the given pipe object with a moving direction to "itemDirection".
 	 */
 	public static void putItemInPipe(Pipe pipe, ItemData item, PipeDirection itemDirection) {
 		PipeItem pi = new PipeItem(item, pipe.blockLoc, itemDirection);
 		pipe.tempPipeItemsWithSpawn.put(pi, itemDirection);
 	}
 
+	/**
+	 * register a custom container block at a specific location. Every pipe around this block will try to extract/insert items from/into this container.<br>
+	 * Create your own implementation of the TransportPipesContainer interface in order to specify which items to extract and where inserted items should go.
+	 * 
+	 * @param blockLoc
+	 *            the location of the block this TransportPipesContainer is at
+	 * @param tpc
+	 *            an implementation of the TransportPipesContainer interface
+	 */
 	public static void registerTransportPipesContainer(Location blockLoc, TransportPipesContainer tpc) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 
@@ -144,9 +153,14 @@ public class PipeAPI {
 			throw new IllegalArgumentException("There is already a TransportPipesContainer object registered at this location");
 		}
 		containerMap.put(bl, tpc);
-		System.out.println("registered " + blockLoc.getBlock().getState().getClass().getSimpleName());
 	}
 
+	/**
+	 * unregisters a custom container block. See {@link PipeAPI#registerTransportPipesContainer(Location, TransportPipesContainer)}
+	 * 
+	 * @param blockLoc
+	 *            the location of the block where a TransportPipesContainer is registered at.
+	 */
 	public static void unregisterTransportPipesContainer(Location blockLoc) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 
@@ -154,7 +168,6 @@ public class PipeAPI {
 		if (containerMap != null) {
 			if (containerMap.containsKey(bl)) {
 				containerMap.remove(bl);
-				System.out.println("unregistered " + blockLoc.getBlock().getState().getClass().getSimpleName());
 			}
 		}
 	}

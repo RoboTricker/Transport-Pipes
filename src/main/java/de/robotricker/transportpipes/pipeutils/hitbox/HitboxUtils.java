@@ -25,7 +25,7 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 
 public class HitboxUtils {
@@ -160,8 +160,8 @@ public class HitboxUtils {
 		}
 		b.setTypeIdAndData(id, data, true);
 
-		if (PipeNeighborBlockUtils.isIdInventoryHolder(id)) {
-			PipeNeighborBlockUtils.updatePipeNeighborBlockSync(b, true);
+		if (ContainerBlockUtils.isIdContainerBlock(id)) {
+			ContainerBlockUtils.updatePipeNeighborBlockSync(b, true);
 		}
 
 		return true;
