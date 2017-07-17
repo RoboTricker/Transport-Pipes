@@ -12,6 +12,7 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
@@ -132,7 +133,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public ItemStack getRepresentationItem() {
-		return PipeItemUtils.ITEM_PIPE_WHITE;
+		return PipeItemUtils.getPipeItem(PipeType.COLORED, PipeColor.WHITE);
 	}
 
 	@Override

@@ -29,7 +29,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeNeighborBlockUtils;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 
 public class PipeUtils {
 
@@ -266,9 +266,9 @@ public class PipeUtils {
 				//update container blocks sync
 				for (PipeDirection pd : PipeDirection.values()) {
 					Block b = pipe.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()).getBlock();
-					if (PipeNeighborBlockUtils.isIdInventoryHolder(b.getTypeId())) {
+					if (ContainerBlockUtils.isIdContainerBlock(b.getTypeId())) {
 						allConnections.add(pd);
-						PipeNeighborBlockUtils.updatePipeNeighborBlockSync(b, true);
+						ContainerBlockUtils.updatePipeNeighborBlockSync(b, true);
 					}
 				}
 

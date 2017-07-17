@@ -18,7 +18,7 @@ import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -33,7 +33,7 @@ import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeModel;
 
 public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
-	private static final ItemStack ITEM_PIPE_WHITE = PipeItemUtils.createToolItemStack(25, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+	private static final ItemStack ITEM_PIPE_WHITE = InventoryUtils.createToolItemStack(25);
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<>();
 	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<>();
@@ -182,7 +182,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public ItemStack getRepresentationItem() {
-		return PipeItemUtils.changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+		return InventoryUtils.changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 	}
 
 	@Override
