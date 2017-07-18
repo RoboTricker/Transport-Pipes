@@ -2,6 +2,7 @@ package de.robotricker.transportpipes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -57,7 +58,7 @@ public class PipeThread extends Thread {
 		PipeThread.lastAction = lastAction;
 	}
 
-	public long getLastTickDiff(){
+	public long getLastTickDiff() {
 		return System.currentTimeMillis() - lastTick;
 	}
 
@@ -190,6 +191,8 @@ public class PipeThread extends Thread {
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			} catch (ConcurrentModificationException e) {
+				handleAsyncError(e);
 			}
 		}
 		System.out.println("stopping TransportPipes-Thread");
@@ -197,7 +200,14 @@ public class PipeThread extends Thread {
 	}
 
 	public static void runTask(Runnable run, int tickDelay) {
-		tickList.put(run, tickDelay);
+		synchronized (tickList) {
+			tickList.put(run, tickDelay);
+		}
+	}
+
+	public static void handleAsyncError(Exception e) {
+		System.err.println("------------------------> ASYNC ERROR: <------------------------");
+		e.printStackTrace();
 	}
 
 }
