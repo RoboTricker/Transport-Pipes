@@ -85,14 +85,17 @@ public abstract class Pipe {
 
 		if (extractItems) {
 			//extract items from inventories
+			PipeThread.setLastAction("Pipe extract");
 			extractItems(pipeConnections, blockConnections);
 		}
 
 		//handle item transport through pipe
+		PipeThread.setLastAction("Pipe transport");
 		transportItems(pipeConnections, blockConnections, itemsTicked);
 
 		//pipe explosion if too many items
 		if (pipeItems.size() >= TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
+			PipeThread.setLastAction("Pipe explode");
 			synchronized (this) {
 				explode(true);
 			}
