@@ -25,6 +25,9 @@ public class LocConf extends Conf {
 	public static final String GOLDENPIPE_FILTERING_IGNORENBT = "goldenpipe.filtering.ignorenbt";
 	public static final String GOLDENPIPE_FILTERING_CHECKNBT = "goldenpipe.filtering.checknbt";
 	public static final String GOLDENPIPE_FILTERING_CLICKTOCHANGE = "goldenpipe.filtering.clicktochange";
+	public static final String GOLDENPIPE_PINGPONG_ALLOW = "goldenpipe.pingpong.allow";
+	public static final String GOLDENPIPE_PINGPONG_PREVENT = "goldenpipe.pingpong.prevent";
+	public static final String GOLDENPIPE_PINGPONG_CLICKTOCHANGE = "goldenpipe.pingpong.clicktochange";
 	public static final String SETTINGS_TITLE = "settings.title";
 	public static final String SETTINGS_RENDERDISTANCE_TITLE = "settings.renderdistance.title";
 	public static final String SETTINGS_RENDERDISTANCE_DECREASE = "settings.renderdistance.decrease";
@@ -59,6 +62,9 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_FILTERING_IGNORENBT, "&7Current Mode: &cIGNORE NBT");
 		saveAsDefault(GOLDENPIPE_FILTERING_CHECKNBT, "&7Current Mode: &aCHECK NBT");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
+		saveAsDefault(GOLDENPIPE_PINGPONG_ALLOW, "&7Current Mode: &cALLOW PINGPONG");
+		saveAsDefault(GOLDENPIPE_PINGPONG_PREVENT, "&7Current Mode: &aPREVENT PINGPONG");
+		saveAsDefault(GOLDENPIPE_PINGPONG_CLICKTOCHANGE, "&7Click to change pingpong mode.");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DECREASE, "&6Decrease");

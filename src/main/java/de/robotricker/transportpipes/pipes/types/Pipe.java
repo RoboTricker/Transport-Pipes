@@ -1,18 +1,10 @@
 package de.robotricker.transportpipes.pipes.types;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
@@ -39,6 +31,8 @@ public abstract class Pipe {
 	public static final float ICE_ITEM_SPEED = 0.5f;
 	//calculate the amount of digits in 10^digits to shift all floats 
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
+
+	public final static List<BlockFace> POWER_FACES = Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST);
 
 	//contains all items managed by this pipe
 	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<>();
@@ -265,7 +259,16 @@ public abstract class Pipe {
 					@Override
 					public void run() {
 						try {
-							if (Pipe.this.blockLoc.getBlock().isBlockIndirectlyPowered()) {
+							Block block = Pipe.this.blockLoc.getBlock();
+							boolean powered = false;
+							for(BlockFace blockFace : POWER_FACES) {
+								Block relative = block.getRelative(blockFace);
+								if(relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(blockFace.getOppositeFace()) > 0) {
+									powered = true;
+									break;
+								}
+							}
+							if (powered) {
 								BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 								TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
 								PipeDirection itemDir = dir.getOpposite();

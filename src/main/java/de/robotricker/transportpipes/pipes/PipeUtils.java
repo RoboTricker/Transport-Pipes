@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -117,6 +118,10 @@ public class PipeUtils {
 				pipeToDestroy.tempPipeItemsWithSpawn.clear();
 
 				updatePipeNeighborPipes(pipeToDestroy.blockLoc);
+
+				if(player != null && player.getGameMode() != GameMode.SURVIVAL) {
+					return;
+				}
 
 				final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems();
 				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
