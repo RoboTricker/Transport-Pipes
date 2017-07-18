@@ -152,6 +152,9 @@ public class PipePacketManager implements Listener {
 							List<Player> playerList = new ArrayList<Player>();
 							playerList.addAll(world.getPlayers());
 							for (Player on : playerList) {
+								if (!pipe.blockLoc.getWorld().equals(on.getWorld())) {
+									continue;
+								}
 								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 									//spawn pipe if not spawned
 									spawnPipe(on, pipe);
@@ -162,6 +165,9 @@ public class PipePacketManager implements Listener {
 
 								for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
 									PipeItem item = (PipeItem) pipe.pipeItems.keySet().toArray()[i2];
+									if (!item.getBlockLoc().getWorld().equals(on.getWorld())) {
+										continue;
+									}
 									if (item.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 										spawnItem(on, item);
 									} else {
