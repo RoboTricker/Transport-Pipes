@@ -28,6 +28,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
 	private ItemData[][] outputItems = new ItemData[6][8];
 	private boolean ignoreNBT = false;
+	private boolean preventPingPong = false;
 
 	public GoldenPipe(Location blockLoc) {
 		super(blockLoc);
@@ -51,6 +52,9 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
+			if(preventPingPong && dir == before.getOpposite()) {
+				continue;
+			}
 			//ignore the direction in which is no pipe or inv-block
 			if (!connectionDirections.contains(dir)) {
 				continue;
@@ -112,6 +116,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		}
 
 		NBTUtils.saveByteValue(tags, "IgnoreNBT", ignoreNBT ? (byte) 1 : (byte) 0);
+		NBTUtils.saveByteValue(tags, "PreventPingPong", preventPingPong ? (byte) 1 : (byte) 0);
 
 	}
 
@@ -134,6 +139,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		boolean ignoreNBT = NBTUtils.readByteTag(map.get("IgnoreNBT"), (byte) 0) == (byte) 1;
 		setIgnoreNBT(ignoreNBT);
 
+		boolean preventPingPong = NBTUtils.readByteTag(map.get("PreventPingPong"), (byte) 0) == (byte) 1;
+		setPreventPingPong(preventPingPong);
 	}
 
 	@Override
@@ -151,6 +158,14 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	public void setIgnoreNBT(boolean ignoreNBT) {
 		this.ignoreNBT = ignoreNBT;
+	}
+
+	public boolean isPreventPingPong() {
+		return preventPingPong;
+	}
+
+	public void setPreventPingPong(boolean preventPingPong) {
+		this.preventPingPong = preventPingPong;
 	}
 
 	public void changeOutputItems(PipeDirection pd, List<ItemData> items) {
