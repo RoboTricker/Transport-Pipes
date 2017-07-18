@@ -62,9 +62,9 @@ public class PipePacketManager implements Listener {
 
 	public void createPipeItem(PipeItem pipeItem) {
 		try {
-			List<Player> playerList = new ArrayList<Player>();
-			playerList.addAll(pipeItem.getBlockLoc().getWorld().getPlayers());
-			for (Player on : playerList) {
+			List<Player> playerList = pipeItem.getBlockLoc().getWorld().getPlayers();
+			for (int i = 0; i < playerList.size(); i++) {
+				Player on = playerList.get(i);
 				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 					spawnItem(on, pipeItem);
 				}
@@ -76,9 +76,9 @@ public class PipePacketManager implements Listener {
 
 	public void updatePipeItem(PipeItem pipeItem) {
 		try {
-			List<Player> playerList = new ArrayList<Player>();
-			playerList.addAll(pipeItem.getBlockLoc().getWorld().getPlayers());
-			for (Player on : playerList) {
+			List<Player> playerList = pipeItem.getBlockLoc().getWorld().getPlayers();
+			for (int i = 0; i < playerList.size(); i++) {
+				Player on = playerList.get(i);
 				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 					TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
 				}
@@ -149,9 +149,9 @@ public class PipePacketManager implements Listener {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {
 						try {
-							List<Player> playerList = new ArrayList<Player>();
-							playerList.addAll(world.getPlayers());
-							for (Player on : playerList) {
+							List<Player> playerList = world.getPlayers();
+							for (int i = 0; i < playerList.size(); i++) {
+								Player on = playerList.get(i);
 								if (!pipe.blockLoc.getWorld().equals(on.getWorld())) {
 									continue;
 								}
