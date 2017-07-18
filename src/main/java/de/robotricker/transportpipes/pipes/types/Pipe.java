@@ -127,7 +127,6 @@ public abstract class Pipe {
 	public abstract PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs);
 
 	private void transportItems(List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections, List<PipeItem> itemsTicked) {
-
 		HashMap<PipeItem, PipeDirection> itemsMap = new HashMap<>(pipeItems);
 		for (final PipeItem item : itemsMap.keySet()) {
 			PipeDirection itemDir = itemsMap.get(item);

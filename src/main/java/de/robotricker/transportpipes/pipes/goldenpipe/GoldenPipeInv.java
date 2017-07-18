@@ -40,12 +40,24 @@ public class GoldenPipeInv implements Listener {
 
 		Material filteringMaterial;
 		String filteringName;
-		if (pipe.isIgnoreNBT()) {
-			filteringMaterial = Material.WOOL;
-			filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_IGNORENBT);
-		} else {
-			filteringMaterial = Material.STAINED_GLASS;
-			filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_CHECKNBT);
+		switch (pipe.getFilterMode()) {
+			default:
+			case CHECKNBT:
+				filteringMaterial = Material.STAINED_GLASS;
+				filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_CHECKNBT);
+				break;
+			case CHECKNBTIGNOREDAMAGE:
+				filteringMaterial = Material.STAINED_GLASS_PANE;
+				filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_CHECKNBTIGNOREDAMAGE);
+				break;
+			case IGNORENBT:
+				filteringMaterial = Material.WOOL;
+				filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_IGNORENBT);
+				break;
+			case IGNOREDAMAGE:
+				filteringMaterial = Material.STAINED_CLAY;
+				filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_IGNOREDAMAGE);
+				break;
 		}
 
 		GoldenPipeColor filteringColor = GoldenPipeColor.values()[0];
@@ -110,7 +122,13 @@ public class GoldenPipeInv implements Listener {
 						}
 					}
 					if(e.getRawSlot() == 0) {
-						pipe.setIgnoreNBT(!pipe.isIgnoreNBT());
+						// cycle filter mode
+						int id = pipe.getFilterMode().getId();
+						id++;
+						if(id == GoldenPipe.FilterMode.values().length) {
+							id = 0;
+						}
+						pipe.setFilterMode(GoldenPipe.FilterMode.values()[id]);
 					} else {
 						pipe.setPreventPingPong(!pipe.isPreventPingPong());
 					}
