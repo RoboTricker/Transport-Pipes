@@ -194,7 +194,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 	public void initPlayer(Player p) {
 		if (!loadedResourcePackPlayers.contains(p)) {
 			p.closeInventory();
-			p.setResourcePack("http://frontfight.net/TransportPipes-ResourcePack2.zip");
+			p.setResourcePack("https://dl.dropboxusercontent.com/s/ra6q532crfruv8w/TransportPipes-ResourcePack.zip");
 		}
 	}
 
