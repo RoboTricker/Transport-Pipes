@@ -46,6 +46,10 @@ public class PipeThread extends Thread {
 	public static int getCalculatedTps() {
 		return calculatedTps;
 	}
+	
+	public long getLastTickDiff(){
+		return System.currentTimeMillis() - lastTick;
+	}
 
 	public static boolean isRunning() {
 		return running;

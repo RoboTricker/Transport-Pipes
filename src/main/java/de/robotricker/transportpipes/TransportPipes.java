@@ -18,8 +18,8 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
+import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.commands.CreativeCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
@@ -58,7 +58,7 @@ public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
 
-	private static PipeThread pipeThread;
+	public static PipeThread pipeThread;
 	public static ArmorStandProtocol armorStandProtocol;
 	public static PipePacketManager pipePacketManager;
 
