@@ -27,7 +27,25 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
 	private ItemData[][] outputItems = new ItemData[6][8];
-	private boolean ignoreNBT = false;
+
+	public enum FilterMode {
+		CHECKNBT(0),
+		CHECKNBTIGNOREDAMAGE(1),
+		IGNORENBT(2),
+		IGNOREDAMAGE(3);
+
+		private int id;
+
+		FilterMode(int id) {
+			this.id = id;
+		}
+
+		public int getId() {
+			return id;
+		}
+	}
+
+	private FilterMode filterMode = FilterMode.CHECKNBT;
 	private boolean preventPingPong = false;
 
 	public GoldenPipe(Location blockLoc) {
@@ -64,15 +82,41 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 				if (outputItems[line][i] != null) {
 					empty = false;
 				}
-				if (ignoreNBT) {
-					ItemStack item = itemData.toItemStack();
-					if (outputItems[line][i] != null) {
-						ItemStack sample = outputItems[line][i].toItemStack();
-						if (sample.getType().equals(item.getType()) && sample.getData().getData() == item.getData().getData()) {
-							possibleDirections.add(dir);
+				boolean result = false;
+				switch (filterMode) {
+					case CHECKNBT:
+						if(itemData.equals(outputItems[line][i])) {
+							result = true;
 						}
-					}
-				} else if (itemData.equals(outputItems[line][i])) {
+						break;
+					case CHECKNBTIGNOREDAMAGE:
+						ItemStack item = itemData.toItemStack();
+						if (outputItems[line][i] != null) {
+							ItemStack sample = outputItems[line][i].toItemStack();
+							if (sample.getType().equals(item.getType()) && sample.getItemMeta().equals(item.getItemMeta())) {
+								result = true;
+							}
+						}
+						break;
+					case IGNORENBT:
+						ItemStack item1 = itemData.toItemStack();
+						if (outputItems[line][i] != null) {
+							ItemStack sample = outputItems[line][i].toItemStack();
+							if (sample.getType().equals(item1.getType()) && sample.getData().getData() == item1.getData().getData()) {
+								result = true;
+							}
+						}
+						break;
+					case IGNOREDAMAGE:
+						ItemStack item2 = itemData.toItemStack();
+						if (outputItems[line][i] != null) {
+							ItemStack sample = outputItems[line][i].toItemStack();
+							if (sample.getType().equals(item2.getType())) {
+								result = true;
+							}
+						}
+				}
+				if (result) {
 					possibleDirections.add(dir);
 				}
 			}
@@ -115,7 +159,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			NBTUtils.saveListValue(tags, "Line" + line, NBTTagType.TAG_COMPOUND, lineList);
 		}
 
-		NBTUtils.saveByteValue(tags, "IgnoreNBT", ignoreNBT ? (byte) 1 : (byte) 0);
+		NBTUtils.saveByteValue(tags, "FilterMode", (byte) filterMode.getId());
 		NBTUtils.saveByteValue(tags, "PreventPingPong", preventPingPong ? (byte) 1 : (byte) 0);
 
 	}
@@ -136,8 +180,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			}
 		}
 
-		boolean ignoreNBT = NBTUtils.readByteTag(map.get("IgnoreNBT"), (byte) 0) == (byte) 1;
-		setIgnoreNBT(ignoreNBT);
+		FilterMode filterMode = FilterMode.values()[(int)NBTUtils.readByteTag(map.get("FilterMode"), (byte) 0)];
+		setFilterMode(filterMode);
 
 		boolean preventPingPong = NBTUtils.readByteTag(map.get("PreventPingPong"), (byte) 0) == (byte) 1;
 		setPreventPingPong(preventPingPong);
@@ -152,12 +196,12 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		return outputItems[pd.getId()];
 	}
 
-	public boolean isIgnoreNBT() {
-		return ignoreNBT;
+	public FilterMode getFilterMode() {
+		return filterMode;
 	}
 
-	public void setIgnoreNBT(boolean ignoreNBT) {
-		this.ignoreNBT = ignoreNBT;
+	public void setFilterMode(FilterMode filterMode) {
+		this.filterMode = filterMode;
 	}
 
 	public boolean isPreventPingPong() {

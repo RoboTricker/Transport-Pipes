@@ -22,8 +22,10 @@ public class LocConf extends Conf {
 	public static final String GOLDENPIPE_COLORS_BLUE = "goldenpipe.colors.blue";
 	public static final String GOLDENPIPE_COLORS_RED = "goldenpipe.colors.red";
 	public static final String GOLDENPIPE_COLORS_BLACK = "goldenpipe.colors.black";
-	public static final String GOLDENPIPE_FILTERING_IGNORENBT = "goldenpipe.filtering.ignorenbt";
 	public static final String GOLDENPIPE_FILTERING_CHECKNBT = "goldenpipe.filtering.checknbt";
+	public static final String GOLDENPIPE_FILTERING_CHECKNBTIGNOREDAMAGE = "goldenpipe.filtering.checknbtignoredamage";
+	public static final String GOLDENPIPE_FILTERING_IGNORENBT = "goldenpipe.filtering.ignorenbt";
+	public static final String GOLDENPIPE_FILTERING_IGNOREDAMAGE = "goldenpipe.filtering.ignoredamage";
 	public static final String GOLDENPIPE_FILTERING_CLICKTOCHANGE = "goldenpipe.filtering.clicktochange";
 	public static final String GOLDENPIPE_PINGPONG_ALLOW = "goldenpipe.pingpong.allow";
 	public static final String GOLDENPIPE_PINGPONG_PREVENT = "goldenpipe.pingpong.prevent";
@@ -59,8 +61,10 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_COLORS_BLUE, "&9Blue");
 		saveAsDefault(GOLDENPIPE_COLORS_RED, "&cRed");
 		saveAsDefault(GOLDENPIPE_COLORS_BLACK, "&8Black");
-		saveAsDefault(GOLDENPIPE_FILTERING_IGNORENBT, "&7Current Mode: &cIGNORE NBT");
-		saveAsDefault(GOLDENPIPE_FILTERING_CHECKNBT, "&7Current Mode: &aCHECK NBT");
+		saveAsDefault(GOLDENPIPE_FILTERING_CHECKNBT, "&7Current Mode: &aCHECK NBT, CHECK DAMAGE");
+		saveAsDefault(GOLDENPIPE_FILTERING_CHECKNBTIGNOREDAMAGE, "&7Current Mode: &aCHECK NBT, IGNORE DAMAGE");
+		saveAsDefault(GOLDENPIPE_FILTERING_IGNORENBT, "&7Current Mode: &cIGNORE NBT, CHECK DAMAGE");
+		saveAsDefault(GOLDENPIPE_FILTERING_IGNOREDAMAGE, "&7Current Mode: &cIGNORE NBT, IGNORE DAMAGE");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
 		saveAsDefault(GOLDENPIPE_PINGPONG_ALLOW, "&7Current Mode: &cALLOW PINGPONG");
 		saveAsDefault(GOLDENPIPE_PINGPONG_PREVENT, "&7Current Mode: &aPREVENT PINGPONG");
