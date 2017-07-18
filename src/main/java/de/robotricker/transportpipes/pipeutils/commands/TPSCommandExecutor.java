@@ -36,6 +36,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Tick duration: " + colour + (PipeThread.timeTick / 10000) / 100f + "ms"));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Tick: " + lastTickDiff));
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Action: " + PipeThread.getLastAction()));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6TPS: " + colour + tps + " &6/ §2" + PipeThread.WANTED_TPS));
 
 		for (World world : Bukkit.getWorlds()) {

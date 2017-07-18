@@ -39,6 +39,8 @@ public class PipeThread extends Thread {
 
 	public static long timeTick = 0;
 
+	private static String lastAction = "Starting";
+
 	public PipeThread() {
 		super("TransportPipes Thread");
 	}
@@ -46,7 +48,15 @@ public class PipeThread extends Thread {
 	public static int getCalculatedTps() {
 		return calculatedTps;
 	}
-	
+
+	public static String getLastAction() {
+		return lastAction;
+	}
+
+	public static void setLastAction(String lastAction) {
+		PipeThread.lastAction = lastAction;
+	}
+
 	public long getLastTickDiff(){
 		return System.currentTimeMillis() - lastTick;
 	}
@@ -65,8 +75,10 @@ public class PipeThread extends Thread {
 		while (running) {
 
 			try {
+				lastAction = "Sleeping";
 				Thread.sleep(50);
 				long currentTime = System.currentTimeMillis();
+				lastAction = "TPS calc";
 				if (currentTime - lastSecond >= 1000) {
 					lastSecond = currentTime;
 					calculatedTps = tpsCounter;
@@ -76,6 +88,7 @@ public class PipeThread extends Thread {
 					continue;
 				}
 
+				lastAction = "Tick checks";
 				boolean extractItems = false;
 				boolean checkViewDistance = false;
 
@@ -96,6 +109,7 @@ public class PipeThread extends Thread {
 				lastTick = currentTime;
 
 				//internal PipeThread scheduler. Has nothing to do with the pipes themselves
+				lastAction = "Internal scheduler";
 				{
 					HashMap<Runnable, Integer> tempTickList = new HashMap<>();
 					synchronized (tickList) {
@@ -121,10 +135,13 @@ public class PipeThread extends Thread {
 				List<PipeItem> itemsTicked = new ArrayList<>();
 
 				//update pipes
+				lastAction = "World loop";
 				for (World world : Bukkit.getWorlds()) {
+					lastAction = "Pipe map load";
 					Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 					if (pipeMap != null) {
 						synchronized (pipeMap) {
+							lastAction = "Pipe loop";
 							for (Pipe pipe : pipeMap.values()) {
 								//insert items from "tempPipeItemsWithSpawn"
 								synchronized (pipe.tempPipeItemsWithSpawn) {
@@ -156,6 +173,7 @@ public class PipeThread extends Thread {
 								}
 
 								//tick pipe (move the pipe items etc.)
+								lastAction = "Pipe tick";
 								pipe.tick(extractItems, itemsTicked);
 
 							}
@@ -166,6 +184,7 @@ public class PipeThread extends Thread {
 				PipeThread.timeTick = (System.nanoTime() - timeBefore);
 
 				if (checkViewDistance) {
+					lastAction = "View distance";
 					TransportPipes.pipePacketManager.tickSync();
 				}
 
