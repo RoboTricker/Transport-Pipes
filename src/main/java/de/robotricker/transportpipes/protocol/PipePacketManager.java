@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.protocol;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,25 +62,29 @@ public class PipePacketManager implements Listener {
 
 	public void createPipeItem(PipeItem pipeItem) {
 		try {
-			for (Player on : pipeItem.getBlockLoc().getWorld().getPlayers()) {
+			List<Player> playerList = new ArrayList<Player>();
+			playerList.addAll(pipeItem.getBlockLoc().getWorld().getPlayers());
+			for (Player on : playerList) {
 				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 					spawnItem(on, pipeItem);
 				}
 			}
-		} catch (IllegalStateException e) {
-			handleAsyncError(e);
+		} catch (IllegalStateException | ConcurrentModificationException e) {
+			PipeThread.handleAsyncError(e);
 		}
 	}
 
 	public void updatePipeItem(PipeItem pipeItem) {
 		try {
-			for (Player on : pipeItem.getBlockLoc().getWorld().getPlayers()) {
+			List<Player> playerList = new ArrayList<Player>();
+			playerList.addAll(pipeItem.getBlockLoc().getWorld().getPlayers());
+			for (Player on : playerList) {
 				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 					TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
 				}
 			}
-		} catch (IllegalStateException e) {
-			handleAsyncError(e);
+		} catch (IllegalStateException | ConcurrentModificationException e) {
+			PipeThread.handleAsyncError(e);
 		}
 	}
 
@@ -144,7 +149,9 @@ public class PipePacketManager implements Listener {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {
 						try {
-							for (Player on : world.getPlayers()) {
+							List<Player> playerList = new ArrayList<Player>();
+							playerList.addAll(world.getPlayers());
+							for (Player on : playerList) {
 								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 									//spawn pipe if not spawned
 									spawnPipe(on, pipe);
@@ -163,8 +170,8 @@ public class PipePacketManager implements Listener {
 								}
 
 							}
-						} catch (IllegalStateException e) {
-							handleAsyncError(e);
+						} catch (IllegalStateException | ConcurrentModificationException e) {
+							PipeThread.handleAsyncError(e);
 						}
 
 					}
@@ -224,11 +231,6 @@ public class PipePacketManager implements Listener {
 				}
 			}
 		}, 0);
-	}
-
-	private void handleAsyncError(IllegalStateException e) {
-		System.err.println("ASYNC ERROR:");
-		e.printStackTrace();
 	}
 
 }
