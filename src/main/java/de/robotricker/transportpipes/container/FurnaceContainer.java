@@ -68,4 +68,9 @@ public class FurnaceContainer extends BlockContainer {
 
 	}
 
+	@Override
+	public boolean isSpaceForItem(PipeDirection insertDirection, ItemData insertion) {
+		return false; s
+	}
+
 }

@@ -222,7 +222,7 @@ public class PipeUtils {
 		}
 		return null;
 	}
-
+	
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
 		BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 

@@ -2,6 +2,7 @@ package de.robotricker.transportpipes.container;
 
 import java.util.Collection;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -37,6 +38,21 @@ public class SimpleInventoryContainer extends BlockContainer {
 		Inventory inv = inventoryHolder.getInventory();
 		Collection<ItemStack> overflow = inv.addItem(insertion.toItemStack()).values();
 		return overflow.isEmpty();
+	}
+
+	@Override
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		Inventory inv = inventoryHolder.getInventory();
+		for (int i = 0; i < inv.getSize(); i++) {
+			ItemStack is = inv.getItem(i);
+			if (is == null || is.getType() == Material.AIR) {
+				return true;
+			}
+			if (is.isSimilar(insertion.toItemStack()) && is.getAmount() < is.getMaxStackSize()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

@@ -24,55 +24,33 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class GoldenPipeInv implements Listener {
 
-	private static HashMap<GoldenPipe, Inventory> pipe_invs = new HashMap<>();
+	private static HashMap<GoldenPipe, Inventory> goldenPipeInventories = new HashMap<>();
 
 	public static void updateGoldenPipeInventory(Player p, GoldenPipe pipe) {
 		Inventory inv;
-		if (pipe_invs.containsKey(pipe)) {
-			inv = pipe_invs.get(pipe);
+		if (goldenPipeInventories.containsKey(pipe)) {
+			inv = goldenPipeInventories.get(pipe);
 		} else {
 			inv = Bukkit.createInventory(null, 6 * 9, LocConf.load(LocConf.GOLDENPIPE_TITLE));
-			pipe_invs.put(pipe, inv);
+			goldenPipeInventories.put(pipe, inv);
 		}
 
-		ItemStack glass_pane = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7), String.valueOf(ChatColor.RESET));
 		Collection<PipeDirection> pipeConnections = pipe.getAllConnections();
 
-		Material filteringMaterial;
-		String filteringName;
-		if (pipe.isIgnoreNBT()) {
-			filteringMaterial = Material.WOOL;
-			filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_IGNORENBT);
-		} else {
-			filteringMaterial = Material.STAINED_GLASS;
-			filteringName = LocConf.load(LocConf.GOLDENPIPE_FILTERING_CHECKNBT);
-		}
-
-		GoldenPipeColor filteringColor = GoldenPipeColor.values()[0];
-		inv.setItem(0, InventoryUtils.changeDisplayNameAndLore(new ItemStack(filteringMaterial, 1, filteringColor.getGlassPaneDamage()), LocConf.load(filteringColor.getLocConfKey()), filteringName, LocConf.load(LocConf.GOLDENPIPE_FILTERING_CLICKTOCHANGE)));
-
-		Material pingPongMaterial;
-		String pingPongName;
-		if (pipe.isPreventPingPong()) {
-			pingPongMaterial = Material.WOOL;
-			pingPongName = LocConf.load(LocConf.GOLDENPIPE_PINGPONG_PREVENT);
-		} else {
-			pingPongMaterial = Material.STAINED_GLASS;
-			pingPongName = LocConf.load(LocConf.GOLDENPIPE_PINGPONG_ALLOW);
-		}
-
-		GoldenPipeColor pingPongColor = GoldenPipeColor.values()[1];
-		inv.setItem(9, InventoryUtils.changeDisplayNameAndLore(new ItemStack(pingPongMaterial, 1, pingPongColor.getGlassPaneDamage()), LocConf.load(pingPongColor.getLocConfKey()), pingPongName, LocConf.load(LocConf.GOLDENPIPE_PINGPONG_CLICKTOCHANGE)));
-
-		for (int i = 2; i < 6; i++) {
-			GoldenPipeColor gpc = GoldenPipeColor.values()[i];
-			inv.setItem(i * 9, new ItemStack(Material.WOOL, 1, gpc.getGlassPaneDamage()));
-		}
-
 		for (int line = 0; line < 6; line++) {
-			if (!pipeConnections.contains(PipeDirection.values()[line])) {
+			GoldenPipeColor gpc = GoldenPipeColor.values()[line];
+			PipeDirection pd = PipeDirection.fromID(line);
+
+			String blockingModeText = pipe.isLineBlocked(line) ? LocConf.load(LocConf.GOLDENPIPE_BLOCKING_ENABLED) : LocConf.load(LocConf.GOLDENPIPE_BLOCKING_DISABLED);
+			ItemStack wool = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getItemDamage()), blockingModeText, LocConf.load(LocConf.GOLDENPIPE_BLOCKING_CLICKTOCHANGE));
+			ItemStack stainedClay = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_CLAY, 1, gpc.getItemDamage()), blockingModeText, LocConf.load(LocConf.GOLDENPIPE_BLOCKING_CLICKTOCHANGE));
+			ItemStack glassPane = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, gpc.getItemDamage()), String.valueOf(ChatColor.RESET));
+
+			inv.setItem(line * 9, pipe.isLineBlocked(line) ? stainedClay : wool);
+
+			if (!pipeConnections.contains(pd) || pipe.isLineBlocked(line)) {
 				for (int i = 1; i < 9; i++) {
-					inv.setItem(line * 9 + i, glass_pane);
+					inv.setItem(line * 9 + i, glassPane);
 				}
 			} else {
 				ItemData[] items = pipe.getOutputItems(PipeDirection.fromID(line));
@@ -91,33 +69,46 @@ public class GoldenPipeInv implements Listener {
 
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && pipe_invs.containsValue(e.getClickedInventory())) {
-			//clicked on glass pane
-			if (InventoryUtils.hasDisplayName(e.getCurrentItem(), String.valueOf(ChatColor.RESET))) {
-				e.setCancelled(true);
+		if (e.getClickedInventory() != null && goldenPipeInventories.containsValue(e.getClickedInventory())) {
+			GoldenPipe pipe = null;
+			//get pipe with inventory
+			for (GoldenPipe gp : goldenPipeInventories.keySet()) {
+				if (goldenPipeInventories.get(gp).equals(e.getClickedInventory())) {
+					pipe = gp;
+					break;
+				}
 			}
-			//clicked on wool block
-			if (e.getRawSlot() >= 0 && e.getRawSlot() <= 5 * 9 && e.getRawSlot() % 9 == 0) {
+			if (pipe == null) {
+				return;
+			}
+			//clicked on glass pane
+			if (isGlassItem(e.getCurrentItem())) {
+				e.setCancelled(true);
+				return;
+			}
+			//clicked on wool/stained clay block
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 0) {
 				e.setCancelled(true);
 
-				if(e.getRawSlot() == 0 || e.getRawSlot() == 9) {
-					GoldenPipe pipe = null;
-					//get pipe with inventory
-					for (GoldenPipe gp : pipe_invs.keySet()) {
-						if (pipe_invs.get(gp).equals(e.getClickedInventory())) {
-							pipe = gp;
-							break;
+				int line = (int) (e.getRawSlot() / 9);
+				pipe.setLineBlocked(line, !pipe.isLineBlocked(line));
+
+				//drop items in line if the line gets blocked
+				if (pipe.isLineBlocked(line)) {
+					for (int i = 1; i < 9; i++) {
+						int slot = line * 9 + i;
+						ItemStack is = e.getClickedInventory().getItem(slot);
+						if (is != null && is.getType() != Material.AIR && !isGlassItem(is)) {
+							((Player) e.getWhoClicked()).getWorld().dropItem(((Player) e.getWhoClicked()).getEyeLocation(), is);
+							e.getClickedInventory().setItem(slot, null);
 						}
 					}
-					if(e.getRawSlot() == 0) {
-						pipe.setIgnoreNBT(!pipe.isIgnoreNBT());
-					} else {
-						pipe.setPreventPingPong(!pipe.isPreventPingPong());
-					}
-					// Update inv
-					saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
-					updateGoldenPipeInventory((Player) e.getWhoClicked(), pipe);
 				}
+
+				// Update inv
+				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				updateGoldenPipeInventory((Player) e.getWhoClicked(), pipe);
+				return;
 			}
 		}
 	}
@@ -128,11 +119,11 @@ public class GoldenPipeInv implements Listener {
 	}
 
 	private void saveGoldenPipeInv(Player p, Inventory inv) {
-		if (inv != null && pipe_invs.containsValue(inv)) {
+		if (inv != null && goldenPipeInventories.containsValue(inv)) {
 			GoldenPipe pipe = null;
 			//get pipe with inventory
-			for (GoldenPipe gp : pipe_invs.keySet()) {
-				if (pipe_invs.get(gp).equals(inv)) {
+			for (GoldenPipe gp : goldenPipeInventories.keySet()) {
+				if (goldenPipeInventories.get(gp).equals(inv)) {
 					pipe = gp;
 					break;
 				}
@@ -143,7 +134,7 @@ public class GoldenPipeInv implements Listener {
 				for (int i = 1; i < 9; i++) {
 					ItemStack is = inv.getItem(line * 9 + i);
 					//make sure the glass pane won't be saved
-					if (is != null && !InventoryUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET))) {
+					if (is != null && !isGlassItem(is)) {
 						items.add(new ItemData(is));
 						if (is.getAmount() > 1) {
 							//drop overflow items (only 1 item of each type is saved)
@@ -156,7 +147,7 @@ public class GoldenPipeInv implements Listener {
 							clone2.setAmount(1);
 							inv.setItem(line * 9, clone2);
 						}
-					} else if (InventoryUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET))) {
+					} else if (isGlassItem(is)) {
 						//skip this save-sequenz if this line is not available (not a pipe or block as neighbor)
 						continue linefor;
 					}
@@ -164,6 +155,10 @@ public class GoldenPipeInv implements Listener {
 				pipe.changeOutputItems(PipeDirection.fromID(line), items);
 			}
 		}
+	}
+
+	private boolean isGlassItem(ItemStack is) {
+		return InventoryUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET));
 	}
 
 }

@@ -13,13 +13,13 @@ public enum GoldenPipeColor {
 	BLACK(19, 15, LocConf.GOLDENPIPE_COLORS_BLACK, PipeDirection.DOWN);
 
 	private short resourcePackDamage;
-	private short glassPaneDamage;
+	private short itemDamage;
 	private String locConfKey;
 	private PipeDirection direction;
 
-	GoldenPipeColor(int resourcePackDamage, int glassPaneDamage, String locConfKey, PipeDirection direction) {
+	GoldenPipeColor(int resourcePackDamage, int itemDamage, String locConfKey, PipeDirection direction) {
 		this.resourcePackDamage = (short) resourcePackDamage;
-		this.glassPaneDamage = (short) glassPaneDamage;
+		this.itemDamage = (short) itemDamage;
 		this.locConfKey = locConfKey;
 		this.direction = direction;
 	}
@@ -28,8 +28,8 @@ public enum GoldenPipeColor {
 		return resourcePackDamage;
 	}
 
-	public short getGlassPaneDamage() {
-		return glassPaneDamage;
+	public short getItemDamage() {
+		return itemDamage;
 	}
 
 	public String getLocConfKey() {

@@ -1,10 +1,22 @@
 package de.robotricker.transportpipes.pipes.types;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.bukkit.*;
-import org.bukkit.block.BlockFace;
+import org.bukkit.Bukkit;
+import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
@@ -139,6 +151,20 @@ public abstract class Pipe {
 				clonedAllConnections.addAll(blockConnections);
 
 				itemDir = calculateNextItemDirection(item, itemDir, clonedAllConnections);
+				if (itemDir == null) {
+					removePipeItem(item);
+					TransportPipes.pipePacketManager.destroyPipeItem(item);
+
+					final ItemStack itemStack = item.getItem().toItemStack();
+					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+						@Override
+						public void run() {
+							item.getBlockLoc().getWorld().dropItem(item.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d), itemStack);
+						}
+					});
+					return;
+				}
 				pipeItems.put(item, itemDir);
 			}
 
@@ -166,38 +192,33 @@ public abstract class Pipe {
 
 				//ITEM HANDLING CALC
 				{
-					if (blockConnections.contains(itemDir)) {
-						TransportPipes.pipePacketManager.destroyPipeItem(item);
+					if (itemHandling == ItemHandling.NOTHING) {
+						if (blockConnections.contains(itemDir)) {
+							TransportPipes.pipePacketManager.destroyPipeItem(item);
 
-						final ItemData itemData = item.getItem();
-						final PipeDirection finalDir = itemDir;
-						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+							final ItemData itemData = item.getItem();
+							final PipeDirection finalDir = itemDir;
+							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
-							@Override
-							public void run() {
-								try {
-
-									BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
-									TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
-									if (tpc != null) {
-										//put items in inv and put overflow items back in pipe
-										if(!tpc.insertItem(finalDir.getOpposite(), itemData)){
-											//move item in opposite direction if insertion failed
-											PipeDirection newItemDir = finalDir.getOpposite();
-											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
-											tempPipeItemsWithSpawn.put(pi, newItemDir);
+								@Override
+								public void run() {
+									try {
+										BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
+										TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
+										if (tpc != null && tpc.insertItem(finalDir.getOpposite(), itemData)) {
+											//insertion successful
+										} else {
+											//drop the item in case the inventory block is registered but is no longer in the world,
+											//e.g. removed with WorldEdit or if there is no space for the item
+											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
 										}
-									} else {
-										//drop the item in case the inventory block is registered but is no longer in the world,
-										//e.g. removed with WorldEdit
-										newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
+									} catch (Exception ignored) {
 									}
-								} catch (Exception ignored) {
 								}
-							}
 
-						});
-						itemHandling = ItemHandling.OUTPUT_TO_INVENTORY;
+							});
+							itemHandling = ItemHandling.OUTPUT_TO_INVENTORY;
+						}
 					}
 
 					if (itemHandling == ItemHandling.NOTHING) {
@@ -227,6 +248,7 @@ public abstract class Pipe {
 								newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
 							}
 						});
+						itemHandling = ItemHandling.DROP;
 					}
 				}
 				//END ITEM HANDLING CALC
@@ -264,9 +286,9 @@ public abstract class Pipe {
 						try {
 							Block block = Pipe.this.blockLoc.getBlock();
 							boolean powered = false;
-							for(BlockFace blockFace : POWER_FACES) {
+							for (BlockFace blockFace : POWER_FACES) {
 								Block relative = block.getRelative(blockFace);
-								if(relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(blockFace.getOppositeFace()) > 0) {
+								if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(blockFace.getOppositeFace()) > 0) {
 									powered = true;
 									break;
 								}

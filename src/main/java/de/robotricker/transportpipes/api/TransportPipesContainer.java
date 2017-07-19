@@ -23,8 +23,22 @@ public interface TransportPipesContainer {
 	 *            The direction of the pipe relative to this container block
 	 * @param insertion
 	 *            the item which will be inserted into this container block
-	 * @return whether the item could be inserted (true) or should be rejected back into the pipe system (false).
+	 * @return whether the item can be inserted.
 	 */
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion);
+
+	/**
+	 * called by TransportPipes if a pipe wants to know if an item could be inserted into a container block<br>
+	 * but doesn't insert it yet.<br>
+	 * This method is called on the Transport-Pipes Thread. Keep in mind that it's asynchronous!<br>
+	 * <b>Important:</b> The pipe system inserts only 1 item at a time.
+	 * 
+	 * @param insertDirection
+	 *            The direction of the pipe relative to this container block
+	 * @param insertion
+	 *            the item which will be inserted into this container block
+	 * @return whether the item can be inserted.
+	 */
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion);
 
 }

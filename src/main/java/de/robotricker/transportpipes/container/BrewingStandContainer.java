@@ -126,4 +126,9 @@ public class BrewingStandContainer extends BlockContainer {
 		return false;
 	}
 
+	@Override
+	public boolean isSpaceForItem(PipeDirection insertDirection, ItemData insertion) {
+		return false; s
+	}
+
 }
