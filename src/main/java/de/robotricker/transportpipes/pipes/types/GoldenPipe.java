@@ -26,15 +26,21 @@ import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
-	private ItemData[][] outputItems = new ItemData[6][8];
-	private boolean[] blockedMode = new boolean[6];
+	private ItemData[][] outputItems = new ItemData[6][7];
+	private BlockingMode[] blockingModes = new BlockingMode[6];
+	private FilteringMode[] filteringModes = new FilteringMode[6];
 
 	public GoldenPipe(Location blockLoc) {
 		super(blockLoc);
+		for (int i = 0; i < 6; i++) {
+			blockingModes[i] = BlockingMode.OPENED;
+			filteringModes[i] = FilteringMode.CHECK_TYPE_DAMAGE_NBT;
+		}
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			if (dir.getOpposite() == before) {
 				continue;
 			}
-			if (blockedMode[line]) {
+			if (getBlockingMode(line) == BlockingMode.BLOCKED) {
 				continue;
 			}
 			//ignore the direction in which is no pipe or inv-block
@@ -82,11 +88,11 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 				}
 			}
 			boolean empty = true;
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < outputItems[line].length; i++) {
 				if (outputItems[line][i] != null) {
 					empty = false;
 				}
-				if (itemData.equals(outputItems[line][i])) {
+				if (itemData.equals(outputItems[line][i], getFilteringMode(line))) {
 					possibleDirections.add(dir);
 				}
 			}
@@ -114,14 +120,15 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 		for (int line = 0; line < 6; line++) {
 			List<Tag> lineList = new ArrayList<>();
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < outputItems[line].length; i++) {
 				ItemData itemData = outputItems[line][i];
 				if (itemData != null) {
 					lineList.add(itemData.toNBTTag());
 				}
 			}
 			NBTUtils.saveListValue(tags, "Line" + line, NBTTagType.TAG_COMPOUND, lineList);
-			NBTUtils.saveByteValue(tags, "Line" + line + "Blocked", (byte) (blockedMode[line] ? 1 : 0));
+			NBTUtils.saveIntValue(tags, "Line" + line + "_blockingMode", getBlockingMode(line).getId());
+			NBTUtils.saveIntValue(tags, "Line" + line + "_filteringMode", getFilteringMode(line).getId());
 		}
 
 	}
@@ -134,15 +141,18 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		for (int line = 0; line < 6; line++) {
 
 			List<Tag> lineList = NBTUtils.readListTag(map.get("Line" + line));
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < outputItems[line].length; i++) {
 				if (lineList.size() > i) {
 					ItemData itemData = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
 					outputItems[line][i] = itemData;
 				}
 			}
 
-			byte blocked = NBTUtils.readByteTag(map.get("Line" + line + "Blocked"), (byte) 0);
-			setLineBlocked(line, blocked == (byte) 1);
+			BlockingMode bm = BlockingMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_blockingMode"), BlockingMode.OPENED.getId()));
+			setBlockingMode(line, bm);
+
+			FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_filteringMode"), FilteringMode.CHECK_TYPE_DAMAGE_NBT.getId()));
+			setFilteringMode(line, fm);
 
 		}
 
@@ -157,12 +167,20 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		return outputItems[pd.getId()];
 	}
 
-	public boolean isLineBlocked(int line) {
-		return blockedMode[line];
+	public BlockingMode getBlockingMode(int line) {
+		return blockingModes[line];
 	}
 
-	public void setLineBlocked(int line, boolean blocked) {
-		blockedMode[line] = blocked;
+	public void setBlockingMode(int line, BlockingMode blockingMode) {
+		blockingModes[line] = blockingMode;
+	}
+
+	public FilteringMode getFilteringMode(int line) {
+		return filteringModes[line];
+	}
+
+	public void setFilteringMode(int line, FilteringMode filteringMode) {
+		filteringModes[line] = filteringMode;
 	}
 
 	public void changeOutputItems(PipeDirection pd, List<ItemData> items) {
@@ -185,13 +203,76 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		for (int line = 0; line < 6; line++) {
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < outputItems[line].length; i++) {
 				if (outputItems[line][i] != null) {
 					is.add(outputItems[line][i].toItemStack());
 				}
 			}
 		}
 		return is;
+	}
+
+	public enum BlockingMode {
+		OPENED(LocConf.GOLDENPIPE_BLOCKING_DISABLED),
+		BLOCKED(LocConf.GOLDENPIPE_BLOCKING_ENABLED);
+
+		private String locConfKey;
+
+		private BlockingMode(String locConfKey) {
+			this.locConfKey = locConfKey;
+		}
+
+		public String getLocConfKey() {
+			return locConfKey;
+		}
+
+		public int getId() {
+			return this.ordinal();
+		}
+
+		public static BlockingMode fromId(int id) {
+			return BlockingMode.values()[id];
+		}
+
+		public BlockingMode getNextMode() {
+			if (getId() == BlockingMode.values().length - 1) {
+				return fromId(0);
+			}
+			return fromId(getId() + 1);
+		}
+
+	}
+
+	public enum FilteringMode {
+		CHECK_TYPE(LocConf.GOLDENPIPE_FILTERING_CHECKTYPE),
+		CHECK_TYPE_DAMAGE(LocConf.GOLDENPIPE_FILTERING_CHECKTYPEDAMAGE),
+		CHECK_TYPE_DAMAGE_NBT(LocConf.GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT);
+
+		private String locConfKey;
+
+		private FilteringMode(String locConfKey) {
+			this.locConfKey = locConfKey;
+		}
+
+		public String getLocConfKey() {
+			return locConfKey;
+		}
+
+		public int getId() {
+			return this.ordinal();
+		}
+
+		public static FilteringMode fromId(int id) {
+			return FilteringMode.values()[id];
+		}
+
+		public FilteringMode getNextMode() {
+			if (getId() == FilteringMode.values().length - 1) {
+				return fromId(0);
+			}
+			return fromId(getId() + 1);
+		}
+
 	}
 
 }

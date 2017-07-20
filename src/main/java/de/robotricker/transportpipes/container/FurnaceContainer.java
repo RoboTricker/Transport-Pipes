@@ -37,40 +37,56 @@ public class FurnaceContainer extends BlockContainer {
 		if (ReflectionManager.isFurnaceBurnableItem(itemStack)) {
 			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
 				ItemStack oldSmelting = inv.getSmelting();
-				ItemStack newSmelting = putItemInSlot(insertion, oldSmelting);
-				if (oldSmelting != null && oldSmelting.getAmount() == newSmelting.getAmount()) {
-					return false;
+				if (canPutItemInSlot(insertion, oldSmelting)) {
+					inv.setSmelting(putItemInSlot(insertion, oldSmelting));
+					return true;
 				} else {
-					inv.setSmelting(newSmelting);
+					return false;
 				}
 			} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
 				ItemStack oldFuel = inv.getFuel();
-				ItemStack newFuel = putItemInSlot(insertion, oldFuel);
-				if (oldFuel != null && oldFuel.getAmount() == newFuel.getAmount()) {
-					return false;
+				if (canPutItemInSlot(insertion, oldFuel)) {
+					inv.setFuel(putItemInSlot(insertion, oldFuel));
+					return true;
 				} else {
-					inv.setFuel(newFuel);
+					return false;
 				}
+			} else {
+				return false;
 			}
 		} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
 			ItemStack oldFuel = inv.getFuel();
-			ItemStack newFuel = putItemInSlot(insertion, oldFuel);
-			if (oldFuel != null && oldFuel.getAmount() == newFuel.getAmount()) {
-				return false;
+			if (canPutItemInSlot(insertion, oldFuel)) {
+				inv.setFuel(putItemInSlot(insertion, oldFuel));
+				return true;
 			} else {
-				inv.setFuel(newFuel);
+				return false;
 			}
 		} else {
 			return false;
 		}
 
-		return true;
-
 	}
 
 	@Override
-	public boolean isSpaceForItem(PipeDirection insertDirection, ItemData insertion) {
-		return false; s
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		FurnaceInventory inv = furnace.getInventory();
+
+		ItemStack itemStack = insertion.toItemStack();
+
+		if (ReflectionManager.isFurnaceBurnableItem(itemStack)) {
+			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
+				return canPutItemInSlot(insertion, inv.getSmelting());
+			} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
+				return canPutItemInSlot(insertion, inv.getFuel());
+			} else {
+				return false;
+			}
+		} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
+			return canPutItemInSlot(insertion, inv.getFuel());
+		} else {
+			return false;
+		}
 	}
 
 }

@@ -50,34 +50,57 @@ public class BrewingStandContainer extends BlockContainer {
 		if (itemStack.getType() == Material.POTION || itemStack.getType() == Material.SPLASH_POTION || itemStack.getType() == Material.LINGERING_POTION) {
 			if (inv.getItem(0) == null) {
 				inv.setItem(0, itemStack);
+				return true;
 			} else if (inv.getItem(1) == null) {
 				inv.setItem(1, itemStack);
+				return true;
 			} else if (inv.getItem(2) == null) {
 				inv.setItem(2, itemStack);
+				return true;
 			} else {
 				return false;
 			}
 		} else if (insertDirection.isSide() && itemStack.getType() == Material.BLAZE_POWDER) {
 			ItemStack oldFuel = inv.getFuel();
-			ItemStack newFuel = putItemInSlot(insertion, oldFuel);
-			if (oldFuel != null && oldFuel.getAmount() == newFuel.getAmount()) {
-				return false;
+			if (canPutItemInSlot(insertion, oldFuel)) {
+				inv.setFuel(putItemInSlot(insertion, oldFuel));
+				return true;
 			} else {
-				inv.setFuel(newFuel);
+				return false;
 			}
 		} else if (isBrewingIngredient(itemStack)) {
 			ItemStack oldIngredient = inv.getIngredient();
-			ItemStack newIngredient = putItemInSlot(insertion, oldIngredient);
-			if (oldIngredient != null && oldIngredient.getAmount() == newIngredient.getAmount()) {
-				return false;
+			if (canPutItemInSlot(insertion, oldIngredient)) {
+				inv.setIngredient(putItemInSlot(insertion, oldIngredient));
+				return true;
 			} else {
-				inv.setIngredient(newIngredient);
+				return false;
 			}
 		} else {
 			return false;
 		}
 
-		return true;
+	}
+
+	@Override
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		BrewerInventory inv = brewingStand.getInventory();
+
+		ItemStack itemStack = insertion.toItemStack();
+
+		if (itemStack.getType() == Material.POTION || itemStack.getType() == Material.SPLASH_POTION || itemStack.getType() == Material.LINGERING_POTION) {
+			if (inv.getItem(0) != null && inv.getItem(1) != null && inv.getItem(2) != null) {
+				return false;
+			} else {
+				return true;
+			}
+		} else if (insertDirection.isSide() && itemStack.getType() == Material.BLAZE_POWDER) {
+			return canPutItemInSlot(insertion, inv.getFuel());
+		} else if (isBrewingIngredient(itemStack)) {
+			return canPutItemInSlot(insertion, inv.getIngredient());
+		} else {
+			return false;
+		}
 	}
 
 	private static boolean isBrewingIngredient(ItemStack item) {
@@ -124,11 +147,6 @@ public class BrewingStandContainer extends BlockContainer {
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public boolean isSpaceForItem(PipeDirection insertDirection, ItemData insertion) {
-		return false; s
 	}
 
 }

@@ -12,6 +12,9 @@ public abstract class BlockContainer implements TransportPipesContainer {
 	 * if the item couldn't be inserted, before is equal to the result item.
 	 */
 	protected ItemStack putItemInSlot(ItemData toPut, ItemStack before) {
+		if (toPut == null) {
+			return before;
+		}
 		ItemStack putItemStack = toPut.toItemStack();
 		if (before == null) {
 			return putItemStack;
@@ -27,6 +30,25 @@ public abstract class BlockContainer implements TransportPipesContainer {
 			}
 		} else {
 			return beforeItemStack;
+		}
+	}
+
+	protected boolean canPutItemInSlot(ItemData toPut, ItemStack before) {
+		if (toPut == null) {
+			return false;
+		}
+		ItemStack putItemStack = toPut.toItemStack();
+		if (before == null) {
+			return true;
+		}
+		if (before.isSimilar(putItemStack)) {
+			if (before.getAmount() < before.getMaxStackSize()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
 		}
 	}
 

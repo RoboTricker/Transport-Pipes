@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
 
+import de.robotricker.transportpipes.pipes.types.GoldenPipe.FilteringMode;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
@@ -23,11 +24,16 @@ public class ItemData {
 		return item.clone();
 	}
 
-	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj, FilteringMode filteringMode) {
 		if (obj != null && obj instanceof ItemData) {
 			ItemData o = (ItemData) obj;
-			return o.item.equals(item);
+			if (filteringMode == FilteringMode.CHECK_TYPE_DAMAGE_NBT) {
+				return o.item.equals(item);
+			} else if (filteringMode == FilteringMode.CHECK_TYPE_DAMAGE) {
+				return o.item.getType() == item.getType() && o.item.getDurability() == item.getDurability();
+			} else if (filteringMode == FilteringMode.CHECK_TYPE) {
+				return o.item.getType() == item.getType();
+			}
 		}
 		return false;
 	}
