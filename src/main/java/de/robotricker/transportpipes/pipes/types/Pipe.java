@@ -205,12 +205,14 @@ public abstract class Pipe {
 									try {
 										BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
 										TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
-										if (tpc != null && tpc.insertItem(finalDir.getOpposite(), itemData)) {
-											//insertion successful
-										} else {
-											//drop the item in case the inventory block is registered but is no longer in the world,
-											//e.g. removed with WorldEdit or if there is no space for the item
+										if (tpc == null) {
+											//drop the item in case the inventory block is registered but is no longer in the world
 											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
+										} else if (!tpc.insertItem(finalDir.getOpposite(), itemData)) {
+											//move item in opposite direction if insertion failed 
+											PipeDirection newItemDir = finalDir.getOpposite();
+											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
+											tempPipeItemsWithSpawn.put(pi, newItemDir);
 										}
 									} catch (Exception ignored) {
 									}
