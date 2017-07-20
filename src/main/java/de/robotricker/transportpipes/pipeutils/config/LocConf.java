@@ -43,6 +43,9 @@ public class LocConf extends Conf {
 	public static final String COMMANDS_DESCRIPTION_RELOAD = "commands.description.reload";
 	public static final String COMMANDS_DESCRIPTION_UPDATE = "commands.description.update";
 	public static final String COMMANDS_DESCRIPTION_CREATIVE = "commands.description.creative";
+	public static final String COMMANDS_DESCRIPTION_SAVE = "command.description.save";
+	public static final String COMMANDS_HEADER = "commands.header";
+	public static final String COMMANDS_FOOTER = "commands.footer";
 	public static final String COMMANDS_NOPERM = "commands.noperm";
 	public static final String CREATIVE_TITLE = "creative.title";
 
@@ -76,11 +79,14 @@ public class LocConf extends Conf {
 		saveAsDefault(SETTINGS_RENDERSYSTEM_DESCRIPTION, Arrays.asList("&7Click to switch between Vanilla", "&7and Modelled Render System.", "&7The Modelled Render System uses a resourcepack.", "&7The Vanilla Render System", "&7uses the Vanilla Minecraft textures."));
 		saveAsDefault(SETTINGS_RENDERSYSTEM_VANILLA, "Vanilla");
 		saveAsDefault(SETTINGS_RENDERSYSTEM_MODELLED, "Modelled");
-		saveAsDefault(COMMANDS_DESCRIPTION_SETTINGS, "&bOpens a player-specific settings menu");
-		saveAsDefault(COMMANDS_DESCRIPTION_TPS, "&bShows some general information about the pipes in all worlds and the ticks per second of the plugin thread");
-		saveAsDefault(COMMANDS_DESCRIPTION_RELOAD, "&bReloads all pipes or the config");
-		saveAsDefault(COMMANDS_DESCRIPTION_UPDATE, "&bChecks for a new plugin version at SpigotMC and updates the plugin if possible");
-		saveAsDefault(COMMANDS_DESCRIPTION_CREATIVE, "&bOpens an inventory with every pipe inside it.");
+		saveAsDefault(COMMANDS_DESCRIPTION_SETTINGS, "&eOpens a player-specific settings menu");
+		saveAsDefault(COMMANDS_DESCRIPTION_TPS, "&eShows some general information about the pipes in all worlds and the ticks per second of the plugin thread");
+		saveAsDefault(COMMANDS_DESCRIPTION_RELOAD, "&eReloads all pipes or the config");
+		saveAsDefault(COMMANDS_DESCRIPTION_UPDATE, "&eChecks for a new plugin version at SpigotMC and updates the plugin if possible");
+		saveAsDefault(COMMANDS_DESCRIPTION_CREATIVE, "&eOpens an inventory with every pipe inside it.");
+		saveAsDefault(COMMANDS_DESCRIPTION_SAVE, "&eSaves all pipes in all worlds.");
+		saveAsDefault(COMMANDS_HEADER, "&7&l&m------------&7&l[ &6TransportPipes %s &7&l]&7&l&m------------");
+		saveAsDefault(COMMANDS_FOOTER, "&7&l&m-------------------------------------------");
 		saveAsDefault(COMMANDS_NOPERM, "&4You don't have permission to perform this command.");
 		saveAsDefault(CREATIVE_TITLE, "Pipe Overview");
 		finishDefault();

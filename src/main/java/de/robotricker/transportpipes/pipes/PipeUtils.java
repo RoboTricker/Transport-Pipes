@@ -119,7 +119,7 @@ public class PipeUtils {
 
 				updatePipeNeighborPipes(pipeToDestroy.blockLoc);
 
-				if(player != null && player.getGameMode() != GameMode.SURVIVAL) {
+				if (player != null && player.getGameMode() != GameMode.SURVIVAL) {
 					return;
 				}
 
@@ -222,7 +222,7 @@ public class PipeUtils {
 		}
 		return null;
 	}
-	
+
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
 		BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 
@@ -264,9 +264,12 @@ public class PipeUtils {
 				allConnections.addAll(neighborPipes);
 
 				//update container blocks sync
+				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.blockLoc.getWorld());
 				for (PipeDirection pd : PipeDirection.values()) {
 					Block b = pipe.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()).getBlock();
-					if (ContainerBlockUtils.isIdContainerBlock(b.getTypeId())) {
+					if (containerMap != null && containerMap.containsKey(BlockLoc.convertBlockLoc(b.getLocation()))) {
+						allConnections.add(pd);
+					} else if (ContainerBlockUtils.isIdContainerBlock(b.getTypeId())) {
 						allConnections.add(pd);
 						ContainerBlockUtils.updatePipeNeighborBlockSync(b, true);
 					}

@@ -23,6 +23,7 @@ import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.commands.CreativeCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
+import de.robotricker.transportpipes.pipeutils.commands.SaveCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.SettingsCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
@@ -105,6 +106,7 @@ public class TransportPipes extends JavaPlugin {
 		final ReloadConfigCommandExecutor reloadConfigCmdExec = new ReloadConfigCommandExecutor();
 		final ReloadPipesCommandExecutor reloadPipesCmdExec = new ReloadPipesCommandExecutor();
 		final UpdateCommandExecutor updateCmdExec = new UpdateCommandExecutor();
+		final SaveCommandExecutor saveCmdExec = new SaveCommandExecutor();
 
 		getCommand("transportpipes").setExecutor(new CommandExecutor() {
 
@@ -137,9 +139,13 @@ public class TransportPipes extends JavaPlugin {
 					if (!reloadPipesCmdExec.onCommand(cs)) {
 						noPerm = true;
 					}
+				} else if (args.length >= 1 && args[0].equalsIgnoreCase("save")) {
+					if (!saveCmdExec.onCommand(cs)) {
+						noPerm = true;
+					}
 				} else {
 					//TODO: header and footer in config
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-----------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m-----------"));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format(LocConf.load(LocConf.COMMANDS_HEADER), TransportPipes.instance.getDescription().getVersion())));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
 					if (cs.hasPermission(generalConf.getPermissionTps()))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
@@ -149,7 +155,9 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
 					if (cs.hasPermission(generalConf.getPermissionUpdate()))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m-------------------------------------------"));
+					if (cs.hasPermission(generalConf.getPermissionSave()))
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', LocConf.load(LocConf.COMMANDS_FOOTER)));
 					return true;
 				}
 

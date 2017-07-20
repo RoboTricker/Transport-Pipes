@@ -153,6 +153,24 @@ public class PipeAPI {
 			throw new IllegalArgumentException("There is already a TransportPipesContainer object registered at this location");
 		}
 		containerMap.put(bl, tpc);
+
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
+		if (pipeMap != null) {
+			for (PipeDirection pd : PipeDirection.values()) {
+				bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+				if (pipeMap.containsKey(bl)) {
+					final Pipe pipe = pipeMap.get(bl);
+					PipeThread.runTask(new Runnable() {
+
+						@Override
+						public void run() {
+							TransportPipes.pipePacketManager.updatePipe(pipe);
+						}
+					}, 0);
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -168,8 +186,26 @@ public class PipeAPI {
 		if (containerMap != null) {
 			if (containerMap.containsKey(bl)) {
 				containerMap.remove(bl);
+
+				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
+				if (pipeMap != null) {
+					for (PipeDirection pd : PipeDirection.values()) {
+						bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+						if (pipeMap.containsKey(bl)) {
+							final Pipe pipe = pipeMap.get(bl);
+							PipeThread.runTask(new Runnable() {
+
+								@Override
+								public void run() {
+									TransportPipes.pipePacketManager.updatePipe(pipe);
+								}
+							}, 0);
+						}
+					}
+				}
 			}
 		}
+
 	}
 
 }

@@ -25,7 +25,6 @@ import de.robotricker.transportpipes.container.BrewingStandContainer;
 import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class ContainerBlockUtils implements Listener {
@@ -103,34 +102,15 @@ public class ContainerBlockUtils implements Listener {
 		if (pipeMap != null) {
 
 			BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
-			boolean updateNeighborPipes = false;
 
 			if (add) {
 				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 					TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
 					PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
-					updateNeighborPipes = true;
 				}
 			} else {
 				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 					PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
-					updateNeighborPipes = true;
-				}
-			}
-
-			if (updateNeighborPipes) {
-				for (PipeDirection pd : PipeDirection.values()) {
-					bl = BlockLoc.convertBlockLoc(toUpdate.getLocation().clone().add(pd.getX(), pd.getY(), pd.getZ()));
-					if (pipeMap.containsKey(bl)) {
-						final Pipe pipe = pipeMap.get(bl);
-						PipeThread.runTask(new Runnable() {
-
-							@Override
-							public void run() {
-								TransportPipes.pipePacketManager.updatePipe(pipe);
-							}
-						}, 0);
-					}
 				}
 			}
 
