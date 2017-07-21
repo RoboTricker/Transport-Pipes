@@ -19,6 +19,9 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		if (isInvLocked(brewingStand)) {
+			return null;
+		}
 		BrewerInventory inv = brewingStand.getInventory();
 
 		if (extractDirection != PipeDirection.UP && brewingStand.getBrewingTime() == 0) {
@@ -43,6 +46,9 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		if (isInvLocked(brewingStand)) {
+			return false;
+		}
 		BrewerInventory inv = brewingStand.getInventory();
 
 		ItemStack itemStack = insertion.toItemStack();
@@ -84,6 +90,9 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		if (isInvLocked(brewingStand)) {
+			return false;
+		}
 		BrewerInventory inv = brewingStand.getInventory();
 
 		ItemStack itemStack = insertion.toItemStack();

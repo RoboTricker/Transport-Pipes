@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.plugin.IllegalPluginAccessException;
 
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
@@ -193,6 +194,8 @@ public class PipeThread extends Thread {
 				e.printStackTrace();
 			} catch (ConcurrentModificationException e) {
 				handleAsyncError(e);
+			} catch (IllegalPluginAccessException e){
+				//do nothing when TP tries to register a scheduler but is already disabled
 			}
 		}
 		System.out.println("stopping TransportPipes-Thread");

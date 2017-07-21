@@ -20,6 +20,9 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		if (isInvLocked(furnace)) {
+			return null;
+		}
 		FurnaceInventory inv = furnace.getInventory();
 		if (inv.getResult() != null) {
 			ItemStack taken = InventoryUtils.createOneAmountItemStack(inv.getResult());
@@ -31,6 +34,9 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		if (isInvLocked(furnace)) {
+			return false;
+		}
 		FurnaceInventory inv = furnace.getInventory();
 
 		ItemStack itemStack = insertion.toItemStack();
@@ -70,6 +76,9 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		if (isInvLocked(furnace)) {
+			return false;
+		}
 		FurnaceInventory inv = furnace.getInventory();
 
 		ItemStack itemStack = insertion.toItemStack();

@@ -1,5 +1,7 @@
 package de.robotricker.transportpipes.container;
 
+import org.bukkit.block.Lockable;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -50,6 +52,15 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		} else {
 			return false;
 		}
+	}
+
+	protected boolean isInvLocked(InventoryHolder ih) {
+		if (ih instanceof Lockable) {
+			if (((Lockable) ih).isLocked()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

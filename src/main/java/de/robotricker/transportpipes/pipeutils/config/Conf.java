@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import de.robotricker.transportpipes.TransportPipes;
 
 public abstract class Conf {
 
@@ -46,10 +49,22 @@ public abstract class Conf {
 		}
 	}
 
-	public void override(String key, Object value) {
+	public void overrideSync(String key, Object value) {
 		cachedValues.put(key, value);
 		yamlConf.set(key, value);
 		saveToFile();
+	}
+
+	public void overrideAsync(String key, Object value) {
+		cachedValues.put(key, value);
+		yamlConf.set(key, value);
+		Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				saveToFile();
+			}
+		});
 	}
 
 	public Object read(String key) {

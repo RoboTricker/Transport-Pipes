@@ -109,6 +109,7 @@ public class HitboxListener implements Listener {
 					//clicked on block (not below pipe)
 					//****************************** PLACE PIPE ON RELATIVE OF BLOCK *******************************************
 				} else if (clickedBlock != null) {
+					e.setCancelled(true);
 					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
 					boolean canPlace = true;
 					if (HitboxUtils.isInteractiveBlock(clickedBlock)) {
@@ -118,7 +119,6 @@ public class HitboxListener implements Listener {
 						if (PipeUtils.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
-								e.setCancelled(true);
 								return;
 							}
 						}

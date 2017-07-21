@@ -21,7 +21,7 @@ public class PlayerSettingsConf extends Conf {
 	}
 
 	public void setRenderDistance(int renderDistance) {
-		override("renderDistance", renderDistance);
+		overrideAsync("renderDistance", renderDistance);
 	}
 
 	public PipeRenderSystem getRenderSystem() {
@@ -29,7 +29,7 @@ public class PlayerSettingsConf extends Conf {
 	}
 
 	public void setRenderSystem(int renderSystemId) {
-		override("renderSystemId", renderSystemId);
+		overrideAsync("renderSystemId", renderSystemId);
 	}
 
 }

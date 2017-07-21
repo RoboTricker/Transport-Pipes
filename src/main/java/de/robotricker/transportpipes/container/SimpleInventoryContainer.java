@@ -22,6 +22,9 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		if (isInvLocked(inventoryHolder)) {
+			return null;
+		}
 		Inventory inv = inventoryHolder.getInventory();
 		for (int i = 0; i < inv.getSize(); i++) {
 			if (inv.getItem(i) != null) {
@@ -35,6 +38,9 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		if (isInvLocked(inventoryHolder)) {
+			return false;
+		}
 		Inventory inv = inventoryHolder.getInventory();
 		Collection<ItemStack> overflow = inv.addItem(insertion.toItemStack()).values();
 		return overflow.isEmpty();
@@ -42,6 +48,9 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		if (isInvLocked(inventoryHolder)) {
+			return false;
+		}
 		Inventory inv = inventoryHolder.getInventory();
 		for (int i = 0; i < inv.getSize(); i++) {
 			ItemStack is = inv.getItem(i);

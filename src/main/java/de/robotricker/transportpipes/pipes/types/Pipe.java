@@ -34,6 +34,7 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
@@ -205,6 +206,7 @@ public abstract class Pipe {
 									try {
 										BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
 										TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
+										
 										if (tpc == null) {
 											//drop the item in case the inventory block is registered but is no longer in the world
 											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
@@ -213,6 +215,11 @@ public abstract class Pipe {
 											PipeDirection newItemDir = finalDir.getOpposite();
 											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
 											tempPipeItemsWithSpawn.put(pi, newItemDir);
+										} else {
+											//insertion successful
+											if (ContainerBlockUtils.isIdContainerBlock(newBlockLoc.getBlock().getTypeId())) {
+												newBlockLoc.getBlock().getState().update();
+											}
 										}
 									} catch (Exception ignored) {
 									}
@@ -302,8 +309,13 @@ public abstract class Pipe {
 								if (tpc != null) {
 									ItemData taken = tpc.extractItem(itemDir);
 									if (taken != null) {
+										//extraction successful
 										PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
 										tempPipeItemsWithSpawn.put(pi, itemDir);
+
+										if (ContainerBlockUtils.isIdContainerBlock(blockLoc.getBlock().getTypeId())) {
+											blockLoc.getBlock().getState().update();
+										}
 									}
 								}
 							}

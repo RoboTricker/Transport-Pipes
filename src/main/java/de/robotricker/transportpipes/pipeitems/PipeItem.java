@@ -17,7 +17,7 @@ public class PipeItem {
 	public PipeItem(ItemData item, Location blockLoc, PipeDirection itemDir) {
 		this.item = item;
 		this.blockLoc = blockLoc;
-		itemArmorStand = new ArmorStandData(new RelLoc(0.5f - 0.17f, 0, 0.5f - 0.17f), new Vector(1, 0, 0), true, null, item.toItemStack(), new Vector(0f, 0f, 0f), new Vector(-30f, 0f, 0f));
+		itemArmorStand = new ArmorStandData(new RelLoc(0.5f - 0.25f, 0, 0.5f - 0.17f), new Vector(1, 0, 0), true, null, item.toItemStack(), new Vector(0f, 0f, 0f), new Vector(-30f, 0f, 0f));
 		relLoc = new RelLoc(itemDir.getX() > 0 ? 0 : (itemDir.getX() < 0 ? 1 : 0.5f), itemDir.getY() > 0 ? 0 : (itemDir.getY() < 0 ? 1 : 0.5f), itemDir.getZ() > 0 ? 0 : (itemDir.getZ() < 0 ? 1 : 0.5f));
 		relLocDiff = new RelLoc(0, 0, 0);
 	}
