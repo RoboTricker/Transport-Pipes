@@ -50,21 +50,21 @@ public class GoldenPipeInv implements Listener {
 			ItemStack barrier = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.BARRIER, 1), String.valueOf(ChatColor.RESET));
 
 			inv.setItem(line * 9, blockingModeWool);
-			inv.setItem(line * 9 + 8, filteringModeWool);
+			inv.setItem(line * 9 + 1, filteringModeWool);
 
 			if (pipe.getBlockingMode(line) == BlockingMode.BLOCKED) {
-				for (int i = 1; i < 8; i++) {
+				for (int i = 2; i < 9; i++) {
 					inv.setItem(line * 9 + i, barrier);
 				}
 			} else if (!pipeConnections.contains(pd)) {
-				for (int i = 1; i < 8; i++) {
+				for (int i = 2; i < 9; i++) {
 					inv.setItem(line * 9 + i, glassPane);
 				}
 			} else {
 				ItemData[] items = pipe.getOutputItems(PipeDirection.fromID(line));
-				for (int i = 1; i < 8; i++) {
-					if (items[i - 1] != null) {
-						inv.setItem(line * 9 + i, items[i - 1].toItemStack());
+				for (int i = 2; i < 9; i++) {
+					if (items[i - 2] != null) {
+						inv.setItem(line * 9 + i, items[i - 2].toItemStack());
 					} else {
 						inv.setItem(line * 9 + i, null);
 					}
@@ -104,7 +104,7 @@ public class GoldenPipeInv implements Listener {
 
 				//drop items in line if the line gets blocked
 				if (pipe.getBlockingMode(line) == BlockingMode.BLOCKED) {
-					for (int i = 1; i < 8; i++) {
+					for (int i = 2; i < 9; i++) {
 						int slot = line * 9 + i;
 						ItemStack is = e.getClickedInventory().getItem(slot);
 						if (is != null && is.getType() != Material.AIR && !isGlassItemOrBarrier(is)) {
@@ -120,7 +120,7 @@ public class GoldenPipeInv implements Listener {
 				return;
 			}
 			//clicked filtering mode wool
-			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 8) {
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 1) {
 				e.setCancelled(true);
 
 				int line = (int) (e.getRawSlot() / 9);
@@ -152,7 +152,7 @@ public class GoldenPipeInv implements Listener {
 			//cache new items in golden pipe
 			linefor: for (int line = 0; line < 6; line++) {
 				List<ItemData> items = new ArrayList<>();
-				for (int i = 1; i < 8; i++) {
+				for (int i = 2; i < 9; i++) {
 					ItemStack is = inv.getItem(line * 9 + i);
 					//make sure the glass pane won't be saved
 					if (is != null && !isGlassItemOrBarrier(is)) {
@@ -166,7 +166,7 @@ public class GoldenPipeInv implements Listener {
 							//cloned item which will be saved
 							ItemStack clone2 = is.clone();
 							clone2.setAmount(1);
-							inv.setItem(line * 9, clone2);
+							inv.setItem(line * 9 + i, clone2);
 						}
 					} else if (isGlassItemOrBarrier(is)) {
 						//skip this save-sequenz if this line is not available (not a pipe or block as neighbor)

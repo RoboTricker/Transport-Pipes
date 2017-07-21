@@ -31,6 +31,8 @@ public class ItemData {
 				return o.item.equals(item);
 			} else if (filteringMode == FilteringMode.CHECK_TYPE_DAMAGE) {
 				return o.item.getType() == item.getType() && o.item.getDurability() == item.getDurability();
+			} else if (filteringMode == FilteringMode.CHECK_TYPE_NBT) {
+				return o.item.getType() == item.getType() && o.item.getItemMeta().equals(item.getItemMeta());
 			} else if (filteringMode == FilteringMode.CHECK_TYPE) {
 				return o.item.getType() == item.getType();
 			}

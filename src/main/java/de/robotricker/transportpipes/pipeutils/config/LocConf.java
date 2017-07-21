@@ -26,6 +26,7 @@ public class LocConf extends Conf {
 	public static final String GOLDENPIPE_BLOCKING_DISABLED = "goldenpipe.blocking.disabled";
 	public static final String GOLDENPIPE_BLOCKING_CLICKTOCHANGE = "goldenpipe.blocking.clicktochange";
 	public static final String GOLDENPIPE_FILTERING_CHECKTYPEDAMAGE = "goldenpipe.filtering.check_type_damage";
+	public static final String GOLDENPIPE_FILTERING_CHECKTYPENBT = "goldenpipe.filtering.check_type_nbt";
 	public static final String GOLDENPIPE_FILTERING_CHECKTYPE = "goldenpipe.filtering.check_type";
 	public static final String GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT = "goldenpipe.filtering.check_type_damage_nbt";
 	public static final String GOLDENPIPE_FILTERING_CLICKTOCHANGE = "goldenpipe.filtering.clicktochange";
@@ -66,9 +67,10 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_BLOCKING_ENABLED, "&7Blocking Mode: &cBLOCKED");
 		saveAsDefault(GOLDENPIPE_BLOCKING_DISABLED, "&7Blocking Mode: &aOPENED");
 		saveAsDefault(GOLDENPIPE_BLOCKING_CLICKTOCHANGE, "&7Click to change blocking mode.");
-		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPE, "&7Filtering Mode: &cCHECK TYPE");
-		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPEDAMAGE, "&7Filtering Mode: &cCHECK TYPE, DAMAGE");
-		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT, "&7Filtering Mode: &cCHECK TYPE, DAMAGE, NBT");
+		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPE, "&7Filter items by &cTYPE");
+		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPEDAMAGE, "&7Filter items by &cTYPE, DAMAGE");
+		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPENBT, "&7Filter items by &cTYPE, ITEMMETA");
+		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT, "&7Filter items by &cTYPE, DAMAGE, ITEMMETA");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
