@@ -8,7 +8,7 @@ import de.robotricker.transportpipes.settings.SettingsInv;
 public class SettingsCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public boolean onCommand(CommandSender cs) {
+	public boolean onCommand(CommandSender cs, String[] args) {
 
 		if (cs instanceof Player) {
 			SettingsInv.updateSettingsInventory(null, (Player) cs);

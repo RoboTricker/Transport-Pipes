@@ -23,6 +23,9 @@ public class PipeItemUtils {
 	public static ItemStack getPipeItem(PipeType pipeType, PipeColor pipeColor) {
 		switch (pipeType) {
 		case COLORED:
+			if (pipeColor == null) {
+				pipeColor = PipeColor.WHITE;
+			}
 			switch (pipeColor) {
 			case WHITE:
 				return InventoryUtils.changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());

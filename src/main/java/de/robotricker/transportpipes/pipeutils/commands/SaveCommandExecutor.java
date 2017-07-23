@@ -8,7 +8,7 @@ import de.robotricker.transportpipes.saving.SavingManager;
 public class SaveCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public boolean onCommand(CommandSender cs) {
+	public boolean onCommand(CommandSender cs, String[] args) {
 
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionSave())) {
 			return false;

@@ -111,6 +111,22 @@ public class ArmorStandProtocol {
 		}
 	}
 
+	public void reloadPipeRenderSystem(Player p) {
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
+		if (pipeMap != null) {
+			synchronized (pipeMap) {
+				//despawn all pipes
+				for (Pipe pipe : pipeMap.values()) {
+					TransportPipes.pipePacketManager.despawnPipe(p, pipe);
+				}
+				//spawn all pipes
+				for (Pipe pipe : pipeMap.values()) {
+					TransportPipes.pipePacketManager.spawnPipe(p, pipe);
+				}
+			}
+		}
+	}
+
 	public void sendArmorStandData(final Player p, Location blockLoc, ArmorStandData asd, Vector itemOffset) {
 
 		int serverVersion = ReflectionManager.gatherProtocolVersion();

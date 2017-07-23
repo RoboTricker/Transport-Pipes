@@ -16,6 +16,10 @@ public class BlockLoc implements Comparable<BlockLoc> {
 		this.z = z;
 	}
 
+	public double distanceSquared(BlockLoc bl) {
+		return Math.pow(x - bl.x, 2) + Math.pow(y - bl.y, 2) + Math.pow(z - bl.z, 2);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {

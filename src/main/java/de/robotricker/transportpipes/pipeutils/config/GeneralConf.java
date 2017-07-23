@@ -19,6 +19,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("permissions.update", "tp.update");
 		saveAsDefault("permissions.creative", "tp.creative");
 		saveAsDefault("permissions.save", "tp.save");
+		saveAsDefault("permissions.delete", "tp.delete");
 		saveAsDefault("anticheat_plugins", Arrays.asList("NoCheatPlus", "AAC", "CompatNoCheatPlus", "AntiCheatPlus"));
 		finishDefault();
 	}
@@ -54,9 +55,13 @@ public class GeneralConf extends Conf {
 	public String getPermissionCreative() {
 		return (String) read("permissions.creative");
 	}
-	
-	public String getPermissionSave(){
+
+	public String getPermissionSave() {
 		return (String) read("permissions.save");
+	}
+
+	public String getPermissionDelete() {
+		return (String) read("permissions.delete");
 	}
 
 	@SuppressWarnings("unchecked")

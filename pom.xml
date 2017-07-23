@@ -4,7 +4,7 @@
 
 	<groupId>de.robotricker</groupId>
 	<artifactId>transportpipes</artifactId>
-	<version>4.0.31</version>
+	<version>4.0.32</version>
 	<packaging>jar</packaging>
 
 	<name>TransportPipes</name>

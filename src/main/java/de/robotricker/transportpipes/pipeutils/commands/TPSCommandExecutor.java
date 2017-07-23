@@ -15,7 +15,7 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 public class TPSCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public boolean onCommand(CommandSender cs) {
+	public boolean onCommand(CommandSender cs, String[] args) {
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionTps())) {
 			return false;
 		}

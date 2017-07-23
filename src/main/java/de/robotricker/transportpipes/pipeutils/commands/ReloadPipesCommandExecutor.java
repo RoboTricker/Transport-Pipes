@@ -1,40 +1,24 @@
 package de.robotricker.transportpipes.pipeutils.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import de.robotricker.transportpipes.TransportPipes;
 
 public class ReloadPipesCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public boolean onCommand(CommandSender cs) {
+	public boolean onCommand(CommandSender cs, String[] args) {
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionReload())) {
 			return false;
 		}
-		//TODO reload!
 
-//		Block target = ((Player) cs).getTargetBlock((HashSet<Material>) null, 10);
-//		if (target != null) {
-//			PipeAPI.registerTransportPipesContainer(target.getLocation(), new TransportPipesContainer() {
-//
-//				@Override
-//				public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
-//					return true;
-//				}
-//
-//				@Override
-//				public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
-//					return true;
-//				}
-//
-//				@Override
-//				public ItemData extractItem(PipeDirection extractDirection) {
-//					return new ItemData(new ItemStack(Material.ANVIL));
-//				}
-//			});
-//		}
+		for (Player on : Bukkit.getOnlinePlayers()) {
+			TransportPipes.armorStandProtocol.reloadPipeRenderSystem(on);
+		}
 
-		cs.sendMessage("§cFeature doesn't work yet");
+		cs.sendMessage("§cPipes reloaded");
 		return true;
 	}
 

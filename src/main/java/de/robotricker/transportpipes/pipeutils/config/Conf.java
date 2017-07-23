@@ -2,6 +2,8 @@ package de.robotricker.transportpipes.pipeutils.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,6 +81,15 @@ public abstract class Conf {
 		Object val = defaultValues.get(key);
 		cachedValues.put(key, val);
 		return val;
+	}
+
+	public Collection<String> readSubKeys(String path) {
+		try {
+			return yamlConf.getConfigurationSection(path).getKeys(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<String>();
 	}
 
 	public void reload() {

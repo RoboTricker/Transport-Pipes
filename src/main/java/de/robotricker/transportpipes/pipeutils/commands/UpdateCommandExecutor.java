@@ -7,7 +7,7 @@ import de.robotricker.transportpipes.TransportPipes;
 public class UpdateCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public boolean onCommand(CommandSender cs) {
+	public boolean onCommand(CommandSender cs, String[] args) {
 
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionUpdate())) {
 			return false;

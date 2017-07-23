@@ -15,7 +15,7 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 public class CreativeCommandExecutor implements PipesCommandExecutor {
 
 	@Override
-	public boolean onCommand(CommandSender cs) {
+	public boolean onCommand(CommandSender cs, String[] args) {
 
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionCreative())) {
 			return false;
