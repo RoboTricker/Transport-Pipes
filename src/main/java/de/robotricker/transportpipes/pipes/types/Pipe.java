@@ -1,7 +1,6 @@
 package de.robotricker.transportpipes.pipes.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
@@ -34,7 +32,6 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
@@ -44,8 +41,6 @@ public abstract class Pipe {
 	public static final float ICE_ITEM_SPEED = 0.5f;
 	//calculate the amount of digits in 10^digits to shift all floats 
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
-
-	public final static List<BlockFace> POWER_FACES = Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST);
 
 	//contains all items managed by this pipe
 	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<>();
@@ -206,7 +201,7 @@ public abstract class Pipe {
 									try {
 										BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
 										TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
-										
+
 										if (tpc == null) {
 											//drop the item in case the inventory block is registered but is no longer in the world
 											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
@@ -215,13 +210,9 @@ public abstract class Pipe {
 											PipeDirection newItemDir = finalDir.getOpposite();
 											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
 											tempPipeItemsWithSpawn.put(pi, newItemDir);
-										} else {
-											//insertion successful
-											if (ContainerBlockUtils.isIdContainerBlock(newBlockLoc.getBlock().getTypeId())) {
-												newBlockLoc.getBlock().getState().update();
-											}
 										}
 									} catch (Exception ignored) {
+										ignored.printStackTrace();
 									}
 								}
 
@@ -295,9 +286,9 @@ public abstract class Pipe {
 						try {
 							Block block = Pipe.this.blockLoc.getBlock();
 							boolean powered = false;
-							for (BlockFace blockFace : POWER_FACES) {
-								Block relative = block.getRelative(blockFace);
-								if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(blockFace.getOppositeFace()) > 0) {
+							for (PipeDirection pd : PipeDirection.values()) {
+								Block relative = block.getRelative(pd.toBlockFace());
+								if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
 									powered = true;
 									break;
 								}
@@ -312,10 +303,6 @@ public abstract class Pipe {
 										//extraction successful
 										PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
 										tempPipeItemsWithSpawn.put(pi, itemDir);
-
-										if (ContainerBlockUtils.isIdContainerBlock(blockLoc.getBlock().getTypeId())) {
-											blockLoc.getBlock().getState().update();
-										}
 									}
 								}
 							}
@@ -352,11 +339,15 @@ public abstract class Pipe {
 		NBTUtils.saveStringValue(tags, "PipeLocation", PipeUtils.LocToString(blockLoc));
 
 		List<Tag> itemList = new ArrayList<>();
-		for (PipeItem pipeItem : pipeItems.keySet()) {
+
+		Map<PipeItem, PipeDirection> pipeItemMap = (Map<PipeItem, PipeDirection>) pipeItems.clone();
+		pipeItemMap.putAll(tempPipeItems);
+		pipeItemMap.putAll(tempPipeItemsWithSpawn);
+		for (PipeItem pipeItem : pipeItemMap.keySet()) {
 			HashMap<String, Tag> itemMap = new HashMap<>();
 
 			NBTUtils.saveStringValue(itemMap, "RelLoc", pipeItem.relLoc().toString());
-			NBTUtils.saveIntValue(itemMap, "Direction", pipeItems.get(pipeItem).getId());
+			NBTUtils.saveIntValue(itemMap, "Direction", pipeItemMap.get(pipeItem).getId());
 			NBTUtils.saveStringValue(itemMap, "Item", InventoryUtils.ItemStackToString(pipeItem.getItem().toItemStack()));
 
 			itemList.add(new CompoundTag("PipeItem", itemMap));

@@ -100,7 +100,6 @@ public class ContainerBlockUtils implements Listener {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(toUpdate.getWorld());
 
 		if (pipeMap != null) {
-
 			BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 			if (add) {

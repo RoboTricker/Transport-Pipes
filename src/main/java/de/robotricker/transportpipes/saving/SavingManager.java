@@ -184,6 +184,7 @@ public class SavingManager implements Listener {
 
 	@EventHandler
 	public void onWorldSave(WorldSaveEvent e) {
+		//only save once for all worlds
 		if (e.getWorld().equals(Bukkit.getWorlds().get(0))) {
 			savePipesAsync();
 		}

@@ -98,11 +98,9 @@ public class TransportPipes extends JavaPlugin {
 		renderSystems.add(new VanillaPipeRenderSystem(armorStandProtocol));
 		renderSystems.add(new ModelledPipeRenderSystem(armorStandProtocol));
 
-		PipeThread.setRunning(true);
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
 		pipeThread.setPriority(Thread.MIN_PRIORITY);
-		pipeThread.start();
 
 		//register command executors
 		final SettingsCommandExecutor settingsCmdExec = new SettingsCommandExecutor();
@@ -200,6 +198,15 @@ public class TransportPipes extends JavaPlugin {
 		}
 
 		CraftUtils.initRecipes();
+
+		Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				PipeThread.setRunning(true);
+				pipeThread.start();
+			}
+		});
 
 	}
 

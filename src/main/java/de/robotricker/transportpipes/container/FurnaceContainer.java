@@ -13,13 +13,16 @@ import de.robotricker.transportpipes.protocol.ReflectionManager;
 public class FurnaceContainer extends BlockContainer {
 
 	private Furnace furnace;
+	private Block block;
 
 	public FurnaceContainer(Block block) {
 		this.furnace = (Furnace) block.getState();
+		this.block = block;
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		furnace = (Furnace) block.getState();
 		if (isInvLocked(furnace)) {
 			return null;
 		}
@@ -34,6 +37,7 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		furnace = (Furnace) block.getState();
 		if (isInvLocked(furnace)) {
 			return false;
 		}

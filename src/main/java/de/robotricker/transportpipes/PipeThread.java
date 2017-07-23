@@ -166,6 +166,7 @@ public class PipeThread extends Thread {
 									while (itemIterator.hasNext()) {
 										PipeItem pipeItem = itemIterator.next();
 
+										//only put them there if they got into "tempPipeItems" last tick
 										if (!itemsTicked.contains(pipeItem)) {
 											PipeDirection dir = pipe.tempPipeItems.get(pipeItem);
 											pipe.putPipeItem(pipeItem, dir);
@@ -194,7 +195,7 @@ public class PipeThread extends Thread {
 				e.printStackTrace();
 			} catch (ConcurrentModificationException e) {
 				handleAsyncError(e);
-			} catch (IllegalPluginAccessException e){
+			} catch (IllegalPluginAccessException e) {
 				//do nothing when TP tries to register a scheduler but is already disabled
 			}
 		}

@@ -12,13 +12,16 @@ import de.robotricker.transportpipes.pipes.PipeDirection;
 public class BrewingStandContainer extends BlockContainer {
 
 	private BrewingStand brewingStand;
+	private Block block;
 
 	public BrewingStandContainer(Block block) {
 		this.brewingStand = (BrewingStand) block.getState();
+		this.block = block;
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		brewingStand = (BrewingStand) block.getState();
 		if (isInvLocked(brewingStand)) {
 			return null;
 		}
@@ -46,6 +49,7 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		brewingStand = (BrewingStand) block.getState();
 		if (isInvLocked(brewingStand)) {
 			return false;
 		}
