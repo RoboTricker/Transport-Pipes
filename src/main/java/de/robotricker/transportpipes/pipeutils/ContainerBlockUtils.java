@@ -173,10 +173,12 @@ public class ContainerBlockUtils implements Listener {
 
 	public static boolean isChunkLoaded(Location blockLoc) {
 		synchronized (loadedChunks) {
-			for (Chunk c : loadedChunks.get(blockLoc.getWorld())) {
-				if (blockLoc.getBlockX() >= c.getX() * 16 && blockLoc.getBlockX() < (c.getX() + 1) * 16) {
-					if (blockLoc.getBlockZ() >= c.getZ() * 16 && blockLoc.getBlockZ() < (c.getZ() + 1) * 16) {
-						return true;
+			if (loadedChunks.containsKey(blockLoc.getWorld())) {
+				for (Chunk c : loadedChunks.get(blockLoc.getWorld())) {
+					if (blockLoc.getBlockX() >= c.getX() * 16 && blockLoc.getBlockX() < (c.getX() + 1) * 16) {
+						if (blockLoc.getBlockZ() >= c.getZ() * 16 && blockLoc.getBlockZ() < (c.getZ() + 1) * 16) {
+							return true;
+						}
 					}
 				}
 			}
