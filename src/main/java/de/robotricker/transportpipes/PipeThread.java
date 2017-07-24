@@ -145,6 +145,9 @@ public class PipeThread extends Thread {
 						synchronized (pipeMap) {
 							lastAction = "Pipe loop";
 							for (Pipe pipe : pipeMap.values()) {
+								if (!pipe.getCachedChunk().isLoaded()) {
+									continue;
+								}
 								//insert items from "tempPipeItemsWithSpawn"
 								synchronized (pipe.tempPipeItemsWithSpawn) {
 									Iterator<PipeItem> itemIterator = pipe.tempPipeItemsWithSpawn.keySet().iterator();
