@@ -1,8 +1,10 @@
 package de.robotricker.transportpipes.pipeutils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -82,20 +84,43 @@ public class ContainerBlockUtils implements Listener {
 			return;
 		}
 
+		List<Block> explodedPipeBlocksBefore = new ArrayList<Block>();
+		List<Block> explodedPipeBlocks = new ArrayList<Block>();
+
 		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
 			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
-			final Pipe pipe = pipeMap.get(blockLoc);
-			if (pipe == null) {
-				continue;
+			Pipe pipe = pipeMap.get(blockLoc);
+			if (pipe != null) {
+				pipe.blockLoc.getBlock().setType(Material.GLASS);
+				explodedPipeBlocksBefore.add(pipe.blockLoc.getBlock());
+				explodedPipeBlocks.add(pipe.blockLoc.getBlock());
 			}
-			PipeThread.runTask(new Runnable() {
-
-				@Override
-				public void run() {
-					pipe.explode(false);
-				}
-			}, 0);
 		}
+
+		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(), explodedPipeBlocks, 1f);
+		Bukkit.getPluginManager().callEvent(explodeEvent);
+		if (!explodeEvent.isCancelled()) {
+			for (Block b : explodeEvent.blockList()) {
+				final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
+				if (pipe != null) {
+					PipeThread.runTask(new Runnable() {
+
+						@Override
+						public void run() {
+							pipe.explode(false);
+						}
+					}, 0);
+				}
+			}
+		}
+
+		for (Block b : explodedPipeBlocksBefore) {
+			final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
+			if (pipe != null) {
+				pipe.blockLoc.getBlock().setType(Material.AIR);
+			}
+		}
+
 	}
 
 	/**
