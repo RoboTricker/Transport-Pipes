@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 
 public class SimpleInventoryContainer extends BlockContainer {
@@ -24,7 +25,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return null;
 		}
 		inventoryHolder = (InventoryHolder) block.getState();
@@ -45,7 +46,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return false;
 		}
 		inventoryHolder = (InventoryHolder) block.getState();
@@ -60,9 +61,10 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return false;
 		}
+		inventoryHolder = (InventoryHolder) block.getState();
 		if (isInvLocked(inventoryHolder)) {
 			return false;
 		}

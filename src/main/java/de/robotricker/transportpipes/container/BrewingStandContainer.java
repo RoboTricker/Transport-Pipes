@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 
 public class BrewingStandContainer extends BlockContainer {
 
@@ -20,7 +21,7 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return null;
 		}
 		brewingStand = (BrewingStand) block.getState();
@@ -51,7 +52,7 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return false;
 		}
 		brewingStand = (BrewingStand) block.getState();
@@ -99,9 +100,10 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return false;
 		}
+		brewingStand = (BrewingStand) block.getState();
 		if (isInvLocked(brewingStand)) {
 			return false;
 		}

@@ -1,9 +1,16 @@
 package de.robotricker.transportpipes.pipeutils;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Furnace;
@@ -15,6 +22,8 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 import de.robotricker.transportpipes.PipeThread;
@@ -28,6 +37,8 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class ContainerBlockUtils implements Listener {
+
+	private static Map<World, Set<Chunk>> loadedChunks = Collections.synchronizedMap(new HashMap<World, Set<Chunk>>());
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
@@ -133,6 +144,41 @@ public class ContainerBlockUtils implements Listener {
 			return new SimpleInventoryContainer(block);
 		}
 		return null;
+	}
+
+	public static boolean isChunkLoaded(Location blockLoc) {
+		synchronized (loadedChunks) {
+			for (Chunk c : loadedChunks.get(blockLoc.getWorld())) {
+				if (blockLoc.getBlockX() >= c.getX() * 16 && blockLoc.getBlockX() < (c.getX() + 1) * 16) {
+					if (blockLoc.getBlockZ() >= c.getZ() * 16 && blockLoc.getBlockZ() < (c.getZ() + 1) * 16) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent e) {
+		synchronized (loadedChunks) {
+			Set<Chunk> chunks = loadedChunks.get(e.getWorld());
+			if (chunks == null) {
+				chunks = Collections.synchronizedSet(new HashSet<Chunk>());
+				loadedChunks.put(e.getWorld(), chunks);
+			}
+			chunks.add(e.getChunk());
+		}
+	}
+
+	@EventHandler
+	public void onChunkUnload(ChunkUnloadEvent e) {
+		synchronized (loadedChunks) {
+			Set<Chunk> chunks = loadedChunks.get(e.getWorld());
+			if (chunks != null) {
+				chunks.remove(e.getChunk());
+			}
+		}
 	}
 
 }

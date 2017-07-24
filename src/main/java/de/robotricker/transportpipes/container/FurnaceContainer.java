@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
 
@@ -21,7 +22,7 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return null;
 		}
 		furnace = (Furnace) block.getState();
@@ -39,7 +40,7 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return false;
 		}
 		furnace = (Furnace) block.getState();
@@ -85,9 +86,10 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
-		if (!cachedChunk.isLoaded()) {
+		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
 			return false;
 		}
+		furnace = (Furnace) block.getState();
 		if (isInvLocked(furnace)) {
 			return false;
 		}

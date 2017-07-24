@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,19 +56,13 @@ public abstract class Pipe {
 
 	//the blockLoc of this pipe
 	public Location blockLoc;
-	public Chunk cachedChunk;
 
 	public Pipe(Location blockLoc) {
 		this.blockLoc = blockLoc;
-		cachedChunk = blockLoc.getChunk();
 	}
 
 	public Location getBlockLoc() {
 		return blockLoc;
-	}
-
-	public Chunk getCachedChunk() {
-		return cachedChunk;
 	}
 
 	/**
