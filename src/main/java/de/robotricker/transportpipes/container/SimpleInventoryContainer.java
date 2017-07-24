@@ -16,15 +16,17 @@ import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 public class SimpleInventoryContainer extends BlockContainer {
 
 	private InventoryHolder inventoryHolder;
-	private Block block;
 
 	public SimpleInventoryContainer(Block block) {
-		this.block = block;
+		super(block);
 		this.inventoryHolder = (InventoryHolder) block.getState();
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		if (!cachedChunk.isLoaded()) {
+			return null;
+		}
 		inventoryHolder = (InventoryHolder) block.getState();
 		if (isInvLocked(inventoryHolder)) {
 			return null;
@@ -43,6 +45,9 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		if (!cachedChunk.isLoaded()) {
+			return false;
+		}
 		inventoryHolder = (InventoryHolder) block.getState();
 		if (isInvLocked(inventoryHolder)) {
 			return false;
@@ -55,6 +60,9 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		if (!cachedChunk.isLoaded()) {
+			return false;
+		}
 		if (isInvLocked(inventoryHolder)) {
 			return false;
 		}

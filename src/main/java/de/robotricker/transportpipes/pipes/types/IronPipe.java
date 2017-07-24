@@ -92,6 +92,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 
 	@Override
 	public void notifyConnectionsChange() {
+		super.notifyConnectionsChange();
 		Collection<PipeDirection> allConns = getAllConnections();
 		if (!allConns.isEmpty() && !allConns.contains(currentOutputDir)) {
 			cycleOutputDirection();

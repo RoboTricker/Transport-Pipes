@@ -12,15 +12,17 @@ import de.robotricker.transportpipes.pipes.PipeDirection;
 public class BrewingStandContainer extends BlockContainer {
 
 	private BrewingStand brewingStand;
-	private Block block;
 
 	public BrewingStandContainer(Block block) {
+		super(block);
 		this.brewingStand = (BrewingStand) block.getState();
-		this.block = block;
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		if (!cachedChunk.isLoaded()) {
+			return null;
+		}
 		brewingStand = (BrewingStand) block.getState();
 		if (isInvLocked(brewingStand)) {
 			return null;
@@ -49,6 +51,9 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		if (!cachedChunk.isLoaded()) {
+			return false;
+		}
 		brewingStand = (BrewingStand) block.getState();
 		if (isInvLocked(brewingStand)) {
 			return false;
@@ -94,6 +99,9 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		if (!cachedChunk.isLoaded()) {
+			return false;
+		}
 		if (isInvLocked(brewingStand)) {
 			return false;
 		}

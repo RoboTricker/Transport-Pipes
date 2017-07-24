@@ -13,15 +13,17 @@ import de.robotricker.transportpipes.protocol.ReflectionManager;
 public class FurnaceContainer extends BlockContainer {
 
 	private Furnace furnace;
-	private Block block;
 
 	public FurnaceContainer(Block block) {
+		super(block);
 		this.furnace = (Furnace) block.getState();
-		this.block = block;
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
+		if (!cachedChunk.isLoaded()) {
+			return null;
+		}
 		furnace = (Furnace) block.getState();
 		if (isInvLocked(furnace)) {
 			return null;
@@ -37,6 +39,9 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+		if (!cachedChunk.isLoaded()) {
+			return false;
+		}
 		furnace = (Furnace) block.getState();
 		if (isInvLocked(furnace)) {
 			return false;
@@ -80,6 +85,9 @@ public class FurnaceContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+		if (!cachedChunk.isLoaded()) {
+			return false;
+		}
 		if (isInvLocked(furnace)) {
 			return false;
 		}

@@ -24,6 +24,7 @@ import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
 import de.robotricker.transportpipes.api.PipeExplodeEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.ItemData;
@@ -399,7 +400,8 @@ public abstract class Pipe {
 	public abstract PipeType getPipeType();
 
 	public void notifyConnectionsChange() {
-
+		PipeConnectionsChangeEvent event = new PipeConnectionsChangeEvent(this);
+		Bukkit.getPluginManager().callEvent(event);
 	}
 
 }

@@ -1,5 +1,7 @@
 package de.robotricker.transportpipes.container;
 
+import org.bukkit.Chunk;
+import org.bukkit.block.Block;
 import org.bukkit.block.Lockable;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -9,6 +11,14 @@ import de.robotricker.transportpipes.pipeitems.ItemData;
 
 public abstract class BlockContainer implements TransportPipesContainer {
 
+	protected Block block;
+	protected Chunk cachedChunk;
+	
+	public BlockContainer(Block block){
+		this.block = block;
+		this.cachedChunk = block.getChunk();
+	}
+	
 	/**
 	 * tries to add item {@link toPut} to item {@link before} and returns the result item.<br>
 	 * if the item couldn't be inserted, before is equal to the result item.
