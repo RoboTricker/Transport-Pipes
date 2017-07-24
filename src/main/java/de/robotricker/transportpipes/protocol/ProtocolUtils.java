@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class ProtocolUtils {
+public class ProtocolUtils{
 
 	public static int[] convertArmorStandListToEntityIdArray(List<ArmorStandData> ASD) {
 		Set<Integer> ids = new HashSet<>();

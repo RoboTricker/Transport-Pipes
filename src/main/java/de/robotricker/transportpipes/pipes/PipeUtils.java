@@ -260,7 +260,7 @@ public class PipeUtils {
 			@Override
 			public void run() {
 
-				Collection<PipeDirection> allConnections = new HashSet<>();
+				final Collection<PipeDirection> allConnections = new HashSet<>();
 				allConnections.addAll(neighborPipes);
 
 				//update container blocks sync
@@ -275,7 +275,13 @@ public class PipeUtils {
 					}
 				}
 
-				TransportPipes.pipePacketManager.createPipe(pipe, allConnections);
+				PipeThread.runTask(new Runnable() {
+					
+					@Override
+					public void run() {
+						TransportPipes.pipePacketManager.createPipe(pipe, allConnections);
+					}
+				}, 0);
 			}
 		});
 	}

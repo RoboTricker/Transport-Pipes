@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.inventory.ItemStack;
@@ -192,6 +194,9 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public void initPlayer(Player p) {
+		if (Bukkit.getPluginManager().isPluginEnabled("AuthMe") && !fr.xephi.authme.api.v3.AuthMeApi.getInstance().isAuthenticated(p)) {
+			return;
+		}
 		if (!loadedResourcePackPlayers.contains(p)) {
 			p.closeInventory();
 			p.setResourcePack("https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/model-system/src/main/resources/TransportPipes-ResourcePack.zip");
@@ -210,6 +215,17 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		} else {
 			if (!loadedResourcePackPlayers.contains(e.getPlayer())) {
 				loadedResourcePackPlayers.add(e.getPlayer());
+			}
+		}
+	}
+
+	public class AuthMeLoginListener implements Listener {
+
+		@EventHandler
+		public void onAuthMeLogin(fr.xephi.authme.events.LoginEvent e) {
+			PipeRenderSystem beforePm = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			if (beforePm.equals(ModelledPipeRenderSystem.this) && !loadedResourcePackPlayers.contains(e.getPlayer())) {
+				initPlayer(e.getPlayer());
 			}
 		}
 	}

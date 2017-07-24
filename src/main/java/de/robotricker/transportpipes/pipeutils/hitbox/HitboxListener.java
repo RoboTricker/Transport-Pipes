@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.pipeutils.hitbox;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -109,7 +110,7 @@ public class HitboxListener implements Listener {
 					//clicked on block (not below pipe)
 					//****************************** PLACE PIPE ON RELATIVE OF BLOCK *******************************************
 				} else if (clickedBlock != null) {
-					e.setCancelled(true);
+					e.setUseItemInHand(Result.DENY);
 					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
 					boolean canPlace = true;
 					if (HitboxUtils.isInteractiveBlock(clickedBlock)) {
@@ -119,6 +120,7 @@ public class HitboxListener implements Listener {
 						if (PipeUtils.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
+								e.setCancelled(true);
 								return;
 							}
 						}

@@ -67,7 +67,7 @@ public class TransportPipes extends JavaPlugin {
 	public static PipePacketManager pipePacketManager;
 
 	//x << 34 | y << 26 | z
-	private Map<World, Map<BlockLoc, Pipe>> ppipes;
+	private Map<World, Map<BlockLoc, Pipe>> registeredPipes;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
 	private List<PipeRenderSystem> renderSystems;
@@ -83,7 +83,7 @@ public class TransportPipes extends JavaPlugin {
 		instance = this;
 
 		// Prepare collections
-		ppipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
+		registeredPipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
 		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
 
 		// Prepare managers
@@ -191,6 +191,9 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(updateManager, this);
 		for (PipeRenderSystem prs : renderSystems) {
 			Bukkit.getPluginManager().registerEvents(prs, this);
+			if (prs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
+				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
+			}
 		}
 
 		for (World world : Bukkit.getWorlds()) {
@@ -234,14 +237,14 @@ public class TransportPipes extends JavaPlugin {
 	}
 
 	public Map<BlockLoc, Pipe> getPipeMap(World world) {
-		if (ppipes.containsKey(world)) {
-			return ppipes.get(world);
+		if (registeredPipes.containsKey(world)) {
+			return registeredPipes.get(world);
 		}
 		return null;
 	}
 
 	public Map<World, Map<BlockLoc, Pipe>> getFullPipeMap() {
-		return ppipes;
+		return registeredPipes;
 	}
 
 	public Map<BlockLoc, TransportPipesContainer> getContainerMap(World world) {

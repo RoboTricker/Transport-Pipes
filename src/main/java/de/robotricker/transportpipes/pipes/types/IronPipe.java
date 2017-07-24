@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
 
+import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
@@ -64,7 +65,12 @@ public class IronPipe extends Pipe implements ClickablePipe {
 		} while (!connections.contains(currentOutputDir));
 
 		if (oldOutputDir != currentOutputDir) {
-			TransportPipes.pipePacketManager.updatePipe(this);
+			PipeThread.runTask(new Runnable() {
+
+				public void run() {
+					TransportPipes.pipePacketManager.updatePipe(IronPipe.this);
+				};
+			}, 0);
 		}
 	}
 

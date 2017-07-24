@@ -4,7 +4,7 @@ author: RoboTricker
 main: de.robotricker.transportpipes.TransportPipes
 load: STARTUP
 depend: [ProtocolLib]
-loadbefore: [ProtocolLib]
+loadbefore: [ProtocolLib, AuthMe]
 commands:
   transportpipes:
     aliases: [transportpipe, tpipes, tpipe, pipes, pipe]
