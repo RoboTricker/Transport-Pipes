@@ -69,5 +69,7 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		}
 		return false;
 	}
+	
+	public abstract void updateBlock();
 
 }

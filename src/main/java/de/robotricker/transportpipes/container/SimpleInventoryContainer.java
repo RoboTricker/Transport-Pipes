@@ -2,42 +2,43 @@ package de.robotricker.transportpipes.container;
 
 import java.util.Collection;
 
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 
 public class SimpleInventoryContainer extends BlockContainer {
 
-	private InventoryHolder inventoryHolder;
+	private Chunk cachedChunk;
+	private InventoryHolder cachedInvHolder;
+	private Inventory cachedInv;
 
 	public SimpleInventoryContainer(Block block) {
 		super(block);
-		this.inventoryHolder = (InventoryHolder) block.getState();
+		this.cachedChunk = block.getChunk();
+		this.cachedInvHolder = (InventoryHolder) block.getState();
+		this.cachedInv = cachedInvHolder.getInventory();
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
-		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
+		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
-		inventoryHolder = (InventoryHolder) block.getState();
-		if (isInvLocked(inventoryHolder)) {
+		if (isInvLocked(cachedInvHolder)) {
 			return null;
 		}
-		Inventory inv = inventoryHolder.getInventory();
-		for (int i = 0; i < inv.getSize(); i++) {
-			if (inv.getItem(i) != null) {
-				ItemData id = new ItemData(inv.getItem(i));
-				inv.setItem(i, InventoryUtils.decreaseAmountWithOne(inv.getItem(i)));
-				((BlockState) inventoryHolder).update();
+		for (int i = 0; i < cachedInv.getSize(); i++) {
+			if (cachedInv.getItem(i) != null) {
+				ItemData id = new ItemData(cachedInv.getItem(i));
+				cachedInv.setItem(i, InventoryUtils.decreaseAmountWithOne(cachedInv.getItem(i)));
+				block.getState().update();
 				return id;
 			}
 		}
@@ -46,31 +47,27 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
-		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
+		if (!cachedChunk.isLoaded()) {
 			return false;
 		}
-		inventoryHolder = (InventoryHolder) block.getState();
-		if (isInvLocked(inventoryHolder)) {
+		if (isInvLocked(cachedInvHolder)) {
 			return false;
 		}
-		Inventory inv = inventoryHolder.getInventory();
-		Collection<ItemStack> overflow = inv.addItem(insertion.toItemStack()).values();
-		((BlockState) inventoryHolder).update();
+		Collection<ItemStack> overflow = cachedInv.addItem(insertion.toItemStack()).values();
+		block.getState().update();
 		return overflow.isEmpty();
 	}
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
-		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
+		if (!cachedChunk.isLoaded()) {
 			return false;
 		}
-		inventoryHolder = (InventoryHolder) block.getState();
-		if (isInvLocked(inventoryHolder)) {
+		if (isInvLocked(cachedInvHolder)) {
 			return false;
 		}
-		Inventory inv = inventoryHolder.getInventory();
-		for (int i = 0; i < inv.getSize(); i++) {
-			ItemStack is = inv.getItem(i);
+		for (int i = 0; i < cachedInv.getSize(); i++) {
+			ItemStack is = cachedInv.getItem(i);
 			if (is == null || is.getType() == Material.AIR) {
 				return true;
 			}
@@ -79,6 +76,13 @@ public class SimpleInventoryContainer extends BlockContainer {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void updateBlock() {
+		this.cachedChunk = block.getChunk();
+		this.cachedInvHolder = ((InventoryHolder) block.getState());
+		this.cachedInv = cachedInvHolder.getInventory();
 	}
 
 }

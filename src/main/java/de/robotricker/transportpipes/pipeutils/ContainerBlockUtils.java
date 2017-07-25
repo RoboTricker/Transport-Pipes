@@ -1,18 +1,11 @@
 package de.robotricker.transportpipes.pipeutils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Furnace;
@@ -25,13 +18,13 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.container.BlockContainer;
 import de.robotricker.transportpipes.container.BrewingStandContainer;
 import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
@@ -39,8 +32,6 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class ContainerBlockUtils implements Listener {
-
-	private static Map<World, Set<Chunk>> loadedChunks = Collections.synchronizedMap(new HashMap<World, Set<Chunk>>());
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
@@ -171,39 +162,19 @@ public class ContainerBlockUtils implements Listener {
 		return null;
 	}
 
-	public static boolean isChunkLoaded(Location blockLoc) {
-		synchronized (loadedChunks) {
-			if (loadedChunks.containsKey(blockLoc.getWorld())) {
-				for (Chunk c : loadedChunks.get(blockLoc.getWorld())) {
-					if (blockLoc.getBlockX() >= c.getX() * 16 && blockLoc.getBlockX() < (c.getX() + 1) * 16) {
-						if (blockLoc.getBlockZ() >= c.getZ() * 16 && blockLoc.getBlockZ() < (c.getZ() + 1) * 16) {
-							return true;
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent e) {
+		//update all BlockContainer inventories because the BlockState and Inventory instance of a block changes if the chunk get's unloaded
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(e.getWorld());
+		if (containerMap != null) {
+			synchronized (containerMap) {
+				for (BlockLoc bl : containerMap.keySet()) {
+					if (containerMap.get(bl) instanceof BlockContainer) {
+						if (bl.toLocation(e.getWorld()).getBlockX() / 16 == e.getChunk().getX() && bl.toLocation(e.getWorld()).getBlockZ() / 16 == e.getChunk().getZ()) {
+							((BlockContainer) containerMap.get(bl)).updateBlock();
 						}
 					}
 				}
-			}
-		}
-		return false;
-	}
-
-	@EventHandler
-	public void onChunkLoad(ChunkLoadEvent e) {
-		synchronized (loadedChunks) {
-			Set<Chunk> chunks = loadedChunks.get(e.getWorld());
-			if (chunks == null) {
-				chunks = Collections.synchronizedSet(new HashSet<Chunk>());
-				loadedChunks.put(e.getWorld(), chunks);
-			}
-			chunks.add(e.getChunk());
-		}
-	}
-
-	@EventHandler
-	public void onChunkUnload(ChunkUnloadEvent e) {
-		synchronized (loadedChunks) {
-			Set<Chunk> chunks = loadedChunks.get(e.getWorld());
-			if (chunks != null) {
-				chunks.remove(e.getChunk());
 			}
 		}
 	}

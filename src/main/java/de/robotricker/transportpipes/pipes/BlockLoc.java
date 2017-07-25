@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.pipes;
 import java.util.Objects;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 public class BlockLoc implements Comparable<BlockLoc> {
 
@@ -18,6 +19,10 @@ public class BlockLoc implements Comparable<BlockLoc> {
 
 	public double distanceSquared(BlockLoc bl) {
 		return Math.pow(x - bl.x, 2) + Math.pow(y - bl.y, 2) + Math.pow(z - bl.z, 2);
+	}
+	
+	public Location toLocation(World world){
+		return new Location(world, x, y, z);
 	}
 
 	@Override
@@ -63,5 +68,5 @@ public class BlockLoc implements Comparable<BlockLoc> {
 	public static BlockLoc convertBlockLoc(Location blockLoc) {
 		return new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
 	}
-
+	
 }

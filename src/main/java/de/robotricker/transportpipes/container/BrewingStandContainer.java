@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.container;
 
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
@@ -8,39 +9,39 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 
 public class BrewingStandContainer extends BlockContainer {
 
-	private BrewingStand brewingStand;
+	private Chunk cachedChunk;
+	private BrewingStand cachedBrewingStand;
+	private BrewerInventory cachedInv;
 
 	public BrewingStandContainer(Block block) {
 		super(block);
-		this.brewingStand = (BrewingStand) block.getState();
+		this.cachedChunk = block.getChunk();
+		this.cachedBrewingStand = (BrewingStand) block.getState();
+		this.cachedInv = cachedBrewingStand.getInventory();
 	}
 
 	@Override
 	public ItemData extractItem(PipeDirection extractDirection) {
-		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
+		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
-		brewingStand = (BrewingStand) block.getState();
-		if (isInvLocked(brewingStand)) {
+		if (isInvLocked(cachedBrewingStand)) {
 			return null;
 		}
-		BrewerInventory inv = brewingStand.getInventory();
-
-		if (extractDirection != PipeDirection.UP && brewingStand.getBrewingTime() == 0) {
+		if (extractDirection != PipeDirection.UP && cachedBrewingStand.getBrewingTime() == 0) {
 			ItemStack taken = null;
-			if (inv.getItem(0) != null) {
-				taken = inv.getItem(0);
-				inv.setItem(0, null);
-			} else if (inv.getItem(1) != null) {
-				taken = inv.getItem(1);
-				inv.setItem(1, null);
-			} else if (inv.getItem(2) != null) {
-				taken = inv.getItem(2);
-				inv.setItem(2, null);
+			if (cachedInv.getItem(0) != null) {
+				taken = cachedInv.getItem(0);
+				cachedInv.setItem(0, null);
+			} else if (cachedInv.getItem(1) != null) {
+				taken = cachedInv.getItem(1);
+				cachedInv.setItem(1, null);
+			} else if (cachedInv.getItem(2) != null) {
+				taken = cachedInv.getItem(2);
+				cachedInv.setItem(2, null);
 			}
 			if (taken != null) {
 				return new ItemData(taken);
@@ -52,42 +53,38 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
-		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
+		if (!cachedChunk.isLoaded()) {
 			return false;
 		}
-		brewingStand = (BrewingStand) block.getState();
-		if (isInvLocked(brewingStand)) {
+		if (isInvLocked(cachedBrewingStand)) {
 			return false;
 		}
-		BrewerInventory inv = brewingStand.getInventory();
-
 		ItemStack itemStack = insertion.toItemStack();
-
 		if (itemStack.getType() == Material.POTION || itemStack.getType() == Material.SPLASH_POTION || itemStack.getType() == Material.LINGERING_POTION) {
-			if (inv.getItem(0) == null) {
-				inv.setItem(0, itemStack);
+			if (cachedInv.getItem(0) == null) {
+				cachedInv.setItem(0, itemStack);
 				return true;
-			} else if (inv.getItem(1) == null) {
-				inv.setItem(1, itemStack);
+			} else if (cachedInv.getItem(1) == null) {
+				cachedInv.setItem(1, itemStack);
 				return true;
-			} else if (inv.getItem(2) == null) {
-				inv.setItem(2, itemStack);
+			} else if (cachedInv.getItem(2) == null) {
+				cachedInv.setItem(2, itemStack);
 				return true;
 			} else {
 				return false;
 			}
 		} else if (insertDirection.isSide() && itemStack.getType() == Material.BLAZE_POWDER) {
-			ItemStack oldFuel = inv.getFuel();
+			ItemStack oldFuel = cachedInv.getFuel();
 			if (canPutItemInSlot(insertion, oldFuel)) {
-				inv.setFuel(putItemInSlot(insertion, oldFuel));
+				cachedInv.setFuel(putItemInSlot(insertion, oldFuel));
 				return true;
 			} else {
 				return false;
 			}
 		} else if (isBrewingIngredient(itemStack)) {
-			ItemStack oldIngredient = inv.getIngredient();
+			ItemStack oldIngredient = cachedInv.getIngredient();
 			if (canPutItemInSlot(insertion, oldIngredient)) {
-				inv.setIngredient(putItemInSlot(insertion, oldIngredient));
+				cachedInv.setIngredient(putItemInSlot(insertion, oldIngredient));
 				return true;
 			} else {
 				return false;
@@ -100,27 +97,23 @@ public class BrewingStandContainer extends BlockContainer {
 
 	@Override
 	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
-		if (!ContainerBlockUtils.isChunkLoaded(block.getLocation())) {
+		if (!cachedChunk.isLoaded()) {
 			return false;
 		}
-		brewingStand = (BrewingStand) block.getState();
-		if (isInvLocked(brewingStand)) {
+		if (isInvLocked(cachedBrewingStand)) {
 			return false;
 		}
-		BrewerInventory inv = brewingStand.getInventory();
-
 		ItemStack itemStack = insertion.toItemStack();
-
 		if (itemStack.getType() == Material.POTION || itemStack.getType() == Material.SPLASH_POTION || itemStack.getType() == Material.LINGERING_POTION) {
-			if (inv.getItem(0) != null && inv.getItem(1) != null && inv.getItem(2) != null) {
+			if (cachedInv.getItem(0) != null && cachedInv.getItem(1) != null && cachedInv.getItem(2) != null) {
 				return false;
 			} else {
 				return true;
 			}
 		} else if (insertDirection.isSide() && itemStack.getType() == Material.BLAZE_POWDER) {
-			return canPutItemInSlot(insertion, inv.getFuel());
+			return canPutItemInSlot(insertion, cachedInv.getFuel());
 		} else if (isBrewingIngredient(itemStack)) {
-			return canPutItemInSlot(insertion, inv.getIngredient());
+			return canPutItemInSlot(insertion, cachedInv.getIngredient());
 		} else {
 			return false;
 		}
@@ -170,6 +163,13 @@ public class BrewingStandContainer extends BlockContainer {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void updateBlock() {
+		this.cachedChunk = block.getChunk();
+		this.cachedBrewingStand = ((BrewingStand) block.getState());
+		this.cachedInv = cachedBrewingStand.getInventory();
 	}
 
 }

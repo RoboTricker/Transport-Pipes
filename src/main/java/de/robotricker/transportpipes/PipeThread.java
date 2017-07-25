@@ -17,7 +17,6 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 
 public class PipeThread extends Thread {
 
@@ -146,9 +145,10 @@ public class PipeThread extends Thread {
 						synchronized (pipeMap) {
 							lastAction = "Pipe loop";
 							for (Pipe pipe : pipeMap.values()) {
-								if (!ContainerBlockUtils.isChunkLoaded(pipe.getBlockLoc())) {
+								if (!pipe.isInLoadedChunk()) {
 									continue;
 								}
+								
 								//insert items from "tempPipeItemsWithSpawn"
 								synchronized (pipe.tempPipeItemsWithSpawn) {
 									Iterator<PipeItem> itemIterator = pipe.tempPipeItemsWithSpawn.keySet().iterator();

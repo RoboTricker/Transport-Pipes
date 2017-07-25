@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,13 +57,19 @@ public abstract class Pipe {
 
 	//the blockLoc of this pipe
 	public Location blockLoc;
+	private Chunk cachedChunk;
 
 	public Pipe(Location blockLoc) {
 		this.blockLoc = blockLoc;
+		this.cachedChunk = blockLoc.getBlock().getChunk();
 	}
 
 	public Location getBlockLoc() {
 		return blockLoc;
+	}
+
+	public boolean isInLoadedChunk() {
+		return cachedChunk.isLoaded();
 	}
 
 	/**
@@ -201,12 +208,12 @@ public abstract class Pipe {
 								public void run() {
 									try {
 										BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
-										TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld()).get(bl);
 
-										if (tpc == null) {
+										Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld());
+										if (containerMap == null || !containerMap.containsKey(bl)) {
 											//drop the item in case the inventory block is registered but is no longer in the world
 											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
-										} else if (!tpc.insertItem(finalDir.getOpposite(), itemData)) {
+										} else if (!containerMap.get(bl).insertItem(finalDir.getOpposite(), itemData)) {
 											//move item in opposite direction if insertion failed 
 											PipeDirection newItemDir = finalDir.getOpposite();
 											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
@@ -285,10 +292,29 @@ public abstract class Pipe {
 					@Override
 					public void run() {
 						try {
-							Block block = Pipe.this.blockLoc.getBlock();
+							if (!isInLoadedChunk()) {
+								return;
+							}
 							boolean powered = false;
 							for (PipeDirection pd : PipeDirection.values()) {
-								Block relative = block.getRelative(pd.toBlockFace());
+								boolean relativeIsInLoadedChunk = false;
+
+								Location relativeLoc = Pipe.this.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ());
+								Chunk[] loadedChunks = Pipe.this.blockLoc.getWorld().getLoadedChunks();
+								for (Chunk c : loadedChunks) {
+									if (c.getX() * 16 <= relativeLoc.getBlockX() && (c.getX() + 1) * 16 > relativeLoc.getBlockX()) {
+										if (c.getZ() * 16 <= relativeLoc.getBlockZ() && (c.getZ() + 1) * 16 > relativeLoc.getBlockZ()) {
+											relativeIsInLoadedChunk = true;
+										}
+									}
+								}
+
+								//don't power this pipe if at least 1 block around this pipe is inside an unloaded chunk
+								if (!relativeIsInLoadedChunk) {
+									break;
+								}
+
+								Block relative = relativeLoc.getBlock();
 								if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
 									powered = true;
 									break;
