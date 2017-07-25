@@ -172,14 +172,13 @@ public class ContainerBlockUtils implements Listener {
 		return false;
 	}
 
-	@EventHandler
-	public void onChunkLoad(ChunkLoadEvent e) {
-		for (BlockState bs : e.getChunk().getTileEntities()) {
+	public static void handleChunkLoadSync(Chunk loadedChunk) {
+		for (BlockState bs : loadedChunk.getTileEntities()) {
 			if (isIdContainerBlock(bs.getTypeId())) {
 
 				updatePipeNeighborBlockSync(bs.getBlock(), true);
 
-				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(e.getWorld());
+				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(loadedChunk.getWorld());
 				synchronized (containerMap) {
 					BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
 					TransportPipesContainer tpc = containerMap.get(bl);
@@ -189,7 +188,11 @@ public class ContainerBlockUtils implements Listener {
 				}
 			}
 		}
+	}
 
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent e) {
+		handleChunkLoadSync(e.getChunk());
 	}
 
 }

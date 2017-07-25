@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -81,7 +82,7 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		// Prepare collections
 		registeredPipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
 		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
@@ -197,6 +198,9 @@ public class TransportPipes extends JavaPlugin {
 		}
 
 		for (World world : Bukkit.getWorlds()) {
+			for (Chunk loadedChunk : world.getLoadedChunks()) {
+				ContainerBlockUtils.handleChunkLoadSync(loadedChunk);
+			}
 			SavingManager.loadPipesSync(world);
 		}
 
