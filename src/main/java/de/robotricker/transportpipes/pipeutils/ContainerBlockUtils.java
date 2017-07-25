@@ -1,6 +1,8 @@
 package de.robotricker.transportpipes.pipeutils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
@@ -21,6 +24,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 import co.aikar.timings.Timing;
@@ -37,6 +41,8 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class ContainerBlockUtils implements Listener {
+
+	private static Map<World, List<Chunk>> loadedChunksGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
@@ -164,13 +170,19 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	public static boolean isInLoadedChunk(Location loc) {
-		try (Timing timed = Timings.ofStart(TransportPipes.instance, "check if location is in loaded chunk")) {
-			try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "get world loaded chunks array")) {
-				Chunk[] loadedChunks = loc.getWorld().getLoadedChunks();
-				for (Chunk c : loadedChunks) {
-					if (c.getX() * 16 <= loc.getBlockX() && (c.getX() + 1) * 16 > loc.getBlockX()) {
-						if (c.getZ() * 16 <= loc.getBlockZ() && (c.getZ() + 1) * 16 > loc.getBlockZ()) {
-							return true;
+		synchronized (loadedChunksGridCoords) {
+			try (Timing timed = Timings.ofStart(TransportPipes.instance, "check if location is in loaded chunk")) {
+				try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "iterate through chunk grid coords")) {
+					List<Chunk> loadedChunks = loadedChunksGridCoords.get(loc.getWorld());
+					if (loadedChunks != null) {
+						for (Chunk chunk : loadedChunks) {
+							int chunkX = chunk.getX();
+							int chunkZ = chunk.getZ();
+							if (chunkX * 16 <= loc.getBlockX() && (chunkX + 1) * 16 > loc.getBlockX()) {
+								if (chunkZ * 16 <= loc.getBlockZ() && (chunkZ + 1) * 16 > loc.getBlockZ()) {
+									return true;
+								}
+							}
 						}
 					}
 				}
@@ -180,6 +192,15 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	public static void handleChunkLoadSync(Chunk loadedChunk) {
+		synchronized (loadedChunksGridCoords) {
+			if (!loadedChunksGridCoords.containsKey(loadedChunk.getWorld())) {
+				loadedChunksGridCoords.put(loadedChunk.getWorld(), Collections.synchronizedList(new ArrayList<Chunk>()));
+			}
+			if (!loadedChunksGridCoords.get(loadedChunk.getWorld()).contains(loadedChunk)) {
+				loadedChunksGridCoords.get(loadedChunk.getWorld()).add(loadedChunk);
+			}
+		}
+
 		try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "handle chunk load sync")) {
 			try (Timing timed3 = Timings.ofStart(TransportPipes.instance, "iterating through tile entities")) {
 				for (BlockState bs : loadedChunk.getTileEntities()) {
@@ -210,6 +231,17 @@ public class ContainerBlockUtils implements Listener {
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
 		handleChunkLoadSync(e.getChunk());
+	}
+
+	@EventHandler
+	public void onChunkUnload(ChunkUnloadEvent e) {
+		synchronized (loadedChunksGridCoords) {
+			if (loadedChunksGridCoords.containsKey(e.getWorld())) {
+				if (loadedChunksGridCoords.get(e.getWorld()).contains(e.getChunk())) {
+					loadedChunksGridCoords.get(e.getWorld()).remove(e.getChunk());
+				}
+			}
+		}
 	}
 
 }
