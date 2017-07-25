@@ -60,14 +60,12 @@ public class ModelledPipeConnModelData {
 		switch (pipe.getPipeType()) {
 		case COLORED:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, ((ColoredPipe) pipe).getPipeColor());
-		case ICE:
-			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection);
 		case GOLDEN:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, GoldenPipeColor.getColorWithDirection(connDirection));
 		case IRON:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, ((IronPipe) pipe).getCurrentOutputDir() == connDirection);
 		default:
-			return null;
+			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection);
 		}
 	}
 

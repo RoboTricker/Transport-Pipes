@@ -159,7 +159,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 		public static VanillaPipeShape getPipeShapeFromConnections(PipeType pipeType, Collection<PipeDirection> conn) {
 			PipeDirection[] array = conn.toArray(new PipeDirection[0]);
-			if (pipeType == PipeType.GOLDEN || pipeType == PipeType.IRON) {
+			if (pipeType == PipeType.GOLDEN || pipeType == PipeType.IRON || pipeType == PipeType.VOID) {
 				return MID;
 			}
 			if (conn.size() == 1) {

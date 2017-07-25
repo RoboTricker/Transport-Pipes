@@ -18,6 +18,8 @@ public abstract class ModelledPipeModel extends PipeModel {
 	protected static final ItemStack ITEM_HOE_CONN_IRON_OPENED = createToolItemStack(22);
 	protected static final ItemStack ITEM_HOE_MID_ICE = createToolItemStack(23);
 	protected static final ItemStack ITEM_HOE_CONN_ICE = createToolItemStack(24);
+	protected static final ItemStack ITEM_HOE_MID_VOID = createToolItemStack(35);
+	protected static final ItemStack ITEM_HOE_CONN_VOID = createToolItemStack(36);
 
 	public abstract ArmorStandData createMidASD(ModelledPipeMidModelData data);
 

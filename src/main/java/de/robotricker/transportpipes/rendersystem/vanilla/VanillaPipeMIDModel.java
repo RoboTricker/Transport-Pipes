@@ -31,6 +31,8 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 			return createGoldenASD();
 		} else if (data.getPipeType() == PipeType.IRON) {
 			return createIronASD(data.getIronPipe_outputDirection());
+		} else if (data.getPipeType() == PipeType.VOID) {
+			return createVoidASD();
 		}
 		return null;
 	}
@@ -79,6 +81,15 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f - 0.26f), new Vector(0, 0, -1), true, outputPd == PipeDirection.NORTH ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE, null, new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.255f + 0.26f, 0.5f), new Vector(1, 0, 0), true, outputPd == PipeDirection.UP ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.255f - 0.26f, 0.5f), new Vector(1, 0, 0), true, outputPd == PipeDirection.DOWN ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f)));
+
+		return asds;
+
+	}
+	
+	private List<ArmorStandData> createVoidASD() {
+		List<ArmorStandData> asds = new ArrayList<>();
+
+		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_VOID_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
 

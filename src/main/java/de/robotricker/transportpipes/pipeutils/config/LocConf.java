@@ -14,6 +14,7 @@ public class LocConf extends Conf {
 	public static final String PIPES_ICE = "pipes.ice";
 	public static final String PIPES_GOLDEN = "pipes.golden";
 	public static final String PIPES_IRON = "pipes.iron";
+	public static final String PIPES_VOID = "pipes.void";
 	public static final String PIPES_WRENCH = "pipes.wrench";
 	public static final String GOLDENPIPE_TITLE = "goldenpipe.title";
 	public static final String GOLDENPIPE_COLORS_WHITE = "goldenpipe.colors.white";
@@ -57,6 +58,7 @@ public class LocConf extends Conf {
 		saveAsDefault(PIPES_ICE, "Ice-Pipe");
 		saveAsDefault(PIPES_GOLDEN, "Golden-Pipe");
 		saveAsDefault(PIPES_IRON, "Iron-Pipe");
+		saveAsDefault(PIPES_VOID, "Void-Pipe");
 		saveAsDefault(PIPES_WRENCH, "Wrench");
 		saveAsDefault(GOLDENPIPE_TITLE, "Golden-Pipe");
 		saveAsDefault(GOLDENPIPE_COLORS_WHITE, "&fWhite");

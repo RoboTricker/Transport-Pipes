@@ -156,7 +156,7 @@ public abstract class Pipe {
 				clonedAllConnections.addAll(blockConnections);
 
 				itemDir = calculateNextItemDirection(item, itemDir, clonedAllConnections);
-				if (itemDir == null) {
+				if (itemDir == null && pipeItems.containsKey(item)) {
 					removePipeItem(item);
 					TransportPipes.pipePacketManager.destroyPipeItem(item);
 
@@ -168,6 +168,8 @@ public abstract class Pipe {
 							item.getBlockLoc().getWorld().dropItem(item.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d), itemStack);
 						}
 					});
+					return;
+				} else if (itemDir == null) {
 					return;
 				}
 				pipeItems.put(item, itemDir);

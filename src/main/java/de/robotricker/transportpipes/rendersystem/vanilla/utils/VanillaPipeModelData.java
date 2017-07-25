@@ -43,14 +43,10 @@ public class VanillaPipeModelData {
 		switch (pipe.getPipeType()) {
 		case COLORED:
 			return new VanillaPipeModelData(pipe.getPipeType(), ((ColoredPipe) pipe).getPipeColor());
-		case ICE:
-			return new VanillaPipeModelData(pipe.getPipeType());
-		case GOLDEN:
-			return new VanillaPipeModelData(pipe.getPipeType());
 		case IRON:
 			return new VanillaPipeModelData(pipe.getPipeType(), ((IronPipe) pipe).getCurrentOutputDir());
 		default:
-			return null;
+			return new VanillaPipeModelData(pipe.getPipeType());
 		}
 	}
 

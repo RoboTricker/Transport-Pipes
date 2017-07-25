@@ -9,6 +9,7 @@ import de.robotricker.transportpipes.pipes.types.GoldenPipe;
 import de.robotricker.transportpipes.pipes.types.IcePipe;
 import de.robotricker.transportpipes.pipes.types.IronPipe;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipes.types.VoidPipe;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public enum PipeType {
@@ -16,7 +17,8 @@ public enum PipeType {
 	COLORED(0, "", LocConf.PIPES_COLORED),
 	GOLDEN(1, "§6", LocConf.PIPES_GOLDEN),
 	IRON(2, "§7", LocConf.PIPES_IRON),
-	ICE(3, "§b", LocConf.PIPES_ICE);
+	ICE(3, "§b", LocConf.PIPES_ICE),
+	VOID(4, "§5", LocConf.PIPES_VOID);
 
 	private int id;
 	private String pipeName_colorCode;
@@ -45,6 +47,8 @@ public enum PipeType {
 			return new IronPipe(blockLoc);
 		} else if (this == ICE) {
 			return new IcePipe(blockLoc);
+		} else if (this == VOID) {
+			return new VoidPipe(blockLoc);
 		}
 		return null;
 	}
