@@ -142,6 +142,10 @@
 			<id>xephi-repo</id>
 			<url>http://ci.xephi.fr/plugin/repository/everything</url>
 		</repository>
+		<repository>
+			<id>destroystokyo-repo</id>
+			<url>https://repo.destroystokyo.com/repository/maven-public/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -217,6 +221,12 @@
 			<groupId>fr.xephi</groupId>
 			<artifactId>authme</artifactId>
 			<version>5.3.3-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.destroystokyo.paper</groupId>
+			<artifactId>paper-api</artifactId>
+			<version>1.12-R0.1-20170715.200138-36</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) <dependency> <groupId>org.bukkit</groupId> <artifactId>craftbukkit</artifactId> <version>1.12</version> <scope>provided</scope> </dependency> -->

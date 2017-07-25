@@ -22,6 +22,8 @@ import org.jnbt.IntTag;
 import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
+import co.aikar.timings.Timing;
+import co.aikar.timings.Timings;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
@@ -70,7 +72,9 @@ public abstract class Pipe {
 	}
 
 	public boolean isInLoadedChunk() {
-		return cachedChunk.isLoaded();
+		try (Timing timed = Timings.ofStart(TransportPipes.instance, "check if chunk of pipe is loaded")) {
+			return cachedChunk.isLoaded();
+		}
 	}
 
 	/**
@@ -307,22 +311,29 @@ public abstract class Pipe {
 									break;
 								}
 
-								Block relative = relativeLoc.getBlock();
-								if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
-									powered = true;
-									break;
+								try (Timing timed = Timings.ofStart(TransportPipes.instance, "get relative block")) {
+									Block relative = relativeLoc.getBlock();
+									try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "get block power")) {
+										if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
+											powered = true;
+											break;
+										}
+									}
 								}
+
 							}
-							if (powered) {
-								BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
-								TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
-								PipeDirection itemDir = dir.getOpposite();
-								if (tpc != null) {
-									ItemData taken = tpc.extractItem(itemDir);
-									if (taken != null) {
-										//extraction successful
-										PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
-										tempPipeItemsWithSpawn.put(pi, itemDir);
+							try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "handle powered pipe")) {
+								if (powered) {
+									BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+									TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
+									PipeDirection itemDir = dir.getOpposite();
+									if (tpc != null) {
+										ItemData taken = tpc.extractItem(itemDir);
+										if (taken != null) {
+											//extraction successful
+											PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
+											tempPipeItemsWithSpawn.put(pi, itemDir);
+										}
 									}
 								}
 							}

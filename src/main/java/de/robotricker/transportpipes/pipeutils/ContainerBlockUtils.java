@@ -23,6 +23,8 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.InventoryHolder;
 
+import co.aikar.timings.Timing;
+import co.aikar.timings.Timings;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeAPI;
@@ -126,17 +128,18 @@ public class ContainerBlockUtils implements Listener {
 	 *            true: block added | false: block removed
 	 */
 	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
+		try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "updating pipe neighbor block sync")) {
+			BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
-		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
-
-		if (add) {
-			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
-				TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
-				PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
-			}
-		} else {
-			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
-				PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
+			if (add) {
+				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+					TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
+					PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
+				}
+			} else {
+				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+					PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
+				}
 			}
 		}
 	}
@@ -161,11 +164,15 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	public static boolean isInLoadedChunk(Location loc) {
-		Chunk[] loadedChunks = loc.getWorld().getLoadedChunks();
-		for (Chunk c : loadedChunks) {
-			if (c.getX() * 16 <= loc.getBlockX() && (c.getX() + 1) * 16 > loc.getBlockX()) {
-				if (c.getZ() * 16 <= loc.getBlockZ() && (c.getZ() + 1) * 16 > loc.getBlockZ()) {
-					return true;
+		try (Timing timed = Timings.ofStart(TransportPipes.instance, "check if location is in loaded chunk")) {
+			try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "get world loaded chunks array")) {
+				Chunk[] loadedChunks = loc.getWorld().getLoadedChunks();
+				for (Chunk c : loadedChunks) {
+					if (c.getX() * 16 <= loc.getBlockX() && (c.getX() + 1) * 16 > loc.getBlockX()) {
+						if (c.getZ() * 16 <= loc.getBlockZ() && (c.getZ() + 1) * 16 > loc.getBlockZ()) {
+							return true;
+						}
+					}
 				}
 			}
 		}
@@ -173,17 +180,27 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	public static void handleChunkLoadSync(Chunk loadedChunk) {
-		for (BlockState bs : loadedChunk.getTileEntities()) {
-			if (isIdContainerBlock(bs.getTypeId())) {
+		try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "handle chunk load sync")) {
+			try (Timing timed3 = Timings.ofStart(TransportPipes.instance, "iterating through tile entities")) {
+				for (BlockState bs : loadedChunk.getTileEntities()) {
+					try (Timing timed4 = Timings.ofStart(TransportPipes.instance, "checking block id")) {
+						if (isIdContainerBlock(bs.getTypeId())) {
 
-				updatePipeNeighborBlockSync(bs.getBlock(), true);
+							updatePipeNeighborBlockSync(bs.getBlock(), true);
 
-				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(loadedChunk.getWorld());
-				synchronized (containerMap) {
-					BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
-					TransportPipesContainer tpc = containerMap.get(bl);
-					if (tpc instanceof BlockContainer) {
-						((BlockContainer) tpc).updateBlock();
+							try (Timing timed5 = Timings.ofStart(TransportPipes.instance, "reading container map")) {
+								Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(loadedChunk.getWorld());
+								synchronized (containerMap) {
+									BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
+									TransportPipesContainer tpc = containerMap.get(bl);
+									if (tpc instanceof BlockContainer) {
+										try (Timing timed6 = Timings.ofStart(TransportPipes.instance, "updating container cached inv data")) {
+											((BlockContainer) tpc).updateBlock();
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
