@@ -29,7 +29,6 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 
 public class PipeUtils {
 
@@ -266,17 +265,14 @@ public class PipeUtils {
 				//update container blocks sync
 				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.blockLoc.getWorld());
 				for (PipeDirection pd : PipeDirection.values()) {
-					Block b = pipe.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()).getBlock();
-					if (containerMap != null && containerMap.containsKey(BlockLoc.convertBlockLoc(b.getLocation()))) {
+					Location blockLoc = pipe.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ());
+					if (containerMap != null && containerMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
 						allConnections.add(pd);
-					} else if (ContainerBlockUtils.isIdContainerBlock(b.getTypeId())) {
-						allConnections.add(pd);
-						ContainerBlockUtils.updatePipeNeighborBlockSync(b, true);
 					}
 				}
 
 				PipeThread.runTask(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						TransportPipes.pipePacketManager.createPipe(pipe, allConnections);

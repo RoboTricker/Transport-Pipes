@@ -34,6 +34,7 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
@@ -297,20 +298,10 @@ public abstract class Pipe {
 							}
 							boolean powered = false;
 							for (PipeDirection pd : PipeDirection.values()) {
-								boolean relativeIsInLoadedChunk = false;
-
 								Location relativeLoc = Pipe.this.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ());
-								Chunk[] loadedChunks = Pipe.this.blockLoc.getWorld().getLoadedChunks();
-								for (Chunk c : loadedChunks) {
-									if (c.getX() * 16 <= relativeLoc.getBlockX() && (c.getX() + 1) * 16 > relativeLoc.getBlockX()) {
-										if (c.getZ() * 16 <= relativeLoc.getBlockZ() && (c.getZ() + 1) * 16 > relativeLoc.getBlockZ()) {
-											relativeIsInLoadedChunk = true;
-										}
-									}
-								}
 
 								//don't power this pipe if at least 1 block around this pipe is inside an unloaded chunk
-								if (!relativeIsInLoadedChunk) {
+								if (!ContainerBlockUtils.isInLoadedChunk(relativeLoc)) {
 									break;
 								}
 

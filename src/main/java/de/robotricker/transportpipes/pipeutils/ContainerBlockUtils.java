@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.EventHandler;
@@ -124,22 +127,17 @@ public class ContainerBlockUtils implements Listener {
 	 */
 	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(toUpdate.getWorld());
+		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
-		if (pipeMap != null) {
-			BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
-
-			if (add) {
-				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
-					TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
-					PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
-				}
-			} else {
-				if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
-					PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
-				}
+		if (add) {
+			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+				TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
+				PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
 			}
-
+		} else {
+			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+				PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
+			}
 		}
 	}
 
@@ -162,21 +160,36 @@ public class ContainerBlockUtils implements Listener {
 		return null;
 	}
 
+	public static boolean isInLoadedChunk(Location loc) {
+		Chunk[] loadedChunks = loc.getWorld().getLoadedChunks();
+		for (Chunk c : loadedChunks) {
+			if (c.getX() * 16 <= loc.getBlockX() && (c.getX() + 1) * 16 > loc.getBlockX()) {
+				if (c.getZ() * 16 <= loc.getBlockZ() && (c.getZ() + 1) * 16 > loc.getBlockZ()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
-		//update all BlockContainer inventories because the BlockState and Inventory instance of a block changes if the chunk get's unloaded
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(e.getWorld());
-		if (containerMap != null) {
-			synchronized (containerMap) {
-				for (BlockLoc bl : containerMap.keySet()) {
-					if (containerMap.get(bl) instanceof BlockContainer) {
-						if (bl.toLocation(e.getWorld()).getBlockX() / 16 == e.getChunk().getX() && bl.toLocation(e.getWorld()).getBlockZ() / 16 == e.getChunk().getZ()) {
-							((BlockContainer) containerMap.get(bl)).updateBlock();
-						}
+		for (BlockState bs : e.getChunk().getTileEntities()) {
+			if (isIdContainerBlock(bs.getTypeId())) {
+
+				updatePipeNeighborBlockSync(bs.getBlock(), true);
+
+				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(e.getWorld());
+				synchronized (containerMap) {
+					BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
+					TransportPipesContainer tpc = containerMap.get(bl);
+					if (tpc instanceof BlockContainer) {
+						((BlockContainer) tpc).updateBlock();
 					}
 				}
 			}
 		}
+
 	}
 
 }
