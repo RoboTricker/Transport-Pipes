@@ -109,8 +109,8 @@ public class LocConf extends Conf {
 		saveAsDefault(COMMANDS_DESCRIPTION_CREATIVE, "&eOpens an inventory with every pipe inside it.");
 		saveAsDefault(COMMANDS_DESCRIPTION_SAVE, "&eSaves all pipes in all worlds.");
 		saveAsDefault(COMMANDS_DESCRIPTION_DELETE, "&eDelete all pipes with a distance to you smaller than \"Radius\".");
-		saveAsDefault(COMMANDS_HEADER, "&7&l&m------------&7&l[ &6TransportPipes %s &7&l]&7&l&m------------");
-		saveAsDefault(COMMANDS_FOOTER, "&7&l&m-------------------------------------------");
+		saveAsDefault(COMMANDS_HEADER, "&7&l[ &6TransportPipes %s &7&l]");
+		saveAsDefault(COMMANDS_FOOTER, "&7&l&m--------------------------------------");
 		saveAsDefault(COMMANDS_NOPERM, "&4You don't have permission to perform this command.");
 		saveAsDefault(CREATIVE_TITLE, "Pipe Overview");
 		finishDefault();

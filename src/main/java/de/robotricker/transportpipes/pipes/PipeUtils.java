@@ -173,13 +173,16 @@ public class PipeUtils {
 				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 				if (pipeMap.containsKey(bl)) {
 					Pipe connectedPipe = pipeMap.get(bl);
+					if (connectedPipe.getPipeType() == PipeType.EXTRACTION && pipe.getPipeType() == PipeType.EXTRACTION) {
+						continue;
+					}
 					if (connectedPipe.getPipeType() == PipeType.COLORED && pipe.getPipeType() == PipeType.COLORED) {
 						if (((ColoredPipe) connectedPipe).getPipeColor().equals(((ColoredPipe) pipe).getPipeColor())) {
 							dirs.add(dir);
 						}
-					} else {
-						dirs.add(dir);
+						continue;
 					}
+					dirs.add(dir);
 				}
 			}
 		}
