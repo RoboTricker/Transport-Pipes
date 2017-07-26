@@ -230,11 +230,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) -->
-		<dependency>
+		<!--<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
 			<version>1.12</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>-->
 	</dependencies>
 </project>

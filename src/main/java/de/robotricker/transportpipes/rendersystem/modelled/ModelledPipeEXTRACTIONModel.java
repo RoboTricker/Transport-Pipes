@@ -18,7 +18,7 @@ public class ModelledPipeEXTRACTIONModel extends ModelledPipeModel {
 
 	@Override
 	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
-		ItemStack hoe = data.isIron_ExtractionPipe_ActiveSide() ? ITEM_HOE_CONN_EXTRACTION_OPENED : ITEM_HOE_CONN_EXTRACTION_CLOSED;
+		ItemStack hoe = data.isIron_ExtractionPipe_ActiveSide() ? ITEM_HOE_CONN_EXTRACTION_CLOSED : ITEM_HOE_CONN_EXTRACTION_OPENED;
 		ArmorStandData asd;
 
 		if (data.getConnDirection() == PipeDirection.UP) {
