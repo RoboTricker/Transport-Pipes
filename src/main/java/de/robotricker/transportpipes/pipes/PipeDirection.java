@@ -99,4 +99,11 @@ public enum PipeDirection {
 		}
 	}
 
+	public PipeDirection getNextDirection() {
+		if (getId() == PipeDirection.values().length - 1) {
+			return fromID(0);
+		}
+		return fromID(getId() + 1);
+	}
+
 }

@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.pipeutils.hitbox;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.PipeDirection;
@@ -21,6 +22,23 @@ public class AxisAlignedBB {
 		this.maxx = maxx;
 		this.maxy = maxy;
 		this.maxz = maxz;
+	}
+
+	@SuppressWarnings("deprecation")
+	public AxisAlignedBB(Block fromBlock) {
+		net.minecraft.server.v1_12_R1.BlockPosition bp = new net.minecraft.server.v1_12_R1.BlockPosition(fromBlock.getX(), fromBlock.getY(), fromBlock.getZ());
+		net.minecraft.server.v1_12_R1.WorldServer world = ((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) fromBlock.getWorld()).getHandle();
+		net.minecraft.server.v1_12_R1.IBlockData blockData = world.getType(bp);
+		net.minecraft.server.v1_12_R1.AxisAlignedBB nativeAABB = blockData.getBlock().a(blockData, (net.minecraft.server.v1_12_R1.IBlockAccess) world, bp);
+		if (nativeAABB == null) {
+			return;
+		}
+		this.minx = nativeAABB.a;
+		this.miny = nativeAABB.b;
+		this.minz = nativeAABB.c;
+		this.maxx = nativeAABB.d;
+		this.maxy = nativeAABB.e;
+		this.maxz = nativeAABB.f;
 	}
 
 	public Vector getAABBMiddle(Location blockLoc) {
@@ -77,6 +95,11 @@ public class AxisAlignedBB {
 		}
 
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return minx + ":" + miny + ":" + minz + "_" + maxx + ":" + maxy + ":" + maxz;
 	}
 
 }

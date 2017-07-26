@@ -8,7 +8,6 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
-import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -23,18 +22,22 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 
 	@Override
 	public List<ArmorStandData> createASD(VanillaPipeModelData data) {
-		if (data.getPipeType() == PipeType.COLORED) {
+		switch (data.getPipeType()) {
+		case COLORED:
 			return createColoredASD(data.getColoredPipe_pipeColor());
-		} else if (data.getPipeType() == PipeType.ICE) {
+		case ICE:
 			return createIceASD();
-		} else if (data.getPipeType() == PipeType.GOLDEN) {
+		case GOLDEN:
 			return createGoldenASD();
-		} else if (data.getPipeType() == PipeType.IRON) {
+		case IRON:
 			return createIronASD(data.getIronPipe_outputDirection());
-		} else if (data.getPipeType() == PipeType.VOID) {
+		case VOID:
 			return createVoidASD();
+		case EXTRACTION:
+			return createExtractionASD();
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	private List<ArmorStandData> createColoredASD(PipeColor pc) {
@@ -85,11 +88,20 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 		return asds;
 
 	}
-	
+
 	private List<ArmorStandData> createVoidASD() {
 		List<ArmorStandData> asds = new ArrayList<>();
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_VOID_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+
+		return asds;
+
+	}
+
+	private List<ArmorStandData> createExtractionASD() {
+		List<ArmorStandData> asds = new ArrayList<>();
+
+		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_EXTRACTION_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
 

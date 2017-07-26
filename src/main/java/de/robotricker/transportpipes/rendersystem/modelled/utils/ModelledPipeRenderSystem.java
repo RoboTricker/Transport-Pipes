@@ -28,6 +28,7 @@ import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeCOLOREDModel;
+import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeEXTRACTIONModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeGOLDENModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeICEModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeIRONModel;
@@ -54,6 +55,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		pipeModels.put(PipeType.GOLDEN, new ModelledPipeGOLDENModel());
 		pipeModels.put(PipeType.IRON, new ModelledPipeIRONModel());
 		pipeModels.put(PipeType.VOID, new ModelledPipeVOIDModel());
+		pipeModels.put(PipeType.EXTRACTION, new ModelledPipeEXTRACTIONModel());
 
 		pipeMidAABB = new AxisAlignedBB(4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d);
 		pipeConnsAABBs.put(PipeDirection.NORTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 0d / 16d, 12d / 16d, 12d / 16d, 4d / 16d));

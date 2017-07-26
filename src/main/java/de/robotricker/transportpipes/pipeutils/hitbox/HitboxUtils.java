@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.pipeutils.hitbox;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,12 @@ public class HitboxUtils {
 	}
 
 	public static List<Block> getLineOfSight(Player p) {
-		return p.getLineOfSight(LINE_OF_SIGHT_SET, HITBOX_RANGE);
+		try {
+			return p.getLineOfSight(LINE_OF_SIGHT_SET, HITBOX_RANGE);
+		} catch (IllegalStateException e) {
+			
+		}
+		return new ArrayList<Block>();
 	}
 
 	public static PipeDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {

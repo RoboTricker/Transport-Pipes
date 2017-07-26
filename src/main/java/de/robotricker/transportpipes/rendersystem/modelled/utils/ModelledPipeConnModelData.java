@@ -5,6 +5,7 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
+import de.robotricker.transportpipes.pipes.types.ExtractionPipe;
 import de.robotricker.transportpipes.pipes.types.IronPipe;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
@@ -13,7 +14,7 @@ public class ModelledPipeConnModelData {
 	private PipeType pipeType;
 	private PipeDirection connDirection;
 	private GoldenPipeColor goldenPipe_color;
-	private boolean ironPipe_output;
+	private boolean iron_extractionPipe_activeSide;
 	private PipeColor coloredPipe_pipeColor;
 
 	public ModelledPipeConnModelData(PipeType pipeType, PipeDirection connDirection) {
@@ -26,9 +27,9 @@ public class ModelledPipeConnModelData {
 		this.goldenPipe_color = goldenPipe_color;
 	}
 
-	public ModelledPipeConnModelData(PipeType pipeType, PipeDirection connDirection, boolean ironPipe_output) {
+	public ModelledPipeConnModelData(PipeType pipeType, PipeDirection connDirection, boolean iron_extractionPipe_activeSide) {
 		this(pipeType, connDirection);
-		this.ironPipe_output = ironPipe_output;
+		this.iron_extractionPipe_activeSide = iron_extractionPipe_activeSide;
 	}
 
 	public ModelledPipeConnModelData(PipeType pipeType, PipeDirection connDirection, PipeColor coloredPipe_pipeColor) {
@@ -48,8 +49,8 @@ public class ModelledPipeConnModelData {
 		return goldenPipe_color;
 	}
 
-	public boolean isIronPipe_output() {
-		return ironPipe_output;
+	public boolean isIron_ExtractionPipe_ActiveSide() {
+		return iron_extractionPipe_activeSide;
 	}
 
 	public PipeColor getColoredPipe_pipeColor() {
@@ -64,6 +65,8 @@ public class ModelledPipeConnModelData {
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, GoldenPipeColor.getColorWithDirection(connDirection));
 		case IRON:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, ((IronPipe) pipe).getCurrentOutputDir() == connDirection);
+		case EXTRACTION:
+			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection, ((ExtractionPipe) pipe).getExtractDirection() == connDirection);
 		default:
 			return new ModelledPipeConnModelData(pipe.getPipeType(), connDirection);
 		}

@@ -229,6 +229,12 @@
 			<version>1.12-R0.1-20170715.200138-36</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) <dependency> <groupId>org.bukkit</groupId> <artifactId>craftbukkit</artifactId> <version>1.12</version> <scope>provided</scope> </dependency> -->
+		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) -->
+		<dependency>
+			<groupId>org.bukkit</groupId>
+			<artifactId>craftbukkit</artifactId>
+			<version>1.12</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 </project>

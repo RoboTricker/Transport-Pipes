@@ -31,14 +31,8 @@ public class ModelledPipeMidModelData {
 		switch (pipe.getPipeType()) {
 		case COLORED:
 			return new ModelledPipeMidModelData(pipe.getPipeType(), ((ColoredPipe) pipe).getPipeColor());
-		case ICE:
-			return new ModelledPipeMidModelData(pipe.getPipeType());
-		case GOLDEN:
-			return new ModelledPipeMidModelData(pipe.getPipeType());
-		case IRON:
-			return new ModelledPipeMidModelData(pipe.getPipeType());
 		default:
-			return null;
+			return new ModelledPipeMidModelData(pipe.getPipeType());
 		}
 	}
 

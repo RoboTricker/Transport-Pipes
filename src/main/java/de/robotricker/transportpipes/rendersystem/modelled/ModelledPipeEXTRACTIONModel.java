@@ -9,16 +9,16 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
 
-public class ModelledPipeIRONModel extends ModelledPipeModel {
+public class ModelledPipeEXTRACTIONModel extends ModelledPipeModel {
 
 	@Override
 	public ArmorStandData createMidASD(ModelledPipeMidModelData data) {
-		return new ArmorStandData(new RelLoc(0.5f, 0.5f - 1.1875f, 0.5f), new Vector(1, 0, 0), false, ITEM_HOE_MID_IRON, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
+		return new ArmorStandData(new RelLoc(0.5f, 0.5f - 1.1875f, 0.5f), new Vector(1, 0, 0), false, ITEM_HOE_MID_EXTRACTION, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f));
 	}
 
 	@Override
 	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
-		ItemStack hoe = data.isIron_ExtractionPipe_ActiveSide() ? ITEM_HOE_CONN_IRON_OPENED : ITEM_HOE_CONN_IRON_CLOSED;
+		ItemStack hoe = data.isIron_ExtractionPipe_ActiveSide() ? ITEM_HOE_CONN_EXTRACTION_OPENED : ITEM_HOE_CONN_EXTRACTION_CLOSED;
 		ArmorStandData asd;
 
 		if (data.getConnDirection() == PipeDirection.UP) {

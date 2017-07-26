@@ -18,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
@@ -184,6 +185,7 @@ public class TransportPipes extends JavaPlugin {
 		//register listeners
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
+		Bukkit.getPluginManager().registerEvents(new ExtractionPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new SavingManager(), this);
 		Bukkit.getPluginManager().registerEvents(new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);

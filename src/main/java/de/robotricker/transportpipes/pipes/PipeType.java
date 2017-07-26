@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
+import de.robotricker.transportpipes.pipes.types.ExtractionPipe;
 import de.robotricker.transportpipes.pipes.types.GoldenPipe;
 import de.robotricker.transportpipes.pipes.types.IcePipe;
 import de.robotricker.transportpipes.pipes.types.IronPipe;
@@ -18,7 +19,8 @@ public enum PipeType {
 	GOLDEN(1, "§6", LocConf.PIPES_GOLDEN),
 	IRON(2, "§7", LocConf.PIPES_IRON),
 	ICE(3, "§b", LocConf.PIPES_ICE),
-	VOID(4, "§5", LocConf.PIPES_VOID);
+	VOID(4, "§5", LocConf.PIPES_VOID),
+	EXTRACTION(5, "§d", LocConf.PIPES_EXTRACTION);
 
 	private int id;
 	private String pipeName_colorCode;
@@ -49,6 +51,8 @@ public enum PipeType {
 			return new IcePipe(blockLoc);
 		} else if (this == VOID) {
 			return new VoidPipe(blockLoc);
+		} else if (this == PipeType.EXTRACTION) {
+			return new ExtractionPipe(blockLoc);
 		}
 		return null;
 	}

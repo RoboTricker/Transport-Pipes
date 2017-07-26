@@ -15,7 +15,11 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 		}
 
 		SavingManager.savePipesAsync();
-		
+//		Block b = ((Player) cs).getTargetBlock((HashSet<Material>) null, 10);
+//		if (b != null) {
+//			AxisAlignedBB aabb = new AxisAlignedBB(((Player) cs).getTargetBlock((HashSet<Material>) null, 10));
+//			System.out.println(b.getType() + "->" + aabb.toString());
+//		}
 		cs.sendMessage("§cPipes saved");
 
 		return true;

@@ -62,11 +62,13 @@ public class PipePacketManager implements Listener {
 
 	public void createPipeItem(PipeItem pipeItem) {
 		try {
-			List<Player> playerList = pipeItem.getBlockLoc().getWorld().getPlayers();
-			for (int i = 0; i < playerList.size(); i++) {
-				Player on = playerList.get(i);
-				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
-					spawnItem(on, pipeItem);
+			Player[] playerList = pipeItem.getBlockLoc().getWorld().getPlayers().toArray(new Player[0]);
+			for (int i = 0; i < playerList.length; i++) {
+				Player on = playerList[i];
+				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
+					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
+						spawnItem(on, pipeItem);
+					}
 				}
 			}
 		} catch (IllegalStateException | ConcurrentModificationException e) {
@@ -76,11 +78,13 @@ public class PipePacketManager implements Listener {
 
 	public void updatePipeItem(PipeItem pipeItem) {
 		try {
-			List<Player> playerList = pipeItem.getBlockLoc().getWorld().getPlayers();
-			for (int i = 0; i < playerList.size(); i++) {
-				Player on = playerList.get(i);
-				if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
-					TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
+			Player[] playerList = pipeItem.getBlockLoc().getWorld().getPlayers().toArray(new Player[0]);
+			for (int i = 0; i < playerList.length; i++) {
+				Player on = playerList[i];
+				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
+					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
+						TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
+					}
 				}
 			}
 		} catch (IllegalStateException | ConcurrentModificationException e) {
@@ -149,9 +153,9 @@ public class PipePacketManager implements Listener {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {
 						try {
-							List<Player> playerList = world.getPlayers();
-							for (int i = 0; i < playerList.size(); i++) {
-								Player on = playerList.get(i);
+							Player[] playerList = world.getPlayers().toArray(new Player[0]);
+							for (int i = 0; i < playerList.length; i++) {
+								Player on = playerList[i];
 								if (!pipe.blockLoc.getWorld().equals(on.getWorld())) {
 									continue;
 								}
@@ -164,7 +168,7 @@ public class PipePacketManager implements Listener {
 								}
 
 								for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
-									PipeItem item = (PipeItem) pipe.pipeItems.keySet().toArray()[i2];
+									PipeItem item = pipe.pipeItems.keySet().toArray(new PipeItem[0])[i2];
 									if (!item.getBlockLoc().getWorld().equals(on.getWorld())) {
 										continue;
 									}

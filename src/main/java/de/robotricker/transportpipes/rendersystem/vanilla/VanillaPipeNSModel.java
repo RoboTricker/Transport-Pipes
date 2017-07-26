@@ -19,13 +19,15 @@ public class VanillaPipeNSModel extends VanillaPipeModel {
 		super();
 		aabb = new AxisAlignedBB(0.22, 0.22, 0, 0.78, 0.78, 1);
 	}
-	
+
 	@Override
 	public List<ArmorStandData> createASD(VanillaPipeModelData data) {
 		if (data.getPipeType() == PipeType.COLORED) {
 			return createColoredASD(data.getColoredPipe_pipeColor());
 		} else if (data.getPipeType() == PipeType.ICE) {
 			return createIceASD();
+		} else if (data.getPipeType() == PipeType.EXTRACTION) {
+			return createExtractionASD();
 		}
 		return null;
 	}
@@ -48,6 +50,21 @@ public class VanillaPipeNSModel extends VanillaPipeModel {
 	private List<ArmorStandData> createIceASD() {
 		List<ArmorStandData> asds = new ArrayList<>();
 		ItemStack block = ITEM_ICE_BLOCK;
+
+		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.44f, -0.35f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)));
+		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.86f, -1.0307f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 135f)));
+		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.37f, -1.0307f - 0.45f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 135f)));
+		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.93f, -0.35f - 0.45f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)));
+		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f + 0.3f), new Vector(0, 0, -1), true, block, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f - 0.2f), new Vector(0, 0, -1), true, block, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+
+		return asds;
+
+	}
+
+	private List<ArmorStandData> createExtractionASD() {
+		List<ArmorStandData> asds = new ArrayList<>();
+		ItemStack block = ITEM_EXTRACTION_BLOCK;
 
 		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.44f, -0.35f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 45f)));
 		asds.add(new ArmorStandData(new RelLoc(0.5f - 0.86f, -1.0307f, 1f), new Vector(0, 0, -1), false, null, ITEM_BLAZE, new Vector(0f, 0f, 0f), new Vector(-10f, 0f, 135f)));

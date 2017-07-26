@@ -11,6 +11,7 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class TPSCommandExecutor implements PipesCommandExecutor {
 
@@ -33,7 +34,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 
 		float lastTickDiff = TransportPipes.pipeThread.getLastTickDiff() / 1000f;
 
-		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m---------------&7&l[ &6TransportPipes " + TransportPipes.instance.getDescription().getVersion() + "&7&l]&7&l&m---------------"));
+		cs.sendMessage(String.format(LocConf.load(LocConf.COMMANDS_HEADER), TransportPipes.instance.getDescription().getVersion()));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Tick duration: " + colour + (PipeThread.timeTick / 10000) / 100f + "ms"));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Tick: " + lastTickDiff));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Action: " + PipeThread.getLastAction()));
@@ -54,7 +55,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 			}
 		}
 
-		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
+		cs.sendMessage(LocConf.load(LocConf.COMMANDS_FOOTER));
 
 		return true;
 

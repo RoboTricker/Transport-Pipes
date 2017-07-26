@@ -15,6 +15,7 @@ public class LocConf extends Conf {
 	public static final String PIPES_GOLDEN = "pipes.golden";
 	public static final String PIPES_IRON = "pipes.iron";
 	public static final String PIPES_VOID = "pipes.void";
+	public static final String PIPES_EXTRACTION = "pipes.extraction";
 	public static final String PIPES_WRENCH = "pipes.wrench";
 	public static final String GOLDENPIPE_TITLE = "goldenpipe.title";
 	public static final String GOLDENPIPE_COLORS_WHITE = "goldenpipe.colors.white";
@@ -31,6 +32,14 @@ public class LocConf extends Conf {
 	public static final String GOLDENPIPE_FILTERING_CHECKTYPE = "goldenpipe.filtering.check_type";
 	public static final String GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT = "goldenpipe.filtering.check_type_damage_nbt";
 	public static final String GOLDENPIPE_FILTERING_CLICKTOCHANGE = "goldenpipe.filtering.clicktochange";
+	public static final String EXTRACTIONPIPE_TITLE = "extractionpipe.title";
+	public static final String EXTRACTIONPIPE_DIRECTION_TEXT = "extractionpipe.direction.text";
+	public static final String EXTRACTIONPIPE_DIRECTION_DONTEXTRACT = "extractionpipe.direction.dontextract";
+	public static final String EXTRACTIONPIPE_DIRECTION_CLICKTOCHANGE = "extractionpipe.direction.clicktochange";
+	public static final String EXTRACTIONPIPE_CONDITION_NEEDSREDSTONE = "extractionpipe.condition.needsredstone";
+	public static final String EXTRACTIONPIPE_CONDITION_ALWAYSEXTRACT = "extractionpipe.condition.alwaysextract";
+	public static final String EXTRACTIONPIPE_CONDITION_NEVEREXTRACT = "extractionpipe.condition.neverextract";
+	public static final String EXTRACTIONPIPE_CONDITION_CLICKTOCHANGE = "extractionpipe.condition.clicktochange";
 	public static final String SETTINGS_TITLE = "settings.title";
 	public static final String SETTINGS_RENDERDISTANCE_TITLE = "settings.renderdistance.title";
 	public static final String SETTINGS_RENDERDISTANCE_DECREASE = "settings.renderdistance.decrease";
@@ -59,6 +68,7 @@ public class LocConf extends Conf {
 		saveAsDefault(PIPES_GOLDEN, "Golden-Pipe");
 		saveAsDefault(PIPES_IRON, "Iron-Pipe");
 		saveAsDefault(PIPES_VOID, "Void-Pipe");
+		saveAsDefault(PIPES_EXTRACTION, "Extraction-Pipe");
 		saveAsDefault(PIPES_WRENCH, "Wrench");
 		saveAsDefault(GOLDENPIPE_TITLE, "Golden-Pipe");
 		saveAsDefault(GOLDENPIPE_COLORS_WHITE, "&fWhite");
@@ -75,6 +85,14 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPENBT, "&7Filter items by &cTYPE, ITEMMETA");
 		saveAsDefault(GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT, "&7Filter items by &cTYPE, DAMAGE, ITEMMETA");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
+		saveAsDefault(EXTRACTIONPIPE_TITLE, "Extraction-Pipe");
+		saveAsDefault(EXTRACTIONPIPE_DIRECTION_TEXT, "&7Extract Direction: &c%s");
+		saveAsDefault(EXTRACTIONPIPE_DIRECTION_DONTEXTRACT, "&7Extract Direction: &cDONT EXTRACT");
+		saveAsDefault(EXTRACTIONPIPE_DIRECTION_CLICKTOCHANGE, "&7Click to change extract direction");
+		saveAsDefault(EXTRACTIONPIPE_CONDITION_NEEDSREDSTONE, "&7Extract Condition: &cNEEDS REDSTONE");
+		saveAsDefault(EXTRACTIONPIPE_CONDITION_ALWAYSEXTRACT, "&7Extract Condition: &aALWAYS EXTRACT");
+		saveAsDefault(EXTRACTIONPIPE_CONDITION_NEVEREXTRACT, "&7Extract Condition: &4NEVER EXTRACT");
+		saveAsDefault(EXTRACTIONPIPE_CONDITION_CLICKTOCHANGE, "&7Click to change extract condition");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DECREASE, "&6Decrease");

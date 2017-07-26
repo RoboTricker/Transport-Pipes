@@ -13,9 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
@@ -36,7 +34,6 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
@@ -104,10 +101,10 @@ public abstract class Pipe {
 		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
 		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
 
-		if (extractItems) {
+		if (extractItems && this instanceof ExtractionPipe) {
 			//extract items from inventories
 			PipeThread.setLastAction("Pipe extract");
-			extractItems(pipeConnections, blockConnections);
+			((ExtractionPipe) this).extractItems(blockConnections);
 		}
 
 		//handle item transport through pipe
@@ -278,74 +275,6 @@ public abstract class Pipe {
 
 	protected float getPipeItemSpeed() {
 		return ITEM_SPEED;
-	}
-
-	private void extractItems(List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections) {
-
-		for (final PipeDirection dir : PipeDirection.values()) {
-			final Location blockLoc = this.blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ());
-			if (blockConnections.contains(dir)) {
-				//make sure that items won't be extracted if the extracting-pipe is an iron pipe pointing to the inventory block
-				if (getPipeType() == PipeType.IRON) {
-					IronPipe ip = (IronPipe) this;
-					if (ip.getCurrentOutputDir().equals(dir)) {
-						return;
-					}
-				}
-
-				//input items
-				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							if (!isInLoadedChunk()) {
-								return;
-							}
-							boolean powered = false;
-							for (PipeDirection pd : PipeDirection.values()) {
-								Location relativeLoc = Pipe.this.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ());
-
-								//don't power this pipe if at least 1 block around this pipe is inside an unloaded chunk
-								if (!ContainerBlockUtils.isInLoadedChunk(relativeLoc)) {
-									break;
-								}
-
-								try (Timing timed = Timings.ofStart(TransportPipes.instance, "get relative block")) {
-									Block relative = relativeLoc.getBlock();
-									try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "get block power")) {
-										if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
-											powered = true;
-											break;
-										}
-									}
-								}
-
-							}
-							try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "handle powered pipe")) {
-								if (powered) {
-									BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
-									TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
-									PipeDirection itemDir = dir.getOpposite();
-									if (tpc != null) {
-										ItemData taken = tpc.extractItem(itemDir);
-										if (taken != null) {
-											//extraction successful
-											PipeItem pi = new PipeItem(taken, Pipe.this.blockLoc, itemDir);
-											tempPipeItemsWithSpawn.put(pi, itemDir);
-										}
-									}
-								}
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-
-			}
-
-		}
 	}
 
 	public Collection<PipeDirection> getAllConnections() {

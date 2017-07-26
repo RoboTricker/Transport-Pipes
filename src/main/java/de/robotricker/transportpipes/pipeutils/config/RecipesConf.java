@@ -47,6 +47,11 @@ public class RecipesConf extends Conf {
 		saveAsDefault("recipe.void.shape", Arrays.asList("xix", "igi", "xix"));
 		saveAsDefault("recipe.void.ingredients.g", "20:0");
 		saveAsDefault("recipe.void.ingredients.i", "49:0");
+		saveAsDefault("recipe.extraction.type", "shaped");
+		saveAsDefault("recipe.extraction.amount", 1);
+		saveAsDefault("recipe.extraction.shape", Arrays.asList("xix", "igi", "xix"));
+		saveAsDefault("recipe.extraction.ingredients.g", "20:0");
+		saveAsDefault("recipe.extraction.ingredients.i", "5:0");
 		saveAsDefault("recipe.colored.white.type", "shapeless");
 		saveAsDefault("recipe.colored.white.amount", 1);
 		saveAsDefault("recipe.colored.white.ingredients", Arrays.asList("pipe", "351:15"));
