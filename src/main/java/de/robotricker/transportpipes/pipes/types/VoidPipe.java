@@ -30,6 +30,11 @@ public class VoidPipe extends Pipe {
 	public PipeType getPipeType() {
 		return PipeType.VOID;
 	}
+	
+	@Override
+	public int[] getBreakParticleData() {
+		return new int[] { 49, 0 };
+	}
 
 	@Override
 	public List<ItemStack> getDroppedItems() {

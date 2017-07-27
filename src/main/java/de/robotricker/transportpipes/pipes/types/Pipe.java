@@ -20,8 +20,6 @@ import org.jnbt.IntTag;
 import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
-import co.aikar.timings.Timing;
-import co.aikar.timings.Timings;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
@@ -69,9 +67,7 @@ public abstract class Pipe {
 	}
 
 	public boolean isInLoadedChunk() {
-		try (Timing timed = Timings.ofStart(TransportPipes.instance, "check if chunk of pipe is loaded")) {
-			return cachedChunk.isLoaded();
-		}
+		return cachedChunk.isLoaded();
 	}
 
 	/**
@@ -351,6 +347,8 @@ public abstract class Pipe {
 
 	public abstract PipeType getPipeType();
 
+	public abstract int[] getBreakParticleData();
+	
 	public void notifyConnectionsChange() {
 		PipeConnectionsChangeEvent event = new PipeConnectionsChangeEvent(this);
 		Bukkit.getPluginManager().callEvent(event);

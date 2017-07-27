@@ -31,15 +31,13 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
-	private ItemData[][] outputItems = new ItemData[6][7];
-	private BlockingMode[] blockingModes = new BlockingMode[6];
+	private ItemData[][] outputItems = new ItemData[6][8];
 	private FilteringMode[] filteringModes = new FilteringMode[6];
 
 	public GoldenPipe(Location blockLoc) {
 		super(blockLoc);
 		for (int i = 0; i < 6; i++) {
-			blockingModes[i] = BlockingMode.OPENED;
-			filteringModes[i] = FilteringMode.CHECK_TYPE_DAMAGE_NBT;
+			filteringModes[i] = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
 		}
 	}
 
@@ -67,9 +65,6 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
 			if (dir.getOpposite() == before) {
-				continue;
-			}
-			if (getBlockingMode(line) == BlockingMode.BLOCKED) {
 				continue;
 			}
 			//ignore the direction in which is no pipe or inv-block
@@ -134,7 +129,6 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			}
 			NBTUtils.saveListValue(lineCompound.getValue(), "Items", NBTTagType.TAG_COMPOUND, lineList);
 
-			NBTUtils.saveIntValue(lineCompound.getValue(), "BlockingMode", getBlockingMode(line).getId());
 			NBTUtils.saveIntValue(lineCompound.getValue(), "FilteringMode", getFilteringMode(line).getId());
 
 			linesList.add(lineCompound);
@@ -161,10 +155,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					}
 				}
 
-				BlockingMode bm = BlockingMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_blockingMode"), BlockingMode.OPENED.getId()));
-				setBlockingMode(line, bm);
-
-				FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_filteringMode"), FilteringMode.CHECK_TYPE_DAMAGE_NBT.getId()));
+				FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_filteringMode"), FilteringMode.FILTERBY_TYPE_DAMAGE_NBT.getId()));
 				setFilteringMode(line, fm);
 
 			}
@@ -185,10 +176,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 						i++;
 					}
 
-					BlockingMode bm = BlockingMode.fromId(NBTUtils.readIntTag(lineCompound.getValue().get("BlockingMode"), BlockingMode.OPENED.getId()));
-					setBlockingMode(line, bm);
-
-					FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(lineCompound.getValue().get("FilteringMode"), FilteringMode.CHECK_TYPE_DAMAGE_NBT.getId()));
+					FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(lineCompound.getValue().get("FilteringMode"), FilteringMode.FILTERBY_TYPE_DAMAGE_NBT.getId()));
 					setFilteringMode(line, fm);
 				}
 			}
@@ -197,20 +185,18 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
+	public int[] getBreakParticleData() {
+		return new int[] { 41, 0 };
+	}
+
+	
+	@Override
 	public void click(Player p, PipeDirection side) {
 		GoldenPipeInv.updateGoldenPipeInventory(p, this);
 	}
 
 	public ItemData[] getOutputItems(PipeDirection pd) {
 		return outputItems[pd.getId()];
-	}
-
-	public BlockingMode getBlockingMode(int line) {
-		return blockingModes[line];
-	}
-
-	public void setBlockingMode(int line, BlockingMode blockingMode) {
-		blockingModes[line] = blockingMode;
 	}
 
 	public FilteringMode getFilteringMode(int line) {
@@ -250,42 +236,12 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		return is;
 	}
 
-	public enum BlockingMode {
-		OPENED(LocConf.GOLDENPIPE_BLOCKING_DISABLED),
-		BLOCKED(LocConf.GOLDENPIPE_BLOCKING_ENABLED);
-
-		private String locConfKey;
-
-		private BlockingMode(String locConfKey) {
-			this.locConfKey = locConfKey;
-		}
-
-		public String getLocConfKey() {
-			return locConfKey;
-		}
-
-		public int getId() {
-			return this.ordinal();
-		}
-
-		public static BlockingMode fromId(int id) {
-			return BlockingMode.values()[id];
-		}
-
-		public BlockingMode getNextMode() {
-			if (getId() == BlockingMode.values().length - 1) {
-				return fromId(0);
-			}
-			return fromId(getId() + 1);
-		}
-
-	}
-
 	public enum FilteringMode {
-		CHECK_TYPE(LocConf.GOLDENPIPE_FILTERING_CHECKTYPE),
-		CHECK_TYPE_DAMAGE(LocConf.GOLDENPIPE_FILTERING_CHECKTYPEDAMAGE),
-		CHECK_TYPE_NBT(LocConf.GOLDENPIPE_FILTERING_CHECKTYPENBT),
-		CHECK_TYPE_DAMAGE_NBT(LocConf.GOLDENPIPE_FILTERING_CHECKTYPEDAMAGENBT);
+		FILTERBY_TYPE(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE),
+		FILTERBY_TYPE_DAMAGE(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE),
+		FILTERBY_TYPE_NBT(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_NBT),
+		FILTERBY_TYPE_DAMAGE_NBT(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE_NBT),
+		BLOCK_ALL(LocConf.GOLDENPIPE_FILTERING_BLOCKALL);
 
 		private String locConfKey;
 

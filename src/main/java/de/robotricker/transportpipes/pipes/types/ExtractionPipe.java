@@ -14,8 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
 
-import co.aikar.timings.Timing;
-import co.aikar.timings.Timings;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -174,30 +172,24 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 									break;
 								}
 
-								try (Timing timed = Timings.ofStart(TransportPipes.instance, "get relative block")) {
-									Block relative = relativeLoc.getBlock();
-									try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "get block power")) {
-										if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
-											powered = true;
-											break;
-										}
-									}
+								Block relative = relativeLoc.getBlock();
+								if (relative.getType() != Material.TRAPPED_CHEST && relative.getBlockPower(pd.getOpposite().toBlockFace()) > 0) {
+									powered = true;
+									break;
 								}
 
 							}
 						}
-						try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "handle powered pipe")) {
-							if (powered) {
-								BlockLoc bl = BlockLoc.convertBlockLoc(containerLoc);
-								TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
-								PipeDirection itemDir = extractDirection.getOpposite();
-								if (tpc != null) {
-									ItemData taken = tpc.extractItem(itemDir);
-									if (taken != null) {
-										//extraction successful
-										PipeItem pi = new PipeItem(taken, ExtractionPipe.this.blockLoc, itemDir);
-										tempPipeItemsWithSpawn.put(pi, itemDir);
-									}
+						if (powered) {
+							BlockLoc bl = BlockLoc.convertBlockLoc(containerLoc);
+							TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
+							PipeDirection itemDir = extractDirection.getOpposite();
+							if (tpc != null) {
+								ItemData taken = tpc.extractItem(itemDir);
+								if (taken != null) {
+									//extraction successful
+									PipeItem pi = new PipeItem(taken, ExtractionPipe.this.blockLoc, itemDir);
+									tempPipeItemsWithSpawn.put(pi, itemDir);
 								}
 							}
 						}
@@ -208,6 +200,11 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 			});
 
 		}
+	}
+
+	@Override
+	public int[] getBreakParticleData() {
+		return new int[] { 5, 0 };
 	}
 
 	@Override

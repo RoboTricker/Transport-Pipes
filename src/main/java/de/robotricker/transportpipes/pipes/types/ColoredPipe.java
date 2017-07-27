@@ -48,6 +48,11 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
+	public int[] getBreakParticleData() {
+		return new int[] { getPipeColor().getDyeItem().getTypeId(), getPipeColor().getDyeItem().getDurability() };
+	}
+
+	@Override
 	public PipeType getPipeType() {
 		return PipeType.COLORED;
 	}

@@ -90,6 +90,11 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
+	public int[] getBreakParticleData() {
+		return new int[] { 42, 0 };
+	}
+	
+	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));

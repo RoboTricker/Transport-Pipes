@@ -27,14 +27,16 @@ public class ItemData {
 	public boolean equals(Object obj, FilteringMode filteringMode) {
 		if (obj != null && obj instanceof ItemData) {
 			ItemData o = (ItemData) obj;
-			if (filteringMode == FilteringMode.CHECK_TYPE_DAMAGE_NBT) {
+			if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE_NBT) {
 				return o.item.equals(item);
-			} else if (filteringMode == FilteringMode.CHECK_TYPE_DAMAGE) {
+			} else if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE) {
 				return o.item.getType() == item.getType() && o.item.getDurability() == item.getDurability();
-			} else if (filteringMode == FilteringMode.CHECK_TYPE_NBT) {
+			} else if (filteringMode == FilteringMode.FILTERBY_TYPE_NBT) {
 				return o.item.getType() == item.getType() && o.item.getItemMeta().equals(item.getItemMeta());
-			} else if (filteringMode == FilteringMode.CHECK_TYPE) {
+			} else if (filteringMode == FilteringMode.FILTERBY_TYPE) {
 				return o.item.getType() == item.getType();
+			} else if (filteringMode == FilteringMode.BLOCK_ALL) {
+				return false;
 			}
 		}
 		return false;

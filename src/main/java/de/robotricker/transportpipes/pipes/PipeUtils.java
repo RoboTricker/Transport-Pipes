@@ -20,6 +20,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredListener;
 
+import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
+import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
+
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PlayerDestroyPipeEvent;
@@ -76,7 +79,7 @@ public class PipeUtils {
 	/**
 	 * invoke this if you want to destroy a pipe. This will remove the pipe from the pipe list and destroys it for all players
 	 */
-	public static void destroyPipe(Player player, final Pipe pipeToDestroy) {
+	public static void destroyPipe(final Player player, final Pipe pipeToDestroy) {
 
 		if (player != null) {
 			PlayerDestroyPipeEvent pde = new PlayerDestroyPipeEvent(player, pipeToDestroy);
@@ -118,18 +121,34 @@ public class PipeUtils {
 
 				updateNeighborPipes(pipeToDestroy.blockLoc);
 
-				if (player != null && player.getGameMode() != GameMode.SURVIVAL) {
-					return;
-				}
-
 				final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems();
 				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 					@Override
 					public void run() {
-						Location dropLoc = pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d);
-						for (ItemStack dropIs : droppedItems) {
-							dropLoc.getWorld().dropItem(dropLoc, dropIs);
+						if (player != null && player.getGameMode() != GameMode.CREATIVE) {
+							Location dropLoc = pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d);
+							for (ItemStack dropIs : droppedItems) {
+								dropLoc.getWorld().dropItem(dropLoc, dropIs);
+							}
+						}
+						if (player != null) {
+							//show break particles
+							WrapperPlayServerWorldParticles wrapper = new WrapperPlayServerWorldParticles();
+							wrapper.setParticleType(Particle.ITEM_CRACK);
+							wrapper.setNumberOfParticles(30);
+							wrapper.setLongDistance(false);
+							wrapper.setX(pipeToDestroy.blockLoc.getBlockX() + 0.5f);
+							wrapper.setY(pipeToDestroy.blockLoc.getBlockY() + 0.5f);
+							wrapper.setZ(pipeToDestroy.blockLoc.getBlockZ() + 0.5f);
+							wrapper.setOffsetX(0.25f);
+							wrapper.setOffsetY(0.25f);
+							wrapper.setOffsetZ(0.25f);
+							wrapper.setParticleData(0.05f);
+							wrapper.setData(pipeToDestroy.getBreakParticleData());
+							for (Player worldPl : pipeToDestroy.blockLoc.getWorld().getPlayers()) {
+								wrapper.sendPacket(worldPl);
+							}
 						}
 					}
 				});

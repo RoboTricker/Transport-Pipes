@@ -42,6 +42,11 @@ public class IcePipe extends Pipe {
 	}
 
 	@Override
+	public int[] getBreakParticleData() {
+		return new int[] { 79, 0 };
+	}
+
+	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
