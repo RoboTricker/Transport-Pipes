@@ -59,15 +59,15 @@ public class PipeUtils {
 			PlayerPlacePipeEvent ppe = new PlayerPlacePipeEvent(player, pipe);
 			Bukkit.getPluginManager().callEvent(ppe);
 			if (!ppe.isCancelled()) {
-				putPipe(pipe, neighborPipes);
+				registerPipe(pipe, neighborPipes);
 			} else {
 				return false;
 			}
 		} else {
-			putPipe(pipe, neighborPipes);
+			registerPipe(pipe, neighborPipes);
 		}
 
-		updatePipeNeighborPipes(pipe.getBlockLoc());
+		updateNeighborPipes(pipe.getBlockLoc());
 
 		return true;
 
@@ -116,7 +116,7 @@ public class PipeUtils {
 				pipeToDestroy.tempPipeItems.clear();
 				pipeToDestroy.tempPipeItemsWithSpawn.clear();
 
-				updatePipeNeighborPipes(pipeToDestroy.blockLoc);
+				updateNeighborPipes(pipeToDestroy.blockLoc);
 
 				if (player != null && player.getGameMode() != GameMode.SURVIVAL) {
 					return;
@@ -138,7 +138,7 @@ public class PipeUtils {
 
 	}
 
-	public static void updatePipeNeighborPipes(final Location blockLoc) {
+	public static void updateNeighborPipes(final Location blockLoc) {
 		PipeThread.runTask(new Runnable() {
 
 			@Override
@@ -252,7 +252,7 @@ public class PipeUtils {
 		return !bbe.isCancelled() || p.isOp();
 	}
 
-	public static void putPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
+	public static void registerPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.blockLoc.getWorld());
 		if (pipeMap == null) {
 			pipeMap = Collections.synchronizedMap(new TreeMap<BlockLoc, Pipe>());

@@ -118,7 +118,13 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	public void saveToNBTTag(HashMap<String, Tag> tags) {
 		super.saveToNBTTag(tags);
 
+		List<Tag> linesList = new ArrayList<Tag>();
+
 		for (int line = 0; line < 6; line++) {
+			CompoundTag lineCompound = new CompoundTag("Line");
+
+			NBTUtils.saveIntValue(lineCompound.getValue(), "Line", line);
+
 			List<Tag> lineList = new ArrayList<>();
 			for (int i = 0; i < outputItems[line].length; i++) {
 				ItemData itemData = outputItems[line][i];
@@ -126,10 +132,15 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					lineList.add(itemData.toNBTTag());
 				}
 			}
-			NBTUtils.saveListValue(tags, "Line" + line, NBTTagType.TAG_COMPOUND, lineList);
-			NBTUtils.saveIntValue(tags, "Line" + line + "_blockingMode", getBlockingMode(line).getId());
-			NBTUtils.saveIntValue(tags, "Line" + line + "_filteringMode", getFilteringMode(line).getId());
+			NBTUtils.saveListValue(lineCompound.getValue(), "Items", NBTTagType.TAG_COMPOUND, lineList);
+
+			NBTUtils.saveIntValue(lineCompound.getValue(), "BlockingMode", getBlockingMode(line).getId());
+			NBTUtils.saveIntValue(lineCompound.getValue(), "FilteringMode", getFilteringMode(line).getId());
+
+			linesList.add(lineCompound);
 		}
+
+		NBTUtils.saveListValue(tags, "Lines", NBTTagType.TAG_COMPOUND, linesList);
 
 	}
 
@@ -138,22 +149,49 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		super.loadFromNBTTag(tag);
 
 		Map<String, Tag> map = tag.getValue();
-		for (int line = 0; line < 6; line++) {
+		if (NBTUtils.readListTag(map.get("Lines")).isEmpty()) {
+			//old lines version
+			for (int line = 0; line < 6; line++) {
 
-			List<Tag> lineList = NBTUtils.readListTag(map.get("Line" + line));
-			for (int i = 0; i < outputItems[line].length; i++) {
-				if (lineList.size() > i) {
-					ItemData itemData = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
-					outputItems[line][i] = itemData;
+				List<Tag> lineList = NBTUtils.readListTag(map.get("Line" + line));
+				for (int i = 0; i < outputItems[line].length; i++) {
+					if (lineList.size() > i) {
+						ItemData itemData = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
+						outputItems[line][i] = itemData;
+					}
+				}
+
+				BlockingMode bm = BlockingMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_blockingMode"), BlockingMode.OPENED.getId()));
+				setBlockingMode(line, bm);
+
+				FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_filteringMode"), FilteringMode.CHECK_TYPE_DAMAGE_NBT.getId()));
+				setFilteringMode(line, fm);
+
+			}
+		} else {
+			//new list version
+			List<Tag> linesList = NBTUtils.readListTag(map.get("Lines"));
+			for (Tag lineTag : linesList) {
+				CompoundTag lineCompound = (CompoundTag) lineTag;
+				int line = NBTUtils.readIntTag(lineCompound.getValue().get("Line"), -1);
+				if (line != -1) {
+					List<Tag> itemsList = NBTUtils.readListTag(lineCompound.getValue().get("Items"));
+					int i = 0;
+					for (Tag itemTag : itemsList) {
+						if (itemsList.size() > i) {
+							ItemData itemData = ItemData.fromNBTTag((CompoundTag) itemTag);
+							outputItems[line][i] = itemData;
+						}
+						i++;
+					}
+
+					BlockingMode bm = BlockingMode.fromId(NBTUtils.readIntTag(lineCompound.getValue().get("BlockingMode"), BlockingMode.OPENED.getId()));
+					setBlockingMode(line, bm);
+
+					FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(lineCompound.getValue().get("FilteringMode"), FilteringMode.CHECK_TYPE_DAMAGE_NBT.getId()));
+					setFilteringMode(line, fm);
 				}
 			}
-
-			BlockingMode bm = BlockingMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_blockingMode"), BlockingMode.OPENED.getId()));
-			setBlockingMode(line, bm);
-
-			FilteringMode fm = FilteringMode.fromId(NBTUtils.readIntTag(map.get("Line" + line + "_filteringMode"), FilteringMode.CHECK_TYPE_DAMAGE_NBT.getId()));
-			setFilteringMode(line, fm);
-
 		}
 
 	}

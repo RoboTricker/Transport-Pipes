@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.saving;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,6 +24,7 @@ import org.jnbt.NBTOutputStream;
 import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
+import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
@@ -31,6 +33,7 @@ import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
+import de.robotricker.transportpipes.update.UpdateManager;
 
 public class SavingManager implements Listener {
 
@@ -93,7 +96,7 @@ public class SavingManager implements Listener {
 						datFile.createNewFile();
 					}
 
-					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile), NBTCompression.UNCOMPRESSED);
+					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile), NBTCompression.GZIP);
 
 					HashMap<String, Tag> tags = new HashMap<>();
 
@@ -124,7 +127,7 @@ public class SavingManager implements Listener {
 	/**
 	 * loads all pipes and items in this world if it isn't loaded already
 	 */
-	public static void loadPipesSync(World world) {
+	public static void loadPipesSync(final World world) {
 
 		if (!loadedWorlds.contains(world)) {
 			loadedWorlds.add(world);
@@ -142,9 +145,26 @@ public class SavingManager implements Listener {
 				return;
 			}
 
-			NBTInputStream in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
+			CompoundTag compound = null;
+			NBTInputStream in = null;
 
-			CompoundTag compound = (CompoundTag) in.readTag();
+			try {
+				in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.GZIP);
+				compound = (CompoundTag) in.readTag();
+			} catch (EOFException e) {
+				System.out.println("Wrong pipes.dat version detected. Converting to new nbt version");
+				in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
+				compound = (CompoundTag) in.readTag();
+			}
+
+			//whether to convert the pipes.dat system to a version after 3.8.22 without PipeClassName but instead PipeType values
+			boolean convertSystem = false;
+			String pipesDatVersionString = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"), TransportPipes.instance.getDescription().getVersion());
+			long pipesDatVersion = UpdateManager.convertVersionToLong(pipesDatVersionString);
+			if (pipesDatVersion <= UpdateManager.convertVersionToLong("3.8.22")) {
+				convertSystem = true;
+				System.out.println("Converting pipes.dat system to new system");
+			}
 
 			List<Tag> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
 
@@ -153,6 +173,20 @@ public class SavingManager implements Listener {
 
 				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
 				Location pipeLoc = PipeUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+
+				if (convertSystem) {
+					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"), "de.robotricker.transportpipes.pipes.PipeMID");
+					if (oldPipeClassName.endsWith("GoldenPipe")) {
+						pt = PipeType.GOLDEN;
+					} else if (oldPipeClassName.endsWith("IronPipe")) {
+						pt = PipeType.IRON;
+					}
+
+					boolean icePipe = NBTUtils.readByteTag(pipeTag.getValue().get("IcePipe"), (byte) 0) == (byte) 1;
+					if (icePipe) {
+						pt = PipeType.ICE;
+					}
+				}
 
 				List<PipeDirection> neighborPipes = new ArrayList<PipeDirection>();
 				List<Tag> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
@@ -165,11 +199,28 @@ public class SavingManager implements Listener {
 					pipe.loadFromNBTTag(pipeTag);
 
 					//save and spawn pipe
-					PipeUtils.putPipe(pipe, neighborPipes);
+					PipeUtils.registerPipe(pipe, neighborPipes);
 
 					pipesCount++;
 				}
 
+			}
+
+			if (convertSystem) {
+				PipeThread.runTask(new Runnable() {
+
+					@Override
+					public void run() {
+						//update all pipes connections because the in the old system "NeighborPipes" wasn't saved for each pipe
+						Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
+						synchronized (pipeMap) {
+							for (Pipe pipe : pipeMap.values()) {
+								TransportPipes.pipePacketManager.updatePipe(pipe);
+							}
+						}
+					};
+
+				}, 2);
 			}
 
 			in.close();

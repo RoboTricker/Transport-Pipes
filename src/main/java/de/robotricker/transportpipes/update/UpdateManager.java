@@ -23,7 +23,15 @@ public class UpdateManager implements Listener {
 
 	public UpdateManager(Plugin plugin) {
 		su = new SpigetUpdate(plugin, 20873);
-		su.setVersionComparator(VersionComparator.SEM_VER);
+		su.setVersionComparator(new VersionComparator() {
+
+			@Override
+			public boolean isNewer(String currentVersion, String checkVersion) {
+				long currentVersionLong = convertVersionToLong(currentVersion);
+				long checkVersionLong = convertVersionToLong(checkVersion);
+				return checkVersionLong > currentVersionLong;
+			}
+		});
 	}
 
 	public void checkForUpdates(final CommandSender cs) {
@@ -73,6 +81,47 @@ public class UpdateManager implements Listener {
 				}
 			}, 60L);
 		}
+	}
+
+	public static long convertVersionToLong(String version) {
+		long versionLong = 0;
+		try {
+			if (version.contains("-")) {
+				for (String subVersion : version.split("-")) {
+					if (subVersion.startsWith("b")) {
+						int buildNumber = 0;
+						String buildNumberString = subVersion.substring(1);
+						if (!buildNumberString.equalsIgnoreCase("CUSTOM")) {
+							buildNumber = Integer.parseInt(buildNumberString);
+						}
+						versionLong |= buildNumber;
+					} else if (!subVersion.equalsIgnoreCase("SNAPSHOT")) {
+						versionLong |= (long) convertMainVersionStringToInt(subVersion) << 32;
+					}
+				}
+			} else {
+				versionLong = convertMainVersionStringToInt(version);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return versionLong;
+	}
+
+	private static int convertMainVersionStringToInt(String mainVersion) {
+		int versionInt = 0;
+		if (mainVersion.contains(".")) {
+			//shift for every version number 1 byte to the left
+			int leftShift = (mainVersion.split("\\.").length - 1) * 8;
+			for (String subVersion : mainVersion.split("\\.")) {
+				byte v = Byte.parseByte(subVersion);
+				versionInt |= ((int) v << leftShift);
+				leftShift -= 8;
+			}
+		} else {
+			versionInt = Byte.parseByte(mainVersion);
+		}
+		return versionInt;
 	}
 
 }

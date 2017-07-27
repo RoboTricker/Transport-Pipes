@@ -52,7 +52,11 @@ public class InventoryUtils {
 		} catch (InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
-		return yaml.getItemStack("item", null);
+		if (yaml.contains("item")) {
+			return yaml.getItemStack("item", null);
+		} else {
+			return yaml.getItemStack("i", null);
+		}
 	}
 
 	public static ItemStack changeDisplayName(ItemStack is, String displayName) {
