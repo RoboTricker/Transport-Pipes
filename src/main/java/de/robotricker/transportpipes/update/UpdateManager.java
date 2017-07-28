@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.update;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -51,7 +52,7 @@ public class UpdateManager implements Listener {
 				TextComponent toUpdate = new TextComponent("to update the plugin");
 				toUpdate.setColor(net.md_5.bungee.api.ChatColor.GOLD);
 
-				cs.spigot().sendMessage(new TextComponent(click, here, toUpdate));
+				((Player) cs).spigot().sendMessage(new TextComponent(click, here, toUpdate));
 				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7&l&m--------------------------------------------"));
 			}
 

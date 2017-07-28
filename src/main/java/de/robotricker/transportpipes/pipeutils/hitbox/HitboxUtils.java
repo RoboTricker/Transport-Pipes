@@ -55,7 +55,7 @@ public class HitboxUtils {
 		try {
 			return p.getLineOfSight(LINE_OF_SIGHT_SET, HITBOX_RANGE);
 		} catch (IllegalStateException e) {
-			
+
 		}
 		return new ArrayList<Block>();
 	}
@@ -125,6 +125,9 @@ public class HitboxUtils {
 			return;
 		}
 		if (mainHand) {
+			if (p.getInventory().getItemInMainHand().getType() == Material.AIR) {
+				return;
+			}
 			int amountBefore = p.getInventory().getItemInMainHand().getAmount();
 			if (amountBefore - 1 == 0) {
 				p.getInventory().setItemInMainHand(null);
@@ -134,6 +137,9 @@ public class HitboxUtils {
 				p.getInventory().setItemInMainHand(is);
 			}
 		} else {
+			if (p.getInventory().getItemInOffHand().getType() == Material.AIR) {
+				return;
+			}
 			int amountBefore = p.getInventory().getItemInOffHand().getAmount();
 			if (amountBefore - 1 == 0) {
 				p.getInventory().setItemInOffHand(null);

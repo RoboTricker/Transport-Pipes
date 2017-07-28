@@ -91,7 +91,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					possibleDirections.add(dir);
 				}
 			}
-			if (empty) {
+			if (empty && getFilteringMode(line) != FilteringMode.BLOCK_ALL) {
 				emptyPossibleDirections.add(dir);
 			}
 		}

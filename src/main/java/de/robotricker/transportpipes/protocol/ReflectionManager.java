@@ -142,4 +142,30 @@ public class ReflectionManager {
 		return -1;
 	}
 
+	public static ItemStack setItemStackUnbreakable(ItemStack is) {
+		try {
+			Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
+			Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
+			Class<?> nbtCompoundClass = Class.forName("net.minecraft.server." + version + ".NBTTagCompound");
+
+			Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
+			Method asCraftMirror = craftItemStackClass.getDeclaredMethod("asCraftMirror", nmsItemStackClass);
+			Method nbtSetBoolean = nbtCompoundClass.getDeclaredMethod("setBoolean", String.class, boolean.class);
+			Method nmsItemSetTag = nmsItemStackClass.getDeclaredMethod("setTag", nbtCompoundClass);
+
+			Object compound = nbtCompoundClass.newInstance();
+			nbtSetBoolean.setAccessible(true);
+			nbtSetBoolean.invoke(compound, "Unbreakable", true);
+
+			Object nmsItemStackObj = asNMSCopy.invoke(null, is);
+			nmsItemSetTag.setAccessible(true);
+			nmsItemSetTag.invoke(nmsItemStackObj, compound);
+
+			is = (ItemStack) asCraftMirror.invoke(null, nmsItemStackObj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return is;
+	}
+
 }

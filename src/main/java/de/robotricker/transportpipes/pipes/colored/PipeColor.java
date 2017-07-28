@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeModel;
+import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 
 public enum PipeColor {
 
@@ -24,8 +24,8 @@ public enum PipeColor {
 	PipeColor(String colorCode, short glassMetadata, short midHoeMetadata, short connHoeMetadata, short dyeMetadata) {
 		this.colorCode = colorCode;
 		vanillaModel_glassItem = glassMetadata != -1 ? new ItemStack(Material.STAINED_GLASS, 1, glassMetadata) : new ItemStack(Material.GLASS);
-		modelledModel_midHoeItem = ModelledPipeModel.createToolItemStack(midHoeMetadata);
-		modelledModel_connHoeItem = ModelledPipeModel.createToolItemStack(connHoeMetadata);
+		modelledModel_midHoeItem = InventoryUtils.createToolItemStack(midHoeMetadata);
+		modelledModel_connHoeItem = InventoryUtils.createToolItemStack(connHoeMetadata);
 		dyeItem = new ItemStack(Material.INK_SACK, 1, dyeMetadata);
 	}
 

@@ -18,6 +18,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 
+import de.robotricker.transportpipes.protocol.ReflectionManager;
+
 public class InventoryUtils {
 
 	public static ItemStack decreaseAmountWithOne(ItemStack item) {
@@ -87,9 +89,8 @@ public class InventoryUtils {
 	}
 
 	public static ItemStack createToolItemStack(int damage) {
-		ItemStack is = new ItemStack(Material.WOOD_PICKAXE, 1, (short) damage);
+		ItemStack is = ReflectionManager.setItemStackUnbreakable(new ItemStack(Material.WOOD_PICKAXE, 1, (short) damage));
 		ItemMeta im = is.getItemMeta();
-		im.setUnbreakable(true);
 		im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		im.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 		is.setItemMeta(im);

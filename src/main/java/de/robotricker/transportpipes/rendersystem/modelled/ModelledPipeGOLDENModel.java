@@ -5,6 +5,7 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
@@ -18,7 +19,7 @@ public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 
 	@Override
 	public ArmorStandData createConnASD(ModelledPipeConnModelData data) {
-		ItemStack hoe = createToolItemStack(data.getGoldenPipe_color().getResourcePackDamage());
+		ItemStack hoe = InventoryUtils.createToolItemStack(data.getGoldenPipe_color().getResourcePackDamage());
 		ArmorStandData asd;
 
 		if (data.getConnDirection() == PipeDirection.UP) {

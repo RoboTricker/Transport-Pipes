@@ -12,7 +12,7 @@ public class PlayerSettingsConf extends Conf {
 	public PlayerSettingsConf(Player p) {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "settings" + File.separator + p.getUniqueId().toString() + ".yml"));
 		saveAsDefault("renderDistance", 25);
-		saveAsDefault("renderSystemId", 0);
+		saveAsDefault("renderSystemId", 1);
 		finishDefault();
 	}
 
