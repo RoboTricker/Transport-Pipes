@@ -1,9 +1,8 @@
-# Transport-Pipes
-Buildcraft without mods!
+![Logo](https://img2.picload.org/image/riwprwgr/logo.png)
 
-For more information visit https://www.spigotmc.org/resources/transport-pipes.20873/
-Also participate in the following strawpoll to help improving the project: http://www.strawpoll.me/12107058
-Feel free to make your own extensions and to make pull requests.
+The Transport-Pipes plugin adds several different pipes into Minecraft. At the moment there are colored pipes, golden pipes, iron pipes, extraction pipes, void pipes and ice pipes. Similar to the BuildCraft mod, these pipes can transport any kind of item.
+
+For more information visit https://www.spigotmc.org/resources/transport-pipes.20873/ and read the TransportPipes wiki: https://github.com/RoboTricker/Transport-Pipes/wiki.
 
 For issueing bugs and suggestions you can either use the following Discord server:
 https://discord.gg/wPKCAX5
