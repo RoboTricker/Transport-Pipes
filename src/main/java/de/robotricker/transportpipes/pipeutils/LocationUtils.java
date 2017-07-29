@@ -3,8 +3,11 @@ package de.robotricker.transportpipes.pipeutils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 public class LocationUtils {
 
@@ -20,4 +23,15 @@ public class LocationUtils {
 		}
 		return blocks;
 	}
+	
+	public static List<Player> getPlayerList(World world){
+		List<Player> playerList = new ArrayList<Player>();
+		for(Player p : Bukkit.getOnlinePlayers()){
+			if(p.getLocation().getWorld().equals(world)){
+				playerList.add(p);
+			}
+		}
+		return playerList;
+	}
+	
 }

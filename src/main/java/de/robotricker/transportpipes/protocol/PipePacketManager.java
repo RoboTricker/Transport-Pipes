@@ -23,6 +23,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.LocationUtils;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 
@@ -64,9 +65,8 @@ public class PipePacketManager implements Listener {
 
 	public void createPipeItem(PipeItem pipeItem) {
 		try {
-			Player[] playerList = pipeItem.getBlockLoc().getWorld().getPlayers().toArray(new Player[0]);
-			for (int i = 0; i < playerList.length; i++) {
-				Player on = playerList[i];
+			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
+			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
 					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 						spawnItem(on, pipeItem);
@@ -80,9 +80,8 @@ public class PipePacketManager implements Listener {
 
 	public void updatePipeItem(PipeItem pipeItem) {
 		try {
-			Player[] playerList = pipeItem.getBlockLoc().getWorld().getPlayers().toArray(new Player[0]);
-			for (int i = 0; i < playerList.length; i++) {
-				Player on = playerList[i];
+			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
+			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
 					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
 						TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
@@ -155,9 +154,8 @@ public class PipePacketManager implements Listener {
 				synchronized (pipeMap) {
 					for (Pipe pipe : pipeMap.values()) {
 						try {
-							Player[] playerList = world.getPlayers().toArray(new Player[0]);
-							for (int i = 0; i < playerList.length; i++) {
-								Player on = playerList[i];
+							List<Player> playerList = LocationUtils.getPlayerList(world);
+							for (Player on : playerList) {
 								if (!pipe.blockLoc.getWorld().equals(on.getWorld())) {
 									continue;
 								}
