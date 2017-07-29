@@ -23,35 +23,35 @@ public class RecipesConf extends Conf {
 	public RecipesConf() {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "recipes.yml"));
 		saveAsDefault("recipe.colored.type", "shaped");
-		saveAsDefault("recipe.colored.amount", 3);
-		saveAsDefault("recipe.colored.shape", Arrays.asList("sss", "ggg", "sss"));
+		saveAsDefault("recipe.colored.amount", 4);
+		saveAsDefault("recipe.colored.shape", Arrays.asList("ggx", "gbg", "xgg"));
 		saveAsDefault("recipe.colored.ingredients.g", "20:0");
-		saveAsDefault("recipe.colored.ingredients.s", "280:0");
+		saveAsDefault("recipe.colored.ingredients.b", "280:0");
 		saveAsDefault("recipe.golden.type", "shaped");
 		saveAsDefault("recipe.golden.amount", 1);
-		saveAsDefault("recipe.golden.shape", Arrays.asList("xix", "igi", "xix"));
+		saveAsDefault("recipe.golden.shape", Arrays.asList("ggx", "gbg", "xgg"));
 		saveAsDefault("recipe.golden.ingredients.g", "20:0");
-		saveAsDefault("recipe.golden.ingredients.i", "266:0");
+		saveAsDefault("recipe.golden.ingredients.b", "41:0");
 		saveAsDefault("recipe.iron.type", "shaped");
 		saveAsDefault("recipe.iron.amount", 1);
-		saveAsDefault("recipe.iron.shape", Arrays.asList("xix", "igi", "xix"));
+		saveAsDefault("recipe.iron.shape", Arrays.asList("ggx", "gbg", "xgg"));
 		saveAsDefault("recipe.iron.ingredients.g", "20:0");
-		saveAsDefault("recipe.iron.ingredients.i", "265:0");
+		saveAsDefault("recipe.iron.ingredients.b", "42:0");
 		saveAsDefault("recipe.ice.type", "shaped");
 		saveAsDefault("recipe.ice.amount", 1);
-		saveAsDefault("recipe.ice.shape", Arrays.asList("xix", "igi", "xix"));
+		saveAsDefault("recipe.ice.shape", Arrays.asList("ggx", "gbg", "xgg"));
 		saveAsDefault("recipe.ice.ingredients.g", "20:0");
-		saveAsDefault("recipe.ice.ingredients.i", "80:0");
+		saveAsDefault("recipe.ice.ingredients.b", "80:0");
 		saveAsDefault("recipe.void.type", "shaped");
 		saveAsDefault("recipe.void.amount", 1);
-		saveAsDefault("recipe.void.shape", Arrays.asList("xix", "igi", "xix"));
+		saveAsDefault("recipe.void.shape", Arrays.asList("ggx", "gbg", "xgg"));
 		saveAsDefault("recipe.void.ingredients.g", "20:0");
-		saveAsDefault("recipe.void.ingredients.i", "49:0");
+		saveAsDefault("recipe.void.ingredients.b", "49:0");
 		saveAsDefault("recipe.extraction.type", "shaped");
 		saveAsDefault("recipe.extraction.amount", 1);
-		saveAsDefault("recipe.extraction.shape", Arrays.asList("xix", "igi", "xix"));
+		saveAsDefault("recipe.extraction.shape", Arrays.asList("ggx", "gbg", "xgg"));
 		saveAsDefault("recipe.extraction.ingredients.g", "20:0");
-		saveAsDefault("recipe.extraction.ingredients.i", "5:0");
+		saveAsDefault("recipe.extraction.ingredients.b", "5:0");
 		saveAsDefault("recipe.colored.white.type", "shapeless");
 		saveAsDefault("recipe.colored.white.amount", 1);
 		saveAsDefault("recipe.colored.white.ingredients", Arrays.asList("pipe", "351:15"));
@@ -71,10 +71,19 @@ public class RecipesConf extends Conf {
 		saveAsDefault("recipe.colored.black.amount", 1);
 		saveAsDefault("recipe.colored.black.ingredients", Arrays.asList("pipe", "351:0"));
 		saveAsDefault("recipe.wrench.type", "shaped");
-		saveAsDefault("recipe.wrench.shape", Arrays.asList("xix", "igi", "xix"));
-		saveAsDefault("recipe.wrench.ingredients.g", "331:0");
-		saveAsDefault("recipe.wrench.ingredients.i", "280:0");
+		saveAsDefault("recipe.wrench.amount", 1);
+		saveAsDefault("recipe.wrench.shape", Arrays.asList("xrx", "rsr", "xrx"));
+		saveAsDefault("recipe.wrench.ingredients.r", "331:0");
+		saveAsDefault("recipe.wrench.ingredients.s", "280:0");
 		finishDefault();
+	}
+
+	/**
+	 * prevent unused key from removing only inside RecipesConf
+	 */
+	@Override
+	protected void finishDefault() {
+		saveToFile();
 	}
 
 	public Recipe createPipeRecipe(PipeType pt, PipeColor pc) {
