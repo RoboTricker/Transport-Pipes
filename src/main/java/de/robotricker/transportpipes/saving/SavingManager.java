@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -151,7 +152,7 @@ public class SavingManager implements Listener {
 			try {
 				in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.GZIP);
 				compound = (CompoundTag) in.readTag();
-			} catch (EOFException e) {
+			} catch (EOFException | ZipException e) {
 				System.out.println("Wrong pipes.dat version detected. Converting to new nbt version");
 				in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
 				compound = (CompoundTag) in.readTag();
