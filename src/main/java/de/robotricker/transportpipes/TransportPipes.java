@@ -44,22 +44,6 @@ import de.robotricker.transportpipes.saving.SavingManager;
 import de.robotricker.transportpipes.settings.SettingsInv;
 import de.robotricker.transportpipes.update.UpdateManager;
 
-/**
- * <h1>TransportPipes Spigot/Bukkit Plugin for Minecraft 1.9+</h1>
- * <p>
- * All ThreadSafe Attributes (if you iterate through them, you still have to put the iteration inside of a synchronized(pipes) block):
- * <ul>
- * <li>- TransportPipes#pipes</li>
- * <li>- PipeThread#tickList</li>
- * <li>- Pipe#tempPipeItems</li>
- * <li>- Pipe#tempPipeItemsWithSpawn</li>
- * <li>- Pipe#pipeNeighborBlocks</li>
- * </ul>
- * 
- * @author RoboTricker
- *
- */
-
 public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
