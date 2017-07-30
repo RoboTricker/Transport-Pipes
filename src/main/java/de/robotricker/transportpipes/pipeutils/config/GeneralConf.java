@@ -21,6 +21,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("permissions.save", "tp.save");
 		saveAsDefault("permissions.delete", "tp.delete");
 		saveAsDefault("anticheat_plugins", Arrays.asList("NoCheatPlus", "AAC", "CompatNoCheatPlus", "AntiCheatPlus"));
+		saveAsDefault("default_rendersystemId", 1);
 		finishDefault();
 	}
 
@@ -67,6 +68,10 @@ public class GeneralConf extends Conf {
 	@SuppressWarnings("unchecked")
 	public List<String> getAnticheatPlugins() {
 		return (List<String>) read("anticheat_plugins");
+	}
+	
+	public int getDefaultRenderSystemId(){
+		return (int) read("default_rendersystemId");
 	}
 
 }
