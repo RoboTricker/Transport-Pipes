@@ -203,7 +203,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		}
 		if (!loadedResourcePackPlayers.contains(p)) {
 			p.closeInventory();
-			p.setResourcePack("https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/model-system/src/main/resources/TransportPipes-ResourcePack.zip");
+			p.setResourcePack("https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip");
 		}
 	}
 
