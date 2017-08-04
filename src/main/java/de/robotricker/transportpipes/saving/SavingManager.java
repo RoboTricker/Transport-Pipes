@@ -214,9 +214,11 @@ public class SavingManager implements Listener {
 					public void run() {
 						//update all pipes connections because the in the old system "NeighborPipes" wasn't saved for each pipe
 						Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-						synchronized (pipeMap) {
-							for (Pipe pipe : pipeMap.values()) {
-								TransportPipes.pipePacketManager.updatePipe(pipe);
+						if (pipeMap != null) {
+							synchronized (pipeMap) {
+								for (Pipe pipe : pipeMap.values()) {
+									TransportPipes.pipePacketManager.updatePipe(pipe);
+								}
 							}
 						}
 					};
