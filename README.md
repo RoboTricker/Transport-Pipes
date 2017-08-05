@@ -29,7 +29,7 @@ You can also add TransportPipes as a Maven dependency:
   <dependency>
     <groupId>de.robotricker.transportpipes</groupId>
     <artifactId>TransportPipes</artifactId>
-    <version>${project.versionCode}</version>
+    <version>VERSION</version>
   </dependency>
 </dependencies>
 ```
