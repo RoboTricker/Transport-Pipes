@@ -9,7 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 
@@ -27,7 +26,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemData extractItem(PipeDirection extractDirection) {
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
@@ -36,30 +35,36 @@ public class SimpleInventoryContainer extends BlockContainer {
 		}
 		for (int i = 0; i < cachedInv.getSize(); i++) {
 			if (cachedInv.getItem(i) != null) {
-				ItemData id = new ItemData(cachedInv.getItem(i));
-				cachedInv.setItem(i, InventoryUtils.decreaseAmountWithOne(cachedInv.getItem(i)));
+				ItemStack is = cachedInv.getItem(i);
+				cachedInv.setItem(i, InventoryUtils.changeAmount(is, -extractAmount));
 				block.getState().update();
-				return id;
+				ItemStack clonedIs = is.clone();
+				clonedIs.setAmount(Math.min(is.getAmount(), extractAmount));
+				return clonedIs;
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+	public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
-			return false;
+			return insertion;
 		}
 		if (isInvLocked(cachedInvHolder)) {
-			return false;
+			return insertion;
 		}
-		Collection<ItemStack> overflow = cachedInv.addItem(insertion.toItemStack()).values();
+		Collection<ItemStack> overflow = cachedInv.addItem(insertion).values();
 		block.getState().update();
-		return overflow.isEmpty();
+		if (overflow.isEmpty()) {
+			return null;
+		} else {
+			return overflow.toArray(new ItemStack[0])[0];
+		}
 	}
 
 	@Override
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return false;
 		}
@@ -71,7 +76,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 			if (is == null || is.getType() == Material.AIR) {
 				return true;
 			}
-			if (is.isSimilar(insertion.toItemStack()) && is.getAmount() < is.getMaxStackSize()) {
+			if (is.isSimilar(insertion) && is.getAmount() < is.getMaxStackSize()) {
 				return true;
 			}
 		}

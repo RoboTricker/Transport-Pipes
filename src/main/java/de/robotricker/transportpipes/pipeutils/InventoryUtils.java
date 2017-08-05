@@ -22,10 +22,10 @@ import de.robotricker.transportpipes.protocol.ReflectionManager;
 
 public class InventoryUtils {
 
-	public static ItemStack decreaseAmountWithOne(ItemStack item) {
+	public static ItemStack changeAmount(ItemStack item, int amountDelta) {
 		ItemStack copy = item.clone();
-		if (item.getAmount() > 1) {
-			copy.setAmount(item.getAmount() - 1);
+		if (item.getAmount() + amountDelta > 0) {
+			copy.setAmount(Math.min(item.getMaxStackSize(), item.getAmount() + amountDelta));
 		} else {
 			copy = null;
 		}

@@ -25,7 +25,6 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
 import de.robotricker.transportpipes.api.PipeExplodeEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
-import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.BlockLoc;
@@ -157,7 +156,7 @@ public abstract class Pipe {
 					removePipeItem(item);
 					TransportPipes.pipePacketManager.destroyPipeItem(item);
 
-					final ItemStack itemStack = item.getItem().toItemStack();
+					final ItemStack itemStack = item.getItem();
 					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 						@Override
@@ -200,7 +199,7 @@ public abstract class Pipe {
 						if (blockConnections.contains(itemDir)) {
 							TransportPipes.pipePacketManager.destroyPipeItem(item);
 
-							final ItemData itemData = item.getItem();
+							final ItemStack itemStack = item.getItem();
 							final PipeDirection finalDir = itemDir;
 							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
@@ -212,12 +211,15 @@ public abstract class Pipe {
 										Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld());
 										if (containerMap == null || !containerMap.containsKey(bl)) {
 											//drop the item in case the inventory block is registered but is no longer in the world
-											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemData.toItemStack());
-										} else if (!containerMap.get(bl).insertItem(finalDir.getOpposite(), itemData)) {
-											//move item in opposite direction if insertion failed 
-											PipeDirection newItemDir = finalDir.getOpposite();
-											PipeItem pi = new PipeItem(itemData, Pipe.this.blockLoc, newItemDir);
-											tempPipeItemsWithSpawn.put(pi, newItemDir);
+											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
+										} else {
+											ItemStack overflow = containerMap.get(bl).insertItem(finalDir.getOpposite(), itemStack);
+											if (overflow != null) {
+												//move overflow items in opposite direction
+												PipeDirection newItemDir = finalDir.getOpposite();
+												PipeItem pi = new PipeItem(overflow, Pipe.this.blockLoc, newItemDir);
+												tempPipeItemsWithSpawn.put(pi, newItemDir);
+											}
 										}
 									} catch (Exception ignored) {
 										ignored.printStackTrace();
@@ -248,7 +250,7 @@ public abstract class Pipe {
 
 						TransportPipes.pipePacketManager.destroyPipeItem(item);
 
-						final ItemStack itemStack = item.getItem().toItemStack();
+						final ItemStack itemStack = item.getItem();
 						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 							@Override
@@ -304,7 +306,7 @@ public abstract class Pipe {
 
 			NBTUtils.saveStringValue(itemMap, "RelLoc", pipeItem.relLoc().toString());
 			NBTUtils.saveIntValue(itemMap, "Direction", pipeItemMap.get(pipeItem).getId());
-			NBTUtils.saveStringValue(itemMap, "Item", InventoryUtils.ItemStackToString(pipeItem.getItem().toItemStack()));
+			NBTUtils.saveStringValue(itemMap, "Item", InventoryUtils.ItemStackToString(pipeItem.getItem()));
 
 			itemList.add(new CompoundTag("PipeItem", itemMap));
 		}
@@ -332,7 +334,7 @@ public abstract class Pipe {
 			ItemStack itemStack = InventoryUtils.StringToItemStack(NBTUtils.readStringTag(itemMap.get("Item"), null));
 
 			if (itemStack != null) {
-				PipeItem newPipeItem = new PipeItem(new ItemData(itemStack), this.blockLoc, dir);
+				PipeItem newPipeItem = new PipeItem(itemStack, this.blockLoc, dir);
 				newPipeItem.relLoc().set(relLoc.getFloatX(), relLoc.getFloatY(), relLoc.getFloatZ());
 				tempPipeItemsWithSpawn.put(newPipeItem, dir);
 			}
@@ -348,7 +350,7 @@ public abstract class Pipe {
 	public abstract PipeType getPipeType();
 
 	public abstract int[] getBreakParticleData();
-	
+
 	public void notifyConnectionsChange() {
 		PipeConnectionsChangeEvent event = new PipeConnectionsChangeEvent(this);
 		Bukkit.getPluginManager().callEvent(event);

@@ -6,7 +6,6 @@ import org.bukkit.block.Furnace;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
@@ -25,7 +24,7 @@ public class FurnaceContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemData extractItem(PipeDirection extractDirection) {
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
@@ -34,74 +33,64 @@ public class FurnaceContainer extends BlockContainer {
 		}
 		if (cachedInv.getResult() != null) {
 			ItemStack taken = InventoryUtils.createOneAmountItemStack(cachedInv.getResult());
-			cachedInv.setResult(InventoryUtils.decreaseAmountWithOne(cachedInv.getResult()));
-			return new ItemData(taken);
+			cachedInv.setResult(InventoryUtils.changeAmount(cachedInv.getResult(), -extractAmount));
+			ItemStack clonedTaken = taken.clone();
+			clonedTaken.setAmount(Math.min(taken.getAmount(), extractAmount));
+			return clonedTaken;
 		}
 		return null;
 	}
 
 	@Override
-	public boolean insertItem(PipeDirection insertDirection, ItemData insertion) {
+	public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
-			return false;
+			return insertion;
 		}
 		if (isInvLocked(cachedFurnace)) {
-			return false;
+			return insertion;
 		}
-		ItemStack itemStack = insertion.toItemStack();
-		if (ReflectionManager.isFurnaceBurnableItem(itemStack)) {
+		if (ReflectionManager.isFurnaceBurnableItem(insertion)) {
 			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
 				ItemStack oldSmelting = cachedInv.getSmelting();
-				if (canPutItemInSlot(insertion, oldSmelting)) {
-					cachedInv.setSmelting(putItemInSlot(insertion, oldSmelting));
-					return true;
-				} else {
-					return false;
+				cachedInv.setSmelting(putItemInSlot(insertion, oldSmelting));
+				if (insertion == null || insertion.getAmount() == 0) {
+					insertion = null;
 				}
-			} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
+			} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
 				ItemStack oldFuel = cachedInv.getFuel();
-				if (canPutItemInSlot(insertion, oldFuel)) {
-					cachedInv.setFuel(putItemInSlot(insertion, oldFuel));
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
-		} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
-			ItemStack oldFuel = cachedInv.getFuel();
-			if (canPutItemInSlot(insertion, oldFuel)) {
 				cachedInv.setFuel(putItemInSlot(insertion, oldFuel));
-				return true;
-			} else {
-				return false;
+				if (insertion == null || insertion.getAmount() == 0) {
+					insertion = null;
+				}
 			}
-		} else {
-			return false;
+		} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
+			ItemStack oldFuel = cachedInv.getFuel();
+			cachedInv.setFuel(putItemInSlot(insertion, oldFuel));
+			if (insertion == null || insertion.getAmount() == 0) {
+				insertion = null;
+			}
 		}
-
+		return insertion;
 	}
 
 	@Override
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion) {
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return false;
 		}
 		if (isInvLocked(cachedFurnace)) {
 			return false;
 		}
-		ItemStack itemStack = insertion.toItemStack();
-		if (ReflectionManager.isFurnaceBurnableItem(itemStack)) {
+		if (ReflectionManager.isFurnaceBurnableItem(insertion)) {
 			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
-				return canPutItemInSlot(insertion, cachedInv.getSmelting());
-			} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
-				return canPutItemInSlot(insertion, cachedInv.getFuel());
+				return isSpaceForAtLeastOneItem(insertion, cachedInv.getSmelting());
+			} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
+				return isSpaceForAtLeastOneItem(insertion, cachedInv.getFuel());
 			} else {
 				return false;
 			}
-		} else if (ReflectionManager.isFurnaceFuelItem(itemStack)) {
-			return canPutItemInSlot(insertion, cachedInv.getFuel());
+		} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
+			return isSpaceForAtLeastOneItem(insertion, cachedInv.getFuel());
 		} else {
 			return false;
 		}

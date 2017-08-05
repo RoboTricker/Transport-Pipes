@@ -9,10 +9,10 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
@@ -127,7 +127,7 @@ public class PipeAPI {
 	/**
 	 * puts any item (with an amount of 1) into the given pipe object with a moving direction to "itemDirection".
 	 */
-	public static void putItemInPipe(Pipe pipe, ItemData item, PipeDirection itemDirection) {
+	public static void putItemInPipe(Pipe pipe, ItemStack item, PipeDirection itemDirection) {
 		PipeItem pi = new PipeItem(item, pipe.blockLoc, itemDirection);
 		pipe.tempPipeItemsWithSpawn.put(pi, itemDirection);
 	}

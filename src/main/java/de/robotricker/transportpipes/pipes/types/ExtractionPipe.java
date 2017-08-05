@@ -17,7 +17,6 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
-import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
@@ -36,11 +35,13 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 
 	private PipeDirection extractDirection;
 	private ExtractCondition extractCondition;
+	private ExtractAmount extractAmount;
 
 	public ExtractionPipe(Location blockLoc) {
 		super(blockLoc);
 		extractDirection = null;
 		extractCondition = ExtractCondition.NEEDS_REDSTONE;
+		extractAmount = ExtractAmount.EXTRACT_1;
 	}
 
 	@Override
@@ -109,6 +110,14 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 
 	public void setExtractCondition(ExtractCondition extractCondition) {
 		this.extractCondition = extractCondition;
+	}
+
+	public ExtractAmount getExtractAmount() {
+		return extractAmount;
+	}
+
+	public void setExtractAmount(ExtractAmount extractAmount) {
+		this.extractAmount = extractAmount;
 	}
 
 	/**
@@ -185,7 +194,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 							TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
 							PipeDirection itemDir = extractDirection.getOpposite();
 							if (tpc != null) {
-								ItemData taken = tpc.extractItem(itemDir);
+								ItemStack taken = tpc.extractItem(itemDir, getExtractAmount().getAmount());
 								if (taken != null) {
 									//extraction successful
 									PipeItem pi = new PipeItem(taken, ExtractionPipe.this.blockLoc, itemDir);
@@ -249,6 +258,46 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 			return displayItem.clone();
 		}
 
+	}
+
+	public enum ExtractAmount {
+		EXTRACT_1(LocConf.EXTRACTIONPIPE_AMOUNT_EXTRACT1, 1),
+		EXTRACT_16(LocConf.EXTRACTIONPIPE_AMOUNT_EXTRACT16, 16);
+
+		private String locConfKey;
+		private ItemStack displayItem;
+
+		private ExtractAmount(String locConfKey, int amount) {
+			this.locConfKey = locConfKey;
+			this.displayItem = new ItemStack(Material.BRICK, amount);
+		}
+
+		public int getAmount() {
+			return displayItem.getAmount();
+		}
+
+		public String getLocConfKey() {
+			return locConfKey;
+		}
+
+		public int getId() {
+			return this.ordinal();
+		}
+
+		public static ExtractAmount fromId(int id) {
+			return ExtractAmount.values()[id];
+		}
+
+		public ExtractAmount getNextAmount() {
+			if (getId() == ExtractAmount.values().length - 1) {
+				return fromId(0);
+			}
+			return fromId(getId() + 1);
+		}
+
+		public ItemStack getDisplayItem() {
+			return displayItem.clone();
+		}
 	}
 
 }

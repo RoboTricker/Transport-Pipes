@@ -108,7 +108,7 @@ public class PipeUtils {
 
 						@Override
 						public void run() {
-							pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem().toItemStack());
+							pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
 						}
 					});
 					//destroy item for players
