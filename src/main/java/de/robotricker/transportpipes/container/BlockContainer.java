@@ -34,8 +34,9 @@ public abstract class BlockContainer implements TransportPipesContainer {
 			return before;
 		}
 		if (before == null) {
+			ItemStack returnCopy = toPut.clone();
 			toPut.setAmount(0);
-			return toPut;
+			return returnCopy;
 		}
 		ItemStack beforeItemStack = before.clone();
 		if (beforeItemStack.isSimilar(toPut)) {

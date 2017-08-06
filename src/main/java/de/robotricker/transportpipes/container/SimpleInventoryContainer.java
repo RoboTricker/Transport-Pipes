@@ -33,17 +33,24 @@ public class SimpleInventoryContainer extends BlockContainer {
 		if (isInvLocked(cachedInvHolder)) {
 			return null;
 		}
+		ItemStack takenIs = null;
 		for (int i = 0; i < cachedInv.getSize(); i++) {
 			if (cachedInv.getItem(i) != null) {
-				ItemStack is = cachedInv.getItem(i);
-				cachedInv.setItem(i, InventoryUtils.changeAmount(is, -extractAmount));
-				block.getState().update();
-				ItemStack clonedIs = is.clone();
-				clonedIs.setAmount(Math.min(is.getAmount(), extractAmount));
-				return clonedIs;
+				int amountBefore = takenIs != null ? takenIs.getAmount() : 0;
+				if (takenIs == null) {
+					takenIs = cachedInv.getItem(i).clone();
+					takenIs.setAmount(Math.min(extractAmount, takenIs.getAmount()));
+				} else if (takenIs.isSimilar(cachedInv.getItem(i))) {
+					takenIs.setAmount(Math.min(extractAmount, amountBefore + cachedInv.getItem(i).getAmount()));
+				}
+				ItemStack invItem = cachedInv.getItem(i);
+				cachedInv.setItem(i, InventoryUtils.changeAmount(invItem, -(takenIs.getAmount() - amountBefore)));
 			}
 		}
-		return null;
+		if (takenIs != null) {
+			block.getState().update();
+		}
+		return takenIs;
 	}
 
 	@Override
