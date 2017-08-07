@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.container;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -8,15 +9,17 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 
 public abstract class BlockContainer implements TransportPipesContainer {
 
-	private static boolean lockableExists = false;
+	private static boolean vanillaLockableExists = false;
+	private static boolean lwcLockableExists = false;
 
 	static {
 		try {
 			Class.forName("org.bukkit.block.Lockable");
-			lockableExists = true;
+			vanillaLockableExists = true;
 		} catch (ClassNotFoundException e) {
-			lockableExists = false;
+			vanillaLockableExists = false;
 		}
+		lwcLockableExists = Bukkit.getPluginManager().isPluginEnabled("LWC");
 	}
 
 	protected Block block;
@@ -66,8 +69,15 @@ public abstract class BlockContainer implements TransportPipesContainer {
 	}
 
 	protected boolean isInvLocked(InventoryHolder ih) {
-		if (lockableExists && ih instanceof org.bukkit.block.Lockable) {
+		//check vanilla lock
+		if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
 			if (((org.bukkit.block.Lockable) ih).isLocked()) {
+				return true;
+			}
+		}
+		//check lwc lock
+		if (lwcLockableExists) {
+			if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
 				return true;
 			}
 		}

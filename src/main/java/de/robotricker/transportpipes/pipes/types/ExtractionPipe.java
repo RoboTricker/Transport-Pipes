@@ -65,6 +65,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		super.saveToNBTTag(tags);
 		NBTUtils.saveIntValue(tags, "ExtractDirection", extractDirection == null ? -1 : extractDirection.getId());
 		NBTUtils.saveIntValue(tags, "ExtractCondition", extractCondition.getId());
+		NBTUtils.saveIntValue(tags, "ExtractAmount", extractAmount.getId());
 	}
 
 	@Override
@@ -77,6 +78,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 			setExtractDirection(PipeDirection.fromID(extractDirectionId));
 		}
 		setExtractCondition(ExtractCondition.fromId(NBTUtils.readIntTag(tag.getTag("ExtractCondition"), ExtractCondition.NEEDS_REDSTONE.getId())));
+		setExtractAmount(ExtractAmount.fromId(NBTUtils.readIntTag(tag.getTag("ExtractAmount"), ExtractAmount.EXTRACT_1.getId())));
 	}
 
 	@Override
