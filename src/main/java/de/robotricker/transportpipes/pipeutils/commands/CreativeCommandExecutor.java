@@ -27,6 +27,7 @@ public class CreativeCommandExecutor implements PipesCommandExecutor {
 			int i = 0;
 			for (PipeColor pc : PipeColor.values()) {
 				ItemStack is = PipeItemUtils.getPipeItem(PipeType.COLORED, pc);
+				is.setAmount(16);
 				inv.setItem(i, is);
 				i++;
 			}
@@ -37,6 +38,7 @@ public class CreativeCommandExecutor implements PipesCommandExecutor {
 					continue;
 				}
 				ItemStack is = PipeItemUtils.getPipeItem(pt, null);
+				is.setAmount(16);
 				inv.setItem(i, is);
 				i++;
 			}
