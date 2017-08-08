@@ -43,7 +43,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	@Override
 	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		ItemData itemData = item.getItem();
+		ItemData itemData = new ItemData(item.getItem());
 		List<PipeDirection> possibleDirections = getPossibleDirectionsForItem(itemData, before);
 		if (possibleDirections == null) {
 			return null;
@@ -76,7 +76,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 					if (containerMap.containsKey(bl)) {
 						TransportPipesContainer tpc = containerMap.get(bl);
-						if (!tpc.isSpaceForItemAsync(dir.getOpposite(), itemData)) {
+						if (!tpc.isSpaceForItemAsync(dir.getOpposite(), itemData.toItemStack())) {
 							continue;
 						}
 					}

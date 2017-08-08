@@ -38,6 +38,9 @@ public class LocConf extends Conf {
 	public static final String EXTRACTIONPIPE_CONDITION_ALWAYSEXTRACT = "extractionpipe.condition.alwaysextract";
 	public static final String EXTRACTIONPIPE_CONDITION_NEVEREXTRACT = "extractionpipe.condition.neverextract";
 	public static final String EXTRACTIONPIPE_CONDITION_CLICKTOCHANGE = "extractionpipe.condition.clicktochange";
+	public static final String EXTRACTIONPIPE_AMOUNT_EXTRACT1 = "extractionpipe.amount.extract1";
+	public static final String EXTRACTIONPIPE_AMOUNT_EXTRACT16 = "extractionpipe.amount.extract16";
+	public static final String EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE = "extractionpipe.amount.clicktochange";
 	public static final String SETTINGS_TITLE = "settings.title";
 	public static final String SETTINGS_RENDERDISTANCE_TITLE = "settings.renderdistance.title";
 	public static final String SETTINGS_RENDERDISTANCE_DECREASE = "settings.renderdistance.decrease";
@@ -89,6 +92,9 @@ public class LocConf extends Conf {
 		saveAsDefault(EXTRACTIONPIPE_CONDITION_ALWAYSEXTRACT, "&7Extract Condition: &aALWAYS EXTRACT");
 		saveAsDefault(EXTRACTIONPIPE_CONDITION_NEVEREXTRACT, "&7Extract Condition: &4NEVER EXTRACT");
 		saveAsDefault(EXTRACTIONPIPE_CONDITION_CLICKTOCHANGE, "&7Click to change extract condition");
+		saveAsDefault(EXTRACTIONPIPE_AMOUNT_EXTRACT1, "&7Extract Amount: &a1");
+		saveAsDefault(EXTRACTIONPIPE_AMOUNT_EXTRACT16, "&7Extract Amount: &a16");
+		saveAsDefault(EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE, "&7Click to change extract amount");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DECREASE, "&6Decrease");

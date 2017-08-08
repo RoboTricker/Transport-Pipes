@@ -15,4 +15,23 @@ or write a new issue here on GitHub.
 If you want to have access to snapshot versions of this plugin, visit the following jenkins page: http://jenkins.frontfight.net
 Otherwise you can download the releases on the plugin's spigot page.
 
+You can also add TransportPipes as a Maven dependency:
+```xml
+<repositories>
+  <repository>
+    <id>frontfight-repo</id>
+    <url>http://jenkins.frontfight.net/plugin/repository/everything/</url>
+  </repository>
+  ...
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>de.robotricker.transportpipes</groupId>
+    <artifactId>TransportPipes</artifactId>
+    <version>VERSION</version>
+  </dependency>
+</dependencies>
+```
+
 __made by *RoboTricker* - https://www.spigotmc.org/members/robotricker.126658/__

@@ -1,23 +1,25 @@
 package de.robotricker.transportpipes.container;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.api.TransportPipesContainer;
-import de.robotricker.transportpipes.pipeitems.ItemData;
 
 public abstract class BlockContainer implements TransportPipesContainer {
 
-	private static boolean lockableExists = false;
+	private static boolean vanillaLockableExists = false;
+	private static boolean lwcLockableExists = false;
 
 	static {
 		try {
 			Class.forName("org.bukkit.block.Lockable");
-			lockableExists = true;
+			vanillaLockableExists = true;
 		} catch (ClassNotFoundException e) {
-			lockableExists = false;
+			vanillaLockableExists = false;
 		}
+		lwcLockableExists = Bukkit.getPluginManager().isPluginEnabled("LWC");
 	}
 
 	protected Block block;
@@ -28,39 +30,34 @@ public abstract class BlockContainer implements TransportPipesContainer {
 
 	/**
 	 * tries to add item {@link toPut} to item {@link before} and returns the result item.<br>
-	 * if the item couldn't be inserted, before is equal to the result item.
+	 * if the item couldn't be inserted, the result item is equal to {@link before}.
 	 */
-	protected ItemStack putItemInSlot(ItemData toPut, ItemStack before) {
+	protected ItemStack putItemInSlot(ItemStack toPut, ItemStack before) {
 		if (toPut == null) {
 			return before;
 		}
-		ItemStack putItemStack = toPut.toItemStack();
 		if (before == null) {
-			return putItemStack;
+			ItemStack returnCopy = toPut.clone();
+			toPut.setAmount(0);
+			return returnCopy;
 		}
 		ItemStack beforeItemStack = before.clone();
-		if (beforeItemStack.isSimilar(putItemStack)) {
-			int amountBefore = beforeItemStack.getAmount();
-			if (amountBefore < beforeItemStack.getMaxStackSize()) {
-				beforeItemStack.setAmount(amountBefore + 1);
-				return beforeItemStack;
-			} else {
-				return beforeItemStack;
-			}
-		} else {
-			return beforeItemStack;
+		if (beforeItemStack.isSimilar(toPut)) {
+			int beforeAmount = beforeItemStack.getAmount();
+			beforeItemStack.setAmount(Math.min(before.getMaxStackSize(), beforeAmount + toPut.getAmount()));
+			toPut.setAmount(Math.max(0, toPut.getAmount() - (before.getMaxStackSize() - beforeAmount)));
 		}
+		return beforeItemStack;
 	}
 
-	protected boolean canPutItemInSlot(ItemData toPut, ItemStack before) {
+	protected boolean isSpaceForAtLeastOneItem(ItemStack toPut, ItemStack before) {
 		if (toPut == null) {
 			return false;
 		}
-		ItemStack putItemStack = toPut.toItemStack();
 		if (before == null) {
 			return true;
 		}
-		if (before.isSimilar(putItemStack)) {
+		if (before.isSimilar(toPut)) {
 			if (before.getAmount() < before.getMaxStackSize()) {
 				return true;
 			} else {
@@ -72,8 +69,15 @@ public abstract class BlockContainer implements TransportPipesContainer {
 	}
 
 	protected boolean isInvLocked(InventoryHolder ih) {
-		if (lockableExists && ih instanceof org.bukkit.block.Lockable) {
+		//check vanilla lock
+		if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
 			if (((org.bukkit.block.Lockable) ih).isLocked()) {
+				return true;
+			}
+		}
+		//check lwc lock
+		if (lwcLockableExists) {
+			if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
 				return true;
 			}
 		}

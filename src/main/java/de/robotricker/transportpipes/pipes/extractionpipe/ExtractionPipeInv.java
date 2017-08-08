@@ -37,11 +37,14 @@ public class ExtractionPipeInv implements Listener {
 		}
 		ItemStack extractDirection = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), extractDirectionDisplayName, LocConf.load(LocConf.EXTRACTIONPIPE_DIRECTION_CLICKTOCHANGE));
 		ItemStack extractCondition = InventoryUtils.changeDisplayNameAndLore(pipe.getExtractCondition().getDisplayItem(), LocConf.load(pipe.getExtractCondition().getLocConfKey()), LocConf.load(LocConf.EXTRACTIONPIPE_CONDITION_CLICKTOCHANGE));
+		ItemStack extractAmount = InventoryUtils.changeDisplayNameAndLore(pipe.getExtractAmount().getDisplayItem(), LocConf.load(pipe.getExtractAmount().getLocConfKey()), LocConf.load(LocConf.EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE));
 		ItemStack glassPane = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15), String.valueOf(ChatColor.RESET));
 
 		for (int i = 0; i < 9; i++) {
 			if (i == 2) {
 				inv.setItem(i, extractDirection);
+			} else if (i == 4) {
+				inv.setItem(i, extractAmount);
 			} else if (i == 6) {
 				inv.setItem(i, extractCondition);
 			} else {
@@ -77,6 +80,16 @@ public class ExtractionPipeInv implements Listener {
 				e.setCancelled(true);
 
 				pipe.checkAndUpdateExtractDirection(true);
+
+				// Update inv
+				updateExtractionPipeInventory((Player) e.getWhoClicked(), pipe);
+				return;
+			}
+			//clicked change extract amount
+			if (e.getRawSlot() == 4) {
+				e.setCancelled(true);
+
+				pipe.setExtractAmount(pipe.getExtractAmount().getNextAmount());
 
 				// Update inv
 				updateExtractionPipeInventory((Player) e.getWhoClicked(), pipe);

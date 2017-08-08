@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.api;
 
-import de.robotricker.transportpipes.pipeitems.ItemData;
+import org.bukkit.inventory.ItemStack;
+
 import de.robotricker.transportpipes.pipes.PipeDirection;
 
 public interface TransportPipesContainer {
@@ -13,7 +14,7 @@ public interface TransportPipesContainer {
 	 *            The direction of the pipe relative to this container block.
 	 * @return returns an ItemData object of the extracted item.
 	 */
-	public ItemData extractItem(PipeDirection extractDirection);
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount);
 
 	/**
 	 * called by TransportPipes if a pipe wants to insert an item into a container block.<br>
@@ -25,20 +26,20 @@ public interface TransportPipesContainer {
 	 *            the item which will be inserted into this container block
 	 * @return whether the item can be inserted.
 	 */
-	public boolean insertItem(PipeDirection insertDirection, ItemData insertion);
+	public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion);
 
 	/**
 	 * called by TransportPipes if a pipe wants to know if an item could be inserted into a container block<br>
 	 * but doesn't insert it yet.<br>
 	 * This method is called on the Transport-Pipes Thread. Keep in mind that it's asynchronous!<br>
-	 * <b>Important:</b> The pipe system inserts only 1 item at a time.
-	 * 
+	 * This method should only check if at least one item of the ItemStack "insertion" could be inserted. It doesn't matter what amount "insertion" has.	
+	 *  
 	 * @param insertDirection
 	 *            The direction of the pipe relative to this container block
 	 * @param insertion
 	 *            the item which will be inserted into this container block
 	 * @return whether the item can be inserted.
 	 */
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemData insertion);
+	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion);
 
 }
