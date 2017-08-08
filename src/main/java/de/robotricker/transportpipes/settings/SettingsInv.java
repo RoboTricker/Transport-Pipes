@@ -44,7 +44,18 @@ public class SettingsInv implements Listener {
 		ItemStack currentSystem = pm.getRepresentationItem().clone();
 		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), pm.getPipeRenderSystemName()), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
 
-		populateInventoryLine(inv, 1, glassPane, glassPane, glassPane, glassPane, currentSystem, glassPane, glassPane, glassPane, glassPane);
+		//Show items setting
+		boolean showItems = TransportPipes.armorStandProtocol.getPlayerShowItems(viewer);
+		ItemStack currentShowItems;
+		if(showItems) {
+			currentShowItems = new ItemStack(Material.GLASS);
+			InventoryUtils.changeDisplayNameAndLoreConfig(currentShowItems, String.format(LocConf.load(LocConf.SETTINGS_SHOWITEMS_TITLE), LocConf.load(LocConf.SETTINGS_SHOWITEMS_SHOW)), LocConf.loadStringList(LocConf.SETTINGS_SHOWITEMS_DESCRIPTION));
+		} else {
+			currentShowItems = new ItemStack(Material.BARRIER);
+			InventoryUtils.changeDisplayNameAndLoreConfig(currentShowItems, String.format(LocConf.load(LocConf.SETTINGS_SHOWITEMS_TITLE), LocConf.load(LocConf.SETTINGS_SHOWITEMS_HIDE)), LocConf.loadStringList(LocConf.SETTINGS_SHOWITEMS_DESCRIPTION));
+		}
+
+		populateInventoryLine(inv, 1, glassPane, glassPane, glassPane, currentSystem, glassPane, currentShowItems, glassPane, glassPane, glassPane);
 
 		viewer.updateInventory();
 	}
@@ -90,7 +101,7 @@ public class SettingsInv implements Listener {
 						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BASS, 1f, 1f);
 					}
 				}
-				if (e.getRawSlot() == 13) {
+				if (e.getRawSlot() == 12) {
 					//change render system
 
 					int renderSystemId = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getRenderSystemId();
@@ -99,6 +110,14 @@ public class SettingsInv implements Listener {
 					PipeRenderSystem newRenderSystem = PipeRenderSystem.getRenderSystemFromId(renderSystemId);
 
 					TransportPipes.armorStandProtocol.changePipeRenderSystem(p, newRenderSystem);
+
+					updateSettingsInventory(e.getClickedInventory(), p);
+					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+				}
+				if (e.getRawSlot() == 14) {
+					//change show items
+					boolean showItems = TransportPipes.armorStandProtocol.getPlayerShowItems(p);
+					TransportPipes.armorStandProtocol.changeShowItems(p, !showItems);
 
 					updateSettingsInventory(e.getClickedInventory(), p);
 					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);

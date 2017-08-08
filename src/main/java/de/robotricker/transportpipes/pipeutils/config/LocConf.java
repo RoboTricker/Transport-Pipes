@@ -50,6 +50,10 @@ public class LocConf extends Conf {
 	public static final String SETTINGS_RENDERSYSTEM_DESCRIPTION = "settings.rendersystem.description";
 	public static final String SETTINGS_RENDERSYSTEM_VANILLA = "settings.rendersystem.vanilla";
 	public static final String SETTINGS_RENDERSYSTEM_MODELLED = "settings.rendersystem.modelled";
+	public static final String SETTINGS_SHOWITEMS_TITLE = "settings.showitems.title";
+	public static final String SETTINGS_SHOWITEMS_DESCRIPTION = "settings.showitems.description";
+	public static final String SETTINGS_SHOWITEMS_SHOW = "settings.showitems.show";
+	public static final String SETTINGS_SHOWITEMS_HIDE = "settings.showitems.hide";
 	public static final String COMMANDS_DESCRIPTION_SETTINGS = "commands.description.settings";
 	public static final String COMMANDS_DESCRIPTION_TPS = "commands.description.tps";
 	public static final String COMMANDS_DESCRIPTION_RELOAD = "commands.description.reload";
@@ -104,6 +108,10 @@ public class LocConf extends Conf {
 		saveAsDefault(SETTINGS_RENDERSYSTEM_DESCRIPTION, Arrays.asList("&7Click to switch between Vanilla", "&7and Modelled Render System.", "&7The Modelled Render System uses a resourcepack.", "&7The Vanilla Render System", "&7uses the Vanilla Minecraft textures."));
 		saveAsDefault(SETTINGS_RENDERSYSTEM_VANILLA, "Vanilla");
 		saveAsDefault(SETTINGS_RENDERSYSTEM_MODELLED, "Modelled");
+		saveAsDefault(SETTINGS_SHOWITEMS_TITLE, "&6Flowing items");
+		saveAsDefault(SETTINGS_SHOWITEMS_DESCRIPTION, Arrays.asList("&7Show/hide the flowing items", "&7Click to change this option"));
+		saveAsDefault(SETTINGS_SHOWITEMS_SHOW, "&2Show");
+		saveAsDefault(SETTINGS_SHOWITEMS_HIDE, "&cHide");
 		saveAsDefault(COMMANDS_DESCRIPTION_SETTINGS, "&eOpens a player-specific settings menu");
 		saveAsDefault(COMMANDS_DESCRIPTION_TPS, "&eShows some general information about the pipes in all worlds and the ticks per second of the plugin thread");
 		saveAsDefault(COMMANDS_DESCRIPTION_RELOAD, "&eReloads all pipes or the config");
