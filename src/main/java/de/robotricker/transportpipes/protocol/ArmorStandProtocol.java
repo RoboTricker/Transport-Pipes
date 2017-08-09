@@ -45,6 +45,10 @@ public class ArmorStandProtocol {
 		return SettingsUtils.loadPlayerSettings(p).getRenderSystem();
 	}
 
+	public boolean getPlayerShowItems(Player p) {
+		return SettingsUtils.loadPlayerSettings(p).getShowItems();
+	}
+
 	public List<Player> getAllPlayersWithPipeManager(PipeRenderSystem renderSystem) {
 		List<Player> players = new ArrayList<>();
 		players.addAll(Bukkit.getOnlinePlayers());
@@ -69,6 +73,9 @@ public class ArmorStandProtocol {
 	 * not updating Item -> only sending (this is also sent when the player comes near enough to see the item even if the item is already in a pipe)
 	 */
 	public void sendPipeItem(Player p, PipeItem item) {
+		if(!getPlayerShowItems(p)) {
+			return;
+		}
 		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d, item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
 	}
 
@@ -109,6 +116,10 @@ public class ArmorStandProtocol {
 				}
 			}
 		}
+	}
+
+	public void changeShowItems(Player p, boolean showItems) {
+		SettingsUtils.loadPlayerSettings(p).setShowItems(showItems);
 	}
 
 	public void reloadPipeRenderSystem(Player p) {

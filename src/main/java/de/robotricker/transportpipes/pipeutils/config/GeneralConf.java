@@ -22,6 +22,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("permissions.delete", "tp.delete");
 		saveAsDefault("anticheat_plugins", Arrays.asList("NoCheatPlus", "AAC", "CompatNoCheatPlus", "AntiCheatPlus"));
 		saveAsDefault("default_rendersystemId", 1);
+		saveAsDefault("default_showitems", true);
 		finishDefault();
 	}
 
@@ -72,6 +73,10 @@ public class GeneralConf extends Conf {
 	
 	public int getDefaultRenderSystemId(){
 		return (int) read("default_rendersystemId");
+	}
+
+	public boolean getDefaultShowItems() {
+		return (boolean) read("default_showitems");
 	}
 
 }
