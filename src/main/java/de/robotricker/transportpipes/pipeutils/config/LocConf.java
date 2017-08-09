@@ -108,7 +108,7 @@ public class LocConf extends Conf {
 		saveAsDefault(SETTINGS_RENDERSYSTEM_DESCRIPTION, Arrays.asList("&7Click to switch between Vanilla", "&7and Modelled Render System.", "&7The Modelled Render System uses a resourcepack.", "&7The Vanilla Render System", "&7uses the Vanilla Minecraft textures."));
 		saveAsDefault(SETTINGS_RENDERSYSTEM_VANILLA, "Vanilla");
 		saveAsDefault(SETTINGS_RENDERSYSTEM_MODELLED, "Modelled");
-		saveAsDefault(SETTINGS_SHOWITEMS_TITLE, "&6Flowing items");
+		saveAsDefault(SETTINGS_SHOWITEMS_TITLE, "%s &6items");
 		saveAsDefault(SETTINGS_SHOWITEMS_DESCRIPTION, Arrays.asList("&7Show/hide the flowing items", "&7Click to change this option"));
 		saveAsDefault(SETTINGS_SHOWITEMS_SHOW, "&2Show");
 		saveAsDefault(SETTINGS_SHOWITEMS_HIDE, "&cHide");

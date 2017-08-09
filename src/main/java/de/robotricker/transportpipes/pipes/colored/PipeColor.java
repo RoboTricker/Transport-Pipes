@@ -50,6 +50,12 @@ public enum PipeColor {
 	}
 
 	public static PipeColor getPipeColorByPipeItem(ItemStack item) {
+		if(item == null){
+			return null;
+		}
+		if(!item.hasItemMeta() || !item.getItemMeta().hasDisplayName() || item.getItemMeta().getDisplayName().length() <= 2){
+			return null;
+		}
 		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().substring(2).equalsIgnoreCase(PipeType.COLORED.getFormattedPipeName())) {
 			for (PipeColor pipeColor : PipeColor.values()) {
                 if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {

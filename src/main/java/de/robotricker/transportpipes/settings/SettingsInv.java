@@ -45,9 +45,9 @@ public class SettingsInv implements Listener {
 		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), pm.getPipeRenderSystemName()), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
 
 		//Show items setting
-		boolean showItems = TransportPipes.armorStandProtocol.getPlayerShowItems(viewer);
+		boolean showItems = TransportPipes.armorStandProtocol.isPlayerShowItems(viewer);
 		ItemStack currentShowItems;
-		if(showItems) {
+		if (showItems) {
 			currentShowItems = new ItemStack(Material.GLASS);
 			InventoryUtils.changeDisplayNameAndLoreConfig(currentShowItems, String.format(LocConf.load(LocConf.SETTINGS_SHOWITEMS_TITLE), LocConf.load(LocConf.SETTINGS_SHOWITEMS_SHOW)), LocConf.loadStringList(LocConf.SETTINGS_SHOWITEMS_DESCRIPTION));
 		} else {
@@ -116,7 +116,7 @@ public class SettingsInv implements Listener {
 				}
 				if (e.getRawSlot() == 14) {
 					//change show items
-					boolean showItems = TransportPipes.armorStandProtocol.getPlayerShowItems(p);
+					boolean showItems = TransportPipes.armorStandProtocol.isPlayerShowItems(p);
 					TransportPipes.armorStandProtocol.changeShowItems(p, !showItems);
 
 					updateSettingsInventory(e.getClickedInventory(), p);

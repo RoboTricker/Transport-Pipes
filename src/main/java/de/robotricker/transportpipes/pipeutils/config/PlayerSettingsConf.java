@@ -11,7 +11,7 @@ public class PlayerSettingsConf extends Conf {
 
 	public PlayerSettingsConf(Player p) {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "settings" + File.separator + p.getUniqueId().toString() + ".yml"));
-		saveAsDefault("renderDistance", 25);
+		saveAsDefault("renderDistance", TransportPipes.instance.generalConf.getDefaultRenderDistance());
 		saveAsDefault("renderSystemId", TransportPipes.instance.generalConf.getDefaultRenderSystemId());
 		saveAsDefault("showItems", TransportPipes.instance.generalConf.getDefaultShowItems());
 		finishDefault();
@@ -33,7 +33,7 @@ public class PlayerSettingsConf extends Conf {
 		overrideAsync("renderSystemId", renderSystemId);
 	}
 
-	public boolean getShowItems() {
+	public boolean isShowItems() {
 		return (boolean) read("showItems");
 	}
 

@@ -22,6 +22,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("permissions.delete", "tp.delete");
 		saveAsDefault("anticheat_plugins", Arrays.asList("NoCheatPlus", "AAC", "CompatNoCheatPlus", "AntiCheatPlus"));
 		saveAsDefault("default_rendersystemId", 1);
+		saveAsDefault("default_renderdistance", 25);
 		saveAsDefault("default_showitems", true);
 		finishDefault();
 	}
@@ -78,5 +79,9 @@ public class GeneralConf extends Conf {
 	public boolean getDefaultShowItems() {
 		return (boolean) read("default_showitems");
 	}
-
+	
+	public int getDefaultRenderDistance(){
+		return (int) read("default_renderdistance");
+	}
+	
 }
