@@ -30,7 +30,7 @@ public class UpdateManager implements Listener {
 			public boolean isNewer(String currentVersion, String checkVersion) {
 				long currentVersionLong = convertVersionToLong(currentVersion);
 				long checkVersionLong = convertVersionToLong(checkVersion);
-				return checkVersionLong > currentVersionLong;
+				return checkVersionLong < currentVersionLong;
 			}
 		});
 	}
@@ -58,7 +58,7 @@ public class UpdateManager implements Listener {
 
 			@Override
 			public void upToDate() {
-
+				
 			}
 		});
 	}
