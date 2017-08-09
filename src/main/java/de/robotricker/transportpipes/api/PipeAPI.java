@@ -25,25 +25,21 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
  * 
  * This class is the interface between the TransportPipes plugin and other plugins.<br>
  * It allows you to build/destroy pipes programmatically and gather some extra information about the PipeThread etc.<br>
- * There are also some new events called "PlayerPlacePipeEvent", "PlayerDestroyPipeEvent" and "PipeExplodeEvent (async!)" for which you can register your<br>
- * listeners and cancel them if you want to.
  * 
  * @author RoboTricker
  */
 public class PipeAPI {
 
 	/**
-	 * builds a pipe at the given location.
+	 * Builds a pipe at the given location. Additionally you can determine which type and which color the pipe should have.<br>
+	 * The PipeColor is ignored if PipeType is not COLORED.
 	 */
 	public static void buildPipe(Location blockLoc, PipeType pt, PipeColor pipeColor) {
 		PipeUtils.buildPipe(null, blockLoc.getBlock().getLocation(), pt, pipeColor);
 	}
 
 	/**
-	 * detroys the pipe on the given location.
-	 * 
-	 * @param blockLoc
-	 *            location of the pipe
+	 * Detroys the pipe at the given location.
 	 */
 	public static void destroyPipe(Location blockLoc) {
 		Pipe pipe = PipeUtils.getPipeWithLocation(blockLoc);
@@ -53,14 +49,22 @@ public class PipeAPI {
 	}
 
 	/**
-	 * gives you the current "ticks per second" of the TransportPipes-Thread (7 is good and the maximum).
+	 * Returns the current ticks per second of the TransportPipes thread.
 	 */
 	public static int getTPS() {
 		return PipeThread.getCalculatedTps();
 	}
 
 	/**
-	 * returns the amount of pipes in all worlds.
+	 * Returns the max tps of the TransportPipes thread.<br>
+	 * If this value is reached with the real tps, the thread is running fine.
+	 */
+	public static int getMaxTPS() {
+		return PipeThread.WANTED_TPS;
+	}
+
+	/**
+	 * Returns the amount of pipes in all worlds.
 	 */
 	public static int getPipeCount() {
 		int amount = 0;
@@ -74,7 +78,7 @@ public class PipeAPI {
 	}
 
 	/**
-	 * returns the amount of pipes in the given world.
+	 * Returns the amount of pipes in the given world.
 	 */
 	public static int getPipeCount(World world) {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
@@ -85,14 +89,14 @@ public class PipeAPI {
 	}
 
 	/**
-	 * checks if at this specific location is a pipe.
+	 * Checks whether at the given location is a pipe.
 	 */
 	public static boolean isPipe(Location blockLoc) {
 		return PipeUtils.getPipeWithLocation(blockLoc) != null;
 	}
 
 	/**
-	 * returns a pipe object at the given location or null if there is no pipe.
+	 * Returns the pipe object at the given location or null if there is no pipe.
 	 */
 	public static Pipe getPipeAtLocation(Location blockLoc) {
 		World world = blockLoc.getWorld();
@@ -104,10 +108,7 @@ public class PipeAPI {
 	}
 
 	/**
-	 * destroys all pipes in this world.
-	 * 
-	 * @param world
-	 *            world containing the pipes that nees to be destroyes
+	 * Destroys all pipes in this world.
 	 */
 	public static void destroyPipes(World world) {
 		List<Pipe> toDestroy = new ArrayList<>();
@@ -125,7 +126,7 @@ public class PipeAPI {
 	}
 
 	/**
-	 * puts any item (with an amount of 1) into the given pipe object with a moving direction to "itemDirection".
+	 * Puts any item into the given pipe object with a moving direction of "itemDirection".
 	 */
 	public static void putItemInPipe(Pipe pipe, ItemStack item, PipeDirection itemDirection) {
 		PipeItem pi = new PipeItem(item, pipe.blockLoc, itemDirection);
@@ -133,13 +134,11 @@ public class PipeAPI {
 	}
 
 	/**
-	 * register a custom container block at a specific location. Every pipe around this block will try to extract/insert items from/into this container.<br>
+	 * Registers a custom container block at the given location. Every pipe around this block will try to extract/insert items from/into this container.<br>
 	 * Create your own implementation of the TransportPipesContainer interface in order to specify which items to extract and where inserted items should go.
 	 * 
-	 * @param blockLoc
-	 *            the location of the block this TransportPipesContainer is at
 	 * @param tpc
-	 *            an implementation of the TransportPipesContainer interface
+	 *            your own implementation of the TransportPipesContainer interface
 	 */
 	public static void registerTransportPipesContainer(Location blockLoc, TransportPipesContainer tpc) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
@@ -174,10 +173,7 @@ public class PipeAPI {
 	}
 
 	/**
-	 * unregisters a custom container block. See {@link PipeAPI#registerTransportPipesContainer(Location, TransportPipesContainer)}
-	 * 
-	 * @param blockLoc
-	 *            the location of the block where a TransportPipesContainer is registered at.
+	 * Unregisters a custom container block. See {@link PipeAPI#registerTransportPipesContainer(Location, TransportPipesContainer)}
 	 */
 	public static void unregisterTransportPipesContainer(Location blockLoc) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
