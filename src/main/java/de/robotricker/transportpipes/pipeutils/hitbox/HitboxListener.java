@@ -68,17 +68,15 @@ public class HitboxListener implements Listener {
 
 			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 
-			if (clickedItem.getType().isBlock()) {
+			if (clickedItem.getType().isBlock() && clickedItem.getType() != Material.AIR) {
 				//****************************** PLACE BLOCK ON SIDE OF PIPE *******************************************
 				if (pipeBlock != null) {
 					e.setCancelled(true);
 					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
 					//cancel block placement if the player clicked at the pipe with a wrench
-					if (!PipeItemUtils.isItemStackWrench(clickedItem)) {
-						if (HitboxUtils.placeBlock(p, placeBlock, pipeBlock, clickedItem.getTypeId(), clickedItem.getData().getData(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							HitboxUtils.decreaseItemInHand(p, mainHand);
-							return;
-						}
+					if (HitboxUtils.placeBlock(p, placeBlock, pipeBlock, clickedItem.getTypeId(), clickedItem.getData().getData(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+						HitboxUtils.decreaseItemInHand(p, mainHand);
+						return;
 					}
 					//player is looking on a block but not on a pipe hitbox (check if the block can be placed there)
 					//****************************** CANCEL BLOCK PLACEMENT INSIDE PIPE *******************************************
@@ -87,7 +85,7 @@ public class HitboxListener implements Listener {
 					//cancel block placement if the block would be placed inside a pipe
 					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null) {
 						//only cancel the interaction if the player wants to place a block inside the pipe (if he looks onto an interactive block he has to sneak)
-						if ((clickedItem.getType() != Material.AIR && (!HitboxUtils.isInteractiveBlock(clickedBlock) || p.isSneaking()))) {
+						if (!(HitboxUtils.isInteractiveBlock(clickedBlock) || p.isSneaking())) {
 							e.setCancelled(true);
 							return;
 						}

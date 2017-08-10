@@ -23,7 +23,6 @@ import org.jnbt.Tag;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
-import de.robotricker.transportpipes.api.PipeExplodeEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
@@ -106,38 +105,26 @@ public abstract class Pipe {
 		PipeThread.setLastAction("Pipe transport");
 		transportItems(pipeConnections, blockConnections, itemsTicked);
 
-		//pipe explosion if too many items
-		if (pipeItems.size() >= TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
-			PipeThread.setLastAction("Pipe explode");
-			synchronized (this) {
-				explode(true);
-			}
-		}
-
 	}
 
 	public void explode(final boolean withSound) {
-		PipeExplodeEvent pee = new PipeExplodeEvent(this);
-		Bukkit.getPluginManager().callEvent(pee);
-		if (!pee.isCancelled()) {
-			PipeThread.runTask(new Runnable() {
+		PipeThread.runTask(new Runnable() {
 
-				@Override
-				public void run() {
-					PipeUtils.destroyPipe(null, Pipe.this);
-					if (withSound) {
-						blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
-					}
-					blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+			@Override
+			public void run() {
+				PipeUtils.destroyPipe(null, Pipe.this);
+				if (withSound) {
+					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
 				}
-			}, 0);
-		}
+				blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+			}
+		}, 0);
 	}
 
 	/**
-	 * This method is be called for all items that arrive in the middle of the pipe to calculate the direction they should go next
+	 * returns whether the item is still in "pipeItems" and therefore should still get processed or not.
 	 */
-	public abstract PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs);
+	public abstract Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs);
 
 	private void transportItems(List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections, List<PipeItem> itemsTicked) {
 
@@ -151,122 +138,131 @@ public abstract class Pipe {
 				clonedAllConnections.addAll(pipeConnections);
 				clonedAllConnections.addAll(blockConnections);
 
-				itemDir = calculateNextItemDirection(item, itemDir, clonedAllConnections);
-				if (itemDir == null && pipeItems.containsKey(item)) {
-					removePipeItem(item);
-					TransportPipes.pipePacketManager.destroyPipeItem(item);
+				Map<PipeDirection, Integer> splittedItemsMap = handleArrivalAtMiddle(item, itemDir, clonedAllConnections);
 
-					final ItemStack itemStack = item.getItem();
-					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-
-						@Override
-						public void run() {
-							item.getBlockLoc().getWorld().dropItem(item.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d), itemStack);
-						}
-					});
-					return;
-				} else if (itemDir == null) {
-					return;
+				if (splittedItemsMap == null || splittedItemsMap.isEmpty()) {
+					fullyRemovePipeItemFromSystem(item, splittedItemsMap != null);
 				}
-				pipeItems.put(item, itemDir);
+
+				final ItemStack itemStack = item.getItem().clone();
+				final RelLoc relLoc = RelLoc.fromString(item.relLoc().toString());
+				
+				PipeItem lastPipeItem = null;
+				for (PipeDirection pd : splittedItemsMap.keySet()) {
+					int newAmount = splittedItemsMap.get(pd);
+
+					if (lastPipeItem == null) {
+						lastPipeItem = item;
+					} else {
+						lastPipeItem = new PipeItem(itemStack.clone(), blockLoc, pd);
+					}
+					lastPipeItem.getItem().setAmount(newAmount);
+					lastPipeItem.relLoc().set(relLoc.getLongX(), relLoc.getLongY(), relLoc.getLongZ());
+
+					pipeItems.put(lastPipeItem, pd);
+					if (!lastPipeItem.equals(item)) {
+						TransportPipes.pipePacketManager.createPipeItem(lastPipeItem);
+					}
+					moveItem(lastPipeItem, pipeConnections, blockConnections);
+					//specifies that this item isn't handled inside another pipe in this tick if it moves in the tempPipeItems in this tick
+					itemsTicked.add(lastPipeItem);
+				}
+
+				continue;
 			}
 
-			RelLoc relLoc = item.relLoc();
-			float xSpeed = itemDir.getX() * getPipeItemSpeed();
-			float ySpeed = itemDir.getY() * getPipeItemSpeed();
-			float zSpeed = itemDir.getZ() * getPipeItemSpeed();
-			//update pipeItemSpeed (for pipe updating packets)
-			item.relLocDerivation().set(xSpeed, ySpeed, zSpeed);
-			//update the real item location
-			relLoc.addValues(xSpeed, ySpeed, zSpeed);
+			moveItem(item, pipeConnections, blockConnections);
 
-			//update
-			TransportPipes.pipePacketManager.updatePipeItem(item);
+			//specifies that this item isn't handled inside another pipe in this tick if it moves in the tempPipeItems in this tick
+			itemsTicked.add(item);
 
-			//if the item is at the end of the transportation
-			if (relLoc.getFloatX() == 1.0f || relLoc.getFloatY() == 1.0f || relLoc.getFloatZ() == 1.0f || relLoc.getFloatX() == 0.0f || relLoc.getFloatY() == 0.0f || relLoc.getFloatZ() == 0.0f) {
-				removePipeItem(item);
+		}
+	}
 
-				//switch relLoc values from 0 to 1 and vice-versa
-				item.relLoc().switchValues();
+	private void moveItem(final PipeItem item, List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections) {
+		RelLoc relLoc = item.relLoc();
+		PipeDirection itemDir = pipeItems.get(item);
+		float xSpeed = itemDir.getX() * getPipeItemSpeed();
+		float ySpeed = itemDir.getY() * getPipeItemSpeed();
+		float zSpeed = itemDir.getZ() * getPipeItemSpeed();
+		//update pipeItemSpeed (for pipe updating packets)
+		item.relLocDerivation().set(xSpeed, ySpeed, zSpeed);
+		//update the real item location
+		relLoc.addValues(xSpeed, ySpeed, zSpeed);
 
-				final Location newBlockLoc = blockLoc.clone().add(itemDir.getX(), itemDir.getY(), itemDir.getZ());
-				ItemHandling itemHandling = ItemHandling.NOTHING;
+		//update
+		TransportPipes.pipePacketManager.updatePipeItem(item);
 
-				//ITEM HANDLING CALC
-				{
-					if (itemHandling == ItemHandling.NOTHING) {
-						if (blockConnections.contains(itemDir)) {
-							TransportPipes.pipePacketManager.destroyPipeItem(item);
+		//if the item is at the end of the transportation
+		if (relLoc.getFloatX() == 1.0f || relLoc.getFloatY() == 1.0f || relLoc.getFloatZ() == 1.0f || relLoc.getFloatX() == 0.0f || relLoc.getFloatY() == 0.0f || relLoc.getFloatZ() == 0.0f) {
 
-							final ItemStack itemStack = item.getItem();
-							final PipeDirection finalDir = itemDir;
-							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+			final Location newBlockLoc = blockLoc.clone().add(itemDir.getX(), itemDir.getY(), itemDir.getZ());
+			ItemHandling itemHandling = ItemHandling.NOTHING;
 
-								@Override
-								public void run() {
-									try {
-										BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
-
-										Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld());
-										if (containerMap == null || !containerMap.containsKey(bl)) {
-											//drop the item in case the inventory block is registered but is no longer in the world
-											newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
-										} else {
-											ItemStack overflow = containerMap.get(bl).insertItem(finalDir.getOpposite(), itemStack);
-											if (overflow != null) {
-												//move overflow items in opposite direction
-												PipeDirection newItemDir = finalDir.getOpposite();
-												PipeItem pi = new PipeItem(overflow, Pipe.this.blockLoc, newItemDir);
-												tempPipeItemsWithSpawn.put(pi, newItemDir);
-											}
-										}
-									} catch (Exception ignored) {
-										ignored.printStackTrace();
-									}
-								}
-
-							});
-							itemHandling = ItemHandling.OUTPUT_TO_INVENTORY;
-						}
-					}
-
-					if (itemHandling == ItemHandling.NOTHING) {
-						if (pipeConnections.contains(itemDir)) {
-							Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(newBlockLoc.getWorld());
-							if (pipeMap != null) {
-								BlockLoc newBlockLocLong = BlockLoc.convertBlockLoc(newBlockLoc);
-								if (pipeMap.containsKey(newBlockLocLong)) {
-									Pipe pipe = pipeMap.get(newBlockLocLong);
-									//put item in next pipe
-									pipe.tempPipeItems.put(item, itemDir);
-									itemHandling = ItemHandling.OUTPUT_TO_NEXT_PIPE;
-								}
-							}
-						}
-					}
-
-					if (itemHandling == ItemHandling.NOTHING) {
-
-						TransportPipes.pipePacketManager.destroyPipeItem(item);
+			//ITEM HANDLING CALC
+			{
+				if (itemHandling == ItemHandling.NOTHING) {
+					if (blockConnections.contains(itemDir)) {
 
 						final ItemStack itemStack = item.getItem();
+						final PipeDirection finalDir = itemDir;
 						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 							@Override
 							public void run() {
-								newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
+								fullyRemovePipeItemFromSystem(item, false);
+
+								try {
+									BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
+
+									Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld());
+									if (containerMap == null || !containerMap.containsKey(bl)) {
+										//drop the item in case the inventory block is registered but is no longer in the world
+										newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
+									} else {
+										ItemStack overflow = containerMap.get(bl).insertItem(finalDir.getOpposite(), itemStack);
+										if (overflow != null) {
+											//move overflow items in opposite direction
+											PipeDirection newItemDir = finalDir.getOpposite();
+											PipeItem pi = new PipeItem(overflow, Pipe.this.blockLoc, newItemDir);
+											tempPipeItemsWithSpawn.put(pi, newItemDir);
+										}
+									}
+								} catch (Exception ignored) {
+									ignored.printStackTrace();
+								}
 							}
+
 						});
-						itemHandling = ItemHandling.DROP;
+						itemHandling = ItemHandling.OUTPUT_TO_INVENTORY;
 					}
 				}
-				//END ITEM HANDLING CALC
 
+				if (itemHandling == ItemHandling.NOTHING) {
+					if (pipeConnections.contains(itemDir)) {
+						Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(newBlockLoc.getWorld());
+						if (pipeMap != null) {
+							BlockLoc newBlockLocLong = BlockLoc.convertBlockLoc(newBlockLoc);
+							if (pipeMap.containsKey(newBlockLocLong)) {
+								removePipeItem(item);
+								//switch relLoc values from 0 to 1 and vice-versa
+								item.relLoc().switchValues();
+
+								Pipe pipe = pipeMap.get(newBlockLocLong);
+								//put item in next pipe
+								pipe.tempPipeItems.put(item, itemDir);
+								itemHandling = ItemHandling.OUTPUT_TO_NEXT_PIPE;
+							}
+						}
+					}
+				}
+
+				if (itemHandling == ItemHandling.NOTHING) {
+					fullyRemovePipeItemFromSystem(item, true);
+					itemHandling = ItemHandling.DROP;
+				}
 			}
-
-			//specifies that this item isn't handled inside another pipe in this tick if it moves in the tempPipeItems in this tick
-			itemsTicked.add(item);
+			//END ITEM HANDLING CALC
 
 		}
 	}
@@ -354,6 +350,55 @@ public abstract class Pipe {
 	public void notifyConnectionsChange() {
 		PipeConnectionsChangeEvent event = new PipeConnectionsChangeEvent(this);
 		Bukkit.getPluginManager().callEvent(event);
+	}
+
+	protected List<PipeItem> splitPipeItem(PipeItem toSplit, int... newAmounts) {
+		List<PipeItem> pipeItems = new ArrayList<PipeItem>();
+		return pipeItems;
+	}
+
+	protected void fullyRemovePipeItemFromSystem(final PipeItem item, boolean dropItem) {
+		removePipeItem(item);
+		TransportPipes.pipePacketManager.destroyPipeItem(item);
+
+		if (dropItem) {
+			final ItemStack itemStack = item.getItem();
+			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+
+				@Override
+				public void run() {
+					item.getBlockLoc().getWorld().dropItem(item.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d), itemStack);
+				}
+			});
+		}
+	}
+
+	public int getSimilarItemAmountOnDirectionWay(PipeItem toCompare, PipeDirection direction) {
+		int amount = 0;
+		synchronized (pipeItems) {
+			for (PipeItem pi : pipeItems.keySet()) {
+				PipeDirection pd = pipeItems.get(pi);
+				if (pi.getItem().isSimilar(toCompare.getItem()) && !pi.equals(toCompare) && pd.equals(direction)) {
+					if (pd == PipeDirection.NORTH && pi.relLoc().getFloatZ() < 0.5f) {
+
+					} else if (pd == PipeDirection.SOUTH && pi.relLoc().getFloatZ() > 0.5f) {
+
+					} else if (pd == PipeDirection.EAST && pi.relLoc().getFloatX() > 0.5f) {
+
+					} else if (pd == PipeDirection.WEST && pi.relLoc().getFloatX() < 0.5f) {
+
+					} else if (pd == PipeDirection.UP && pi.relLoc().getFloatY() > 0.5f) {
+
+					} else if (pd == PipeDirection.DOWN && pi.relLoc().getFloatY() < 0.5f) {
+
+					} else {
+						continue;
+					}
+					amount += pi.getItem().getAmount();
+				}
+			}
+		}
+		return amount;
 	}
 
 }

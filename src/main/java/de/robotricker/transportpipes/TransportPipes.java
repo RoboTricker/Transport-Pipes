@@ -58,6 +58,7 @@ public class TransportPipes extends JavaPlugin {
 
 	private List<PipeRenderSystem> renderSystems;
 	private UpdateManager updateManager;
+	public ContainerBlockUtils containerBlockUtils;
 
 	//configs
 	public LocConf locConf;
@@ -171,7 +172,7 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new ExtractionPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new SavingManager(), this);
-		Bukkit.getPluginManager().registerEvents(new ContainerBlockUtils(), this);
+		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);

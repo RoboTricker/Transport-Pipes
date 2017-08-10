@@ -258,6 +258,9 @@ public class PipeUtils {
 					unregisterListeners.add(rl);
 				}
 			}
+			if (rl.getListener().equals(TransportPipes.instance.containerBlockUtils)) {
+				unregisterListeners.add(rl);
+			}
 		}
 		for (RegisteredListener rl : unregisterListeners) {
 			bbe.getHandlers().unregister(rl);

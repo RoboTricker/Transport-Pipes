@@ -42,16 +42,53 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		ItemData itemData = new ItemData(item.getItem());
-		List<PipeDirection> possibleDirections = getPossibleDirectionsForItem(itemData, before);
-		if (possibleDirections == null) {
-			return null;
+	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+		Random random = new Random();
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+
+		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
+		Map<PipeDirection, Integer> directionMap = new HashMap<PipeDirection, Integer>();
+
+		//update maxSpaceMap
+		for (PipeDirection pd : PipeDirection.values()) {
+			maxSpaceMap.put(pd, Integer.MAX_VALUE);
+			if (containerMap != null) {
+				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+				if (containerMap.containsKey(bl)) {
+					TransportPipesContainer tpc = containerMap.get(bl);
+					int freeSpace = tpc.howMuchSpaceForItemAsync(pd.getOpposite(), item.getItem());
+					maxSpaceMap.put(pd, freeSpace);
+				}
+			}
 		}
-		return possibleDirections.get(new Random().nextInt(possibleDirections.size()));
+
+		for (int i = 0; i < item.getItem().getAmount(); i++) {
+			List<PipeDirection> blockedDirections = new ArrayList<>();
+			for (PipeDirection pd : PipeDirection.values()) {
+				int currentAmount = directionMap.containsKey(pd) ? directionMap.get(pd) : 0;
+				currentAmount += getSimilarItemAmountOnDirectionWay(item, pd);
+				int maxFreeSpace = maxSpaceMap.get(pd);
+				if (currentAmount >= maxFreeSpace) {
+					blockedDirections.add(pd);
+				}
+			}
+			List<PipeDirection> possibleDirsDueToSorting = getPossibleDirectionsForItem(new ItemData(item.getItem()), before, blockedDirections);
+			if (possibleDirsDueToSorting.isEmpty()) {
+				continue;
+			}
+
+			PipeDirection randomDir = possibleDirsDueToSorting.get(random.nextInt(possibleDirsDueToSorting.size()));
+			if (directionMap.containsKey(randomDir)) {
+				directionMap.put(randomDir, directionMap.get(randomDir) + 1);
+			} else {
+				directionMap.put(randomDir, 1);
+			}
+		}
+
+		return directionMap;
 	}
 
-	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before) {
+	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before, List<PipeDirection> blockedDirections) {
 		//all directions in which is an other pipe or inventory-block
 		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
 		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
@@ -59,8 +96,6 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		//the possible directions in which the item could go
 		List<PipeDirection> possibleDirections = new ArrayList<>();
 		List<PipeDirection> emptyPossibleDirections = new ArrayList<>();
-
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
 
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
@@ -70,17 +105,10 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			//ignore the direction in which is no pipe or inv-block
 			if (!blockConnections.contains(dir) && !pipeConnections.contains(dir)) {
 				continue;
-			} else if (blockConnections.contains(dir)) {
-				//skip possible connection if the container block next to the golden pipe has no space for this item
-				if (containerMap != null) {
-					BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
-					if (containerMap.containsKey(bl)) {
-						TransportPipesContainer tpc = containerMap.get(bl);
-						if (!tpc.isSpaceForItemAsync(dir.getOpposite(), itemData.toItemStack())) {
-							continue;
-						}
-					}
-				}
+			} else if (getFilteringMode(line) == FilteringMode.BLOCK_ALL) {
+				continue;
+			} else if (blockedDirections.contains(dir)) {
+				continue;
 			}
 			boolean empty = true;
 			for (int i = 0; i < outputItems[line].length; i++) {
@@ -91,14 +119,14 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					possibleDirections.add(dir);
 				}
 			}
-			if (empty && getFilteringMode(line) != FilteringMode.BLOCK_ALL) {
+			if (empty) {
 				emptyPossibleDirections.add(dir);
 			}
 		}
 
 		//drop the item if it can't go anywhere
 		if (possibleDirections.isEmpty() && emptyPossibleDirections.isEmpty()) {
-			return null;
+			return new ArrayList<>();
 		}
 
 		//if this item isn't in the list, it will take a random direction from the empty dirs
@@ -189,7 +217,6 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		return new int[] { 41, 0 };
 	}
 
-	
 	@Override
 	public void click(Player p, PipeDirection side) {
 		GoldenPipeInv.updateGoldenPipeInventory(p, this);

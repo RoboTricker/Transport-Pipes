@@ -3,11 +3,11 @@ package de.robotricker.transportpipes.pipes.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
@@ -20,9 +20,7 @@ public class VoidPipe extends Pipe {
 	}
 
 	@Override
-	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		removePipeItem(item);
-		TransportPipes.pipePacketManager.destroyPipeItem(item);
+	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
 		return null;
 	}
 

@@ -50,21 +50,21 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		return beforeItemStack;
 	}
 
-	protected boolean isSpaceForAtLeastOneItem(ItemStack toPut, ItemStack before) {
+	protected int howManyItemsFit(ItemStack toPut, ItemStack before) {
 		if (toPut == null) {
-			return false;
+			return 0;
 		}
 		if (before == null) {
-			return true;
+			return toPut.getMaxStackSize();
 		}
 		if (before.isSimilar(toPut)) {
 			if (before.getAmount() < before.getMaxStackSize()) {
-				return true;
+				return before.getMaxStackSize() - before.getAmount();
 			} else {
-				return false;
+				return 0;
 			}
 		} else {
-			return false;
+			return 0;
 		}
 	}
 

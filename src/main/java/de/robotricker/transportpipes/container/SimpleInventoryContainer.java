@@ -80,23 +80,23 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
+	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
-			return false;
+			return 0;
 		}
 		if (isInvLocked(cachedInvHolder)) {
-			return false;
+			return 0;
 		}
+		int freeSpace = 0;
 		for (int i = 0; i < cachedInv.getSize(); i++) {
 			ItemStack is = cachedInv.getItem(i);
 			if (is == null || is.getType() == Material.AIR) {
-				return true;
-			}
-			if (is.isSimilar(insertion) && is.getAmount() < is.getMaxStackSize()) {
-				return true;
+				freeSpace += insertion.getMaxStackSize();
+			} else if (is.isSimilar(insertion) && is.getAmount() < is.getMaxStackSize()) {
+				freeSpace += is.getMaxStackSize() - is.getAmount();
 			}
 		}
-		return false;
+		return freeSpace;
 	}
 
 	@Override

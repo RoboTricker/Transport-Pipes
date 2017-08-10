@@ -87,25 +87,25 @@ public class BrewingStandContainer extends BlockContainer {
 	}
 
 	@Override
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
+	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
-			return false;
+			return 0;
 		}
 		if (isInvLocked(cachedBrewingStand)) {
-			return false;
+			return 0;
 		}
 		if (insertion.getType() == Material.POTION || insertion.getType() == Material.SPLASH_POTION || insertion.getType() == Material.LINGERING_POTION) {
 			if (cachedInv.getItem(0) != null && cachedInv.getItem(1) != null && cachedInv.getItem(2) != null) {
-				return false;
+				return 0;
 			} else {
-				return true;
+				return 1;
 			}
 		} else if (insertDirection.isSide() && insertion.getType() == Material.BLAZE_POWDER) {
-			return isSpaceForAtLeastOneItem(insertion, cachedInv.getFuel());
+			return howManyItemsFit(insertion, cachedInv.getFuel());
 		} else if (isBrewingIngredient(insertion)) {
-			return isSpaceForAtLeastOneItem(insertion, cachedInv.getIngredient());
+			return howManyItemsFit(insertion, cachedInv.getIngredient());
 		} else {
-			return false;
+			return 0;
 		}
 	}
 

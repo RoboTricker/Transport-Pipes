@@ -32,14 +32,14 @@ public interface TransportPipesContainer {
 	 * called by TransportPipes if a pipe wants to know if an item could be inserted into a container block<br>
 	 * but doesn't insert it yet.<br>
 	 * This method is called on the Transport-Pipes Thread. Keep in mind that it's asynchronous!<br>
-	 * This method should only check if at least one item of the ItemStack "insertion" could be inserted. It doesn't matter what amount "insertion" has.	
-	 *  
+	 * This method returns the amount of items of type "insertion" that would fit into this container block. It doesn't matter what amount "insertion" has.
+	 * 
 	 * @param insertDirection
 	 *            The direction of the pipe relative to this container block
 	 * @param insertion
 	 *            the item which will be inserted into this container block
-	 * @return whether the item can be inserted.
+	 * @return the amount of items that would fit into this container block. E.g. an empty chest should return 27 * insertion.getMaxStackSize(). If this amount is zero, none of the items fit.
 	 */
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion);
+	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion);
 
 }

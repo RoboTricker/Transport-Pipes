@@ -74,25 +74,25 @@ public class FurnaceContainer extends BlockContainer {
 	}
 
 	@Override
-	public boolean isSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
+	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
-			return false;
+			return 0;
 		}
 		if (isInvLocked(cachedFurnace)) {
-			return false;
+			return 0;
 		}
 		if (ReflectionManager.isFurnaceBurnableItem(insertion)) {
 			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
-				return isSpaceForAtLeastOneItem(insertion, cachedInv.getSmelting());
+				return howManyItemsFit(insertion, cachedInv.getSmelting());
 			} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
-				return isSpaceForAtLeastOneItem(insertion, cachedInv.getFuel());
+				return howManyItemsFit(insertion, cachedInv.getFuel());
 			} else {
-				return false;
+				return 0;
 			}
 		} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
-			return isSpaceForAtLeastOneItem(insertion, cachedInv.getFuel());
+			return howManyItemsFit(insertion, cachedInv.getFuel());
 		} else {
-			return false;
+			return 0;
 		}
 	}
 

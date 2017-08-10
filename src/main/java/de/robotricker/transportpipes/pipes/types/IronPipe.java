@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -31,8 +32,10 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public PipeDirection calculateNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		return currentOutputDir;
+	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+		Map<PipeDirection, Integer> map = new HashMap<PipeDirection, Integer>();
+		map.put(currentOutputDir, item.getItem().getAmount());
+		return map;
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	public int[] getBreakParticleData() {
 		return new int[] { 42, 0 };
 	}
-	
+
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
