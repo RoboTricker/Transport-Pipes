@@ -99,27 +99,33 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
+			FilteringMode filteringMode = getFilteringMode(line);
 			if (dir.getOpposite() == before) {
 				continue;
 			}
 			//ignore the direction in which is no pipe or inv-block
 			if (!blockConnections.contains(dir) && !pipeConnections.contains(dir)) {
 				continue;
-			} else if (getFilteringMode(line) == FilteringMode.BLOCK_ALL) {
+			} else if (filteringMode == FilteringMode.BLOCK_ALL) {
 				continue;
 			} else if (blockedDirections.contains(dir)) {
 				continue;
 			}
 			boolean empty = true;
+			boolean possibleDueToInvertion = filteringMode == FilteringMode.INVERT;
 			for (int i = 0; i < outputItems[line].length; i++) {
 				if (outputItems[line][i] != null) {
 					empty = false;
 				}
-				if (itemData.equals(outputItems[line][i], getFilteringMode(line))) {
+				if (filteringMode == FilteringMode.INVERT) {
+					possibleDueToInvertion &= outputItems[line][i] == null || !itemData.toItemStack().isSimilar(outputItems[line][i].toItemStack());
+				} else if (itemData.equals(outputItems[line][i], filteringMode)) {
 					possibleDirections.add(dir);
 				}
 			}
-			if (empty) {
+			if (possibleDueToInvertion) {
+				possibleDirections.add(dir);
+			} else if (empty) {
 				emptyPossibleDirections.add(dir);
 			}
 		}
@@ -268,7 +274,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		FILTERBY_TYPE_DAMAGE(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE),
 		FILTERBY_TYPE_NBT(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_NBT),
 		FILTERBY_TYPE_DAMAGE_NBT(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE_NBT),
-		BLOCK_ALL(LocConf.GOLDENPIPE_FILTERING_BLOCKALL);
+		BLOCK_ALL(LocConf.GOLDENPIPE_FILTERING_BLOCKALL),
+		INVERT(LocConf.GOLDENPIPE_FILTERING_INVERT);
 
 		private String locConfKey;
 

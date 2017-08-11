@@ -29,6 +29,7 @@ public class LocConf extends Conf {
 	public static final String GOLDENPIPE_FILTERING_FILTERBY_TYPE = "goldenpipe.filtering.filterby_type";
 	public static final String GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE_NBT = "goldenpipe.filtering.filterby_type_damage_nbt";
 	public static final String GOLDENPIPE_FILTERING_BLOCKALL = "goldenpipe.filtering.blockall";
+	public static final String GOLDENPIPE_FILTERING_INVERT = "goldenpipe.filtering.invert";
 	public static final String GOLDENPIPE_FILTERING_CLICKTOCHANGE = "goldenpipe.filtering.clicktochange";
 	public static final String EXTRACTIONPIPE_TITLE = "extractionpipe.title";
 	public static final String EXTRACTIONPIPE_DIRECTION_TEXT = "extractionpipe.direction.text";
@@ -87,6 +88,7 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_FILTERING_FILTERBY_TYPE_NBT, "&7Filter items by &cTYPE, ITEMMETA");
 		saveAsDefault(GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE_NBT, "&7Filter items by &cTYPE, DAMAGE, ITEMMETA");
 		saveAsDefault(GOLDENPIPE_FILTERING_BLOCKALL, "&cBLOCK &7all items");
+		saveAsDefault(GOLDENPIPE_FILTERING_INVERT, "&cINVERT &7filtered items");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
 		saveAsDefault(EXTRACTIONPIPE_TITLE, "Extraction-Pipe");
 		saveAsDefault(EXTRACTIONPIPE_DIRECTION_TEXT, "&7Extract Direction: &c%s");

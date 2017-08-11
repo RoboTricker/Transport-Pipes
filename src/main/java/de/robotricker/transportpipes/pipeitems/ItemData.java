@@ -28,15 +28,13 @@ public class ItemData {
 		if (obj != null && obj instanceof ItemData) {
 			ItemData o = (ItemData) obj;
 			if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE_NBT) {
-				return o.item.equals(item);
+				return o.item.isSimilar(item);
 			} else if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE) {
 				return o.item.getType() == item.getType() && o.item.getDurability() == item.getDurability();
 			} else if (filteringMode == FilteringMode.FILTERBY_TYPE_NBT) {
 				return o.item.getType() == item.getType() && o.item.getItemMeta().equals(item.getItemMeta());
 			} else if (filteringMode == FilteringMode.FILTERBY_TYPE) {
 				return o.item.getType() == item.getType();
-			} else if (filteringMode == FilteringMode.BLOCK_ALL) {
-				return false;
 			}
 		}
 		return false;
