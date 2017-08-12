@@ -52,4 +52,10 @@ public class ItemData {
 		ItemStack item = InventoryUtils.StringToItemStack(rawItem);
 		return item != null ? new ItemData(item) : null;
 	}
+
+	public static CompoundTag createNullItemNBTTag() {
+		Map<String, Tag> map = new HashMap<>();
+		return new CompoundTag("Item", map);
+	}
+
 }

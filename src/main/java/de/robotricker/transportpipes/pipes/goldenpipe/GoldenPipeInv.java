@@ -1,9 +1,8 @@
 package de.robotricker.transportpipes.pipes.goldenpipe;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,7 +24,8 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class GoldenPipeInv implements Listener {
 
-	private static HashMap<GoldenPipe, Inventory> goldenPipeInventories = new HashMap<>();
+	private static Map<GoldenPipe, Inventory> goldenPipeInventories = new HashMap<>();
+	private static Map<GoldenPipe, Map<Integer, Integer>> scrollValues = new HashMap<>();
 
 	public static void updateGoldenPipeInventory(Player p, GoldenPipe pipe) {
 		Inventory inv;
@@ -34,6 +34,7 @@ public class GoldenPipeInv implements Listener {
 		} else {
 			inv = Bukkit.createInventory(null, 6 * 9, LocConf.load(LocConf.GOLDENPIPE_TITLE));
 			goldenPipeInventories.put(pipe, inv);
+			scrollValues.put(pipe, new HashMap<Integer, Integer>());
 		}
 
 		Collection<PipeDirection> pipeConnections = pipe.getAllConnections();
@@ -41,11 +42,14 @@ public class GoldenPipeInv implements Listener {
 		for (int line = 0; line < 6; line++) {
 			GoldenPipeColor gpc = GoldenPipeColor.values()[line];
 			PipeDirection pd = PipeDirection.fromID(line);
+			int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
 
 			String filteringModeText = LocConf.load(pipe.getFilteringMode(line).getLocConfKey());
 			ItemStack filteringModeWool = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getItemDamage()), filteringModeText, LocConf.load(LocConf.GOLDENPIPE_FILTERING_CLICKTOCHANGE));
 			ItemStack glassPane = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, gpc.getItemDamage()), String.valueOf(ChatColor.RESET));
 			ItemStack barrier = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.BARRIER, 1), String.valueOf(ChatColor.RESET));
+			ItemStack scrollLeft = InventoryUtils.changeDisplayName(InventoryUtils.createSkullItemStack("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), LocConf.load(LocConf.GOLDENPIPE_SCROLL_LEFT));
+			ItemStack scrollRight = InventoryUtils.changeDisplayName(InventoryUtils.createSkullItemStack("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), LocConf.load(LocConf.GOLDENPIPE_SCROLL_RIGHT));
 
 			inv.setItem(line * 9, filteringModeWool);
 
@@ -58,13 +62,18 @@ public class GoldenPipeInv implements Listener {
 					inv.setItem(line * 9 + i, glassPane);
 				}
 			} else {
+				inv.setItem(line * 9 + 1, scrollValue > 0 ? scrollLeft : glassPane);
+				inv.setItem(line * 9 + 8, scrollValue < GoldenPipe.ITEMS_PER_ROW - 6 ? scrollRight : glassPane);
+
 				ItemData[] items = pipe.getOutputItems(PipeDirection.fromID(line));
-				for (int i = 1; i < 9; i++) {
-					if (items[i - 1] != null) {
-						inv.setItem(line * 9 + i, items[i - 1].toItemStack());
+				int indexWithScrollValue = scrollValue;
+				for (int i = 2; i < 8; i++) {
+					if (items[indexWithScrollValue] != null) {
+						inv.setItem(line * 9 + i, items[indexWithScrollValue].toItemStack());
 					} else {
 						inv.setItem(line * 9 + i, null);
 					}
+					indexWithScrollValue++;
 				}
 			}
 		}
@@ -104,7 +113,36 @@ public class GoldenPipeInv implements Listener {
 				updateGoldenPipeInventory((Player) e.getWhoClicked(), pipe);
 				return;
 			}
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 1) {
+				e.setCancelled(true);
+
+				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				
+				int line = (int) (e.getRawSlot() / 9);
+				int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
+				scrollValue--;
+				scrollValues.get(pipe).put(line, scrollValue);
+
+				updateGoldenPipeInventory((Player) e.getWhoClicked(), pipe);
+
+				return;
+			}
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 8) {
+				e.setCancelled(true);
+
+				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				
+				int line = (int) (e.getRawSlot() / 9);
+				int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
+				scrollValue++;
+				scrollValues.get(pipe).put(line, scrollValue);
+
+				updateGoldenPipeInventory((Player) e.getWhoClicked(), pipe);
+
+				return;
+			}
 		}
+
 	}
 
 	@EventHandler
@@ -124,29 +162,25 @@ public class GoldenPipeInv implements Listener {
 			}
 			//cache new items in golden pipe
 			linefor: for (int line = 0; line < 6; line++) {
-				List<ItemData> items = new ArrayList<>();
-				for (int i = 1; i < 9; i++) {
+				ItemData[] items = pipe.getOutputItems(PipeDirection.fromID(line));
+				int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
+				for (int i = 2; i < 8; i++) {
 					ItemStack is = inv.getItem(line * 9 + i);
 					//make sure the glass pane won't be saved
-					if (is != null && !isGlassItemOrBarrier(is)) {
-						items.add(new ItemData(is));
-						if (is.getAmount() > 1) {
-							//drop overflow items (only 1 item of each type is saved)
-							ItemStack clone = is.clone();
-							clone.setAmount(is.getAmount() - 1);
-							p.getWorld().dropItem(p.getLocation(), clone);
-
-							//cloned item which will be saved
-							ItemStack clone2 = is.clone();
-							clone2.setAmount(1);
-							inv.setItem(line * 9 + i, clone2);
+					if (!isGlassItemOrBarrier(is)) {
+						if (is != null && is.getAmount() > 1) {
+							ItemStack drop = is.clone();
+							drop.setAmount(is.getAmount() - 1);
+							p.getWorld().dropItem(p.getLocation(), drop);
+							is.setAmount(1);
 						}
-					} else if (isGlassItemOrBarrier(is)) {
+						items[scrollValue] = is != null ? new ItemData(is) : null;
+					} else {
 						//skip this save-sequenz if this line is not available (not a pipe or block as neighbor)
 						continue linefor;
 					}
+					scrollValue++;
 				}
-				pipe.changeOutputItems(PipeDirection.fromID(line), items);
 			}
 		}
 	}

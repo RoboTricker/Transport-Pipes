@@ -31,6 +31,8 @@ public class LocConf extends Conf {
 	public static final String GOLDENPIPE_FILTERING_BLOCKALL = "goldenpipe.filtering.blockall";
 	public static final String GOLDENPIPE_FILTERING_INVERT = "goldenpipe.filtering.invert";
 	public static final String GOLDENPIPE_FILTERING_CLICKTOCHANGE = "goldenpipe.filtering.clicktochange";
+	public static final String GOLDENPIPE_SCROLL_LEFT = "goldenpipe.scroll.left";
+	public static final String GOLDENPIPE_SCROLL_RIGHT = "goldenpipe.scroll.right";
 	public static final String EXTRACTIONPIPE_TITLE = "extractionpipe.title";
 	public static final String EXTRACTIONPIPE_DIRECTION_TEXT = "extractionpipe.direction.text";
 	public static final String EXTRACTIONPIPE_DIRECTION_DONTEXTRACT = "extractionpipe.direction.dontextract";
@@ -90,6 +92,8 @@ public class LocConf extends Conf {
 		saveAsDefault(GOLDENPIPE_FILTERING_BLOCKALL, "&cBLOCK &7all items");
 		saveAsDefault(GOLDENPIPE_FILTERING_INVERT, "&cINVERT &7filtered items");
 		saveAsDefault(GOLDENPIPE_FILTERING_CLICKTOCHANGE, "&7Click to change filtering mode.");
+		saveAsDefault(GOLDENPIPE_SCROLL_LEFT, "&6<<");
+		saveAsDefault(GOLDENPIPE_SCROLL_RIGHT, "&6>>");
 		saveAsDefault(EXTRACTIONPIPE_TITLE, "Extraction-Pipe");
 		saveAsDefault(EXTRACTIONPIPE_DIRECTION_TEXT, "&7Extract Direction: &c%s");
 		saveAsDefault(EXTRACTIONPIPE_DIRECTION_DONTEXTRACT, "&7Extract Direction: &cDONT EXTRACT");

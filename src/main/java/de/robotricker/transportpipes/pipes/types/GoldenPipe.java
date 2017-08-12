@@ -30,8 +30,10 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class GoldenPipe extends Pipe implements ClickablePipe {
 
+	public static final int ITEMS_PER_ROW = 32;
+
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
-	private ItemData[][] outputItems = new ItemData[6][8];
+	private ItemData[][] outputItems = new ItemData[6][ITEMS_PER_ROW];
 	private FilteringMode[] filteringModes = new FilteringMode[6];
 
 	public GoldenPipe(Location blockLoc) {
@@ -159,6 +161,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 				ItemData itemData = outputItems[line][i];
 				if (itemData != null) {
 					lineList.add(itemData.toNBTTag());
+				} else {
+					lineList.add(ItemData.createNullItemNBTTag());
 				}
 			}
 			NBTUtils.saveListValue(lineCompound.getValue(), "Items", NBTTagType.TAG_COMPOUND, lineList);
@@ -240,10 +244,10 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		filteringModes[line] = filteringMode;
 	}
 
-	public void changeOutputItems(PipeDirection pd, List<ItemData> items) {
+	public void changeOutputItems(PipeDirection pd, ItemData[] items) {
 		for (int i = 0; i < outputItems[pd.getId()].length; i++) {
-			if (i < items.size()) {
-				outputItems[pd.getId()][i] = items.get(i);
+			if (i < items.length) {
+				outputItems[pd.getId()][i] = items[i];
 			} else {
 				outputItems[pd.getId()][i] = null;
 			}
