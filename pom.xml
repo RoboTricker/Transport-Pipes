@@ -236,7 +236,7 @@
 		<dependency>
 			<groupId>com.logisticscraft</groupId>
 			<artifactId>logistics-api</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>0.0.4-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!--<dependency> <groupId>com.destroystokyo.paper</groupId> <artifactId>paper-api</artifactId> <version>1.12-R0.1-20170715.200138-36</version> <scope>provided</scope> </dependency> -->
