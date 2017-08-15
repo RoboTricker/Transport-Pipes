@@ -41,7 +41,7 @@ public abstract class Pipe {
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
 
 	//contains all items managed by this pipe
-	public HashMap<PipeItem, PipeDirection> pipeItems = new HashMap<>();
+	public final Map<PipeItem, PipeDirection> pipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
 	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
 	//remember to synchronize while iterating
@@ -146,7 +146,7 @@ public abstract class Pipe {
 
 				final ItemStack itemStack = item.getItem().clone();
 				final RelLoc relLoc = RelLoc.fromString(item.relLoc().toString());
-				
+
 				PipeItem lastPipeItem = null;
 				for (PipeDirection pd : splittedItemsMap.keySet()) {
 					int newAmount = splittedItemsMap.get(pd);
@@ -294,7 +294,8 @@ public abstract class Pipe {
 
 		List<Tag> itemList = new ArrayList<>();
 
-		Map<PipeItem, PipeDirection> pipeItemMap = (Map<PipeItem, PipeDirection>) pipeItems.clone();
+		Map<PipeItem, PipeDirection> pipeItemMap = new HashMap<>();
+		pipeItemMap.putAll(pipeItems);
 		pipeItemMap.putAll(tempPipeItems);
 		pipeItemMap.putAll(tempPipeItemsWithSpawn);
 		for (PipeItem pipeItem : pipeItemMap.keySet()) {

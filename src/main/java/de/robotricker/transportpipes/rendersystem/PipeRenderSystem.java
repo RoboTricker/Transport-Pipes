@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
@@ -45,6 +46,8 @@ public abstract class PipeRenderSystem implements Listener {
 
 	public abstract PipeDirection getClickedPipeFace(Player player, Pipe pipe);
 
+	public abstract AxisAlignedBB getOuterHitbox(Pipe pipe);
+	
 	public abstract void initPlayer(Player p);
 
 	public abstract String getPipeRenderSystemName();

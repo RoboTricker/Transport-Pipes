@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -125,6 +126,10 @@ public class InventoryUtils {
 
 		skull.setItemMeta(sm);
 		return skull;
+	}
+	
+	public static boolean isGlassItemOrBarrier(ItemStack is) {
+		return InventoryUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET));
 	}
 
 }

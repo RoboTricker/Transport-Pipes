@@ -1,24 +1,26 @@
 package de.robotricker.transportpipes.api;
 
+import java.util.List;
+
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.pipeitems.ItemData;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 
 public interface TransportPipesContainer {
 
 	/**
 	 * called by TransportPipes if a pipe wants to extract an item from a container block.<br>
-	 * <b>Important:</b> The pipe system extracts only 1 item at a time.
 	 * 
 	 * @param extractDirection
 	 *            The direction of the pipe relative to this container block.
 	 * @return returns an ItemData object of the extracted item.
 	 */
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount);
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode);
 
 	/**
 	 * called by TransportPipes if a pipe wants to insert an item into a container block.<br>
-	 * <b>Important:</b> The pipe system inserts only 1 item at a time.
 	 * 
 	 * @param insertDirection
 	 *            The direction of the pipe relative to this container block

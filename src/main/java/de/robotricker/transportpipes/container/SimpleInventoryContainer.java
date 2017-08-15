@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.container;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Chunk;
@@ -16,7 +17,9 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 
@@ -35,7 +38,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount) {
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
@@ -47,8 +50,12 @@ public class SimpleInventoryContainer extends BlockContainer {
 			if (cachedInv.getItem(i) != null) {
 				int amountBefore = takenIs != null ? takenIs.getAmount() : 0;
 				if (takenIs == null) {
-					takenIs = cachedInv.getItem(i).clone();
-					takenIs.setAmount(Math.min(extractAmount, takenIs.getAmount()));
+					if (new ItemData(cachedInv.getItem(i)).checkFilter(filterItems, filteringMode)) {
+						takenIs = cachedInv.getItem(i).clone();
+						takenIs.setAmount(Math.min(extractAmount, takenIs.getAmount()));
+					} else {
+						continue;
+					}
 				} else if (takenIs.isSimilar(cachedInv.getItem(i))) {
 					takenIs.setAmount(Math.min(extractAmount, amountBefore + cachedInv.getItem(i).getAmount()));
 				}

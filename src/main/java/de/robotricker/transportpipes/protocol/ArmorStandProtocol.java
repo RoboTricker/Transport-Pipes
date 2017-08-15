@@ -42,11 +42,11 @@ public class ArmorStandProtocol {
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
 	public PipeRenderSystem getPlayerPipeRenderSystem(Player p) {
-		return SettingsUtils.loadPlayerSettings(p).getRenderSystem();
+		return SettingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
 	}
 
 	public boolean isPlayerShowItems(Player p) {
-		return SettingsUtils.loadPlayerSettings(p).isShowItems();
+		return SettingsUtils.getOrLoadPlayerSettings(p).isShowItems();
 	}
 
 	public List<Player> getAllPlayersWithPipeManager(PipeRenderSystem renderSystem) {
@@ -105,7 +105,7 @@ public class ArmorStandProtocol {
 		}
 
 		//change render system
-		SettingsUtils.loadPlayerSettings(p).setRenderSystem(newRenderSystem.getRenderSystemId());
+		SettingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystem.getRenderSystemId());
 		newRenderSystem.initPlayer(p);
 
 		//spawn all new pipes
@@ -119,7 +119,7 @@ public class ArmorStandProtocol {
 	}
 
 	public void changeShowItems(Player p, boolean showItems) {
-		SettingsUtils.loadPlayerSettings(p).setShowItems(showItems);
+		SettingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
 	}
 
 	public void reloadPipeRenderSystem(Player p) {

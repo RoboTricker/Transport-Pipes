@@ -30,7 +30,7 @@ public class UpdateManager implements Listener {
 			public boolean isNewer(String currentVersion, String checkVersion) {
 				long currentVersionLong = convertVersionToLong(currentVersion);
 				long checkVersionLong = convertVersionToLong(checkVersion);
-				return checkVersionLong < currentVersionLong;
+				return checkVersionLong > currentVersionLong;
 			}
 		});
 	}
@@ -101,7 +101,7 @@ public class UpdateManager implements Listener {
 					}
 				}
 			} else {
-				versionLong = convertMainVersionStringToInt(version);
+				versionLong = (long) convertMainVersionStringToInt(version) << 32;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

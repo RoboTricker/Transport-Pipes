@@ -1,5 +1,7 @@
 package de.robotricker.transportpipes.container;
 
+import java.util.List;
+
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -7,6 +9,8 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.pipeitems.ItemData;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 
 public class BrewingStandContainer extends BlockContainer {
@@ -23,7 +27,7 @@ public class BrewingStandContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount) {
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
@@ -32,13 +36,13 @@ public class BrewingStandContainer extends BlockContainer {
 		}
 		if (extractDirection != PipeDirection.UP && cachedBrewingStand.getBrewingTime() == 0) {
 			ItemStack taken = null;
-			if (cachedInv.getItem(0) != null) {
+			if (cachedInv.getItem(0) != null && new ItemData(cachedInv.getItem(0)).checkFilter(filterItems, filteringMode)) {
 				taken = cachedInv.getItem(0);
 				cachedInv.setItem(0, null);
-			} else if (cachedInv.getItem(1) != null) {
+			} else if (cachedInv.getItem(1) != null && new ItemData(cachedInv.getItem(1)).checkFilter(filterItems, filteringMode)) {
 				taken = cachedInv.getItem(1);
 				cachedInv.setItem(1, null);
-			} else if (cachedInv.getItem(2) != null) {
+			} else if (cachedInv.getItem(2) != null && new ItemData(cachedInv.getItem(2)).checkFilter(filterItems, filteringMode)) {
 				taken = cachedInv.getItem(2);
 				cachedInv.setItem(2, null);
 			}

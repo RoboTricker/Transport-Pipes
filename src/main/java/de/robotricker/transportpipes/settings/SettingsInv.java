@@ -26,7 +26,7 @@ public class SettingsInv implements Listener {
 			viewer.openInventory(inv);
 		}
 
-		PlayerSettingsConf psc = SettingsUtils.loadPlayerSettings(viewer);
+		PlayerSettingsConf psc = SettingsUtils.getOrLoadPlayerSettings(viewer);
 
 		//Render Distance setting
 		ItemStack glassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7);
@@ -73,7 +73,7 @@ public class SettingsInv implements Listener {
 	public void onInvClick(InventoryClickEvent e) {
 		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(LocConf.load(LocConf.SETTINGS_TITLE))) {
 			Player p = (Player) e.getWhoClicked();
-			PlayerSettingsConf psc = SettingsUtils.loadPlayerSettings(p);
+			PlayerSettingsConf psc = SettingsUtils.getOrLoadPlayerSettings(p);
 
 			e.setCancelled(true);
 			if (e.getAction() == InventoryAction.PICKUP_ALL || e.getAction() == InventoryAction.PICKUP_HALF) {

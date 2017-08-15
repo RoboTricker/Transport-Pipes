@@ -11,7 +11,7 @@ public class SettingsUtils {
 
 	private static Map<Player, PlayerSettingsConf> cachedSettings = new HashMap<>();
 
-	public static PlayerSettingsConf loadPlayerSettings(Player p) {
+	public static PlayerSettingsConf getOrLoadPlayerSettings(Player p) {
 		if (!cachedSettings.containsKey(p)) {
 			cachedSettings.put(p, new PlayerSettingsConf(p));
 		}

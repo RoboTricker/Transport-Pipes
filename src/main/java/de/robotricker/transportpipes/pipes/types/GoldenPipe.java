@@ -20,20 +20,20 @@ import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
-import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	public static final int ITEMS_PER_ROW = 32;
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
-	private ItemData[][] outputItems = new ItemData[6][ITEMS_PER_ROW];
+	private ItemData[][] filteringItems = new ItemData[6][ITEMS_PER_ROW];
 	private FilteringMode[] filteringModes = new FilteringMode[6];
 
 	public GoldenPipe(Location blockLoc) {
@@ -102,6 +102,14 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		for (int line = 0; line < 6; line++) {
 			PipeDirection dir = PipeDirection.fromID(line);
 			FilteringMode filteringMode = getFilteringMode(line);
+
+			List<ItemData> filterItems = new ArrayList<ItemData>();
+			for (ItemData filterItem : filteringItems[line]) {
+				if (filterItem != null) {
+					filterItems.add(filterItem);
+				}
+			}
+
 			if (dir.getOpposite() == before) {
 				continue;
 			}
@@ -113,21 +121,10 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			} else if (blockedDirections.contains(dir)) {
 				continue;
 			}
-			boolean empty = true;
-			boolean possibleDueToInvertion = filteringMode == FilteringMode.INVERT;
-			for (int i = 0; i < outputItems[line].length; i++) {
-				if (outputItems[line][i] != null) {
-					empty = false;
-				}
-				if (filteringMode == FilteringMode.INVERT) {
-					possibleDueToInvertion &= outputItems[line][i] == null || !itemData.toItemStack().isSimilar(outputItems[line][i].toItemStack());
-				} else if (itemData.equals(outputItems[line][i], filteringMode)) {
-					possibleDirections.add(dir);
-				}
-			}
-			if (possibleDueToInvertion) {
+
+			if (itemData.checkFilter(filterItems, filteringMode, true)) {
 				possibleDirections.add(dir);
-			} else if (empty) {
+			} else if (filterItems.isEmpty()) {
 				emptyPossibleDirections.add(dir);
 			}
 		}
@@ -157,8 +154,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			NBTUtils.saveIntValue(lineCompound.getValue(), "Line", line);
 
 			List<Tag> lineList = new ArrayList<>();
-			for (int i = 0; i < outputItems[line].length; i++) {
-				ItemData itemData = outputItems[line][i];
+			for (int i = 0; i < filteringItems[line].length; i++) {
+				ItemData itemData = filteringItems[line][i];
 				if (itemData != null) {
 					lineList.add(itemData.toNBTTag());
 				} else {
@@ -186,10 +183,10 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			for (int line = 0; line < 6; line++) {
 
 				List<Tag> lineList = NBTUtils.readListTag(map.get("Line" + line));
-				for (int i = 0; i < outputItems[line].length; i++) {
+				for (int i = 0; i < filteringItems[line].length; i++) {
 					if (lineList.size() > i) {
 						ItemData itemData = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
-						outputItems[line][i] = itemData;
+						filteringItems[line][i] = itemData;
 					}
 				}
 
@@ -209,7 +206,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					for (Tag itemTag : itemsList) {
 						if (itemsList.size() > i) {
 							ItemData itemData = ItemData.fromNBTTag((CompoundTag) itemTag);
-							outputItems[line][i] = itemData;
+							filteringItems[line][i] = itemData;
 						}
 						i++;
 					}
@@ -232,8 +229,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		GoldenPipeInv.updateGoldenPipeInventory(p, this);
 	}
 
-	public ItemData[] getOutputItems(PipeDirection pd) {
-		return outputItems[pd.getId()];
+	public ItemData[] getFilteringItems(PipeDirection pd) {
+		return filteringItems[pd.getId()];
 	}
 
 	public FilteringMode getFilteringMode(int line) {
@@ -244,12 +241,12 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		filteringModes[line] = filteringMode;
 	}
 
-	public void changeOutputItems(PipeDirection pd, ItemData[] items) {
-		for (int i = 0; i < outputItems[pd.getId()].length; i++) {
+	public void changeFilteringItems(PipeDirection pd, ItemData[] items) {
+		for (int i = 0; i < filteringItems[pd.getId()].length; i++) {
 			if (i < items.length) {
-				outputItems[pd.getId()][i] = items[i];
+				filteringItems[pd.getId()][i] = items[i];
 			} else {
-				outputItems[pd.getId()][i] = null;
+				filteringItems[pd.getId()][i] = null;
 			}
 		}
 	}
@@ -264,48 +261,13 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		List<ItemStack> is = new ArrayList<>();
 		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
 		for (int line = 0; line < 6; line++) {
-			for (int i = 0; i < outputItems[line].length; i++) {
-				if (outputItems[line][i] != null) {
-					is.add(outputItems[line][i].toItemStack());
+			for (int i = 0; i < filteringItems[line].length; i++) {
+				if (filteringItems[line][i] != null) {
+					is.add(filteringItems[line][i].toItemStack());
 				}
 			}
 		}
 		return is;
-	}
-
-	public enum FilteringMode {
-		FILTERBY_TYPE(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE),
-		FILTERBY_TYPE_DAMAGE(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE),
-		FILTERBY_TYPE_NBT(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_NBT),
-		FILTERBY_TYPE_DAMAGE_NBT(LocConf.GOLDENPIPE_FILTERING_FILTERBY_TYPE_DAMAGE_NBT),
-		BLOCK_ALL(LocConf.GOLDENPIPE_FILTERING_BLOCKALL),
-		INVERT(LocConf.GOLDENPIPE_FILTERING_INVERT);
-
-		private String locConfKey;
-
-		private FilteringMode(String locConfKey) {
-			this.locConfKey = locConfKey;
-		}
-
-		public String getLocConfKey() {
-			return locConfKey;
-		}
-
-		public int getId() {
-			return this.ordinal();
-		}
-
-		public static FilteringMode fromId(int id) {
-			return FilteringMode.values()[id];
-		}
-
-		public FilteringMode getNextMode() {
-			if (getId() == FilteringMode.values().length - 1) {
-				return fromId(0);
-			}
-			return fromId(getId() + 1);
-		}
-
 	}
 
 }

@@ -146,6 +146,10 @@
 			<id>destroystokyo-repo</id>
 			<url>https://repo.destroystokyo.com/repository/maven-public/</url>
 		</repository>
+		<repository>
+			<id>frontfight.net</id>
+			<url>http://jenkins.frontfight.net/plugin/repository/everything/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -227,6 +231,12 @@
 			<groupId>com.github.Hidendra</groupId>
 			<artifactId>LWC</artifactId>
 			<version>lwc-3.51</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.logisticscraft</groupId>
+			<artifactId>logistics-api</artifactId>
+			<version>0.0.3-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!--<dependency> <groupId>com.destroystokyo.paper</groupId> <artifactId>paper-api</artifactId> <version>1.12-R0.1-20170715.200138-36</version> <scope>provided</scope> </dependency> -->

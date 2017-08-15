@@ -150,11 +150,9 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
-
 		if (pipe == null) {
 			return null;
 		}
-
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
@@ -179,6 +177,35 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 			return currentClickedConnFace;
 		}
 
+	}
+
+	@Override
+	public AxisAlignedBB getOuterHitbox(Pipe pipe) {
+		if (pipe == null) {
+			return null;
+		}
+
+		List<AxisAlignedBB> aabbs = new ArrayList<AxisAlignedBB>();
+		aabbs.add(pipeMidAABB);
+		Collection<PipeDirection> pipeConns = pipe.getAllConnections();
+		for (PipeDirection pd : pipeConns) {
+			aabbs.add(pipeConnsAABBs.get(pd));
+		}
+		double minx = Double.MAX_VALUE;
+		double miny = Double.MAX_VALUE;
+		double minz = Double.MAX_VALUE;
+		double maxx = Double.MIN_VALUE;
+		double maxy = Double.MIN_VALUE;
+		double maxz = Double.MIN_VALUE;
+		for (AxisAlignedBB aabb : aabbs) {
+			minx = Math.min(aabb.minx, minx);
+			miny = Math.min(aabb.miny, miny);
+			minz = Math.min(aabb.minz, minz);
+			maxx = Math.max(aabb.maxx, maxx);
+			maxy = Math.max(aabb.maxy, maxy);
+			maxz = Math.max(aabb.maxz, maxz);
+		}
+		return new AxisAlignedBB(minx, miny, minz, maxx, maxy, maxz);
 	}
 
 	@Override

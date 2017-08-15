@@ -25,13 +25,17 @@ public abstract class Conf {
 		yamlConf = YamlConfiguration.loadConfiguration(configFile);
 	}
 
+	protected YamlConfiguration getYamlConf(){
+		return yamlConf;
+	}
+	
 	protected void saveAsDefault(String key, Object value) {
 		if (!yamlConf.contains(key)) {
 			yamlConf.set(key, value);
 		}
 		defaultValues.put(key, value);
 	}
-
+	
 	protected void finishDefault() {
 		removeUnusedValues(yamlConf);
 		saveToFile();

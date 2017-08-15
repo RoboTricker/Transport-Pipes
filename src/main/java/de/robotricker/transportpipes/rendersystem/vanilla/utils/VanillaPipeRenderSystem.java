@@ -16,6 +16,7 @@ import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
+import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
@@ -110,15 +111,21 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 	@Override
 	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
-
 		if (pipe == null) {
 			return null;
 		}
-
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
 		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), pipe.getAllConnections()).getModel().getAABB().rayIntersection(ray, origin, pipe.getBlockLoc());
+	}
+
+	@Override
+	public AxisAlignedBB getOuterHitbox(Pipe pipe) {
+		if (pipe == null) {
+			return null;
+		}
+		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), pipe.getAllConnections()).getModel().getAABB();
 	}
 
 	@Override

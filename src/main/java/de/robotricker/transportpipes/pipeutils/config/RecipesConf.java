@@ -22,60 +22,43 @@ public class RecipesConf extends Conf {
 
 	public RecipesConf() {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "recipes.yml"));
-		saveAsDefault("recipe.colored.type", "shaped");
-		saveAsDefault("recipe.colored.amount", 4);
-		saveAsDefault("recipe.colored.shape", Arrays.asList("ggx", "gbg", "xgg"));
-		saveAsDefault("recipe.colored.ingredients.g", "20:0");
-		saveAsDefault("recipe.colored.ingredients.b", "280:0");
-		saveAsDefault("recipe.golden.type", "shaped");
-		saveAsDefault("recipe.golden.amount", 1);
-		saveAsDefault("recipe.golden.shape", Arrays.asList("ggx", "gbg", "xgg"));
-		saveAsDefault("recipe.golden.ingredients.g", "20:0");
-		saveAsDefault("recipe.golden.ingredients.b", "41:0");
-		saveAsDefault("recipe.iron.type", "shaped");
-		saveAsDefault("recipe.iron.amount", 1);
-		saveAsDefault("recipe.iron.shape", Arrays.asList("ggx", "gbg", "xgg"));
-		saveAsDefault("recipe.iron.ingredients.g", "20:0");
-		saveAsDefault("recipe.iron.ingredients.b", "42:0");
-		saveAsDefault("recipe.ice.type", "shaped");
-		saveAsDefault("recipe.ice.amount", 1);
-		saveAsDefault("recipe.ice.shape", Arrays.asList("ggx", "gbg", "xgg"));
-		saveAsDefault("recipe.ice.ingredients.g", "20:0");
-		saveAsDefault("recipe.ice.ingredients.b", "80:0");
-		saveAsDefault("recipe.void.type", "shaped");
-		saveAsDefault("recipe.void.amount", 1);
-		saveAsDefault("recipe.void.shape", Arrays.asList("ggx", "gbg", "xgg"));
-		saveAsDefault("recipe.void.ingredients.g", "20:0");
-		saveAsDefault("recipe.void.ingredients.b", "49:0");
-		saveAsDefault("recipe.extraction.type", "shaped");
-		saveAsDefault("recipe.extraction.amount", 1);
-		saveAsDefault("recipe.extraction.shape", Arrays.asList("ggx", "gbg", "xgg"));
-		saveAsDefault("recipe.extraction.ingredients.g", "20:0");
-		saveAsDefault("recipe.extraction.ingredients.b", "5:0");
-		saveAsDefault("recipe.colored.white.type", "shapeless");
-		saveAsDefault("recipe.colored.white.amount", 1);
-		saveAsDefault("recipe.colored.white.ingredients", Arrays.asList("pipe", "351:15"));
-		saveAsDefault("recipe.colored.blue.type", "shapeless");
-		saveAsDefault("recipe.colored.blue.amount", 1);
-		saveAsDefault("recipe.colored.blue.ingredients", Arrays.asList("pipe", "351:4"));
-		saveAsDefault("recipe.colored.red.type", "shapeless");
-		saveAsDefault("recipe.colored.red.amount", 1);
-		saveAsDefault("recipe.colored.red.ingredients", Arrays.asList("pipe", "351:1"));
-		saveAsDefault("recipe.colored.yellow.type", "shapeless");
-		saveAsDefault("recipe.colored.yellow.amount", 1);
-		saveAsDefault("recipe.colored.yellow.ingredients", Arrays.asList("pipe", "351:11"));
-		saveAsDefault("recipe.colored.green.type", "shapeless");
-		saveAsDefault("recipe.colored.green.amount", 1);
-		saveAsDefault("recipe.colored.green.ingredients", Arrays.asList("pipe", "351:2"));
-		saveAsDefault("recipe.colored.black.type", "shapeless");
-		saveAsDefault("recipe.colored.black.amount", 1);
-		saveAsDefault("recipe.colored.black.ingredients", Arrays.asList("pipe", "351:0"));
-		saveAsDefault("recipe.wrench.type", "shaped");
-		saveAsDefault("recipe.wrench.amount", 1);
-		saveAsDefault("recipe.wrench.shape", Arrays.asList("xrx", "rsr", "xrx"));
-		saveAsDefault("recipe.wrench.ingredients.r", "331:0");
-		saveAsDefault("recipe.wrench.ingredients.s", "280:0");
+		saveShapedRecipeAsDefault("colored", 4, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "280:0");
+		saveShapedRecipeAsDefault("golden", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "41:0");
+		saveShapedRecipeAsDefault("iron", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "42:0");
+		saveShapedRecipeAsDefault("ice", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "80:0");
+		saveShapedRecipeAsDefault("void", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "49:0");
+		saveShapedRecipeAsDefault("extraction", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "5:0");
+		saveShapelessRecipeAsDefault("colored.white", 1, "pipe", "351:15");
+		saveShapelessRecipeAsDefault("colored.blue", 1, "pipe", "351:4");
+		saveShapelessRecipeAsDefault("colored.red", 1, "pipe", "351:1");
+		saveShapelessRecipeAsDefault("colored.yellow", 1, "pipe", "351:11");
+		saveShapelessRecipeAsDefault("colored.green", 1, "pipe", "351:2");
+		saveShapelessRecipeAsDefault("colored.black", 1, "pipe", "351:0");
+		saveShapedRecipeAsDefault("wrench", 1, Arrays.asList("xrx", "rsr", "xrx"), "r", "331:0", "s", "280:0");
 		finishDefault();
+	}
+
+	private void saveShapedRecipeAsDefault(String name, int amount, List<String> shape, String... ingredients) {
+		String fullKey = "recipe." + name;
+		if (!getYamlConf().contains(fullKey + ".type")) {
+			saveAsDefault(fullKey + ".type", "shaped");
+			saveAsDefault(fullKey + ".amount", amount);
+			saveAsDefault(fullKey + ".shape", shape);
+			for (int i = 0; i < ingredients.length; i++) {
+				char ingredientChar = ingredients[i].charAt(0);
+				String ingredientValue = ingredients[++i];
+				saveAsDefault(fullKey + ".ingredients." + ingredientChar, ingredientValue);
+			}
+		}
+	}
+
+	private void saveShapelessRecipeAsDefault(String name, int amount, String... ingredients) {
+		String fullKey = "recipe." + name;
+		if (!getYamlConf().contains(fullKey + ".type")) {
+			saveAsDefault(fullKey + ".type", "shapeless");
+			saveAsDefault(fullKey + ".amount", amount);
+			saveAsDefault(fullKey + ".ingredients", Arrays.asList(ingredients));
+		}
 	}
 
 	/**

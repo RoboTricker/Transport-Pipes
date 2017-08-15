@@ -23,6 +23,7 @@ import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
+import de.robotricker.transportpipes.pipeutils.LogisticsAPIUtils;
 import de.robotricker.transportpipes.pipeutils.commands.CreativeCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.DeletePipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
@@ -182,6 +183,9 @@ public class TransportPipes extends JavaPlugin {
 			if (prs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
 				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
 			}
+		}
+		if(Bukkit.getPluginManager().isPluginEnabled("LogisticsAPI")){
+			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
 		}
 
 		for (World world : Bukkit.getWorlds()) {

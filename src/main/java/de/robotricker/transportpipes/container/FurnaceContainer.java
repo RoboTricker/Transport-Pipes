@@ -1,11 +1,15 @@
 package de.robotricker.transportpipes.container;
 
+import java.util.List;
+
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.Furnace;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.pipeitems.ItemData;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
@@ -24,14 +28,14 @@ public class FurnaceContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount) {
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
 		if (isInvLocked(cachedFurnace)) {
 			return null;
 		}
-		if (cachedInv.getResult() != null) {
+		if (cachedInv.getResult() != null && new ItemData(cachedInv.getResult()).checkFilter(filterItems, filteringMode)) {
 			ItemStack taken = InventoryUtils.createOneAmountItemStack(cachedInv.getResult());
 			cachedInv.setResult(InventoryUtils.changeAmount(cachedInv.getResult(), -extractAmount));
 			ItemStack clonedTaken = taken.clone();

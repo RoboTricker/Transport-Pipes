@@ -14,14 +14,17 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
+import org.jnbt.NBTTagType;
 import org.jnbt.Tag;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
@@ -38,12 +41,15 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	private PipeDirection extractDirection;
 	private ExtractCondition extractCondition;
 	private ExtractAmount extractAmount;
+	private FilteringMode filteringMode;
+	private ItemData[] filteringItems = new ItemData[GoldenPipe.ITEMS_PER_ROW];
 
 	public ExtractionPipe(Location blockLoc) {
 		super(blockLoc);
 		extractDirection = null;
 		extractCondition = ExtractCondition.NEEDS_REDSTONE;
 		extractAmount = ExtractAmount.EXTRACT_1;
+		filteringMode = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
 	}
 
 	@Override
@@ -113,6 +119,19 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		NBTUtils.saveIntValue(tags, "ExtractDirection", extractDirection == null ? -1 : extractDirection.getId());
 		NBTUtils.saveIntValue(tags, "ExtractCondition", extractCondition.getId());
 		NBTUtils.saveIntValue(tags, "ExtractAmount", extractAmount.getId());
+
+		List<Tag> lineList = new ArrayList<>();
+		for (int i = 0; i < filteringItems.length; i++) {
+			ItemData itemData = filteringItems[i];
+			if (itemData != null) {
+				lineList.add(itemData.toNBTTag());
+			} else {
+				lineList.add(ItemData.createNullItemNBTTag());
+			}
+		}
+		NBTUtils.saveListValue(tags, "Items", NBTTagType.TAG_COMPOUND, lineList);
+		NBTUtils.saveIntValue(tags, "FilteringMode", filteringMode.getId());
+
 	}
 
 	@Override
@@ -126,6 +145,17 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		}
 		setExtractCondition(ExtractCondition.fromId(NBTUtils.readIntTag(tag.getTag("ExtractCondition"), ExtractCondition.NEEDS_REDSTONE.getId())));
 		setExtractAmount(ExtractAmount.fromId(NBTUtils.readIntTag(tag.getTag("ExtractAmount"), ExtractAmount.EXTRACT_1.getId())));
+
+		List<Tag> itemsList = NBTUtils.readListTag(tag.getTag("Items"));
+		int i = 0;
+		for (Tag itemTag : itemsList) {
+			if (itemsList.size() > i) {
+				ItemData itemData = ItemData.fromNBTTag((CompoundTag) itemTag);
+				filteringItems[i] = itemData;
+			}
+			i++;
+		}
+		setFilteringMode(FilteringMode.fromId(NBTUtils.readIntTag(tag.getTag("FilteringMode"), FilteringMode.FILTERBY_TYPE_DAMAGE_NBT.getId())));
 	}
 
 	@Override
@@ -167,6 +197,28 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 
 	public void setExtractAmount(ExtractAmount extractAmount) {
 		this.extractAmount = extractAmount;
+	}
+
+	public FilteringMode getFilteringMode() {
+		return filteringMode;
+	}
+
+	public void setFilteringMode(FilteringMode filteringMode) {
+		this.filteringMode = filteringMode;
+	}
+
+	public ItemData[] getFilteringItems() {
+		return filteringItems;
+	}
+
+	public void changeFilteringItems(ItemData[] items) {
+		for (int i = 0; i < filteringItems.length; i++) {
+			if (i < items.length) {
+				filteringItems[i] = items[i];
+			} else {
+				filteringItems[i] = null;
+			}
+		}
 	}
 
 	/**
@@ -243,7 +295,13 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 							TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
 							PipeDirection itemDir = extractDirection.getOpposite();
 							if (tpc != null) {
-								ItemStack taken = tpc.extractItem(itemDir, getExtractAmount().getAmount());
+								List<ItemData> filterItems = new ArrayList<ItemData>();
+								for (ItemData filterItem : filteringItems) {
+									if (filterItem != null) {
+										filterItems.add(filterItem);
+									}
+								}
+								ItemStack taken = tpc.extractItem(itemDir, getExtractAmount().getAmount(), filterItems, getFilteringMode());
 								if (taken != null) {
 									//extraction successful
 									PipeItem pi = new PipeItem(taken, ExtractionPipe.this.blockLoc, itemDir);

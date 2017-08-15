@@ -1,18 +1,19 @@
 package de.robotricker.transportpipes.pipeutils.hitbox;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.PipeDirection;
 
 public class AxisAlignedBB {
 
-	private double minx;
-	private double miny;
-	private double minz;
-	private double maxx;
-	private double maxy;
-	private double maxz;
+	public double minx;
+	public double miny;
+	public double minz;
+	public double maxx;
+	public double maxy;
+	public double maxz;
 
 	public AxisAlignedBB(double minx, double miny, double minz, double maxx, double maxy, double maxz) {
 		this.minx = minx;
@@ -23,25 +24,33 @@ public class AxisAlignedBB {
 		this.maxz = maxz;
 	}
 
-//	@SuppressWarnings("deprecation")
-//	public AxisAlignedBB(Block fromBlock) {
-//		net.minecraft.server.v1_12_R1.BlockPosition bp = new net.minecraft.server.v1_12_R1.BlockPosition(fromBlock.getX(), fromBlock.getY(), fromBlock.getZ());
-//		net.minecraft.server.v1_12_R1.WorldServer world = ((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) fromBlock.getWorld()).getHandle();
-//		net.minecraft.server.v1_12_R1.IBlockData blockData = world.getType(bp);
-//		net.minecraft.server.v1_12_R1.AxisAlignedBB nativeAABB = blockData.getBlock().a(blockData, (net.minecraft.server.v1_12_R1.IBlockAccess) world, bp);
-//		if (nativeAABB == null) {
-//			return;
-//		}
-//		this.minx = nativeAABB.a;
-//		this.miny = nativeAABB.b;
-//		this.minz = nativeAABB.c;
-//		this.maxx = nativeAABB.d;
-//		this.maxy = nativeAABB.e;
-//		this.maxz = nativeAABB.f;
-//	}
+	//	@SuppressWarnings("deprecation")
+	//	public AxisAlignedBB(Block fromBlock) {
+	//		net.minecraft.server.v1_12_R1.BlockPosition bp = new net.minecraft.server.v1_12_R1.BlockPosition(fromBlock.getX(), fromBlock.getY(), fromBlock.getZ());
+	//		net.minecraft.server.v1_12_R1.WorldServer world = ((org.bukkit.craftbukkit.v1_12_R1.CraftWorld) fromBlock.getWorld()).getHandle();
+	//		net.minecraft.server.v1_12_R1.IBlockData blockData = world.getType(bp);
+	//		net.minecraft.server.v1_12_R1.AxisAlignedBB nativeAABB = blockData.getBlock().a(blockData, (net.minecraft.server.v1_12_R1.IBlockAccess) world, bp);
+	//		if (nativeAABB == null) {
+	//			return;
+	//		}
+	//		this.minx = nativeAABB.a;
+	//		this.miny = nativeAABB.b;
+	//		this.minz = nativeAABB.c;
+	//		this.maxx = nativeAABB.d;
+	//		this.maxy = nativeAABB.e;
+	//		this.maxz = nativeAABB.f;
+	//	}
 
 	public Vector getAABBMiddle(Location blockLoc) {
 		return new Vector(minx + (maxx - minx) / 2d, miny + (maxy - miny) / 2d, minz + (maxz - minz) / 2d).add(blockLoc.toVector());
+	}
+
+	public Location getMinLocation(World world) {
+		return new Location(world, minx, miny, minz);
+	}
+
+	public Location getMaxLocation(World world) {
+		return new Location(world, maxx, maxy, maxz);
 	}
 
 	public PipeDirection rayIntersection(Vector ray, Vector rayOrigin, Location pipeBlockLoc) {

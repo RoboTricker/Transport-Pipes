@@ -47,7 +47,7 @@ public class PipePacketManager implements Listener {
 	public void updatePipe(Pipe pipe) {
 		//notify pipe that some connections might have changed. Knowing this the iron pipe can change its output direction for example.
 		pipe.notifyConnectionsChange();
-		
+
 		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.updatePipeASD(pipe);
 		}
@@ -68,7 +68,7 @@ public class PipePacketManager implements Listener {
 			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
 			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
-					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
+					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
 						spawnItem(on, pipeItem);
 					}
 				}
@@ -83,7 +83,7 @@ public class PipePacketManager implements Listener {
 			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
 			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
-					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
+					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
 						TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
 					}
 				}
@@ -159,7 +159,7 @@ public class PipePacketManager implements Listener {
 								if (!pipe.blockLoc.getWorld().equals(on.getWorld())) {
 									continue;
 								}
-								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
+								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
 									//spawn pipe if not spawned
 									spawnPipe(on, pipe);
 								} else {
@@ -167,15 +167,17 @@ public class PipePacketManager implements Listener {
 									despawnPipe(on, pipe);
 								}
 
-								for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
-									PipeItem item = pipe.pipeItems.keySet().toArray(new PipeItem[0])[i2];
-									if (!item.getBlockLoc().getWorld().equals(on.getWorld())) {
-										continue;
-									}
-									if (item.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.loadPlayerSettings(on).getRenderDistance()) {
-										spawnItem(on, item);
-									} else {
-										despawnItem(on, item);
+								synchronized (pipe.pipeItems) {
+									for (int i2 = 0; i2 < pipe.pipeItems.size(); i2++) {
+										PipeItem item = pipe.pipeItems.keySet().toArray(new PipeItem[0])[i2];
+										if (!item.getBlockLoc().getWorld().equals(on.getWorld())) {
+											continue;
+										}
+										if (item.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
+											spawnItem(on, item);
+										} else {
+											despawnItem(on, item);
+										}
 									}
 								}
 

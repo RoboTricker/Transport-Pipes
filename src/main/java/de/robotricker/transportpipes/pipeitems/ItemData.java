@@ -1,13 +1,14 @@
 package de.robotricker.transportpipes.pipeitems;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 import org.jnbt.Tag;
 
-import de.robotricker.transportpipes.pipes.types.GoldenPipe.FilteringMode;
+import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 
@@ -24,20 +25,41 @@ public class ItemData {
 		return item.clone();
 	}
 
-	public boolean equals(Object obj, FilteringMode filteringMode) {
-		if (obj != null && obj instanceof ItemData) {
-			ItemData o = (ItemData) obj;
-			if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE_NBT) {
-				return o.item.isSimilar(item);
-			} else if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE) {
-				return o.item.getType() == item.getType() && o.item.getDurability() == item.getDurability();
-			} else if (filteringMode == FilteringMode.FILTERBY_TYPE_NBT) {
-				return o.item.getType() == item.getType() && o.item.getItemMeta().equals(item.getItemMeta());
-			} else if (filteringMode == FilteringMode.FILTERBY_TYPE) {
-				return o.item.getType() == item.getType();
-			}
+	public boolean checkFilter(List<ItemData> filterItems, FilteringMode filteringMode) {
+		return checkFilter(filterItems, filteringMode, false);
+	}
+
+	/**
+	 * returns whether the given filter accepts this item object
+	 */
+	public boolean checkFilter(List<ItemData> filterItems, FilteringMode filteringMode, boolean ignoreEmpty) {
+		if (filteringMode == FilteringMode.BLOCK_ALL) {
+			return false;
 		}
-		return false;
+		if (!ignoreEmpty && filterItems.isEmpty()) {
+			return true;
+		}
+		if (filteringMode == FilteringMode.INVERT) {
+			boolean equals = false;
+			for (ItemData filterItem : filterItems) {
+				equals |= filterItem.item.isSimilar(item);
+			}
+			return !equals;
+		} else {
+			boolean equals = false;
+			for (ItemData filterItem : filterItems) {
+				if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE_NBT) {
+					equals |= filterItem.item.isSimilar(item);
+				} else if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE) {
+					equals |= filterItem.item.getType() == item.getType() && filterItem.item.getDurability() == item.getDurability();
+				} else if (filteringMode == FilteringMode.FILTERBY_TYPE_NBT) {
+					equals |= filterItem.item.getType() == item.getType() && filterItem.item.getItemMeta().equals(item.getItemMeta());
+				} else if (filteringMode == FilteringMode.FILTERBY_TYPE) {
+					equals |= filterItem.item.getType() == item.getType();
+				}
+			}
+			return equals;
+		}
 	}
 
 	public CompoundTag toNBTTag() {
