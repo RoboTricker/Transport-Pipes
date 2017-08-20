@@ -8,6 +8,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.inventory.DoubleChestInventory;
@@ -38,7 +39,8 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
+	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems,
+			FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
@@ -118,14 +120,16 @@ public class SimpleInventoryContainer extends BlockContainer {
 		if (cachedInv.getHolder() instanceof DoubleChest) {
 			DoubleChest dc = (DoubleChest) cachedInv.getHolder();
 			Location otherChestLoc = null;
-			Location leftChestLoc = ((Chest) dc.getLeftSide()).getLocation();
-			Location rightChestLoc = ((Chest) dc.getRightSide()).getLocation();
-			if (leftChestLoc.getBlockX() == block.getX() && leftChestLoc.getBlockY() == block.getY() && leftChestLoc.getBlockZ() == block.getZ()) {
+			Location leftChestLoc = ((BlockState) dc.getLeftSide()).getLocation();
+			Location rightChestLoc = ((BlockState) dc.getRightSide()).getLocation();
+			if (leftChestLoc.getBlockX() == block.getX() && leftChestLoc.getBlockY() == block.getY()
+					&& leftChestLoc.getBlockZ() == block.getZ()) {
 				otherChestLoc = rightChestLoc;
 			} else {
 				otherChestLoc = leftChestLoc;
 			}
-			Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(block.getWorld());
+			Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance
+					.getContainerMap(block.getWorld());
 
 			if (containerMap != null) {
 				BlockLoc bl = BlockLoc.convertBlockLoc(otherChestLoc);
