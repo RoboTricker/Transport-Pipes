@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.robotricker</groupId>
@@ -96,7 +98,8 @@
 							<version>${project.version}</version>
 							<type>${project.packaging}</type>
 							<overWrite>true</overWrite>
-							<outputDirectory>C:\Users\rosts\Desktop\Server\Minecraft 1.12\plugins</outputDirectory>
+							<outputDirectory>C:\Users\rosts\Desktop\Server\Minecraft
+								1.12\plugins</outputDirectory>
 							<destFileName>transportpipes-devbuild.jar</destFileName>
 						</artifactItem>
 					</artifactItems>
@@ -179,12 +182,6 @@
 			</exclusions>
 		</dependency>
 		<!-- JNBT -->
-		<dependency>
-			<groupId>org.jnbt</groupId>
-			<artifactId>jnbt</artifactId>
-			<version>1.7-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
 		<!-- ProtocolLib -->
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
@@ -239,7 +236,16 @@
 			<version>0.0.4-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		<!--<dependency> <groupId>com.destroystokyo.paper</groupId> <artifactId>paper-api</artifactId> <version>1.12-R0.1-20170715.200138-36</version> <scope>provided</scope> </dependency> -->
-		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) <dependency> <groupId>org.bukkit</groupId> <artifactId>craftbukkit</artifactId> <version>1.12</version> <scope>provided</scope> </dependency> -->
+		<dependency>
+			<groupId>com.flowpowered</groupId>
+			<artifactId>flow-nbt</artifactId>
+			<version>1.0.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<!--<dependency> <groupId>com.destroystokyo.paper</groupId> <artifactId>paper-api</artifactId> 
+			<version>1.12-R0.1-20170715.200138-36</version> <scope>provided</scope> </dependency> -->
+		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) 
+			<dependency> <groupId>org.bukkit</groupId> <artifactId>craftbukkit</artifactId> 
+			<version>1.12</version> <scope>provided</scope> </dependency> -->
 	</dependencies>
 </project>

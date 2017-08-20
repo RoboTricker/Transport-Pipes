@@ -15,10 +15,11 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.CompoundTag;
-import org.jnbt.IntTag;
-import org.jnbt.NBTTagType;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.IntTag;
+import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -142,6 +143,7 @@ public abstract class Pipe {
 
 				if (splittedItemsMap == null || splittedItemsMap.isEmpty()) {
 					fullyRemovePipeItemFromSystem(item, splittedItemsMap != null);
+					continue;
 				}
 
 				final ItemStack itemStack = item.getItem().clone();
@@ -288,18 +290,18 @@ public abstract class Pipe {
 		OUTPUT_TO_NEXT_PIPE()
 	}
 
-	public void saveToNBTTag(HashMap<String, Tag> tags) {
+	public void saveToNBTTag(CompoundMap tags) {
 		NBTUtils.saveIntValue(tags, "PipeType", getPipeType().getId());
 		NBTUtils.saveStringValue(tags, "PipeLocation", PipeUtils.LocToString(blockLoc));
 
-		List<Tag> itemList = new ArrayList<>();
+		List<Tag<?>> itemList = new ArrayList<>();
 
 		Map<PipeItem, PipeDirection> pipeItemMap = new HashMap<>();
 		pipeItemMap.putAll(pipeItems);
 		pipeItemMap.putAll(tempPipeItems);
 		pipeItemMap.putAll(tempPipeItemsWithSpawn);
 		for (PipeItem pipeItem : pipeItemMap.keySet()) {
-			HashMap<String, Tag> itemMap = new HashMap<>();
+			CompoundMap itemMap = new CompoundMap();
 
 			NBTUtils.saveStringValue(itemMap, "RelLoc", pipeItem.relLoc().toString());
 			NBTUtils.saveIntValue(itemMap, "Direction", pipeItemMap.get(pipeItem).getId());
@@ -307,24 +309,23 @@ public abstract class Pipe {
 
 			itemList.add(new CompoundTag("PipeItem", itemMap));
 		}
-		NBTUtils.saveListValue(tags, "PipeItems", NBTTagType.TAG_COMPOUND, itemList);
+		NBTUtils.saveListValue(tags, "PipeItems", CompoundTag.class, itemList);
 
-		List<Tag> neighborPipesList = new ArrayList<>();
+		List<Tag<?>> neighborPipesList = new ArrayList<>();
 		List<PipeDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
 		for (PipeDirection pd : neighborPipes) {
 			neighborPipesList.add(new IntTag("Direction", pd.getId()));
 		}
-		NBTUtils.saveListValue(tags, "NeighborPipes", NBTTagType.TAG_INT, neighborPipesList);
+		NBTUtils.saveListValue(tags, "NeighborPipes", IntTag.class, neighborPipesList);
 
 	}
 
 	public void loadFromNBTTag(CompoundTag tag) {
-		Map<String, Tag> compoundValues = tag.getValue();
-
-		List<Tag> pipeItems = NBTUtils.readListTag(compoundValues.get("PipeItems"));
-		for (Tag itemTag : pipeItems) {
+		CompoundMap compoundValues = tag.getValue();
+		List<Tag<?>> pipeItems = NBTUtils.readListTag(compoundValues.get("PipeItems"));
+		for (Tag<?> itemTag : pipeItems) {
 			CompoundTag itemCompoundTag = (CompoundTag) itemTag;
-			Map<String, Tag> itemMap = itemCompoundTag.getValue();
+			CompoundMap itemMap = itemCompoundTag.getValue();
 
 			RelLoc relLoc = RelLoc.fromString(NBTUtils.readStringTag(itemMap.get("RelLoc"), null));
 			PipeDirection dir = PipeDirection.fromID(NBTUtils.readIntTag(itemMap.get("Direction"), 0));

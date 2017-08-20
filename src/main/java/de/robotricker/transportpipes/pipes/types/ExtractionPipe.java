@@ -13,9 +13,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.CompoundTag;
-import org.jnbt.NBTTagType;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -114,13 +115,13 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public void saveToNBTTag(HashMap<String, Tag> tags) {
+	public void saveToNBTTag(CompoundMap tags) {
 		super.saveToNBTTag(tags);
 		NBTUtils.saveIntValue(tags, "ExtractDirection", extractDirection == null ? -1 : extractDirection.getId());
 		NBTUtils.saveIntValue(tags, "ExtractCondition", extractCondition.getId());
 		NBTUtils.saveIntValue(tags, "ExtractAmount", extractAmount.getId());
 
-		List<Tag> lineList = new ArrayList<>();
+		List<Tag<?>> lineList = new ArrayList<>();
 		for (int i = 0; i < filteringItems.length; i++) {
 			ItemData itemData = filteringItems[i];
 			if (itemData != null) {
@@ -129,7 +130,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 				lineList.add(ItemData.createNullItemNBTTag());
 			}
 		}
-		NBTUtils.saveListValue(tags, "Items", NBTTagType.TAG_COMPOUND, lineList);
+		NBTUtils.saveListValue(tags, "Items", CompoundTag.class, lineList);
 		NBTUtils.saveIntValue(tags, "FilteringMode", filteringMode.getId());
 
 	}
@@ -137,25 +138,25 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	@Override
 	public void loadFromNBTTag(CompoundTag tag) {
 		super.loadFromNBTTag(tag);
-		int extractDirectionId = NBTUtils.readIntTag(tag.getTag("ExtractDirection"), -1);
+		int extractDirectionId = NBTUtils.readIntTag(tag.getValue().get("ExtractDirection"), -1);
 		if (extractDirectionId == -1) {
 			setExtractDirection(null);
 		} else {
 			setExtractDirection(PipeDirection.fromID(extractDirectionId));
 		}
-		setExtractCondition(ExtractCondition.fromId(NBTUtils.readIntTag(tag.getTag("ExtractCondition"), ExtractCondition.NEEDS_REDSTONE.getId())));
-		setExtractAmount(ExtractAmount.fromId(NBTUtils.readIntTag(tag.getTag("ExtractAmount"), ExtractAmount.EXTRACT_1.getId())));
+		setExtractCondition(ExtractCondition.fromId(NBTUtils.readIntTag(tag.getValue().get("ExtractCondition"), ExtractCondition.NEEDS_REDSTONE.getId())));
+		setExtractAmount(ExtractAmount.fromId(NBTUtils.readIntTag(tag.getValue().get("ExtractAmount"), ExtractAmount.EXTRACT_1.getId())));
 
-		List<Tag> itemsList = NBTUtils.readListTag(tag.getTag("Items"));
+		List<Tag<?>> itemsList = NBTUtils.readListTag(tag.getValue().get("Items"));
 		int i = 0;
-		for (Tag itemTag : itemsList) {
+		for (Tag<?> itemTag : itemsList) {
 			if (itemsList.size() > i) {
 				ItemData itemData = ItemData.fromNBTTag((CompoundTag) itemTag);
 				filteringItems[i] = itemData;
 			}
 			i++;
 		}
-		setFilteringMode(FilteringMode.fromId(NBTUtils.readIntTag(tag.getTag("FilteringMode"), FilteringMode.FILTERBY_TYPE_DAMAGE_NBT.getId())));
+		setFilteringMode(FilteringMode.fromId(NBTUtils.readIntTag(tag.getValue().get("FilteringMode"), FilteringMode.FILTERBY_TYPE_DAMAGE_NBT.getId())));
 	}
 
 	@Override

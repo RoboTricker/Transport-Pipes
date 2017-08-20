@@ -9,8 +9,9 @@ import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.CompoundTag;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -115,7 +116,7 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	public void saveToNBTTag(HashMap<String, Tag> tags) {
+	public void saveToNBTTag(CompoundMap tags) {
 		super.saveToNBTTag(tags);
 		NBTUtils.saveStringValue(tags, "PipeColor", pipeColor.name());
 	}

@@ -10,9 +10,10 @@ import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.CompoundTag;
-import org.jnbt.NBTTagType;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -143,17 +144,17 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public void saveToNBTTag(HashMap<String, Tag> tags) {
+	public void saveToNBTTag(CompoundMap tags) {
 		super.saveToNBTTag(tags);
 
-		List<Tag> linesList = new ArrayList<Tag>();
+		List<Tag<?>> linesList = new ArrayList<>();
 
 		for (int line = 0; line < 6; line++) {
-			CompoundTag lineCompound = new CompoundTag("Line");
+			CompoundTag lineCompound = new CompoundTag("Line", new CompoundMap());
 
 			NBTUtils.saveIntValue(lineCompound.getValue(), "Line", line);
 
-			List<Tag> lineList = new ArrayList<>();
+			List<Tag<?>> lineList = new ArrayList<>();
 			for (int i = 0; i < filteringItems[line].length; i++) {
 				ItemData itemData = filteringItems[line][i];
 				if (itemData != null) {
@@ -162,14 +163,13 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					lineList.add(ItemData.createNullItemNBTTag());
 				}
 			}
-			NBTUtils.saveListValue(lineCompound.getValue(), "Items", NBTTagType.TAG_COMPOUND, lineList);
-
+			NBTUtils.saveListValue(lineCompound.getValue(), "Items", CompoundTag.class, lineList);
 			NBTUtils.saveIntValue(lineCompound.getValue(), "FilteringMode", getFilteringMode(line).getId());
 
 			linesList.add(lineCompound);
 		}
 
-		NBTUtils.saveListValue(tags, "Lines", NBTTagType.TAG_COMPOUND, linesList);
+		NBTUtils.saveListValue(tags, "Lines", CompoundTag.class, linesList);
 
 	}
 
@@ -177,12 +177,12 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	public void loadFromNBTTag(CompoundTag tag) {
 		super.loadFromNBTTag(tag);
 
-		Map<String, Tag> map = tag.getValue();
+		CompoundMap map = tag.getValue();
 		if (NBTUtils.readListTag(map.get("Lines")).isEmpty()) {
 			//old lines version
 			for (int line = 0; line < 6; line++) {
 
-				List<Tag> lineList = NBTUtils.readListTag(map.get("Line" + line));
+				List<Tag<?>> lineList = NBTUtils.readListTag(map.get("Line" + line));
 				for (int i = 0; i < filteringItems[line].length; i++) {
 					if (lineList.size() > i) {
 						ItemData itemData = ItemData.fromNBTTag((CompoundTag) lineList.get(i));
@@ -196,14 +196,14 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 			}
 		} else {
 			//new list version
-			List<Tag> linesList = NBTUtils.readListTag(map.get("Lines"));
-			for (Tag lineTag : linesList) {
+			List<Tag<?>> linesList = NBTUtils.readListTag(map.get("Lines"));
+			for (Tag<?> lineTag : linesList) {
 				CompoundTag lineCompound = (CompoundTag) lineTag;
 				int line = NBTUtils.readIntTag(lineCompound.getValue().get("Line"), -1);
 				if (line != -1) {
-					List<Tag> itemsList = NBTUtils.readListTag(lineCompound.getValue().get("Items"));
+					List<Tag<?>> itemsList = NBTUtils.readListTag(lineCompound.getValue().get("Items"));
 					int i = 0;
-					for (Tag itemTag : itemsList) {
+					for (Tag<?> itemTag : itemsList) {
 						if (itemsList.size() > i) {
 							ItemData itemData = ItemData.fromNBTTag((CompoundTag) itemTag);
 							filteringItems[line][i] = itemData;

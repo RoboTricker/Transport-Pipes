@@ -18,12 +18,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
-import org.jnbt.CompoundTag;
-import org.jnbt.NBTCompression;
-import org.jnbt.NBTInputStream;
-import org.jnbt.NBTOutputStream;
-import org.jnbt.NBTTagType;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.Tag;
+import com.flowpowered.nbt.stream.NBTInputStream;
+import com.flowpowered.nbt.stream.NBTOutputStream;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -58,11 +58,11 @@ public class SavingManager implements Listener {
 		saving = true;
 		int pipesCount = 0;
 		try {
-			HashMap<World, List<HashMap<String, Tag>>> worlds = new HashMap<>();
+			HashMap<World, List<CompoundMap>> worlds = new HashMap<>();
 
 			//cache worlds
 			for (World world : Bukkit.getWorlds()) {
-				List<HashMap<String, Tag>> pipeList = new ArrayList<>();
+				List<CompoundMap> pipeList = new ArrayList<>();
 				worlds.put(world, pipeList);
 
 				//put pipes in Tag Lists
@@ -71,7 +71,7 @@ public class SavingManager implements Listener {
 					synchronized (pipeMap) {
 						for (Pipe pipe : pipeMap.values()) {
 							//save individual pipe
-							HashMap<String, Tag> tags = new HashMap<>();
+							CompoundMap tags = new CompoundMap();
 							pipe.saveToNBTTag(tags);
 							pipeList.add(tags);
 							pipesCount++;
@@ -97,19 +97,19 @@ public class SavingManager implements Listener {
 						datFile.createNewFile();
 					}
 
-					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile), NBTCompression.GZIP);
+					NBTOutputStream out = new NBTOutputStream(new FileOutputStream(datFile), true);
 
-					HashMap<String, Tag> tags = new HashMap<>();
+					CompoundMap tags = new CompoundMap();
 
 					NBTUtils.saveStringValue(tags, "PluginVersion", TransportPipes.instance.getDescription().getVersion());
 					NBTUtils.saveLongValue(tags, "LastSave", System.currentTimeMillis());
 
-					List<HashMap<String, Tag>> rawPipeList = worlds.get(world);
-					List<Tag> finalPipeList = new ArrayList<>();
-					for (HashMap<String, Tag> map : rawPipeList) {
+					List<CompoundMap> rawPipeList = worlds.get(world);
+					List<Tag<?>> finalPipeList = new ArrayList<>();
+					for (CompoundMap map : rawPipeList) {
 						finalPipeList.add(new CompoundTag("Pipe", map));
 					}
-					NBTUtils.saveListValue(tags, "Pipes", NBTTagType.TAG_COMPOUND, finalPipeList);
+					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalPipeList);
 
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);
@@ -146,15 +146,17 @@ public class SavingManager implements Listener {
 				return;
 			}
 
+			
+			
 			CompoundTag compound = null;
 			NBTInputStream in = null;
 
 			try {
-				in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.GZIP);
+				in = new NBTInputStream(new FileInputStream(datFile), true);
 				compound = (CompoundTag) in.readTag();
 			} catch (EOFException | ZipException e) {
 				System.out.println("Wrong pipes.dat version detected. Converting to new nbt version");
-				in = new NBTInputStream(new FileInputStream(datFile), NBTCompression.UNCOMPRESSED);
+				in = new NBTInputStream(new FileInputStream(datFile), false);
 				compound = (CompoundTag) in.readTag();
 			}
 
@@ -167,9 +169,9 @@ public class SavingManager implements Listener {
 				System.out.println("Converting pipes.dat system to new system");
 			}
 
-			List<Tag> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
+			List<Tag<?>> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
 
-			for (Tag tag : pipeList) {
+			for (Tag<?> tag : pipeList) {
 				CompoundTag pipeTag = (CompoundTag) tag;
 
 				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
@@ -190,8 +192,8 @@ public class SavingManager implements Listener {
 				}
 
 				List<PipeDirection> neighborPipes = new ArrayList<PipeDirection>();
-				List<Tag> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
-				for (Tag neighborPipesEntry : neighborPipesList) {
+				List<Tag<?>> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
+				for (Tag<?> neighborPipesEntry : neighborPipesList) {
 					neighborPipes.add(PipeDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
 				}
 

@@ -10,8 +10,9 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.CompoundTag;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -39,7 +40,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public void saveToNBTTag(HashMap<String, Tag> tags) {
+	public void saveToNBTTag(CompoundMap tags) {
 		super.saveToNBTTag(tags);
 		NBTUtils.saveIntValue(tags, "OutputDirection", currentOutputDir.getId());
 	}

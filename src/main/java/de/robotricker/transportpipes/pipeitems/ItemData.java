@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.inventory.ItemStack;
-import org.jnbt.CompoundTag;
-import org.jnbt.Tag;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
@@ -63,20 +65,20 @@ public class ItemData {
 	}
 
 	public CompoundTag toNBTTag() {
-		Map<String, Tag> map = new HashMap<>();
+		CompoundMap map = new CompoundMap();
 		NBTUtils.saveStringValue(map, "Item", InventoryUtils.ItemStackToString(item));
 		return new CompoundTag("Item", map);
 	}
 
 	public static ItemData fromNBTTag(CompoundTag tag) {
-		Map<String, Tag> map = tag.getValue();
+		CompoundMap map = tag.getValue();
 		String rawItem = NBTUtils.readStringTag(map.get("Item"), null);
 		ItemStack item = InventoryUtils.StringToItemStack(rawItem);
 		return item != null ? new ItemData(item) : null;
 	}
 
 	public static CompoundTag createNullItemNBTTag() {
-		Map<String, Tag> map = new HashMap<>();
+		CompoundMap map = new CompoundMap();
 		return new CompoundTag("Item", map);
 	}
 
