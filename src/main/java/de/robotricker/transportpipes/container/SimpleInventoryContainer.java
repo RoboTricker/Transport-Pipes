@@ -118,15 +118,14 @@ public class SimpleInventoryContainer extends BlockContainer {
 
 	private void updateOtherDoubleChestBlocks() {
 		if (cachedInv.getHolder() instanceof DoubleChest) {
-			DoubleChest dc = (DoubleChest) cachedInv.getHolder();
+			Material chestMaterial = block.getType();
 			Location otherChestLoc = null;
-			Location leftChestLoc = ((BlockState) dc.getLeftSide()).getLocation();
-			Location rightChestLoc = ((BlockState) dc.getRightSide()).getLocation();
-			if (leftChestLoc.getBlockX() == block.getX() && leftChestLoc.getBlockY() == block.getY()
-					&& leftChestLoc.getBlockZ() == block.getZ()) {
-				otherChestLoc = rightChestLoc;
-			} else {
-				otherChestLoc = leftChestLoc;
+			for (PipeDirection pd : PipeDirection.values()) {
+				if (pd.isSide()) {
+					if (block.getRelative(pd.getX(), pd.getY(), pd.getZ()).getType() == chestMaterial) {
+						otherChestLoc = block.getRelative(pd.getX(), pd.getY(), pd.getZ()).getLocation();
+					}
+				}
 			}
 			Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance
 					.getContainerMap(block.getWorld());
