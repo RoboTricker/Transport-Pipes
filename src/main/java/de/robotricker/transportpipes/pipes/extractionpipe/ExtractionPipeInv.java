@@ -117,6 +117,8 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 2) {
 				e.setCancelled(true);
 
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				
 				pipe.checkAndUpdateExtractDirection(true);
 
 				// Update inv
@@ -127,6 +129,8 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 4) {
 				e.setCancelled(true);
 
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				
 				pipe.setExtractAmount(pipe.getExtractAmount().getNextAmount());
 
 				// Update inv
@@ -137,6 +141,8 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 6) {
 				e.setCancelled(true);
 
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				
 				pipe.setExtractCondition(pipe.getExtractCondition().getNextCondition());
 
 				// Update inv
