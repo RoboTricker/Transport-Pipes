@@ -1,5 +1,7 @@
 package de.robotricker.transportpipes.pipes;
 
+import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.pipeutils.config.GeneralConf;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,21 +17,23 @@ import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public enum PipeType {
 
-	COLORED(0, "", LocConf.PIPES_COLORED),
-	GOLDEN(1, "§6", LocConf.PIPES_GOLDEN),
-	IRON(2, "§7", LocConf.PIPES_IRON),
-	ICE(3, "§b", LocConf.PIPES_ICE),
-	VOID(4, "§5", LocConf.PIPES_VOID),
-	EXTRACTION(5, "§d", LocConf.PIPES_EXTRACTION);
+	COLORED(0, "", LocConf.PIPES_COLORED, TransportPipes.instance.generalConf.getPermissionCraftPipe()),
+	GOLDEN(1, "§6", LocConf.PIPES_GOLDEN, TransportPipes.instance.generalConf.getPermissionCraftGolden()),
+	IRON(2, "§7", LocConf.PIPES_IRON, TransportPipes.instance.generalConf.getPermissionCraftIron()),
+	ICE(3, "§b", LocConf.PIPES_ICE, TransportPipes.instance.generalConf.getPermissionCraftIce()),
+	VOID(4, "§5", LocConf.PIPES_VOID, TransportPipes.instance.generalConf.getPermissionCraftVoid()),
+	EXTRACTION(5, "§d", LocConf.PIPES_EXTRACTION, TransportPipes.instance.generalConf.getPermissionCraftExtraction());
 
 	private int id;
 	private String pipeName_colorCode;
 	private String pipeName_locConfKey;
+	private String craftingPermission;
 
-	PipeType(int id, String pipeName_colorCode, String pipeName_locConfKey) {
+	PipeType(int id, String pipeName_colorCode, String pipeName_locConfKey, String craftingPermission) {
 		this.id = id;
 		this.pipeName_colorCode = pipeName_colorCode;
 		this.pipeName_locConfKey = pipeName_locConfKey;
+		this.craftingPermission = craftingPermission;
 	}
 
 	public int getId() {
@@ -87,4 +91,7 @@ public enum PipeType {
 		return null;
 	}
 
+	public String getCraftingPermission() {
+		return craftingPermission;
+	}
 }

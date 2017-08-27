@@ -21,6 +21,13 @@ public class GeneralConf extends Conf {
 		saveAsDefault("permissions.creative", "tp.creative");
 		saveAsDefault("permissions.save", "tp.save");
 		saveAsDefault("permissions.delete", "tp.delete");
+		saveAsDefault("permissions.craft.pipe", "tp.craft.pipe");
+		saveAsDefault("permissions.craft.colored", "tp.craft.colored");
+		saveAsDefault("permissions.craft.golden", "tp.craft.golden");
+		saveAsDefault("permissions.craft.iron", "tp.craft.iron");
+		saveAsDefault("permissions.craft.ice", "tp.craft.ice");
+		saveAsDefault("permissions.craft.void", "tp.craft.void");
+		saveAsDefault("permissions.craft.extraction", "tp.craft.extraction");
 		saveAsDefault("anticheat_plugins", Arrays.asList("NoCheatPlus", "AAC", "CompatNoCheatPlus", "AntiCheatPlus"));
 		saveAsDefault("default_rendersystemId", 1);
 		saveAsDefault("default_renderdistance", 25);
@@ -67,6 +74,34 @@ public class GeneralConf extends Conf {
 
 	public String getPermissionDelete() {
 		return (String) read("permissions.delete");
+	}
+
+	public String getPermissionCraftPipe() {
+		return (String) read("permissions.craft.pipe");
+	}
+
+	public String getPermissionCraftColored() {
+		return (String) read("permissions.craft.colored");
+	}
+
+	public String getPermissionCraftGolden() {
+		return (String) read("permissions.craft.golden");
+	}
+
+	public String getPermissionCraftIron() {
+		return (String) read("permissions.craft.iron");
+	}
+
+	public String getPermissionCraftIce() {
+		return (String) read("permissions.craft.ice");
+	}
+
+	public String getPermissionCraftVoid() {
+		return (String) read("permissions.craft.void");
+	}
+
+	public String getPermissionCraftExtraction() {
+		return (String) read("permissions.craft.extraction");
 	}
 
 	@SuppressWarnings("unchecked")
