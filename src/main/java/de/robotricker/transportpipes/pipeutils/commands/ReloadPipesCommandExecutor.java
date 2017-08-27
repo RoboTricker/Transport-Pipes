@@ -10,7 +10,7 @@ public class ReloadPipesCommandExecutor implements PipesCommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs, String[] args) {
-		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionReload())) {
+		if (!cs.hasPermission("transportpipes.reload")) {
 			return false;
 		}
 

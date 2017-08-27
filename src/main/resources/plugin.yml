@@ -9,3 +9,23 @@ loadbefore: [ProtocolLib, AuthMe, LogisticsAPI]
 commands:
   transportpipes:
     aliases: [transportpipe, tpipes, tpipe, pipes, pipe]
+permissions:
+  transportpipes.*:
+    children:
+      transportpipes.tps: true
+      transportpipes.reload: true
+      transportpipes.update: true
+      transportpipes.creative: true
+      transportpipes.save: true
+      transportpipes.delete: true
+      transportpipes.craft: true
+  transportpipes.craft.*:
+    default: true
+    children:
+      transportpipes.craft.coloredpipe: true
+      transportpipes.craft.extractionpipe: true
+      transportpipes.craft.goldenpipe: true
+      transportpipes.craft.icepipe: true
+      transportpipes.craft.ironpipe: true
+      transportpipes.craft.voidpipe: true
+      transportpipes.craft.wrench: true

@@ -157,23 +157,23 @@ public class TransportPipes extends JavaPlugin {
 									TransportPipes.instance.getDescription().getVersion())));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
 							"&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
-					if (cs.hasPermission(generalConf.getPermissionTps()))
+					if (cs.hasPermission("transportpipes.tps"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
 								"&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
-					if (cs.hasPermission(generalConf.getPermissionCreative()))
+					if (cs.hasPermission("transportpipes.creative"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
 								"&6/tpipes creative &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_CREATIVE)));
-					if (cs.hasPermission(generalConf.getPermissionReload()))
+					if (cs.hasPermission("transportpipes.reload"))
 						cs.sendMessage(
 								ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- "
 										+ LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
-					if (cs.hasPermission(generalConf.getPermissionUpdate()))
+					if (cs.hasPermission("transportpipes.update"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
 								"&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
-					if (cs.hasPermission(generalConf.getPermissionSave()))
+					if (cs.hasPermission("transportpipes.save"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
 								"&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
-					if (cs.hasPermission(generalConf.getPermissionDelete()))
+					if (cs.hasPermission("transportpipes.delete"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
 								"&6/tpipes delete <Radius> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_DELETE)));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', LocConf.load(LocConf.COMMANDS_FOOTER)));

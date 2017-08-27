@@ -18,7 +18,7 @@ public class DeletePipesCommandExecutor implements PipesCommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs, String[] args) {
-		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionDelete())) {
+		if (!cs.hasPermission("transportpipes.delete")) {
 			return false;
 		}
 

@@ -17,7 +17,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender cs, String[] args) {
-		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionTps())) {
+		if (!cs.hasPermission("transportpipes.tps")) {
 			return false;
 		}
 		int tps = TransportPipes.instance.pipeThread.getCalculatedTps();

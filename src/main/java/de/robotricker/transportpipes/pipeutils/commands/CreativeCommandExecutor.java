@@ -17,7 +17,7 @@ public class CreativeCommandExecutor implements PipesCommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender cs, String[] args) {
 
-		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionCreative())) {
+		if (!cs.hasPermission("transportpipes.creative")) {
 			return false;
 		}
 

@@ -10,7 +10,7 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender cs, String[] args) {
 
-		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionSave())) {
+		if (!cs.hasPermission("transportpipes.save")) {
 			return false;
 		}
 

@@ -30,37 +30,37 @@ public class PipeItemUtils {
 			}
 			switch (pipeColor) {
 			case WHITE:
-				return InventoryUtils.changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+				return InventoryUtils.changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName()).clone();
 			case BLUE:
-				return InventoryUtils.changeDisplayName(ITEM_PIPE_BLUE, PipeColor.BLUE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+				return InventoryUtils.changeDisplayName(ITEM_PIPE_BLUE, PipeColor.BLUE.getColorCode() + PipeType.COLORED.getFormattedPipeName()).clone();
 			case RED:
-				return InventoryUtils.changeDisplayName(ITEM_PIPE_RED, PipeColor.RED.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+				return InventoryUtils.changeDisplayName(ITEM_PIPE_RED, PipeColor.RED.getColorCode() + PipeType.COLORED.getFormattedPipeName()).clone();
 			case YELLOW:
-				return InventoryUtils.changeDisplayName(ITEM_PIPE_YELLOW, PipeColor.YELLOW.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+				return InventoryUtils.changeDisplayName(ITEM_PIPE_YELLOW, PipeColor.YELLOW.getColorCode() + PipeType.COLORED.getFormattedPipeName()).clone();
 			case GREEN:
-				return InventoryUtils.changeDisplayName(ITEM_PIPE_GREEN, PipeColor.GREEN.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+				return InventoryUtils.changeDisplayName(ITEM_PIPE_GREEN, PipeColor.GREEN.getColorCode() + PipeType.COLORED.getFormattedPipeName()).clone();
 			case BLACK:
-				return InventoryUtils.changeDisplayName(ITEM_PIPE_BLACK, PipeColor.BLACK.getColorCode() + PipeType.COLORED.getFormattedPipeName());
+				return InventoryUtils.changeDisplayName(ITEM_PIPE_BLACK, PipeColor.BLACK.getColorCode() + PipeType.COLORED.getFormattedPipeName()).clone();
 			default:
 				return null;
 			}
 		case GOLDEN:
-			return InventoryUtils.changeDisplayName(ITEM_PIPE_GOLDEN, PipeType.GOLDEN.getFormattedPipeName());
+			return InventoryUtils.changeDisplayName(ITEM_PIPE_GOLDEN, PipeType.GOLDEN.getFormattedPipeName()).clone();
 		case IRON:
-			return InventoryUtils.changeDisplayName(ITEM_PIPE_IRON, PipeType.IRON.getFormattedPipeName());
+			return InventoryUtils.changeDisplayName(ITEM_PIPE_IRON, PipeType.IRON.getFormattedPipeName()).clone();
 		case ICE:
-			return InventoryUtils.changeDisplayName(ITEM_PIPE_ICE, PipeType.ICE.getFormattedPipeName());
+			return InventoryUtils.changeDisplayName(ITEM_PIPE_ICE, PipeType.ICE.getFormattedPipeName()).clone();
 		case VOID:
-			return InventoryUtils.changeDisplayName(ITEM_PIPE_VOID, PipeType.VOID.getFormattedPipeName());
+			return InventoryUtils.changeDisplayName(ITEM_PIPE_VOID, PipeType.VOID.getFormattedPipeName()).clone();
 		case EXTRACTION:
-			return InventoryUtils.changeDisplayName(ITEM_PIPE_EXTRACTION, PipeType.EXTRACTION.getFormattedPipeName());
+			return InventoryUtils.changeDisplayName(ITEM_PIPE_EXTRACTION, PipeType.EXTRACTION.getFormattedPipeName()).clone();
 		default:
 			return null;
 		}
 	}
 
 	public static ItemStack getWrenchItem() {
-		return InventoryUtils.changeDisplayName(ITEM_WRENCH, TransportPipes.instance.getFormattedWrenchName());
+		return InventoryUtils.changeDisplayName(ITEM_WRENCH, TransportPipes.instance.getFormattedWrenchName()).clone();
 	}
 
 	public static boolean isItemStackWrench(ItemStack clickedItem) {
