@@ -34,7 +34,7 @@ public abstract class PipeRenderSystem implements Listener {
 	public abstract void updatePipeASD(Pipe pipe);
 
 	/**
-	 * removes all ASD associated with this pipe and sends this removed ASD to all clients with this PipeManager
+	 * removes all ASD associated with this pipe
 	 */
 	public abstract void destroyPipeASD(Pipe pipe);
 

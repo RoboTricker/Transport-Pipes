@@ -14,7 +14,7 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 			return false;
 		}
 
-		SavingManager.savePipesAsync();
+		TransportPipes.instance.savingManager.savePipesAsync(true);
 //		Block b = ((Player) cs).getTargetBlock((HashSet<Material>) null, 10);
 //		if (b != null) {
 //			AxisAlignedBB aabb = new AxisAlignedBB(((Player) cs).getTargetBlock((HashSet<Material>) null, 10));

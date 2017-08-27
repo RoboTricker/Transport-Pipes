@@ -52,7 +52,7 @@ public class PipeAPI {
 	 * Returns the current ticks per second of the TransportPipes thread.
 	 */
 	public static int getTPS() {
-		return PipeThread.getCalculatedTps();
+		return TransportPipes.instance.pipeThread.getCalculatedTps();
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class PipeAPI {
 		}
 
 		for (Pipe pipe : toDestroy) {
-			destroyPipe(pipe.blockLoc);
+			destroyPipe(pipe.getBlockLoc());
 		}
 	}
 
@@ -129,7 +129,7 @@ public class PipeAPI {
 	 * Puts any item into the given pipe object with a moving direction of "itemDirection".
 	 */
 	public static void putItemInPipe(Pipe pipe, ItemStack item, PipeDirection itemDirection) {
-		PipeItem pi = new PipeItem(item, pipe.blockLoc, itemDirection);
+		PipeItem pi = new PipeItem(item, pipe.getBlockLoc(), itemDirection);
 		pipe.tempPipeItemsWithSpawn.put(pi, itemDirection);
 	}
 
@@ -159,11 +159,11 @@ public class PipeAPI {
 				bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
 				if (pipeMap.containsKey(bl)) {
 					final Pipe pipe = pipeMap.get(bl);
-					PipeThread.runTask(new Runnable() {
+					TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 						@Override
 						public void run() {
-							TransportPipes.pipePacketManager.updatePipe(pipe);
+							TransportPipes.instance.pipePacketManager.updatePipe(pipe);
 						}
 					}, 0);
 				}
@@ -189,11 +189,11 @@ public class PipeAPI {
 						bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
 						if (pipeMap.containsKey(bl)) {
 							final Pipe pipe = pipeMap.get(bl);
-							PipeThread.runTask(new Runnable() {
+							TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 								@Override
 								public void run() {
-									TransportPipes.pipePacketManager.updatePipe(pipe);
+									TransportPipes.instance.pipePacketManager.updatePipe(pipe);
 								}
 							}, 0);
 						}

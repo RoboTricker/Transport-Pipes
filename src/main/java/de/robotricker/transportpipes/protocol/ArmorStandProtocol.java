@@ -42,11 +42,11 @@ public class ArmorStandProtocol {
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
 	public PipeRenderSystem getPlayerPipeRenderSystem(Player p) {
-		return SettingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
+		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
 	}
 
 	public boolean isPlayerShowItems(Player p) {
-		return SettingsUtils.getOrLoadPlayerSettings(p).isShowItems();
+		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).isShowItems();
 	}
 
 	public List<Player> getAllPlayersWithPipeManager(PipeRenderSystem renderSystem) {
@@ -56,7 +56,7 @@ public class ArmorStandProtocol {
 		Iterator<Player> it = players.iterator();
 		while (it.hasNext()) {
 			Player p = it.next();
-			//remove all players which don't use the given PipeRenderSystem
+			// remove all players which don't use the given PipeRenderSystem
 			if (!getPlayerPipeRenderSystem(p).equals(renderSystem)) {
 				it.remove();
 			}
@@ -70,13 +70,15 @@ public class ArmorStandProtocol {
 	}
 
 	/**
-	 * not updating Item -> only sending (this is also sent when the player comes near enough to see the item even if the item is already in a pipe)
+	 * not updating Item -> only sending (this is also sent when the player comes
+	 * near enough to see the item even if the item is already in a pipe)
 	 */
 	public void sendPipeItem(Player p, PipeItem item) {
-		if(!isPlayerShowItems(p)) {
+		if (!isPlayerShowItems(p)) {
 			return;
 		}
-		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d, item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
+		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d,
+				item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
 	}
 
 	public void updatePipeItem(Player p, PipeItem item) {
@@ -94,45 +96,47 @@ public class ArmorStandProtocol {
 	}
 
 	public void changePipeRenderSystem(Player p, PipeRenderSystem newRenderSystem) {
-		//despawn all old pipes
+		// despawn all old pipes
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
 		if (pipeMap != null) {
 			synchronized (pipeMap) {
 				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.pipePacketManager.despawnPipe(p, pipe);
+					TransportPipes.instance.pipePacketManager.despawnPipe(p, pipe);
 				}
 			}
 		}
 
-		//change render system
-		SettingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystem.getRenderSystemId());
-		newRenderSystem.initPlayer(p);
+		if (newRenderSystem != null) {
+			// change render system
+			TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystem.getRenderSystemId());
+			newRenderSystem.initPlayer(p);
 
-		//spawn all new pipes
-		if (pipeMap != null) {
-			synchronized (pipeMap) {
-				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.pipePacketManager.spawnPipe(p, pipe);
+			// spawn all new pipes
+			if (pipeMap != null) {
+				synchronized (pipeMap) {
+					for (Pipe pipe : pipeMap.values()) {
+						TransportPipes.instance.pipePacketManager.spawnPipe(p, pipe);
+					}
 				}
 			}
 		}
 	}
 
 	public void changeShowItems(Player p, boolean showItems) {
-		SettingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
+		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
 	}
 
 	public void reloadPipeRenderSystem(Player p) {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
 		if (pipeMap != null) {
 			synchronized (pipeMap) {
-				//despawn all pipes
+				// despawn all pipes
 				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.pipePacketManager.despawnPipe(p, pipe);
+					TransportPipes.instance.pipePacketManager.despawnPipe(p, pipe);
 				}
-				//spawn all pipes
+				// spawn all pipes
 				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.pipePacketManager.spawnPipe(p, pipe);
+					TransportPipes.instance.pipePacketManager.spawnPipe(p, pipe);
 				}
 			}
 		}
@@ -147,11 +151,11 @@ public class ArmorStandProtocol {
 				asd.setEntityID(++nextEntityID);
 			}
 
-			//SPAWN ENTITY
+			// SPAWN ENTITY
 			WrapperPlayServerSpawnEntity spawnWrapper = new WrapperPlayServerSpawnEntity();
 			spawnWrapper.setEntityID(asd.getEntityID());
 			spawnWrapper.setUniqueId(uuid);
-			spawnWrapper.setType(78); //object id: ArmorStand (http://wiki.vg/Protocol#Spawn_Object)
+			spawnWrapper.setType(78); // object id: ArmorStand (http://wiki.vg/Protocol#Spawn_Object)
 			spawnWrapper.setX(blockLoc.getX() + asd.getLoc().getFloatX() + itemOffset.getX());
 			spawnWrapper.setY(blockLoc.getY() + asd.getLoc().getFloatY() + itemOffset.getY());
 			spawnWrapper.setZ(blockLoc.getZ() + asd.getLoc().getFloatZ() + itemOffset.getZ());
@@ -167,50 +171,71 @@ public class ArmorStandProtocol {
 			double yaw = Math.toDegrees((theta + 2 * Math.PI) % (2 * Math.PI));
 
 			spawnWrapper.setYaw((float) yaw);
-			spawnWrapper.setObjectData(0); //without random velocity
+			spawnWrapper.setObjectData(0); // without random velocity
 			spawnWrapper.sendPacket(p);
 
-			//ENTITYMETADATA
+			// ENTITYMETADATA
 			WrapperPlayServerEntityMetadata metaWrapper = new WrapperPlayServerEntityMetadata();
 			metaWrapper.setEntityID(asd.getEntityID());
 
-			byte bitMask = (byte) ((asd.isSmall() ? 0x01 : 0x00) | 0x04 | 0x08 | 0x10); //(small) + hasArms + noBasePlate + Marker
+			byte bitMask = (byte) ((asd.isSmall() ? 0x01 : 0x00) | 0x04 | 0x08 | 0x10); // (small) + hasArms +
+																						// noBasePlate + Marker
 
 			List<WrappedWatchableObject> metaList = new ArrayList<>();
-			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(3, booleanSerializer), false));//customname invisible
-			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, byteSerializer), bitMask));//armorstand specific data...
-			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x20)));//invisible (entity specific data)
-			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 11 : 12, vectorSerializer), ReflectionManager.createVector3f((float) asd.getHeadRotation().getX(), (float) asd.getHeadRotation().getY(), (float) asd.getHeadRotation().getZ())));//head rot
-			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 14 : 15, vectorSerializer), ReflectionManager.createVector3f((float) asd.getArmRotation().getX(), (float) asd.getArmRotation().getY(), (float) asd.getArmRotation().getZ())));//right arm rot
+			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(3, booleanSerializer), false));// customname
+																												// invisible
+			metaList.add(new WrappedWatchableObject(
+					new WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, byteSerializer), bitMask));// armorstand
+																											// specific
+																											// data...
+			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x20)));// invisible
+																														// (entity
+																														// specific
+																														// data)
+			metaList.add(new WrappedWatchableObject(
+					new WrappedDataWatcherObject(serverVersion <= 110 ? 11 : 12, vectorSerializer),
+					ReflectionManager.createVector3f((float) asd.getHeadRotation().getX(),
+							(float) asd.getHeadRotation().getY(), (float) asd.getHeadRotation().getZ())));// head rot
+			metaList.add(new WrappedWatchableObject(
+					new WrappedDataWatcherObject(serverVersion <= 110 ? 14 : 15, vectorSerializer),
+					ReflectionManager.createVector3f((float) asd.getArmRotation().getX(),
+							(float) asd.getArmRotation().getY(), (float) asd.getArmRotation().getZ())));// right arm rot
 
 			metaWrapper.setMetadata(metaList);
 			metaWrapper.sendPacket(p);
 
-			//ENTITYEQUIPMENT
+			// ENTITYEQUIPMENT
 			final WrapperPlayServerEntityEquipment equipmentWrapper = new WrapperPlayServerEntityEquipment();
 			equipmentWrapper.setEntityID(asd.getEntityID());
 
-			//HAND ITEM
+			// HAND ITEM
 			if (asd.getHandItem() != null) {
 				equipmentWrapper.setSlot(ItemSlot.MAINHAND);
 				equipmentWrapper.setItem(asd.getHandItem());
 			}
 
-			//HEAD ITEM
+			// HEAD ITEM
 			if (asd.getHeadItem() != null) {
 				equipmentWrapper.setSlot(ItemSlot.HEAD);
 				equipmentWrapper.setItem(asd.getHeadItem());
 			}
 
-			//ENTITYMETADATA 2 (fire)
+			// ENTITYMETADATA 2 (fire)
 			final WrapperPlayServerEntityMetadata meta2Wrapper = new WrapperPlayServerEntityMetadata();
 			meta2Wrapper.setEntityID(asd.getEntityID());
 
 			List<WrappedWatchableObject> meta2List = new ArrayList<>();
-			meta2List.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x01 | 0x20)));//on fire + invisible (entity specific data)
+			meta2List.add(
+					new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x01 | 0x20)));// on
+																														// fire
+																														// +
+																														// invisible
+																														// (entity
+																														// specific
+																														// data)
 			meta2Wrapper.setMetadata(meta2List);
 
-			PipeThread.runTask(new Runnable() {
+			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				@Override
 				public void run() {

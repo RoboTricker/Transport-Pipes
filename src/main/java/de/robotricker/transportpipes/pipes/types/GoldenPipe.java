@@ -34,11 +34,13 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	public static final int ITEMS_PER_ROW = 32;
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
-	private ItemData[][] filteringItems = new ItemData[6][ITEMS_PER_ROW];
-	private FilteringMode[] filteringModes = new FilteringMode[6];
+	private ItemData[][] filteringItems;
+	private FilteringMode[] filteringModes;
 
 	public GoldenPipe(Location blockLoc) {
 		super(blockLoc);
+		filteringItems = new ItemData[6][ITEMS_PER_ROW];
+		filteringModes = new FilteringMode[6];
 		for (int i = 0; i < 6; i++) {
 			filteringModes[i] = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
 		}
@@ -47,7 +49,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	@Override
 	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
 		Random random = new Random();
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
 
 		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
 		Map<PipeDirection, Integer> directionMap = new HashMap<PipeDirection, Integer>();
@@ -56,7 +58,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		for (PipeDirection pd : PipeDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
-				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
 				if (containerMap.containsKey(bl)) {
 					TransportPipesContainer tpc = containerMap.get(bl);
 					int freeSpace = tpc.howMuchSpaceForItemAsync(pd.getOpposite(), item.getItem());

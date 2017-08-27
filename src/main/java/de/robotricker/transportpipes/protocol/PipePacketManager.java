@@ -29,11 +29,14 @@ import de.robotricker.transportpipes.settings.SettingsUtils;
 
 public class PipePacketManager implements Listener {
 
-	//not really(!) thread safe! Handle in main thread!
-	//public Map<World, List<Integer>> allWorldEntityIds = Collections.synchronizedMap(new HashMap<World, List<Integer>>());
-	private Map<Player, List<Pipe>> pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
-	private Map<Player, List<PipeItem>> itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
+	private Map<Player, List<Pipe>> pipesForPlayers;
+	private Map<Player, List<PipeItem>> itemsForPlayers;
 
+	public PipePacketManager() {
+		pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
+		itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
+	}
+	
 	public void createPipe(Pipe pipe, Collection<PipeDirection> allConnections) {
 		//notify pipe that some connections might have changed. Knowing this the iron pipe can change its output direction for example.
 		pipe.notifyConnectionsChange();
@@ -68,13 +71,13 @@ public class PipePacketManager implements Listener {
 			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
 			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
-					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
+					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
 						spawnItem(on, pipeItem);
 					}
 				}
 			}
 		} catch (IllegalStateException | ConcurrentModificationException e) {
-			PipeThread.handleAsyncError(e);
+			TransportPipes.instance.pipeThread.handleAsyncError(e);
 		}
 	}
 
@@ -83,13 +86,13 @@ public class PipePacketManager implements Listener {
 			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
 			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
-					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
-						TransportPipes.armorStandProtocol.updatePipeItem(on, pipeItem);
+					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
+						TransportPipes.instance.armorStandProtocol.updatePipeItem(on, pipeItem);
 					}
 				}
 			}
 		} catch (IllegalStateException | ConcurrentModificationException e) {
-			PipeThread.handleAsyncError(e);
+			TransportPipes.instance.pipeThread.handleAsyncError(e);
 		}
 	}
 
@@ -106,10 +109,10 @@ public class PipePacketManager implements Listener {
 		}
 		list = pipesForPlayers.get(p);
 		if (!list.contains(pipe)) {
-			List<ArmorStandData> ASD = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDForPipe(pipe);
+			List<ArmorStandData> ASD = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDForPipe(pipe);
 			if (ASD != null && !ASD.isEmpty()) {
 				list.add(pipe);
-				TransportPipes.armorStandProtocol.sendArmorStandDatas(p, pipe.getBlockLoc(), ASD);
+				TransportPipes.instance.armorStandProtocol.sendArmorStandDatas(p, pipe.getBlockLoc(), ASD);
 			}
 		}
 	}
@@ -122,7 +125,7 @@ public class PipePacketManager implements Listener {
 		list = itemsForPlayers.get(p);
 		if (!list.contains(item)) {
 			list.add(item);
-			TransportPipes.armorStandProtocol.sendPipeItem(p, item);
+			TransportPipes.instance.armorStandProtocol.sendPipeItem(p, item);
 		}
 	}
 
@@ -131,7 +134,7 @@ public class PipePacketManager implements Listener {
 			List<Pipe> list = pipesForPlayers.get(p);
 			if (list.contains(pipe)) {
 				list.remove(pipe);
-				TransportPipes.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDIdsForPipe(pipe));
+				TransportPipes.instance.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDIdsForPipe(pipe));
 			}
 		}
 	}
@@ -141,7 +144,7 @@ public class PipePacketManager implements Listener {
 			List<PipeItem> list = itemsForPlayers.get(p);
 			if (list.contains(item)) {
 				list.remove(item);
-				TransportPipes.armorStandProtocol.removePipeItem(p, item);
+				TransportPipes.instance.armorStandProtocol.removePipeItem(p, item);
 			}
 		}
 	}
@@ -156,10 +159,10 @@ public class PipePacketManager implements Listener {
 						try {
 							List<Player> playerList = LocationUtils.getPlayerList(world);
 							for (Player on : playerList) {
-								if (!pipe.blockLoc.getWorld().equals(on.getWorld())) {
+								if (!pipe.getBlockLoc().getWorld().equals(on.getWorld())) {
 									continue;
 								}
-								if (pipe.blockLoc.distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
+								if (pipe.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
 									//spawn pipe if not spawned
 									spawnPipe(on, pipe);
 								} else {
@@ -173,7 +176,7 @@ public class PipePacketManager implements Listener {
 										if (!item.getBlockLoc().getWorld().equals(on.getWorld())) {
 											continue;
 										}
-										if (item.getBlockLoc().distance(on.getLocation()) <= SettingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
+										if (item.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
 											spawnItem(on, item);
 										} else {
 											despawnItem(on, item);
@@ -183,7 +186,7 @@ public class PipePacketManager implements Listener {
 
 							}
 						} catch (IllegalStateException | ConcurrentModificationException e) {
-							PipeThread.handleAsyncError(e);
+							TransportPipes.instance.pipeThread.handleAsyncError(e);
 						}
 
 					}
@@ -231,7 +234,7 @@ public class PipePacketManager implements Listener {
 	}
 
 	private void quit(final Player p) {
-		PipeThread.runTask(new Runnable() {
+		TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 			@Override
 			public void run() {

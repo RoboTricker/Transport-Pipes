@@ -53,7 +53,7 @@ public abstract class Pipe {
 	public final Map<PipeItem, PipeDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
 	//the blockLoc of this pipe
-	public Location blockLoc;
+	private Location blockLoc;
 	private Chunk cachedChunk;
 
 	public Pipe(Location blockLoc) {
@@ -98,18 +98,18 @@ public abstract class Pipe {
 
 		if (extractItems && this instanceof ExtractionPipe) {
 			//extract items from inventories
-			PipeThread.setLastAction("Pipe extract");
+			TransportPipes.instance.pipeThread.setLastAction("Pipe extract");
 			((ExtractionPipe) this).extractItems(blockConnections);
 		}
 
 		//handle item transport through pipe
-		PipeThread.setLastAction("Pipe transport");
+		TransportPipes.instance.pipeThread.setLastAction("Pipe transport");
 		transportItems(pipeConnections, blockConnections, itemsTicked);
 
 	}
 
 	public void explode(final boolean withSound) {
-		PipeThread.runTask(new Runnable() {
+		TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 			@Override
 			public void run() {
@@ -163,7 +163,7 @@ public abstract class Pipe {
 
 					pipeItems.put(lastPipeItem, pd);
 					if (!lastPipeItem.equals(item)) {
-						TransportPipes.pipePacketManager.createPipeItem(lastPipeItem);
+						TransportPipes.instance.pipePacketManager.createPipeItem(lastPipeItem);
 					}
 					moveItem(lastPipeItem, pipeConnections, blockConnections);
 					//specifies that this item isn't handled inside another pipe in this tick if it moves in the tempPipeItems in this tick
@@ -193,7 +193,7 @@ public abstract class Pipe {
 		relLoc.addValues(xSpeed, ySpeed, zSpeed);
 
 		//update
-		TransportPipes.pipePacketManager.updatePipeItem(item);
+		TransportPipes.instance.pipePacketManager.updatePipeItem(item);
 
 		//if the item is at the end of the transportation
 		if (relLoc.getFloatX() == 1.0f || relLoc.getFloatY() == 1.0f || relLoc.getFloatZ() == 1.0f || relLoc.getFloatX() == 0.0f || relLoc.getFloatY() == 0.0f || relLoc.getFloatZ() == 0.0f) {
@@ -361,7 +361,7 @@ public abstract class Pipe {
 
 	protected void fullyRemovePipeItemFromSystem(final PipeItem item, boolean dropItem) {
 		removePipeItem(item);
-		TransportPipes.pipePacketManager.destroyPipeItem(item);
+		TransportPipes.instance.pipePacketManager.destroyPipeItem(item);
 
 		if (dropItem) {
 			final ItemStack itemStack = item.getItem();

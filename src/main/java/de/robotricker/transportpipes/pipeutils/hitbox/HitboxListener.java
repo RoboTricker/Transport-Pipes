@@ -130,7 +130,7 @@ public class HitboxListener implements Listener {
 				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof ClickablePipe) {
 					if (PipeItemUtils.isItemStackWrench(clickedItem)) {
-						if (PipeUtils.canBuild(p, pipeClickedAt.blockLoc.getBlock(), pipeClickedAt.blockLoc.getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+						if (PipeUtils.canBuild(p, pipeClickedAt.getBlockLoc().getBlock(), pipeClickedAt.getBlockLoc().getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 							((ClickablePipe) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
 							e.setCancelled(true);
 						}

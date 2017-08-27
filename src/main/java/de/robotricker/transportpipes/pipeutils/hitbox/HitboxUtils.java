@@ -61,7 +61,7 @@ public class HitboxUtils {
 	}
 
 	public static PipeDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
-		return TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, pipe);
+		return TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, pipe);
 	}
 
 	public static Block getPipeLookingTo(Player p, Block clickedBlock) {
@@ -73,7 +73,7 @@ public class HitboxUtils {
 		int indexOfClickedBlock = -1;
 		int i = 0;
 
-		PipeRenderSystem playerPipeManager = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p);
+		PipeRenderSystem playerPipeManager = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
 
 		while (currentBlock == null) {
 
@@ -116,7 +116,7 @@ public class HitboxUtils {
 	 * gets the neighbor block of the pipe (calculated by the player direction ray and the pipe hitbox)
 	 */
 	public static Block getRelativeBlockOfPipe(Player p, Block pipeLoc) {
-		PipeDirection pd = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
+		PipeDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
 		return pd != null ? pipeLoc.getRelative(pd.toBlockFace()) : null;
 	}
 
@@ -172,8 +172,8 @@ public class HitboxUtils {
 		}
 		b.setTypeIdAndData(id, data, true);
 
-		if (ContainerBlockUtils.isIdContainerBlock(id)) {
-			ContainerBlockUtils.updatePipeNeighborBlockSync(b, true);
+		if (TransportPipes.instance.containerBlockUtils.isIdContainerBlock(id)) {
+			TransportPipes.instance.containerBlockUtils.updatePipeNeighborBlockSync(b, true);
 		}
 
 		return true;

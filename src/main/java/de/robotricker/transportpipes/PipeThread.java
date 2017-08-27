@@ -21,16 +21,14 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 public class PipeThread extends Thread {
 
 	public final static int WANTED_TPS = 10;
-
 	private final static long TICK_DIFF = 1000 / WANTED_TPS;
-	private final static int INPUT_ITEMS_TICK_DIFF = 3;
+	private final static int INPUT_ITEMS_TICK_DIFF = 5;
 	private final static int VIEW_DISTANCE_TICK_DIFF = 3;
 
-	//jedes iteraten durch diese Map MUSS mit synchronized(tickList){} sein!
-	private static final Map<Runnable, Integer> tickList = Collections.synchronizedMap(new LinkedHashMap<Runnable, Integer>());
+	private final Map<Runnable, Integer> scheduleList = Collections.synchronizedMap(new LinkedHashMap<Runnable, Integer>());
 
-	private static int calculatedTps = 0;
-	private static boolean running = false;
+	private int calculatedTps = 0;
+	private boolean running = false;
 
 	private long lastTick = 0;
 	private int inputItemsTick = 0;
@@ -39,36 +37,36 @@ public class PipeThread extends Thread {
 	private long lastSecond = 0;
 	private int tpsCounter = 0;
 
-	public static long timeTick = 0;
+	public long timeTick = 0;
 
-	private static String lastAction = "Starting";
+	private String lastAction = "Starting";
 
 	public PipeThread() {
 		super("TransportPipes Thread");
 	}
 
-	public static int getCalculatedTps() {
+	public int getCalculatedTps() {
 		return calculatedTps;
 	}
 
-	public static String getLastAction() {
+	public String getLastAction() {
 		return lastAction;
 	}
 
-	public static void setLastAction(String lastAction) {
-		PipeThread.lastAction = lastAction;
+	public void setLastAction(String lastAction) {
+		this.lastAction = lastAction;
 	}
 
 	public long getLastTickDiff() {
 		return System.currentTimeMillis() - lastTick;
 	}
 
-	public static boolean isRunning() {
+	public boolean isRunning() {
 		return running;
 	}
 
-	public static void setRunning(boolean running) {
-		PipeThread.running = running;
+	public void setRunning(boolean running) {
+		this.running = running;
 	}
 
 	@Override
@@ -114,18 +112,18 @@ public class PipeThread extends Thread {
 				lastAction = "Internal scheduler";
 				{
 					HashMap<Runnable, Integer> tempTickList = new HashMap<>();
-					synchronized (tickList) {
-						tempTickList.putAll(tickList);
+					synchronized (scheduleList) {
+						tempTickList.putAll(scheduleList);
 					}
 					for (Runnable r : tempTickList.keySet()) {
 						if (r != null) {
 							int v = tempTickList.get(r);
 							if (v == 0) {
-								tickList.remove(r);
+								scheduleList.remove(r);
 								r.run();
 							} else {
 								v--;
-								tickList.put(r, v);
+								scheduleList.put(r, v);
 							}
 						}
 					}
@@ -158,7 +156,7 @@ public class PipeThread extends Thread {
 										PipeDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
 										pipe.putPipeItem(pipeItem, dir);
 
-										TransportPipes.pipePacketManager.createPipeItem(pipeItem);
+										TransportPipes.instance.pipePacketManager.createPipeItem(pipeItem);
 
 										itemIterator.remove();
 									}
@@ -188,11 +186,11 @@ public class PipeThread extends Thread {
 					}
 				}
 
-				PipeThread.timeTick = (System.nanoTime() - timeBefore);
+				timeTick = (System.nanoTime() - timeBefore);
 
 				if (checkViewDistance) {
 					lastAction = "View distance";
-					TransportPipes.pipePacketManager.tickSync();
+					TransportPipes.instance.pipePacketManager.tickSync();
 				}
 
 			} catch (InterruptedException e) {
@@ -207,13 +205,13 @@ public class PipeThread extends Thread {
 
 	}
 
-	public static void runTask(Runnable run, int tickDelay) {
-		synchronized (tickList) {
-			tickList.put(run, tickDelay);
+	public void runTask(Runnable run, int tickDelay) {
+		synchronized (scheduleList) {
+			scheduleList.put(run, tickDelay);
 		}
 	}
 
-	public static void handleAsyncError(Exception e) {
+	public void handleAsyncError(Exception e) {
 		System.err.println("------------------------> ASYNC ERROR: <------------------------");
 		e.printStackTrace();
 	}

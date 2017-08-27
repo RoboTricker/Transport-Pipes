@@ -38,20 +38,25 @@ import de.robotricker.transportpipes.update.UpdateManager;
 
 public class SavingManager implements Listener {
 
-	private static List<World> loadedWorlds = new ArrayList<>();
-	private static boolean saving = false;
+	private List<World> loadedWorlds;
+	private boolean saving;
 
-	public static void savePipesAsync() {
+	public SavingManager() {
+		loadedWorlds = new ArrayList<>();
+		saving = false;
+	}
+
+	public void savePipesAsync(final boolean message) {
 		Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
 
 			@Override
 			public void run() {
-				savePipesSync();
+				savePipesSync(message);
 			}
 		});
 	}
 
-	public static void savePipesSync() {
+	public void savePipesSync(boolean message) {
 		if (saving) {
 			return;
 		}
@@ -60,17 +65,17 @@ public class SavingManager implements Listener {
 		try {
 			HashMap<World, List<CompoundMap>> worlds = new HashMap<>();
 
-			//cache worlds
+			// cache worlds
 			for (World world : Bukkit.getWorlds()) {
 				List<CompoundMap> pipeList = new ArrayList<>();
 				worlds.put(world, pipeList);
 
-				//put pipes in Tag Lists
+				// put pipes in Tag Lists
 				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 				if (pipeMap != null) {
 					synchronized (pipeMap) {
 						for (Pipe pipe : pipeMap.values()) {
-							//save individual pipe
+							// save individual pipe
 							CompoundMap tags = new CompoundMap();
 							pipe.saveToNBTTag(tags);
 							pipeList.add(tags);
@@ -81,7 +86,7 @@ public class SavingManager implements Listener {
 
 			}
 
-			//save Tag Lists to files
+			// save Tag Lists to files
 			for (World world : worlds.keySet()) {
 				try {
 					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
@@ -101,7 +106,8 @@ public class SavingManager implements Listener {
 
 					CompoundMap tags = new CompoundMap();
 
-					NBTUtils.saveStringValue(tags, "PluginVersion", TransportPipes.instance.getDescription().getVersion());
+					NBTUtils.saveStringValue(tags, "PluginVersion",
+							TransportPipes.instance.getDescription().getVersion());
 					NBTUtils.saveLongValue(tags, "LastSave", System.currentTimeMillis());
 
 					List<CompoundMap> rawPipeList = worlds.get(world);
@@ -121,14 +127,17 @@ public class SavingManager implements Listener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("[TransportPipes] saved " + pipesCount + " pipes in " + Bukkit.getWorlds().size() + " worlds");
+		if (message) {
+			System.out.println(
+					"[TransportPipes] saved " + pipesCount + " pipes in " + Bukkit.getWorlds().size() + " worlds");
+		}
 		saving = false;
 	}
 
 	/**
 	 * loads all pipes and items in this world if it isn't loaded already
 	 */
-	public static void loadPipesSync(final World world) {
+	public void loadPipesSync(final World world) {
 
 		if (!loadedWorlds.contains(world)) {
 			loadedWorlds.add(world);
@@ -146,8 +155,6 @@ public class SavingManager implements Listener {
 				return;
 			}
 
-			
-			
 			CompoundTag compound = null;
 			NBTInputStream in = null;
 
@@ -160,9 +167,11 @@ public class SavingManager implements Listener {
 				compound = (CompoundTag) in.readTag();
 			}
 
-			//whether to convert the pipes.dat system to a version after 3.8.22 without PipeClassName but instead PipeType values
+			// whether to convert the pipes.dat system to a version after 3.8.22 without
+			// PipeClassName but instead PipeType values
 			boolean convertSystem = false;
-			String pipesDatVersionString = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"), TransportPipes.instance.getDescription().getVersion());
+			String pipesDatVersionString = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"),
+					TransportPipes.instance.getDescription().getVersion());
 			long pipesDatVersion = UpdateManager.convertVersionToLong(pipesDatVersionString);
 			if (pipesDatVersion <= UpdateManager.convertVersionToLong("3.8.22")) {
 				convertSystem = true;
@@ -174,11 +183,14 @@ public class SavingManager implements Listener {
 			for (Tag<?> tag : pipeList) {
 				CompoundTag pipeTag = (CompoundTag) tag;
 
-				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
-				Location pipeLoc = PipeUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+				PipeType pt = PipeType
+						.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
+				Location pipeLoc = PipeUtils
+						.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
 
 				if (convertSystem) {
-					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"), "de.robotricker.transportpipes.pipes.PipeMID");
+					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"),
+							"de.robotricker.transportpipes.pipes.PipeMID");
 					if (oldPipeClassName.endsWith("GoldenPipe")) {
 						pt = PipeType.GOLDEN;
 					} else if (oldPipeClassName.endsWith("IronPipe")) {
@@ -198,10 +210,11 @@ public class SavingManager implements Listener {
 				}
 
 				if (pipeLoc != null) {
-					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.WHITE); //PipeColor will be replaced when loading from NBT inside pipe
+					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.WHITE); // PipeColor will be replaced when loading from
+																			// NBT inside pipe
 					pipe.loadFromNBTTag(pipeTag);
 
-					//save and spawn pipe
+					// save and spawn pipe
 					PipeUtils.registerPipe(pipe, neighborPipes);
 
 					pipesCount++;
@@ -210,16 +223,17 @@ public class SavingManager implements Listener {
 			}
 
 			if (convertSystem) {
-				PipeThread.runTask(new Runnable() {
+				TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 					@Override
 					public void run() {
-						//update all pipes connections because the in the old system "NeighborPipes" wasn't saved for each pipe
+						// update all pipes connections because the in the old system "NeighborPipes"
+						// wasn't saved for each pipe
 						Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
 						if (pipeMap != null) {
 							synchronized (pipeMap) {
 								for (Pipe pipe : pipeMap.values()) {
-									TransportPipes.pipePacketManager.updatePipe(pipe);
+									TransportPipes.instance.pipePacketManager.updatePipe(pipe);
 								}
 							}
 						}
@@ -240,9 +254,9 @@ public class SavingManager implements Listener {
 
 	@EventHandler
 	public void onWorldSave(WorldSaveEvent e) {
-		//only save once for all worlds
+		// only save once for all worlds
 		if (e.getWorld().equals(Bukkit.getWorlds().get(0))) {
-			savePipesAsync();
+			savePipesAsync(false);
 		}
 	}
 

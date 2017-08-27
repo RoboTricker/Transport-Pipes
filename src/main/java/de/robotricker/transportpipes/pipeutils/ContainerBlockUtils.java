@@ -40,8 +40,12 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class ContainerBlockUtils implements Listener {
 
-	private static Map<World, List<Chunk>> loadedChunksGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
+	private Map<World, List<Chunk>> loadedChunksGridCoords;
 
+	public  ContainerBlockUtils() {
+		loadedChunksGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
+	}
+	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
 		if (isIdContainerBlock(e.getBlockPlaced().getTypeId())) {
@@ -91,9 +95,9 @@ public class ContainerBlockUtils implements Listener {
 			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
 			Pipe pipe = pipeMap.get(blockLoc);
 			if (pipe != null) {
-				pipe.blockLoc.getBlock().setType(Material.GLASS);
-				explodedPipeBlocksBefore.add(pipe.blockLoc.getBlock());
-				explodedPipeBlocks.add(pipe.blockLoc.getBlock());
+				pipe.getBlockLoc().getBlock().setType(Material.GLASS);
+				explodedPipeBlocksBefore.add(pipe.getBlockLoc().getBlock());
+				explodedPipeBlocks.add(pipe.getBlockLoc().getBlock());
 			}
 		}
 
@@ -103,7 +107,7 @@ public class ContainerBlockUtils implements Listener {
 			for (Block b : explodeEvent.blockList()) {
 				final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
 				if (pipe != null) {
-					PipeThread.runTask(new Runnable() {
+					TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 						@Override
 						public void run() {
@@ -117,7 +121,7 @@ public class ContainerBlockUtils implements Listener {
 		for (Block b : explodedPipeBlocksBefore) {
 			final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
 			if (pipe != null) {
-				pipe.blockLoc.getBlock().setType(Material.AIR);
+				pipe.getBlockLoc().getBlock().setType(Material.AIR);
 			}
 		}
 
@@ -131,7 +135,7 @@ public class ContainerBlockUtils implements Listener {
 	 * @param add
 	 *            true: block added | false: block removed
 	 */
-	public static void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
+	public void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 		if (add) {
@@ -149,12 +153,12 @@ public class ContainerBlockUtils implements Listener {
 	/**
 	 * checks if this blockID is an InventoryHolder
 	 */
-	public static boolean isIdContainerBlock(int id) {
+	public boolean isIdContainerBlock(int id) {
 		boolean v1_9or1_10 = Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10");
 		return id == Material.CHEST.getId() || id == Material.TRAPPED_CHEST.getId() || id == Material.HOPPER.getId() || id == Material.FURNACE.getId() || id == Material.BURNING_FURNACE.getId() || id == 379 || id == Material.DISPENSER.getId() || id == Material.DROPPER.getId() || id == Material.BREWING_STAND.getId() || (!v1_9or1_10 && id >= Material.WHITE_SHULKER_BOX.getId() && id <= Material.BLACK_SHULKER_BOX.getId());
 	}
 
-	public static TransportPipesContainer createContainerFromBlock(Block block) {
+	public TransportPipesContainer createContainerFromBlock(Block block) {
 		if (block.getState() instanceof Furnace) {
 			return new FurnaceContainer(block);
 		} else if (block.getState() instanceof BrewingStand) {
@@ -165,7 +169,7 @@ public class ContainerBlockUtils implements Listener {
 		return null;
 	}
 
-	public static boolean isInLoadedChunk(Location loc) {
+	public boolean isInLoadedChunk(Location loc) {
 		synchronized (loadedChunksGridCoords) {
 			List<Chunk> loadedChunks = loadedChunksGridCoords.get(loc.getWorld());
 			if (loadedChunks != null) {
@@ -183,7 +187,7 @@ public class ContainerBlockUtils implements Listener {
 		return false;
 	}
 
-	public static void handleChunkLoadSync(Chunk loadedChunk) {
+	public void handleChunkLoadSync(Chunk loadedChunk) {
 		synchronized (loadedChunksGridCoords) {
 			if (!loadedChunksGridCoords.containsKey(loadedChunk.getWorld())) {
 				loadedChunksGridCoords.put(loadedChunk.getWorld(), Collections.synchronizedList(new ArrayList<Chunk>()));

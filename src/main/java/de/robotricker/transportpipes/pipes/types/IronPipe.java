@@ -69,10 +69,10 @@ public class IronPipe extends Pipe implements ClickablePipe {
 		} while (!connections.contains(currentOutputDir));
 
 		if (oldOutputDir != currentOutputDir) {
-			PipeThread.runTask(new Runnable() {
+			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				public void run() {
-					TransportPipes.pipePacketManager.updatePipe(IronPipe.this);
+					TransportPipes.instance.pipePacketManager.updatePipe(IronPipe.this);
 				};
 			}, 0);
 		}

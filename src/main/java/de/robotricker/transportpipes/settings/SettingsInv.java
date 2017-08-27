@@ -26,7 +26,7 @@ public class SettingsInv implements Listener {
 			viewer.openInventory(inv);
 		}
 
-		PlayerSettingsConf psc = SettingsUtils.getOrLoadPlayerSettings(viewer);
+		PlayerSettingsConf psc = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(viewer);
 
 		//Render Distance setting
 		ItemStack glassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7);
@@ -40,12 +40,12 @@ public class SettingsInv implements Listener {
 		populateInventoryLine(inv, 0, glassPane, glassPane, decreaseBtn, glassPane, eye, glassPane, increaseBtn, glassPane, glassPane);
 
 		//Render System setting
-		PipeRenderSystem pm = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(viewer);
+		PipeRenderSystem pm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(viewer);
 		ItemStack currentSystem = pm.getRepresentationItem().clone();
 		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), pm.getPipeRenderSystemName()), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
 
 		//Show items setting
-		boolean showItems = TransportPipes.armorStandProtocol.isPlayerShowItems(viewer);
+		boolean showItems = TransportPipes.instance.armorStandProtocol.isPlayerShowItems(viewer);
 		ItemStack currentShowItems;
 		if (showItems) {
 			currentShowItems = new ItemStack(Material.GLASS);
@@ -73,7 +73,7 @@ public class SettingsInv implements Listener {
 	public void onInvClick(InventoryClickEvent e) {
 		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(LocConf.load(LocConf.SETTINGS_TITLE))) {
 			Player p = (Player) e.getWhoClicked();
-			PlayerSettingsConf psc = SettingsUtils.getOrLoadPlayerSettings(p);
+			PlayerSettingsConf psc = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p);
 
 			e.setCancelled(true);
 			if (e.getAction() == InventoryAction.PICKUP_ALL || e.getAction() == InventoryAction.PICKUP_HALF) {
@@ -104,20 +104,20 @@ public class SettingsInv implements Listener {
 				if (e.getRawSlot() == 12) {
 					//change render system
 
-					int renderSystemId = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p).getRenderSystemId();
+					int renderSystemId = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getRenderSystemId();
 					renderSystemId++;
 					renderSystemId %= TransportPipes.instance.getPipeRenderSystems().size();
 					PipeRenderSystem newRenderSystem = PipeRenderSystem.getRenderSystemFromId(renderSystemId);
 
-					TransportPipes.armorStandProtocol.changePipeRenderSystem(p, newRenderSystem);
+					TransportPipes.instance.armorStandProtocol.changePipeRenderSystem(p, newRenderSystem);
 
 					updateSettingsInventory(e.getClickedInventory(), p);
 					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 				}
 				if (e.getRawSlot() == 14) {
 					//change show items
-					boolean showItems = TransportPipes.armorStandProtocol.isPlayerShowItems(p);
-					TransportPipes.armorStandProtocol.changeShowItems(p, !showItems);
+					boolean showItems = TransportPipes.instance.armorStandProtocol.isPlayerShowItems(p);
+					TransportPipes.instance.armorStandProtocol.changeShowItems(p, !showItems);
 
 					updateSettingsInventory(e.getClickedInventory(), p);
 					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
@@ -132,7 +132,7 @@ public class SettingsInv implements Listener {
 
 			@Override
 			public void run() {
-				TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer()).initPlayer(e.getPlayer());
+				TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer()).initPlayer(e.getPlayer());
 			}
 		}, 40L);
 	}

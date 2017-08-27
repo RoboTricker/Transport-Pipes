@@ -98,8 +98,7 @@
 							<version>${project.version}</version>
 							<type>${project.packaging}</type>
 							<overWrite>true</overWrite>
-							<outputDirectory>C:\Users\rosts\Desktop\Server\Minecraft
-								1.12\plugins</outputDirectory>
+							<outputDirectory>C:\Users\Simon Rost\Server\Minecraft 1.12.1\plugins</outputDirectory>
 							<destFileName>transportpipes-devbuild.jar</destFileName>
 						</artifactItem>
 					</artifactItems>
@@ -118,7 +117,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<executable>C:\Users\rosts\Desktop\Server\Minecraft 1.12\START.bat</executable>
+					<executable>C:\Users\Simon Rost\Server\Minecraft 1.12.1\START.bat</executable>
 				</configuration>
 			</plugin>
 		</plugins>

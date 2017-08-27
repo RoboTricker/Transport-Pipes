@@ -35,7 +35,7 @@ public class ColoredPipe extends Pipe {
 
 	@Override
 	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
 
 		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
 		Map<PipeDirection, Integer> map = new HashMap<PipeDirection, Integer>();
@@ -44,7 +44,7 @@ public class ColoredPipe extends Pipe {
 		for (PipeDirection pd : PipeDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
-				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
 				if (containerMap.containsKey(bl)) {
 					TransportPipesContainer tpc = containerMap.get(bl);
 					int freeSpace = tpc.howMuchSpaceForItemAsync(pd.getOpposite(), item.getItem());

@@ -89,14 +89,14 @@ public class PipeUtils {
 			}
 		}
 
-		final Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipeToDestroy.blockLoc.getWorld());
+		final Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipeToDestroy.getBlockLoc().getWorld());
 		if (pipeMap != null) {
 			//only remove the pipe if it is in the pipe list!
-			if (pipeMap.containsKey(BlockLoc.convertBlockLoc(pipeToDestroy.blockLoc))) {
+			if (pipeMap.containsKey(BlockLoc.convertBlockLoc(pipeToDestroy.getBlockLoc()))) {
 
-				TransportPipes.pipePacketManager.destroyPipe(pipeToDestroy);
+				TransportPipes.instance.pipePacketManager.destroyPipe(pipeToDestroy);
 
-				pipeMap.remove(BlockLoc.convertBlockLoc(pipeToDestroy.blockLoc));
+				pipeMap.remove(BlockLoc.convertBlockLoc(pipeToDestroy.getBlockLoc()));
 
 				//drop all items in old pipe
 				synchronized (pipeToDestroy.pipeItems) {
@@ -109,11 +109,11 @@ public class PipeUtils {
 
 							@Override
 							public void run() {
-								pipeToDestroy.blockLoc.getWorld().dropItem(pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d), item.getItem());
+								pipeToDestroy.getBlockLoc().getWorld().dropItem(pipeToDestroy.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d), item.getItem());
 							}
 						});
 						//destroy item for players
-						TransportPipes.pipePacketManager.destroyPipeItem(item);
+						TransportPipes.instance.pipePacketManager.destroyPipeItem(item);
 					}
 					//and clear old pipe items map
 					pipeToDestroy.pipeItems.clear();
@@ -121,7 +121,7 @@ public class PipeUtils {
 					pipeToDestroy.tempPipeItemsWithSpawn.clear();
 				}
 
-				updateNeighborPipes(pipeToDestroy.blockLoc);
+				updateNeighborPipes(pipeToDestroy.getBlockLoc());
 
 				final List<ItemStack> droppedItems = pipeToDestroy.getDroppedItems();
 				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
@@ -129,7 +129,7 @@ public class PipeUtils {
 					@Override
 					public void run() {
 						if (player != null && player.getGameMode() != GameMode.CREATIVE) {
-							Location dropLoc = pipeToDestroy.blockLoc.clone().add(0.5d, 0.5d, 0.5d);
+							Location dropLoc = pipeToDestroy.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d);
 							for (ItemStack dropIs : droppedItems) {
 								dropLoc.getWorld().dropItem(dropLoc, dropIs);
 							}
@@ -140,15 +140,15 @@ public class PipeUtils {
 							wrapper.setParticleType(Particle.ITEM_CRACK);
 							wrapper.setNumberOfParticles(30);
 							wrapper.setLongDistance(false);
-							wrapper.setX(pipeToDestroy.blockLoc.getBlockX() + 0.5f);
-							wrapper.setY(pipeToDestroy.blockLoc.getBlockY() + 0.5f);
-							wrapper.setZ(pipeToDestroy.blockLoc.getBlockZ() + 0.5f);
+							wrapper.setX(pipeToDestroy.getBlockLoc().getBlockX() + 0.5f);
+							wrapper.setY(pipeToDestroy.getBlockLoc().getBlockY() + 0.5f);
+							wrapper.setZ(pipeToDestroy.getBlockLoc().getBlockZ() + 0.5f);
 							wrapper.setOffsetX(0.25f);
 							wrapper.setOffsetY(0.25f);
 							wrapper.setOffsetZ(0.25f);
 							wrapper.setParticleData(0.05f);
 							wrapper.setData(pipeToDestroy.getBreakParticleData());
-							for (Player worldPl : pipeToDestroy.blockLoc.getWorld().getPlayers()) {
+							for (Player worldPl : pipeToDestroy.getBlockLoc().getWorld().getPlayers()) {
 								wrapper.sendPacket(worldPl);
 							}
 						}
@@ -160,7 +160,7 @@ public class PipeUtils {
 	}
 
 	public static void updateNeighborPipes(final Location blockLoc) {
-		PipeThread.runTask(new Runnable() {
+		TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 			@Override
 			public void run() {
@@ -170,7 +170,7 @@ public class PipeUtils {
 					for (PipeDirection dir : PipeDirection.values()) {
 						BlockLoc blockLocLong = BlockLoc.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 						if (pipeMap.containsKey(blockLocLong)) {
-							TransportPipes.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
+							TransportPipes.instance.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
 						}
 					}
 				}
@@ -277,12 +277,12 @@ public class PipeUtils {
 	}
 
 	public static void registerPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.blockLoc.getWorld());
+		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.getBlockLoc().getWorld());
 		if (pipeMap == null) {
 			pipeMap = Collections.synchronizedMap(new TreeMap<BlockLoc, Pipe>());
-			TransportPipes.instance.getFullPipeMap().put(pipe.blockLoc.getWorld(), pipeMap);
+			TransportPipes.instance.getFullPipeMap().put(pipe.getBlockLoc().getWorld(), pipeMap);
 		}
-		pipeMap.put(BlockLoc.convertBlockLoc(pipe.blockLoc), pipe);
+		pipeMap.put(BlockLoc.convertBlockLoc(pipe.getBlockLoc()), pipe);
 
 		Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
@@ -293,19 +293,19 @@ public class PipeUtils {
 				allConnections.addAll(neighborPipes);
 
 				//update container blocks sync
-				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.blockLoc.getWorld());
+				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.getBlockLoc().getWorld());
 				for (PipeDirection pd : PipeDirection.values()) {
-					Location blockLoc = pipe.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ());
+					Location blockLoc = pipe.getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ());
 					if (containerMap != null && containerMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
 						allConnections.add(pd);
 					}
 				}
 
-				PipeThread.runTask(new Runnable() {
+				TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 					@Override
 					public void run() {
-						TransportPipes.pipePacketManager.createPipe(pipe, allConnections);
+						TransportPipes.instance.pipePacketManager.createPipe(pipe, allConnections);
 					}
 				}, 0);
 			}

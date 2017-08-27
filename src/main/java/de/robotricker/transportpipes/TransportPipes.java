@@ -2,6 +2,7 @@ package de.robotricker.transportpipes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +15,11 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
@@ -43,25 +46,27 @@ import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRen
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.saving.SavingManager;
 import de.robotricker.transportpipes.settings.SettingsInv;
+import de.robotricker.transportpipes.settings.SettingsUtils;
 import de.robotricker.transportpipes.update.UpdateManager;
 
 public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
 
-	public static PipeThread pipeThread;
-	public static ArmorStandProtocol armorStandProtocol;
-	public static PipePacketManager pipePacketManager;
-
-	//x << 34 | y << 26 | z
+	// x << 34 | y << 26 | z
 	private Map<World, Map<BlockLoc, Pipe>> registeredPipes;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
 	private List<PipeRenderSystem> renderSystems;
 	private UpdateManager updateManager;
 	public ContainerBlockUtils containerBlockUtils;
+	public SavingManager savingManager;
+	public SettingsUtils settingsUtils;
+	public PipeThread pipeThread;
+	public ArmorStandProtocol armorStandProtocol;
+	public PipePacketManager pipePacketManager;
 
-	//configs
+	// configs
 	public LocConf locConf;
 	public GeneralConf generalConf;
 	public RecipesConf recipesConf;
@@ -72,11 +77,13 @@ public class TransportPipes extends JavaPlugin {
 
 		// Prepare collections
 		registeredPipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
-		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
+		registeredContainers = Collections
+				.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
 
 		// Prepare managers
 		armorStandProtocol = new ArmorStandProtocol();
 		pipePacketManager = new PipePacketManager();
+		settingsUtils = new SettingsUtils();
 
 		locConf = new LocConf();
 		generalConf = new GeneralConf();
@@ -90,7 +97,7 @@ public class TransportPipes extends JavaPlugin {
 		pipeThread.setDaemon(true);
 		pipeThread.setPriority(Thread.MIN_PRIORITY);
 
-		//register command executors
+		// register command executors
 		final SettingsCommandExecutor settingsCmdExec = new SettingsCommandExecutor();
 		final TPSCommandExecutor tpsCmdExec = new TPSCommandExecutor();
 		final CreativeCommandExecutor creativeCmdExec = new CreativeCommandExecutor();
@@ -123,11 +130,13 @@ public class TransportPipes extends JavaPlugin {
 					if (!updateCmdExec.onCommand(cs, Arrays.copyOfRange(args, 1, args.length))) {
 						noPerm = true;
 					}
-				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("config")) {
+				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload")
+						&& args[1].equalsIgnoreCase("config")) {
 					if (!reloadConfigCmdExec.onCommand(cs, Arrays.copyOfRange(args, 2, args.length))) {
 						noPerm = true;
 					}
-				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("pipes")) {
+				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload")
+						&& args[1].equalsIgnoreCase("pipes")) {
 					if (!reloadPipesCmdExec.onCommand(cs, Arrays.copyOfRange(args, 2, args.length))) {
 						noPerm = true;
 					}
@@ -140,20 +149,30 @@ public class TransportPipes extends JavaPlugin {
 						noPerm = true;
 					}
 				} else {
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format(LocConf.load(LocConf.COMMANDS_HEADER), TransportPipes.instance.getDescription().getVersion())));
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+							String.format(LocConf.load(LocConf.COMMANDS_HEADER),
+									TransportPipes.instance.getDescription().getVersion())));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+							"&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
 					if (cs.hasPermission(generalConf.getPermissionTps()))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								"&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
 					if (cs.hasPermission(generalConf.getPermissionCreative()))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes creative &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_CREATIVE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								"&6/tpipes creative &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_CREATIVE)));
 					if (cs.hasPermission(generalConf.getPermissionReload()))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
+						cs.sendMessage(
+								ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- "
+										+ LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
 					if (cs.hasPermission(generalConf.getPermissionUpdate()))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								"&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
 					if (cs.hasPermission(generalConf.getPermissionSave()))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								"&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
 					if (cs.hasPermission(generalConf.getPermissionDelete()))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes delete <Radius> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_DELETE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
+								"&6/tpipes delete <Radius> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_DELETE)));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', LocConf.load(LocConf.COMMANDS_FOOTER)));
 					return true;
 				}
@@ -168,11 +187,11 @@ public class TransportPipes extends JavaPlugin {
 
 		updateManager = new UpdateManager(this);
 
-		//register listeners
+		// register listeners
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new ExtractionPipeInv(), this);
-		Bukkit.getPluginManager().registerEvents(new SavingManager(), this);
+		Bukkit.getPluginManager().registerEvents(savingManager = new SavingManager(), this);
 		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
@@ -181,18 +200,19 @@ public class TransportPipes extends JavaPlugin {
 		for (PipeRenderSystem prs : renderSystems) {
 			Bukkit.getPluginManager().registerEvents(prs, this);
 			if (prs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
-				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
+				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(),
+						this);
 			}
 		}
-		if(Bukkit.getPluginManager().isPluginEnabled("LogisticsAPI")){
+		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsAPI")) {
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
 		}
 
 		for (World world : Bukkit.getWorlds()) {
 			for (Chunk loadedChunk : world.getLoadedChunks()) {
-				ContainerBlockUtils.handleChunkLoadSync(loadedChunk);
+				containerBlockUtils.handleChunkLoadSync(loadedChunk);
 			}
-			SavingManager.loadPipesSync(world);
+			savingManager.loadPipesSync(world);
 		}
 
 		CraftUtils.initRecipes();
@@ -201,7 +221,7 @@ public class TransportPipes extends JavaPlugin {
 
 			@Override
 			public void run() {
-				PipeThread.setRunning(true);
+				pipeThread.setRunning(true);
 				pipeThread.start();
 			}
 		});
@@ -222,13 +242,36 @@ public class TransportPipes extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		PipeThread.setRunning(false);
+		pipeThread.setRunning(false);
 		try {
 			pipeThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		SavingManager.savePipesSync();
+		savingManager.savePipesSync(true);
+
+		// despawn all pipes and items
+		Map<World, Map<BlockLoc, Pipe>> fullPipeMap = getFullPipeMap();
+		synchronized (fullPipeMap) {
+			for (Map<BlockLoc, Pipe> pipeMap : fullPipeMap.values()) {
+				for (Pipe pipe : pipeMap.values()) {
+					pipePacketManager.destroyPipe(pipe);
+					Collection<PipeItem> allItems = new ArrayList<>();
+					synchronized (pipe.pipeItems) {
+						allItems.addAll(pipe.pipeItems.keySet());
+					}
+					synchronized (pipe.tempPipeItems) {
+						allItems.addAll(pipe.tempPipeItems.keySet());
+					}
+					synchronized (pipe.tempPipeItemsWithSpawn) {
+						allItems.addAll(pipe.tempPipeItemsWithSpawn.keySet());
+					}
+					for (PipeItem pi : allItems) {
+						pipePacketManager.destroyPipeItem(pi);
+					}
+				}
+			}
+		}
 	}
 
 	public Map<BlockLoc, Pipe> getPipeMap(World world) {

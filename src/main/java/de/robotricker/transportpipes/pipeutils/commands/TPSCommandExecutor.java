@@ -20,7 +20,7 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 		if (!cs.hasPermission(TransportPipes.instance.generalConf.getPermissionTps())) {
 			return false;
 		}
-		int tps = PipeThread.getCalculatedTps();
+		int tps = TransportPipes.instance.pipeThread.getCalculatedTps();
 		ChatColor colour = ChatColor.DARK_GREEN;
 		if (tps <= 1) {
 			colour = ChatColor.DARK_RED;
@@ -32,12 +32,12 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 			colour = ChatColor.GREEN;
 		}
 
-		float lastTickDiff = TransportPipes.pipeThread.getLastTickDiff() / 1000f;
+		float lastTickDiff = TransportPipes.instance.pipeThread.getLastTickDiff() / 1000f;
 
 		cs.sendMessage(String.format(LocConf.load(LocConf.COMMANDS_HEADER), TransportPipes.instance.getDescription().getVersion()));
-		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Tick duration: " + colour + (PipeThread.timeTick / 10000) / 100f + "ms"));
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Tick duration: " + colour + (TransportPipes.instance.pipeThread.timeTick / 10000) / 100f + "ms"));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Tick: " + lastTickDiff));
-		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Action: " + PipeThread.getLastAction()));
+		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6Last Action: " + TransportPipes.instance.pipeThread.getLastAction()));
 		cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6TPS: " + colour + tps + " &6/ §2" + PipeThread.WANTED_TPS));
 
 		for (World world : Bukkit.getWorlds()) {

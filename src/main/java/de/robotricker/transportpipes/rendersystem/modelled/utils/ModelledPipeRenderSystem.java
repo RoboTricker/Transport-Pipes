@@ -237,9 +237,9 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 	@EventHandler
 	public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
 		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
-			PipeRenderSystem beforePm = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			PipeRenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
 			if (beforePm.equals(this)) {
-				TransportPipes.armorStandProtocol.changePipeRenderSystem(e.getPlayer(), TransportPipes.instance.getPipeRenderSystems().get(0));
+				TransportPipes.instance.armorStandProtocol.changePipeRenderSystem(e.getPlayer(), TransportPipes.instance.getPipeRenderSystems().get(0));
 			}
 			e.getPlayer().sendMessage("§cResourcepack Download failed: Switched to the Vanilla Model System");
 			e.getPlayer().sendMessage("§cDid you enable \"Server Resourcepacks\" in your server list?");
@@ -254,7 +254,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 		@EventHandler
 		public void onAuthMeLogin(fr.xephi.authme.events.LoginEvent e) {
-			PipeRenderSystem beforePm = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			PipeRenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
 			if (beforePm.equals(ModelledPipeRenderSystem.this) && !loadedResourcePackPlayers.contains(e.getPlayer())) {
 				initPlayer(e.getPlayer());
 			}

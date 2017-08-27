@@ -43,7 +43,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	private ExtractCondition extractCondition;
 	private ExtractAmount extractAmount;
 	private FilteringMode filteringMode;
-	private ItemData[] filteringItems = new ItemData[GoldenPipe.ITEMS_PER_ROW];
+	private ItemData[] filteringItems;
 
 	public ExtractionPipe(Location blockLoc) {
 		super(blockLoc);
@@ -51,11 +51,12 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		extractCondition = ExtractCondition.NEEDS_REDSTONE;
 		extractAmount = ExtractAmount.EXTRACT_1;
 		filteringMode = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
+		filteringItems = new ItemData[GoldenPipe.ITEMS_PER_ROW];
 	}
 
 	@Override
 	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
 
 		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
 		Map<PipeDirection, Integer> map = new HashMap<PipeDirection, Integer>();
@@ -64,7 +65,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		for (PipeDirection pd : PipeDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
-				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
 				if (containerMap.containsKey(bl)) {
 					TransportPipesContainer tpc = containerMap.get(bl);
 					int freeSpace = tpc.howMuchSpaceForItemAsync(pd.getOpposite(), item.getItem());
@@ -245,10 +246,10 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		}
 
 		if (oldExtractDirection != extractDirection) {
-			PipeThread.runTask(new Runnable() {
+			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				public void run() {
-					TransportPipes.pipePacketManager.updatePipe(ExtractionPipe.this);
+					TransportPipes.instance.pipePacketManager.updatePipe(ExtractionPipe.this);
 				};
 			}, 0);
 		}
@@ -262,7 +263,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 
 		if (blockConnections.contains(extractDirection)) {
 
-			final Location containerLoc = blockLoc.clone().add(extractDirection.getX(), extractDirection.getY(), extractDirection.getZ());
+			final Location containerLoc = getBlockLoc().clone().add(extractDirection.getX(), extractDirection.getY(), extractDirection.getZ());
 
 			//input items
 			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
@@ -276,10 +277,10 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 						boolean powered = getExtractCondition() == ExtractCondition.ALWAYS_EXTRACT;
 						if (getExtractCondition() == ExtractCondition.NEEDS_REDSTONE) {
 							for (PipeDirection pd : PipeDirection.values()) {
-								Location relativeLoc = ExtractionPipe.this.blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ());
+								Location relativeLoc = ExtractionPipe.this.getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
 								//don't power this pipe if at least 1 block around this pipe is inside an unloaded chunk
-								if (!ContainerBlockUtils.isInLoadedChunk(relativeLoc)) {
+								if (!TransportPipes.instance.containerBlockUtils.isInLoadedChunk(relativeLoc)) {
 									break;
 								}
 
@@ -293,7 +294,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 						}
 						if (powered) {
 							BlockLoc bl = BlockLoc.convertBlockLoc(containerLoc);
-							TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(blockLoc.getWorld()).get(bl);
+							TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld()).get(bl);
 							PipeDirection itemDir = extractDirection.getOpposite();
 							if (tpc != null) {
 								List<ItemData> filterItems = new ArrayList<ItemData>();
@@ -305,7 +306,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 								ItemStack taken = tpc.extractItem(itemDir, getExtractAmount().getAmount(), filterItems, getFilteringMode());
 								if (taken != null) {
 									//extraction successful
-									PipeItem pi = new PipeItem(taken, ExtractionPipe.this.blockLoc, itemDir);
+									PipeItem pi = new PipeItem(taken, ExtractionPipe.this.getBlockLoc(), itemDir);
 									tempPipeItemsWithSpawn.put(pi, itemDir);
 								}
 							}

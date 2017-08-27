@@ -25,6 +25,7 @@ public class LocationUtils {
 	}
 	
 	public static List<Player> getPlayerList(World world){
+		//Bukkit.getOnlinePlayers is the only thread safe playerlist getter
 		List<Player> playerList = new ArrayList<Player>();
 		for(Player p : Bukkit.getOnlinePlayers()){
 			if(p.getLocation().getWorld().equals(world)){

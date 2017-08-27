@@ -21,8 +21,12 @@ import de.robotricker.transportpipes.settings.SettingsUtils;
 
 public class PipeRenderFilter {
 
-	private Map<Player, List<Location>> cached_renderedPipeLocs = Collections.synchronizedMap(new HashMap<Player, List<Location>>());
+	private Map<Player, List<Location>> cached_renderedPipeLocs;
 
+	public PipeRenderFilter() {
+		cached_renderedPipeLocs = Collections.synchronizedMap(new HashMap<Player, List<Location>>());
+	}
+	
 	public boolean canRenderPipe(Player p, Pipe pipe) {
 		return cached_renderedPipeLocs.containsKey(p) ? cached_renderedPipeLocs.get(p).contains(pipe.getBlockLoc()) : false;
 	}
@@ -32,19 +36,19 @@ public class PipeRenderFilter {
 	}
 
 	public void doOcclusionCullingCheck(Player p, Pipe pipe) {
-		PipeRenderSystem prs = TransportPipes.armorStandProtocol.getPlayerPipeRenderSystem(p);
+		PipeRenderSystem prs = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
 		AxisAlignedBB aabb = prs.getOuterHitbox(pipe);
 
 		//min
 		Vector direction = aabb.getMinLocation(p.getWorld()).subtract(p.getEyeLocation()).toVector();
-		Iterator<Block> it = new BlockIterator(p.getWorld(), p.getEyeLocation().toVector(), direction, 0d, SettingsUtils.getOrLoadPlayerSettings(p).getRenderDistance());
+		Iterator<Block> it = new BlockIterator(p.getWorld(), p.getEyeLocation().toVector(), direction, 0d, TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderDistance());
 		while (it.hasNext()) {
 			Block b = it.next();
 		}
 
 		//max
 		direction = aabb.getMaxLocation(p.getWorld()).subtract(p.getEyeLocation()).toVector();
-		it = new BlockIterator(p.getWorld(), p.getEyeLocation().toVector(), direction, 0d, SettingsUtils.getOrLoadPlayerSettings(p).getRenderDistance());
+		it = new BlockIterator(p.getWorld(), p.getEyeLocation().toVector(), direction, 0d, TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderDistance());
 
 	}
 
