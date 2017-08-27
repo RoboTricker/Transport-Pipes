@@ -42,10 +42,10 @@ public class ContainerBlockUtils implements Listener {
 
 	private Map<World, List<Chunk>> loadedChunksGridCoords;
 
-	public  ContainerBlockUtils() {
+	public ContainerBlockUtils() {
 		loadedChunksGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
 	}
-	
+
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
 		if (isIdContainerBlock(e.getBlockPlaced().getTypeId())) {
@@ -91,7 +91,8 @@ public class ContainerBlockUtils implements Listener {
 		List<Block> explodedPipeBlocksBefore = new ArrayList<Block>();
 		List<Block> explodedPipeBlocks = new ArrayList<Block>();
 
-		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
+		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(),
+				(int) Math.floor(e.getRadius()))) {
 			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
 			Pipe pipe = pipeMap.get(blockLoc);
 			if (pipe != null) {
@@ -101,7 +102,8 @@ public class ContainerBlockUtils implements Listener {
 			}
 		}
 
-		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(), explodedPipeBlocks, 1f);
+		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(),
+				explodedPipeBlocks, 1f);
 		Bukkit.getPluginManager().callEvent(explodeEvent);
 		if (!explodeEvent.isCancelled()) {
 			for (Block b : explodeEvent.blockList()) {
@@ -128,7 +130,8 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	/**
-	 * registers / unregisters a TransportPipesContainer object from this container block
+	 * registers / unregisters a TransportPipesContainer object from this container
+	 * block
 	 * 
 	 * @param toUpdate
 	 *            the block which contains an InventoryHolder
@@ -139,12 +142,14 @@ public class ContainerBlockUtils implements Listener {
 		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 		if (add) {
-			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null
+					|| !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 				TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
 				PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
 			}
 		} else {
-			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null
+					&& TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 				PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
 			}
 		}
@@ -155,7 +160,11 @@ public class ContainerBlockUtils implements Listener {
 	 */
 	public boolean isIdContainerBlock(int id) {
 		boolean v1_9or1_10 = Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10");
-		return id == Material.CHEST.getId() || id == Material.TRAPPED_CHEST.getId() || id == Material.HOPPER.getId() || id == Material.FURNACE.getId() || id == Material.BURNING_FURNACE.getId() || id == 379 || id == Material.DISPENSER.getId() || id == Material.DROPPER.getId() || id == Material.BREWING_STAND.getId() || (!v1_9or1_10 && id >= Material.WHITE_SHULKER_BOX.getId() && id <= Material.BLACK_SHULKER_BOX.getId());
+		return id == Material.CHEST.getId() || id == Material.TRAPPED_CHEST.getId() || id == Material.HOPPER.getId()
+				|| id == Material.FURNACE.getId() || id == Material.BURNING_FURNACE.getId() || id == 379
+				|| id == Material.DISPENSER.getId() || id == Material.DROPPER.getId()
+				|| id == Material.BREWING_STAND.getId() || (!v1_9or1_10 && id >= Material.WHITE_SHULKER_BOX.getId()
+						&& id <= Material.BLACK_SHULKER_BOX.getId());
 	}
 
 	public TransportPipesContainer createContainerFromBlock(Block block) {
@@ -190,24 +199,28 @@ public class ContainerBlockUtils implements Listener {
 	public void handleChunkLoadSync(Chunk loadedChunk) {
 		synchronized (loadedChunksGridCoords) {
 			if (!loadedChunksGridCoords.containsKey(loadedChunk.getWorld())) {
-				loadedChunksGridCoords.put(loadedChunk.getWorld(), Collections.synchronizedList(new ArrayList<Chunk>()));
+				loadedChunksGridCoords.put(loadedChunk.getWorld(),
+						Collections.synchronizedList(new ArrayList<Chunk>()));
 			}
 			if (!loadedChunksGridCoords.get(loadedChunk.getWorld()).contains(loadedChunk)) {
 				loadedChunksGridCoords.get(loadedChunk.getWorld()).add(loadedChunk);
 			}
 		}
 
-		for (BlockState bs : loadedChunk.getTileEntities()) {
-			if (isIdContainerBlock(bs.getTypeId())) {
+		if (loadedChunk.getTileEntities() != null) {
+			for (BlockState bs : loadedChunk.getTileEntities()) {
+				if (isIdContainerBlock(bs.getTypeId())) {
 
-				updatePipeNeighborBlockSync(bs.getBlock(), true);
+					updatePipeNeighborBlockSync(bs.getBlock(), true);
 
-				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(loadedChunk.getWorld());
-				synchronized (containerMap) {
-					BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
-					TransportPipesContainer tpc = containerMap.get(bl);
-					if (tpc instanceof BlockContainer) {
-						((BlockContainer) tpc).updateBlock();
+					Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance
+							.getContainerMap(loadedChunk.getWorld());
+					synchronized (containerMap) {
+						BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
+						TransportPipesContainer tpc = containerMap.get(bl);
+						if (tpc instanceof BlockContainer) {
+							((BlockContainer) tpc).updateBlock();
+						}
 					}
 				}
 			}

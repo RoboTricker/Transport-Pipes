@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
 
 public class GeneralConf extends Conf {
 
@@ -24,6 +25,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("default_rendersystemId", 1);
 		saveAsDefault("default_renderdistance", 25);
 		saveAsDefault("default_showitems", true);
+		saveAsDefault("custom_resourcepack", "default");
 		finishDefault();
 	}
 
@@ -71,17 +73,26 @@ public class GeneralConf extends Conf {
 	public List<String> getAnticheatPlugins() {
 		return (List<String>) read("anticheat_plugins");
 	}
-	
-	public int getDefaultRenderSystemId(){
+
+	public int getDefaultRenderSystemId() {
 		return (int) read("default_rendersystemId");
 	}
 
 	public boolean getDefaultShowItems() {
 		return (boolean) read("default_showitems");
 	}
-	
-	public int getDefaultRenderDistance(){
+
+	public int getDefaultRenderDistance() {
 		return (int) read("default_renderdistance");
 	}
-	
+
+	public String getResourcepackURL() {
+		String customResourcePack = (String) read("custom_resourcepack");
+		if (customResourcePack.equalsIgnoreCase("default")) {
+			return ModelledPipeRenderSystem.RESOURCEPACK_URL;
+		} else {
+			return customResourcePack;
+		}
+	}
+
 }

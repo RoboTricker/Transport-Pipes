@@ -40,10 +40,12 @@ public class SavingManager implements Listener {
 
 	private List<World> loadedWorlds;
 	private boolean saving;
+	private boolean loading;
 
 	public SavingManager() {
 		loadedWorlds = new ArrayList<>();
 		saving = false;
+		loading = false;
 	}
 
 	public void savePipesAsync(final boolean message) {
@@ -144,6 +146,8 @@ public class SavingManager implements Listener {
 		} else {
 			return;
 		}
+		
+		loading = true;
 
 		try {
 
@@ -249,6 +253,8 @@ public class SavingManager implements Listener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		loading = false;
 
 	}
 

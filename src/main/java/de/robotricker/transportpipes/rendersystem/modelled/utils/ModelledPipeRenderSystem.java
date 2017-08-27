@@ -37,6 +37,7 @@ import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeVOIDModel
 
 public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
+	public static final String RESOURCEPACK_URL = "https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip";
 	private static final ItemStack ITEM_PIPE_WHITE = InventoryUtils.createToolItemStack(25);
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<>();
@@ -97,27 +98,27 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		Collection<PipeDirection> newConns = pipe.getAllConnections();
 		for (PipeDirection pd : PipeDirection.values()) {
 			if (connsMap.containsKey(pd) && newConns.contains(pd)) {
-				//direction was active before and after update
+				// direction was active before and after update
 				ArmorStandData newASD = model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, pd));
 				if (!connsMap.get(pd).isSimilar(newASD)) {
-					//ASD changed after update in this direction
+					// ASD changed after update in this direction
 					removedASD.add(connsMap.get(pd));
 					addedASD.add(newASD);
 					connsMap.put(pd, newASD);
 				}
 			} else if (!connsMap.containsKey(pd) && newConns.contains(pd)) {
-				//direction wasn't active before update but direction IS active after update
+				// direction wasn't active before update but direction IS active after update
 				ArmorStandData newASD = model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, pd));
 				addedASD.add(newASD);
 				connsMap.put(pd, newASD);
 			} else if (connsMap.containsKey(pd) && !newConns.contains(pd)) {
-				//direction was active before update but isn't active after update
+				// direction was active before update but isn't active after update
 				removedASD.add(connsMap.get(pd));
 				connsMap.remove(pd);
 			}
 		}
 
-		//SEND TO CLIENTS
+		// SEND TO CLIENTS
 		List<Player> players = protocol.getAllPlayersWithPipeManager(this);
 		int[] removedIds = ProtocolUtils.convertArmorStandListToEntityIdArray(removedASD);
 		for (Player p : players) {
@@ -230,7 +231,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		}
 		if (!loadedResourcePackPlayers.contains(p)) {
 			p.closeInventory();
-			p.setResourcePack("https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip");
+			p.setResourcePack(TransportPipes.instance.generalConf.getResourcepackURL());
 		}
 	}
 
