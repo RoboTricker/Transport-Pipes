@@ -23,6 +23,8 @@ import org.bukkit.plugin.RegisteredListener;
 import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 
+import co.aikar.timings.Timing;
+import co.aikar.timings.Timings;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PlayerDestroyPipeEvent;
@@ -36,20 +38,23 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 public class PipeUtils {
 
 	/**
-	 * invoke this if you want to build a new pipe at this location. If there is a pipe already, it will do nothing. Otherwise it will place the pipe and send the packets to the players near. don't call this if you only want to update the pipe! returns whether the pipe could be placed
+	 * invoke this if you want to build a new pipe at this location. If there is a
+	 * pipe already, it will do nothing. Otherwise it will place the pipe and send
+	 * the packets to the players near. don't call this if you only want to update
+	 * the pipe! returns whether the pipe could be placed
 	 */
 	public static boolean buildPipe(Player player, final Location blockLoc, PipeType pt, PipeColor pipeColor) {
 
-		//check if there is already a pipe at this position
+		// check if there is already a pipe at this position
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
 			if (pipeMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
-				//there already exists a pipe at this location
+				// there already exists a pipe at this location
 				return false;
 			}
 		}
 
-		//check if there is a block
+		// check if there is a block
 		if (!(blockLoc.getBlock().getType() == Material.AIR || blockLoc.getBlock().isLiquid())) {
 			return false;
 		}
@@ -77,7 +82,8 @@ public class PipeUtils {
 	}
 
 	/**
-	 * invoke this if you want to destroy a pipe. This will remove the pipe from the pipe list and destroys it for all players
+	 * invoke this if you want to destroy a pipe. This will remove the pipe from the
+	 * pipe list and destroys it for all players
 	 */
 	public static void destroyPipe(final Player player, final Pipe pipeToDestroy) {
 
@@ -91,14 +97,14 @@ public class PipeUtils {
 
 		final Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipeToDestroy.getBlockLoc().getWorld());
 		if (pipeMap != null) {
-			//only remove the pipe if it is in the pipe list!
+			// only remove the pipe if it is in the pipe list!
 			if (pipeMap.containsKey(BlockLoc.convertBlockLoc(pipeToDestroy.getBlockLoc()))) {
 
 				TransportPipes.instance.pipePacketManager.destroyPipe(pipeToDestroy);
 
 				pipeMap.remove(BlockLoc.convertBlockLoc(pipeToDestroy.getBlockLoc()));
 
-				//drop all items in old pipe
+				// drop all items in old pipe
 				synchronized (pipeToDestroy.pipeItems) {
 					Set<PipeItem> itemsToDrop = new HashSet<>();
 					itemsToDrop.addAll(pipeToDestroy.pipeItems.keySet());
@@ -112,10 +118,10 @@ public class PipeUtils {
 								pipeToDestroy.getBlockLoc().getWorld().dropItem(pipeToDestroy.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d), item.getItem());
 							}
 						});
-						//destroy item for players
+						// destroy item for players
 						TransportPipes.instance.pipePacketManager.destroyPipeItem(item);
 					}
-					//and clear old pipe items map
+					// and clear old pipe items map
 					pipeToDestroy.pipeItems.clear();
 					pipeToDestroy.tempPipeItems.clear();
 					pipeToDestroy.tempPipeItemsWithSpawn.clear();
@@ -135,7 +141,7 @@ public class PipeUtils {
 							}
 						}
 						if (player != null) {
-							//show break particles
+							// show break particles
 							WrapperPlayServerWorldParticles wrapper = new WrapperPlayServerWorldParticles();
 							wrapper.setParticleType(Particle.ITEM_CRACK);
 							wrapper.setNumberOfParticles(30);
@@ -250,30 +256,33 @@ public class PipeUtils {
 	}
 
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
-		BlockBreakEvent bbe = new BlockBreakEvent(b, p);
+		try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "HitboxListener canBuild check")) {
+			BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 
-		//unregister anticheat listeners
-		List<RegisteredListener> unregisterListeners = new ArrayList<>();
-		for (RegisteredListener rl : bbe.getHandlers().getRegisteredListeners()) {
-			for (String antiCheat : TransportPipes.instance.generalConf.getAnticheatPlugins()) {
-				if (rl.getPlugin().getName().equalsIgnoreCase(antiCheat)) {
+			// unregister anticheat listeners
+			List<RegisteredListener> unregisterListeners = new ArrayList<>();
+			for (RegisteredListener rl : bbe.getHandlers().getRegisteredListeners()) {
+				for (String antiCheat : TransportPipes.instance.generalConf.getAnticheatPlugins()) {
+					if (rl.getPlugin().getName().equalsIgnoreCase(antiCheat)) {
+						unregisterListeners.add(rl);
+					}
+				}
+				if (rl.getListener().equals(TransportPipes.instance.containerBlockUtils)) {
 					unregisterListeners.add(rl);
 				}
 			}
-			if (rl.getListener().equals(TransportPipes.instance.containerBlockUtils)) {
-				unregisterListeners.add(rl);
+			for (RegisteredListener rl : unregisterListeners) {
+				bbe.getHandlers().unregister(rl);
 			}
+
+			try (Timing timed3 = Timings.ofStart(TransportPipes.instance, "HitboxListener BlockBreakEvent call")) {
+				Bukkit.getPluginManager().callEvent(bbe);
+			}
+
+			// register anticheat listeners
+			bbe.getHandlers().registerAll(unregisterListeners);
+			return !bbe.isCancelled() || p.isOp();
 		}
-		for (RegisteredListener rl : unregisterListeners) {
-			bbe.getHandlers().unregister(rl);
-		}
-
-		Bukkit.getPluginManager().callEvent(bbe);
-
-		//register anticheat listeners
-		bbe.getHandlers().registerAll(unregisterListeners);
-
-		return !bbe.isCancelled() || p.isOp();
 	}
 
 	public static void registerPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
@@ -292,7 +301,7 @@ public class PipeUtils {
 				final Collection<PipeDirection> allConnections = new HashSet<>();
 				allConnections.addAll(neighborPipes);
 
-				//update container blocks sync
+				// update container blocks sync
 				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.getBlockLoc().getWorld());
 				for (PipeDirection pd : PipeDirection.values()) {
 					Location blockLoc = pipe.getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ());
