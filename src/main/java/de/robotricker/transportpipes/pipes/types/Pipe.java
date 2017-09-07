@@ -182,6 +182,9 @@ public abstract class Pipe {
 	}
 
 	private void moveItem(final PipeItem item, List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections) {
+		if(!pipeItems.containsKey(item)) {
+			return;
+		}
 		RelLoc relLoc = item.relLoc();
 		PipeDirection itemDir = pipeItems.get(item);
 		float xSpeed = itemDir.getX() * getPipeItemSpeed();
