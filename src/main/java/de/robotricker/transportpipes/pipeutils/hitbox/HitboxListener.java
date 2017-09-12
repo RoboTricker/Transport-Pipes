@@ -2,7 +2,6 @@ package de.robotricker.transportpipes.pipeutils.hitbox;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.command.defaults.TimingsCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -13,9 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import co.aikar.timings.Timing;
-import co.aikar.timings.Timings;
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
@@ -32,7 +28,7 @@ public class HitboxListener implements Listener {
 		ItemStack clickedItem;
 		boolean mainHand;
 
-		try (Timing timed = Timings.ofStart(TransportPipes.instance, "HitboxListener calc hand")) {
+		try (TimingCloseable tc = new TimingCloseable("HitboxListener calc hand")) {
 			if (e.getHand() == EquipmentSlot.HAND) {
 				clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
 				mainHand = true;
@@ -56,15 +52,14 @@ public class HitboxListener implements Listener {
 				return;
 			}
 		}
-
-		try (Timing timed = Timings.ofStart(TransportPipes.instance, "HitboxListener handle action")) {
+		try (TimingCloseable tc = new TimingCloseable("HitboxListener handle action")) {
 
 			PipeType placeablePipeType = PipeType.getFromPipeItem(clickedItem);
 
 			// left click on pipe (its irrelevant if you are looking on a block below the
 			// pipe or not)
 			if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-				try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "HitboxListener left click")) {
+				try (TimingCloseable tc2 = new TimingCloseable("HitboxListener left click")) {
 					final Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 					// ****************************** LEFT CLICKED ON PIPE
 					// *******************************************
@@ -78,7 +73,7 @@ public class HitboxListener implements Listener {
 				// right click on pipe or a block (its irrelevant if you are looking on a block
 				// below the pipe or not)
 			} else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "HitboxListener right click")) {
+				try (TimingCloseable tc2 = new TimingCloseable("HitboxListener right click")) {
 					Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
 
 					if (clickedItem.getType().isBlock() && clickedItem.getType() != Material.AIR) {
@@ -159,7 +154,6 @@ public class HitboxListener implements Listener {
 				}
 			}
 		}
-
 	}
 
 }

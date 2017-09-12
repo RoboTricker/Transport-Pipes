@@ -34,6 +34,8 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
+import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
 
 public class PipeUtils {
 
@@ -256,7 +258,7 @@ public class PipeUtils {
 	}
 
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
-		try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "HitboxListener canBuild check")) {
+		try (TimingCloseable tc = new TimingCloseable("HitboxListener canbuild check")) {
 			BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 
 			// unregister anticheat listeners
@@ -275,7 +277,7 @@ public class PipeUtils {
 				bbe.getHandlers().unregister(rl);
 			}
 
-			try (Timing timed3 = Timings.ofStart(TransportPipes.instance, "HitboxListener BlockBreakEvent call")) {
+			try (TimingCloseable tc2 = new TimingCloseable("HitboxListener blockbreakevent call")) {
 				Bukkit.getPluginManager().callEvent(bbe);
 			}
 

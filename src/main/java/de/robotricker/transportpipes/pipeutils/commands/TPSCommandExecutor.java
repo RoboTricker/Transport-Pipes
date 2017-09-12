@@ -12,6 +12,8 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
+import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
+import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
 
 public class TPSCommandExecutor implements PipesCommandExecutor {
 
@@ -53,6 +55,11 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 				}
 				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
 			}
+		}
+
+		cs.sendMessage("Timings:");
+		for (String timing : TimingCloseable.timings.keySet()) {
+			cs.sendMessage(timing + ": §6" + TimingCloseable.timings.get(timing) + "§r millis (Max: §6" + TimingCloseable.timingsRecord.get(timing) + "§r)");
 		}
 
 		cs.sendMessage(LocConf.load(LocConf.COMMANDS_FOOTER));
