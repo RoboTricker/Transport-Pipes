@@ -59,7 +59,11 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 
 		cs.sendMessage("Timings:");
 		for (String timing : TimingCloseable.timings.keySet()) {
-			cs.sendMessage(timing + ": §6" + TimingCloseable.timings.get(timing) + "§r millis (Max: §6" + TimingCloseable.timingsRecord.get(timing) + "§r)");
+			long time = TimingCloseable.timings.get(timing);
+			long maxTime = TimingCloseable.timingsRecord.get(timing);
+			String timeS = String.format("%.3f", time / 1000000f);
+			String maxTimeS = String.format("%.3f", maxTime / 1000000f);
+			cs.sendMessage(timing + ": §6" + timeS + "§r millis (Max: §6" + maxTimeS + "§r)");
 		}
 
 		cs.sendMessage(LocConf.load(LocConf.COMMANDS_FOOTER));

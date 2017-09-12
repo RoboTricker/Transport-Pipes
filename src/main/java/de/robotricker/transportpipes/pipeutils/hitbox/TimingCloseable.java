@@ -15,12 +15,12 @@ public class TimingCloseable implements Closeable {
 
 	public TimingCloseable(String name) {
 		this.name = name;
-		timingsTime.put(name, System.currentTimeMillis());
+		timingsTime.put(name, System.nanoTime());
 	}
 
 	@Override
 	public void close() {
-		long time = System.currentTimeMillis() - timingsTime.get(name);
+		long time = System.nanoTime() - timingsTime.get(name);
 		timings.put(name, time);
 		if (!timingsRecord.containsKey(name)) {
 			timingsRecord.put(name, time);
