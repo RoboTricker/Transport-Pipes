@@ -21,6 +21,7 @@ public class LogisticsAPIUtils implements Listener {
 
 	@EventHandler
 	public void onRegister(final ItemContainerRegisterEvent e) {
+		System.out.println("Item container registered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
 		PipeAPI.registerTransportPipesContainer(e.getLocation(), new TransportPipesContainer() {
 
@@ -47,6 +48,7 @@ public class LogisticsAPIUtils implements Listener {
 
 	@EventHandler
 	public void onUnregister(ItemContainerUnregisterEvent e) {
+		System.out.println("Item container unregistered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
 	}
 
