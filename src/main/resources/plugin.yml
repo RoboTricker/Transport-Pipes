@@ -2,10 +2,8 @@ name: TransportPipes
 version: ${project.versionCode}
 author: RoboTricker
 main: de.robotricker.transportpipes.TransportPipes
-load: STARTUP
 depend: [ProtocolLib]
-softdepend: [LogisticsAPI]
-loadbefore: [ProtocolLib, AuthMe]
+softdepend: [LogisticsAPI, AuthMe]
 commands:
   transportpipes:
     aliases: [transportpipe, tpipes, tpipe, pipes, pipe]
