@@ -191,6 +191,8 @@ public class TransportPipes extends JavaPlugin {
 				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
 			}
 		}
+		System.out.println("enabled: " + Bukkit.getPluginManager().isPluginEnabled("LogisticsApi"));
+		System.out.println("!= null: " + Bukkit.getPluginManager().getPlugin("LogisticsApi") != null);
 		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
 			System.out.println("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
