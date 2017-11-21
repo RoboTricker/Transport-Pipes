@@ -192,6 +192,7 @@ public class TransportPipes extends JavaPlugin {
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsAPI")) {
+			System.out.println("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
 			// register already registered ItemContainers
