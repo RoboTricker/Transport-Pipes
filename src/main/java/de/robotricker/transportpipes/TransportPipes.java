@@ -11,6 +11,8 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,12 +20,22 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent;
+import com.logisticscraft.logisticsapi.item.ItemManager;
+
+import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.FilteringMode;
+import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -80,8 +92,7 @@ public class TransportPipes extends JavaPlugin {
 
 		// Prepare collections
 		registeredPipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
-		registeredContainers = Collections
-				.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
+		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
 
 		// Prepare managers
 		armorStandProtocol = new ArmorStandProtocol();
@@ -133,13 +144,11 @@ public class TransportPipes extends JavaPlugin {
 					if (!updateCmdExec.onCommand(cs, Arrays.copyOfRange(args, 1, args.length))) {
 						noPerm = true;
 					}
-				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload")
-						&& args[1].equalsIgnoreCase("config")) {
+				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("config")) {
 					if (!reloadConfigCmdExec.onCommand(cs, Arrays.copyOfRange(args, 2, args.length))) {
 						noPerm = true;
 					}
-				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload")
-						&& args[1].equalsIgnoreCase("pipes")) {
+				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("pipes")) {
 					if (!reloadPipesCmdExec.onCommand(cs, Arrays.copyOfRange(args, 2, args.length))) {
 						noPerm = true;
 					}
@@ -152,30 +161,20 @@ public class TransportPipes extends JavaPlugin {
 						noPerm = true;
 					}
 				} else {
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-							String.format(LocConf.load(LocConf.COMMANDS_HEADER),
-									TransportPipes.instance.getDescription().getVersion())));
-					cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-							"&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format(LocConf.load(LocConf.COMMANDS_HEADER), TransportPipes.instance.getDescription().getVersion())));
+					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes settings &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SETTINGS)));
 					if (cs.hasPermission("transportpipes.tps"))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes tps &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_TPS)));
 					if (cs.hasPermission("transportpipes.creative"))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&6/tpipes creative &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_CREATIVE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes creative &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_CREATIVE)));
 					if (cs.hasPermission("transportpipes.reload"))
-						cs.sendMessage(
-								ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- "
-										+ LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload <config|pipes> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
 					if (cs.hasPermission("transportpipes.update"))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
 					if (cs.hasPermission("transportpipes.save"))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
 					if (cs.hasPermission("transportpipes.delete"))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&6/tpipes delete <Radius> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_DELETE)));
+						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes delete <Radius> &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_DELETE)));
 					cs.sendMessage(ChatColor.translateAlternateColorCodes('&', LocConf.load(LocConf.COMMANDS_FOOTER)));
 					return true;
 				}
@@ -203,12 +202,18 @@ public class TransportPipes extends JavaPlugin {
 		for (PipeRenderSystem prs : renderSystems) {
 			Bukkit.getPluginManager().registerEvents(prs, this);
 			if (prs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
-				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(),
-						this);
+				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsAPI")) {
+			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
+			// register already registered ItemContainers
+			Map<Location, com.logisticscraft.logisticsapi.item.ItemContainer> containers = com.logisticscraft.logisticsapi.item.ItemManager.getContainers();
+			for (Location key : containers.keySet()) {
+				TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer(containers.get(key));
+				PipeAPI.registerTransportPipesContainer(key.getBlock().getLocation(), tpc);
+			}
 		}
 
 		for (World world : Bukkit.getWorlds()) {

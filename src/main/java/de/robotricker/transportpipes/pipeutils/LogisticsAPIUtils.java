@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.logisticscraft.logisticsapi.BlockSide;
 import com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent;
 import com.logisticscraft.logisticsapi.event.ItemContainerUnregisterEvent;
+import com.logisticscraft.logisticsapi.item.ItemContainer;
 
 import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -23,16 +24,26 @@ public class LogisticsAPIUtils implements Listener {
 	public void onRegister(final ItemContainerRegisterEvent e) {
 		System.out.println("Item container registered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
-		PipeAPI.registerTransportPipesContainer(e.getLocation(), new TransportPipesContainer() {
+		PipeAPI.registerTransportPipesContainer(e.getLocation(), wrapLogisticsAPIItemContainer(e.getItemContainer()));
+	}
+
+	@EventHandler
+	public void onUnregister(ItemContainerUnregisterEvent e) {
+		System.out.println("Item container unregistered at " + e.getLocation());
+		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
+	}
+	
+	public static TransportPipesContainer wrapLogisticsAPIItemContainer(final ItemContainer ic) {
+		return new TransportPipesContainer() {
 
 			@Override
 			public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion) {
-				return e.getItemContainer().insertItem(BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
+				return ic.insertItem(BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
 			}
 
 			@Override
 			public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
-				return e.getItemContainer().howMuchSpaceForItemAsync(BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
+				return ic.howMuchSpaceForItemAsync(BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
 			}
 
 			@Override
@@ -41,15 +52,9 @@ public class LogisticsAPIUtils implements Listener {
 				for (ItemData id : filterItems) {
 					wrappedFilterItems.add(id.toItemStack());
 				}
-				return e.getItemContainer().extractItem(BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
+				return ic.extractItem(BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
 			}
-		});
-	}
-
-	@EventHandler
-	public void onUnregister(ItemContainerUnregisterEvent e) {
-		System.out.println("Item container unregistered at " + e.getLocation());
-		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
+		};
 	}
 
 }
