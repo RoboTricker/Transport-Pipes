@@ -34,6 +34,7 @@ import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
+import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
 
 public class ExtractionPipe extends Pipe implements ClickablePipe {
 
@@ -270,7 +271,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 
 				@Override
 				public void run() {
-					try {
+					try (TimingCloseable tc = new TimingCloseable("extract item scheduler")){
 						if (!isInLoadedChunk()) {
 							return;
 						}

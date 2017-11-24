@@ -33,26 +33,29 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
+import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
 
 public abstract class Pipe {
 
-	public static final float ITEM_SPEED = 0.125f;//0.0625f;
+	public static final float ITEM_SPEED = 0.125f;// 0.0625f;
 	public static final float ICE_ITEM_SPEED = 0.5f;
-	//calculate the amount of digits in 10^digits to shift all floats 
+	// calculate the amount of digits in 10^digits to shift all floats
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
 
-	//contains all items managed by this pipe
+	// contains all items managed by this pipe
 	public final Map<PipeItem, PipeDirection> pipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
-	//here are pipes saved that should be put in "pipeItems" in the next tick and should NOT be spawned to the players (they are already spawned)
-	//remember to synchronize while iterating
+	// here are pipes saved that should be put in "pipeItems" in the next tick and
+	// should NOT be spawned to the players (they are already spawned)
+	// remember to synchronize while iterating
 	public final Map<PipeItem, PipeDirection> tempPipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
-	//here are pipes saved that should be put in "pipeItems" in the next tick and should be spawned to the players
-	//remember to synchronize while iterating
+	// here are pipes saved that should be put in "pipeItems" in the next tick and
+	// should be spawned to the players
+	// remember to synchronize while iterating
 	public final Map<PipeItem, PipeDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
 
-	//the blockLoc of this pipe
+	// the blockLoc of this pipe
 	private Location blockLoc;
 	private Chunk cachedChunk;
 
@@ -85,7 +88,8 @@ public abstract class Pipe {
 	}
 
 	/**
-	 * removes the PipeItem from this pipe. This should be called whenever the item leaves the pipe (for all ItemHandling cases)
+	 * removes the PipeItem from this pipe. This should be called whenever the item
+	 * leaves the pipe (for all ItemHandling cases)
 	 */
 	public void removePipeItem(PipeItem item) {
 		pipeItems.remove(item);
@@ -97,12 +101,12 @@ public abstract class Pipe {
 		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
 
 		if (extractItems && this instanceof ExtractionPipe) {
-			//extract items from inventories
+			// extract items from inventories
 			TransportPipes.instance.pipeThread.setLastAction("Pipe extract");
 			((ExtractionPipe) this).extractItems(blockConnections);
 		}
 
-		//handle item transport through pipe
+		// handle item transport through pipe
 		TransportPipes.instance.pipeThread.setLastAction("Pipe transport");
 		transportItems(pipeConnections, blockConnections, itemsTicked);
 
@@ -123,7 +127,8 @@ public abstract class Pipe {
 	}
 
 	/**
-	 * returns whether the item is still in "pipeItems" and therefore should still get processed or not.
+	 * returns whether the item is still in "pipeItems" and therefore should still
+	 * get processed or not.
 	 */
 	public abstract Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs);
 
@@ -135,7 +140,7 @@ public abstract class Pipe {
 		for (final PipeItem item : itemsMap.keySet()) {
 			PipeDirection itemDir = itemsMap.get(item);
 
-			//if the item arrives at the middle of the pipe
+			// if the item arrives at the middle of the pipe
 			if (item.relLoc().getFloatX() == 0.5f && item.relLoc().getFloatY() == 0.5f && item.relLoc().getFloatZ() == 0.5f) {
 				Set<PipeDirection> clonedAllConnections = new HashSet<>();
 				clonedAllConnections.addAll(pipeConnections);
@@ -168,7 +173,8 @@ public abstract class Pipe {
 						TransportPipes.instance.pipePacketManager.createPipeItem(lastPipeItem);
 					}
 					moveItem(lastPipeItem, pipeConnections, blockConnections);
-					//specifies that this item isn't handled inside another pipe in this tick if it moves in the tempPipeItems in this tick
+					// specifies that this item isn't handled inside another pipe in this tick if it
+					// moves in the tempPipeItems in this tick
 					itemsTicked.add(lastPipeItem);
 				}
 
@@ -177,14 +183,15 @@ public abstract class Pipe {
 
 			moveItem(item, pipeConnections, blockConnections);
 
-			//specifies that this item isn't handled inside another pipe in this tick if it moves in the tempPipeItems in this tick
+			// specifies that this item isn't handled inside another pipe in this tick if it
+			// moves in the tempPipeItems in this tick
 			itemsTicked.add(item);
 
 		}
 	}
 
 	private void moveItem(final PipeItem item, List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections) {
-		if(!pipeItems.containsKey(item)) {
+		if (!pipeItems.containsKey(item)) {
 			return;
 		}
 		RelLoc relLoc = item.relLoc();
@@ -192,21 +199,21 @@ public abstract class Pipe {
 		float xSpeed = itemDir.getX() * getPipeItemSpeed();
 		float ySpeed = itemDir.getY() * getPipeItemSpeed();
 		float zSpeed = itemDir.getZ() * getPipeItemSpeed();
-		//update pipeItemSpeed (for pipe updating packets)
+		// update pipeItemSpeed (for pipe updating packets)
 		item.relLocDerivation().set(xSpeed, ySpeed, zSpeed);
-		//update the real item location
+		// update the real item location
 		relLoc.addValues(xSpeed, ySpeed, zSpeed);
 
-		//update
+		// update
 		TransportPipes.instance.pipePacketManager.updatePipeItem(item);
 
-		//if the item is at the end of the transportation
+		// if the item is at the end of the transportation
 		if (relLoc.getFloatX() == 1.0f || relLoc.getFloatY() == 1.0f || relLoc.getFloatZ() == 1.0f || relLoc.getFloatX() == 0.0f || relLoc.getFloatY() == 0.0f || relLoc.getFloatZ() == 0.0f) {
 
 			final Location newBlockLoc = blockLoc.clone().add(itemDir.getX(), itemDir.getY(), itemDir.getZ());
 			ItemHandling itemHandling = ItemHandling.NOTHING;
 
-			//ITEM HANDLING CALC
+			// ITEM HANDLING CALC
 			{
 				if (itemHandling == ItemHandling.NOTHING) {
 					if (blockConnections.contains(itemDir)) {
@@ -217,19 +224,21 @@ public abstract class Pipe {
 
 							@Override
 							public void run() {
-								fullyRemovePipeItemFromSystem(item, false);
+								try (TimingCloseable tc = new TimingCloseable("output item scheduler")) {
 
-								try {
+									fullyRemovePipeItemFromSystem(item, false);
+
 									BlockLoc bl = BlockLoc.convertBlockLoc(newBlockLoc);
 
 									Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(newBlockLoc.getWorld());
 									if (containerMap == null || !containerMap.containsKey(bl)) {
-										//drop the item in case the inventory block is registered but is no longer in the world
+										// drop the item in case the inventory block is registered but is no longer in
+										// the world
 										newBlockLoc.getWorld().dropItem(newBlockLoc.clone().add(0.5d, 0.5d, 0.5d), itemStack);
 									} else {
 										ItemStack overflow = containerMap.get(bl).insertItem(finalDir.getOpposite(), itemStack);
 										if (overflow != null) {
-											//move overflow items in opposite direction
+											// move overflow items in opposite direction
 											PipeDirection newItemDir = finalDir.getOpposite();
 											PipeItem pi = new PipeItem(overflow, Pipe.this.blockLoc, newItemDir);
 											tempPipeItemsWithSpawn.put(pi, newItemDir);
@@ -252,11 +261,11 @@ public abstract class Pipe {
 							BlockLoc newBlockLocLong = BlockLoc.convertBlockLoc(newBlockLoc);
 							if (pipeMap.containsKey(newBlockLocLong)) {
 								removePipeItem(item);
-								//switch relLoc values from 0 to 1 and vice-versa
+								// switch relLoc values from 0 to 1 and vice-versa
 								item.relLoc().switchValues();
 
 								Pipe pipe = pipeMap.get(newBlockLocLong);
-								//put item in next pipe
+								// put item in next pipe
 								pipe.tempPipeItems.put(item, itemDir);
 								itemHandling = ItemHandling.OUTPUT_TO_NEXT_PIPE;
 							}
@@ -269,7 +278,7 @@ public abstract class Pipe {
 					itemHandling = ItemHandling.DROP;
 				}
 			}
-			//END ITEM HANDLING CALC
+			// END ITEM HANDLING CALC
 
 		}
 	}
@@ -286,7 +295,8 @@ public abstract class Pipe {
 	}
 
 	/**
-	 * Determines wether the item should drop, be put in another pipe or be put in an inventory when it reaches the end of a pipe
+	 * Determines wether the item should drop, be put in another pipe or be put in
+	 * an inventory when it reaches the end of a pipe
 	 */
 	private enum ItemHandling {
 		NOTHING(),

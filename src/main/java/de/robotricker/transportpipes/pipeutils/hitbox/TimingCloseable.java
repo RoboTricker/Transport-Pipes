@@ -10,12 +10,16 @@ public class TimingCloseable implements Closeable {
 	public static Map<String, Long> timingsTime = new HashMap<>();
 	public static Map<String, Long> timings = new HashMap<>();
 	public static Map<String, Long> timingsRecord = new HashMap<>();
+	public static Map<String, Long> timingsAmount = new HashMap<>();
 
 	private String name;
 
 	public TimingCloseable(String name) {
 		this.name = name;
 		timingsTime.put(name, System.nanoTime());
+		long a = timingsAmount.containsKey(name) ? timingsAmount.get(name) : 0;
+		a++;
+		timingsAmount.put(name, a);
 	}
 
 	@Override

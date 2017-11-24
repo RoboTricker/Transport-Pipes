@@ -28,127 +28,119 @@ public class HitboxListener implements Listener {
 		ItemStack clickedItem;
 		boolean mainHand;
 
-		try (TimingCloseable tc = new TimingCloseable("HitboxListener calc hand")) {
-			if (e.getHand() == EquipmentSlot.HAND) {
-				clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
-				mainHand = true;
-			} else if (e.getHand() == EquipmentSlot.OFF_HAND) {
-				if (!HitboxUtils.isInteractableItem(p.getInventory().getItemInMainHand()) && PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) == null) {
-					clickedItem = e.getPlayer().getEquipment().getItemInOffHand();
-					mainHand = false;
-				} else {
-					// using mainhand -> ignore/cancel the offhand call
-					if (clickedBlock != null && HitboxUtils.isInteractableItem(p.getInventory().getItemInOffHand())) {
-						Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
-						// cancel block placement if the block would be placed inside a pipe or the
-						// clickedItem in the mainHand is a pipe
-						if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null || PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) != null) {
-							e.setCancelled(true);
-						}
-					}
-					return;
-				}
+		if (e.getHand() == EquipmentSlot.HAND) {
+			clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
+			mainHand = true;
+		} else if (e.getHand() == EquipmentSlot.OFF_HAND) {
+			if (!HitboxUtils.isInteractableItem(p.getInventory().getItemInMainHand()) && PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) == null) {
+				clickedItem = e.getPlayer().getEquipment().getItemInOffHand();
+				mainHand = false;
 			} else {
+				// using mainhand -> ignore/cancel the offhand call
+				if (clickedBlock != null && HitboxUtils.isInteractableItem(p.getInventory().getItemInOffHand())) {
+					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
+					// cancel block placement if the block would be placed inside a pipe or the
+					// clickedItem in the mainHand is a pipe
+					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null || PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) != null) {
+						e.setCancelled(true);
+					}
+				}
 				return;
 			}
+		} else {
+			return;
 		}
-		try (TimingCloseable tc = new TimingCloseable("HitboxListener handle action")) {
 
-			PipeType placeablePipeType = PipeType.getFromPipeItem(clickedItem);
+		PipeType placeablePipeType = PipeType.getFromPipeItem(clickedItem);
 
-			// left click on pipe (its irrelevant if you are looking on a block below the
-			// pipe or not)
-			if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-				try (TimingCloseable tc2 = new TimingCloseable("HitboxListener left click")) {
-					final Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
-					// ****************************** LEFT CLICKED ON PIPE
+		// left click on pipe (its irrelevant if you are looking on a block below the
+		// pipe or not)
+		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+			final Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
+			// ****************************** LEFT CLICKED ON PIPE
+			// *******************************************
+			if (pipeBlock != null) {
+				e.setCancelled(true);
+				if (PipeUtils.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+					PipeUtils.destroyPipe(p, PipeUtils.getPipeWithLocation(pipeBlock.getLocation()));
+				}
+			}
+			// right click on pipe or a block (its irrelevant if you are looking on a block
+			// below the pipe or not)
+		} else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
+
+			if (clickedItem.getType().isBlock() && clickedItem.getType() != Material.AIR) {
+				// ****************************** PLACE BLOCK ON SIDE OF PIPE
+				// *******************************************
+				if (pipeBlock != null) {
+					e.setCancelled(true);
+					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
+					// cancel block placement if the player clicked at the pipe with a wrench
+					if (HitboxUtils.placeBlock(p, placeBlock, pipeBlock, clickedItem.getTypeId(), clickedItem.getData().getData(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+						HitboxUtils.decreaseItemInHand(p, mainHand);
+						return;
+					}
+					// player is looking on a block but not on a pipe hitbox (check if the block can
+					// be placed there)
+					// ****************************** CANCEL BLOCK PLACEMENT INSIDE PIPE
 					// *******************************************
-					if (pipeBlock != null) {
-						e.setCancelled(true);
-						if (PipeUtils.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-							PipeUtils.destroyPipe(p, PipeUtils.getPipeWithLocation(pipeBlock.getLocation()));
+				} else if (clickedBlock != null) {
+					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
+					// cancel block placement if the block would be placed inside a pipe
+					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null) {
+						// only cancel the interaction if the player wants to place a block inside the
+						// pipe (if he looks onto an interactive block he has to sneak)
+						if (!(HitboxUtils.isInteractiveBlock(clickedBlock) || p.isSneaking())) {
+							e.setCancelled(true);
+							return;
 						}
 					}
 				}
-				// right click on pipe or a block (its irrelevant if you are looking on a block
-				// below the pipe or not)
-			} else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				try (TimingCloseable tc2 = new TimingCloseable("HitboxListener right click")) {
-					Block pipeBlock = HitboxUtils.getPipeLookingTo(p, clickedBlock);
-
-					if (clickedItem.getType().isBlock() && clickedItem.getType() != Material.AIR) {
-						// ****************************** PLACE BLOCK ON SIDE OF PIPE
-						// *******************************************
-						if (pipeBlock != null) {
-							e.setCancelled(true);
-							Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
-							// cancel block placement if the player clicked at the pipe with a wrench
-							if (HitboxUtils.placeBlock(p, placeBlock, pipeBlock, clickedItem.getTypeId(), clickedItem.getData().getData(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+			}
+			// place pipe
+			if (placeablePipeType != null) {
+				// clicked on pipe
+				// ****************************** PLACE PIPE ON SIDE OF PIPE
+				// *******************************************
+				if (pipeBlock != null) {
+					e.setCancelled(true);
+					Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
+					if (PipeUtils.canBuild(p, placeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+						if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
+							HitboxUtils.decreaseItemInHand(p, mainHand);
+							return;
+						}
+					}
+					// clicked on block (not below pipe)
+					// ****************************** PLACE PIPE ON RELATIVE OF BLOCK
+					// *******************************************
+				} else if (clickedBlock != null) {
+					e.setUseItemInHand(Result.DENY);
+					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
+					boolean canPlace = true;
+					if (HitboxUtils.isInteractiveBlock(clickedBlock)) {
+						canPlace = p.isSneaking();
+					}
+					if (canPlace) {
+						if (PipeUtils.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+							if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
 								HitboxUtils.decreaseItemInHand(p, mainHand);
+								e.setCancelled(true);
 								return;
 							}
-							// player is looking on a block but not on a pipe hitbox (check if the block can
-							// be placed there)
-							// ****************************** CANCEL BLOCK PLACEMENT INSIDE PIPE
-							// *******************************************
-						} else if (clickedBlock != null) {
-							Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
-							// cancel block placement if the block would be placed inside a pipe
-							if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null) {
-								// only cancel the interaction if the player wants to place a block inside the
-								// pipe (if he looks onto an interactive block he has to sneak)
-								if (!(HitboxUtils.isInteractiveBlock(clickedBlock) || p.isSneaking())) {
-									e.setCancelled(true);
-									return;
-								}
-							}
 						}
 					}
-					// place pipe
-					if (placeablePipeType != null) {
-						// clicked on pipe
-						// ****************************** PLACE PIPE ON SIDE OF PIPE
-						// *******************************************
-						if (pipeBlock != null) {
-							e.setCancelled(true);
-							Block placeBlock = HitboxUtils.getRelativeBlockOfPipe(p, pipeBlock);
-							if (PipeUtils.canBuild(p, placeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-								if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
-									HitboxUtils.decreaseItemInHand(p, mainHand);
-									return;
-								}
-							}
-							// clicked on block (not below pipe)
-							// ****************************** PLACE PIPE ON RELATIVE OF BLOCK
-							// *******************************************
-						} else if (clickedBlock != null) {
-							e.setUseItemInHand(Result.DENY);
-							Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
-							boolean canPlace = true;
-							if (HitboxUtils.isInteractiveBlock(clickedBlock)) {
-								canPlace = p.isSneaking();
-							}
-							if (canPlace) {
-								if (PipeUtils.canBuild(p, placeBlock, clickedBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-									if (PipeUtils.buildPipe(e.getPlayer(), placeBlock.getLocation(), placeablePipeType, PipeColor.getPipeColorByPipeItem(clickedItem))) {
-										HitboxUtils.decreaseItemInHand(p, mainHand);
-										e.setCancelled(true);
-										return;
-									}
-								}
-							}
-						}
-					}
+				}
+			}
 
-					if (pipeBlock != null) {
-						Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
-						if (pipeClickedAt instanceof ClickablePipe) {
-							if (PipeItemUtils.isItemStackWrench(clickedItem)) {
-								if (PipeUtils.canBuild(p, pipeClickedAt.getBlockLoc().getBlock(), pipeClickedAt.getBlockLoc().getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-									((ClickablePipe) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
-									e.setCancelled(true);
-								}
-							}
+			if (pipeBlock != null) {
+				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
+				if (pipeClickedAt instanceof ClickablePipe) {
+					if (PipeItemUtils.isItemStackWrench(clickedItem)) {
+						if (PipeUtils.canBuild(p, pipeClickedAt.getBlockLoc().getBlock(), pipeClickedAt.getBlockLoc().getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+							((ClickablePipe) pipeClickedAt).click(p, HitboxUtils.getFaceOfPipeLookingTo(p, pipeClickedAt));
+							e.setCancelled(true);
 						}
 					}
 				}
