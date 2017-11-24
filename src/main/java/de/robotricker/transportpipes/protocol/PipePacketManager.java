@@ -24,6 +24,7 @@ import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.LocationUtils;
+import de.robotricker.transportpipes.pipeutils.hitbox.OcclusionCullingUtils;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 
@@ -36,25 +37,28 @@ public class PipePacketManager implements Listener {
 		pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
 		itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 	}
-	
+
 	public void createPipe(Pipe pipe, Collection<PipeDirection> allConnections) {
-		//notify pipe that some connections might have changed. Knowing this the iron pipe can change its output direction for example.
+		// notify pipe that some connections might have changed. Knowing this the iron
+		// pipe can change its output direction for example.
 		pipe.notifyConnectionsChange();
 
 		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.createPipeASD(pipe, allConnections);
 		}
-		//client update is done in the next tick
+		// client update is done in the next tick
 	}
 
 	public void updatePipe(Pipe pipe) {
-		//notify pipe that some connections might have changed. Knowing this the iron pipe can change its output direction for example.
+		// notify pipe that some connections might have changed. Knowing this the iron
+		// pipe can change its output direction for example.
 		pipe.notifyConnectionsChange();
 
 		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.updatePipeASD(pipe);
 		}
-		//client update is done inside the PipeManager method call (that's because here you don't know which ArmorStands to remove and which ones to add)
+		// client update is done inside the PipeManager method call (that's because here
+		// you don't know which ArmorStands to remove and which ones to add)
 	}
 
 	public void destroyPipe(Pipe pipe) {
@@ -163,10 +167,15 @@ public class PipePacketManager implements Listener {
 									continue;
 								}
 								if (pipe.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
-									//spawn pipe if not spawned
-									spawnPipe(on, pipe);
+									if (OcclusionCullingUtils.isPipeVisibleForPlayer(on, pipe)) {
+										// spawn pipe if not spawned
+										spawnPipe(on, pipe);
+									} else {
+										// destroy pipe if spawned
+										despawnPipe(on, pipe);
+									}
 								} else {
-									//destroy pipe if spawned
+									// destroy pipe if spawned
 									despawnPipe(on, pipe);
 								}
 
@@ -177,7 +186,11 @@ public class PipePacketManager implements Listener {
 											continue;
 										}
 										if (item.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
-											spawnItem(on, item);
+											if (OcclusionCullingUtils.isPipeItemVisibleForPlayer(on, item)) {
+												spawnItem(on, item);
+											} else {
+												despawnItem(on, item);
+											}
 										} else {
 											despawnItem(on, item);
 										}
@@ -208,7 +221,8 @@ public class PipePacketManager implements Listener {
 
 	@EventHandler
 	public void onWorldChange(final PlayerChangedWorldEvent e) {
-		//remove cached pipes if the player changes world, so the pipe will be spawned if he switches back
+		// remove cached pipes if the player changes world, so the pipe will be spawned
+		// if he switches back
 		if (pipesForPlayers.containsKey(e.getPlayer())) {
 			List<Pipe> rmList = new ArrayList<>();
 			for (int i = 0; i < pipesForPlayers.get(e.getPlayer()).size(); i++) {
@@ -220,7 +234,8 @@ public class PipePacketManager implements Listener {
 			pipesForPlayers.get(e.getPlayer()).removeAll(rmList);
 		}
 
-		//remove cached items if the player changes world, so the item will be spawned if he switches back
+		// remove cached items if the player changes world, so the item will be spawned
+		// if he switches back
 		if (itemsForPlayers.containsKey(e.getPlayer())) {
 			List<PipeItem> rmList = new ArrayList<>();
 			for (int i = 0; i < itemsForPlayers.get(e.getPlayer()).size(); i++) {

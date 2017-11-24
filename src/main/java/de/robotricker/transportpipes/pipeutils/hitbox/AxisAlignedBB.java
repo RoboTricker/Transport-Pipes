@@ -52,6 +52,18 @@ public class AxisAlignedBB {
 	public Location getMaxLocation(World world) {
 		return new Location(world, maxx, maxy, maxz);
 	}
+	
+	public double getWidth() {
+		return maxx - minx;
+	}
+	
+	public double getHeight() {
+		return maxy - miny;
+	}
+	
+	public double getDepth() {
+		return maxz - minz;
+	}
 
 	public PipeDirection rayIntersection(Vector ray, Vector rayOrigin, Location pipeBlockLoc) {
 
