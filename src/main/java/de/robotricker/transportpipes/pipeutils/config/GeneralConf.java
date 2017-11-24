@@ -17,6 +17,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("destroy_pipe_on_explosion", true);
 		saveAsDefault("anticheat_plugins", Arrays.asList("NoCheatPlus", "AAC", "CompatNoCheatPlus", "AntiCheatPlus"));
 		saveAsDefault("default_rendersystemId", 1);
+		saveAsDefault("force_default_rendersystem", false);
 		saveAsDefault("default_renderdistance", 25);
 		saveAsDefault("default_showitems", true);
 		saveAsDefault("custom_resourcepack", "default");
@@ -48,7 +49,11 @@ public class GeneralConf extends Conf {
 		return (int) read("default_rendersystemId");
 	}
 
-	public boolean getDefaultShowItems() {
+	public boolean isForceDefaultRenderSystem() {
+		return (boolean) read("force_default_rendersystem");
+	}
+
+	public boolean isDefaultShowItems() {
 		return (boolean) read("default_showitems");
 	}
 

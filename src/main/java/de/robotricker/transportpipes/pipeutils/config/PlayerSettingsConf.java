@@ -13,7 +13,7 @@ public class PlayerSettingsConf extends Conf {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "settings" + File.separator + p.getUniqueId().toString() + ".yml"));
 		saveAsDefault("renderDistance", TransportPipes.instance.generalConf.getDefaultRenderDistance());
 		saveAsDefault("renderSystemId", TransportPipes.instance.generalConf.getDefaultRenderSystemId());
-		saveAsDefault("showItems", TransportPipes.instance.generalConf.getDefaultShowItems());
+		saveAsDefault("showItems", TransportPipes.instance.generalConf.isDefaultShowItems());
 		finishDefault();
 	}
 
@@ -26,7 +26,13 @@ public class PlayerSettingsConf extends Conf {
 	}
 
 	public PipeRenderSystem getRenderSystem() {
-		return PipeRenderSystem.getRenderSystemFromId((int) read("renderSystemId"));
+		// overwrite player specific render system with default one if forced to.
+		int renderSystemId = (int) read("renderSystemId");
+		int defaultRenderSystemId = TransportPipes.instance.generalConf.getDefaultRenderSystemId();
+		if (TransportPipes.instance.generalConf.isForceDefaultRenderSystem()) {
+			renderSystemId = defaultRenderSystemId;
+		}
+		return PipeRenderSystem.getRenderSystemFromId(renderSystemId);
 	}
 
 	public void setRenderSystem(int renderSystemId) {
