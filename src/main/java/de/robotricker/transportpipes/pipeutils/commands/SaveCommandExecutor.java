@@ -1,13 +1,7 @@
 package de.robotricker.transportpipes.pipeutils.commands;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.config.PlayerSettingsConf;
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
-import de.robotricker.transportpipes.pipeutils.hitbox.OcclusionCullingUtils;
 
 public class SaveCommandExecutor implements PipesCommandExecutor {
 
@@ -19,6 +13,31 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 		}
 
 		TransportPipes.instance.savingManager.savePipesAsync(true);
+
+		/*final Block b = ((Player) cs).getLocation().getBlock();
+		b.setType(Material.CHEST);
+		Chest chest = (Chest) b.getState();
+		chest.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
+		PipeAPI.registerTransportPipesContainer(chest.getLocation(), new SimpleInventoryContainer(b));
+
+		PipeAPI.buildPipe(b.getRelative(BlockFace.NORTH).getLocation(), PipeType.EXTRACTION, null);
+		ExtractionPipe ep = (ExtractionPipe) PipeAPI.getPipeAtLocation(b.getRelative(BlockFace.NORTH).getLocation());
+		ep.setExtractCondition(ExtractCondition.ALWAYS_EXTRACT);
+
+		Bukkit.getScheduler().runTaskLater(TransportPipes.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				PipeAPI.buildPipe(b.getRelative(BlockFace.NORTH).getRelative(BlockFace.WEST).getLocation(), PipeType.COLORED, PipeColor.WHITE);
+				Bukkit.getScheduler().runTaskLater(TransportPipes.instance, new Runnable() {
+
+					@Override
+					public void run() {
+						PipeAPI.buildPipe(b.getRelative(BlockFace.WEST).getLocation(), PipeType.COLORED, PipeColor.WHITE);
+					}
+				}, 20L);
+			}
+		}, 20L);*/
 
 		cs.sendMessage("§cPipes saved");
 
