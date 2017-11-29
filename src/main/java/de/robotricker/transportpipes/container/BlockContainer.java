@@ -29,7 +29,8 @@ public abstract class BlockContainer implements TransportPipesContainer {
 	}
 
 	/**
-	 * tries to add item {@link toPut} to item {@link before} and returns the result item.<br>
+	 * tries to add item {@link toPut} to item {@link before} and returns the result
+	 * item.<br>
 	 * if the item couldn't be inserted, the result item is equal to {@link before}.
 	 */
 	protected ItemStack putItemInSlot(ItemStack toPut, ItemStack before) {
@@ -69,19 +70,22 @@ public abstract class BlockContainer implements TransportPipesContainer {
 	}
 
 	protected boolean isInvLocked(InventoryHolder ih) {
-		//check vanilla lock
+		// check vanilla lock
 		if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
 			if (((org.bukkit.block.Lockable) ih).isLocked()) {
 				return true;
 			}
 		}
-		//check lwc lock
+		// check lwc lock
 		if (lwcLockableExists) {
-			if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
+			com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().getPhysicalDatabase().loadProtection(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
+			if(protection != null) {
+			//if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
 				return true;
 			}
 		}
 		return false;
+
 	}
 
 	public abstract void updateBlock();
