@@ -6,7 +6,7 @@
 
 	<groupId>de.robotricker</groupId>
 	<artifactId>transportpipes</artifactId>
-	<version>4.2.2</version>
+	<version>4.2.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>TransportPipes</name>
@@ -98,7 +98,8 @@
 							<version>${project.version}</version>
 							<type>${project.packaging}</type>
 							<overWrite>true</overWrite>
-							<outputDirectory>C:\Users\Simon Rost\Server\TransportPipes (1.12.2)\plugins</outputDirectory>
+							<outputDirectory>C:\Users\Simon Rost\Server\TransportPipes
+								(1.12.2)\plugins</outputDirectory>
 							<destFileName>transportpipes-devbuild.jar</destFileName>
 						</artifactItem>
 					</artifactItems>
@@ -117,7 +118,8 @@
 					</execution>
 				</executions>
 				<configuration>
-					<executable>C:\Users\Simon Rost\Server\TransportPipes (1.12.2)\START.bat</executable>
+					<executable>C:\Users\Simon Rost\Server\TransportPipes
+						(1.12.2)\START.bat</executable>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -245,6 +247,12 @@
 			<groupId>com.destroystokyo.paper</groupId>
 			<artifactId>paper-api</artifactId>
 			<version>1.10.2-R0.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.wasteofplastic</groupId>
+			<artifactId>acidisland</artifactId>
+			<version>3.0.8.2</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) 

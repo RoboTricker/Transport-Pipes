@@ -28,6 +28,7 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.LogisticsAPIUtils;
+import de.robotricker.transportpipes.pipeutils.SkyblockAPIUtils;
 import de.robotricker.transportpipes.pipeutils.commands.CreativeCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.DeletePipesCommandExecutor;
 import de.robotricker.transportpipes.pipeutils.commands.ReloadConfigCommandExecutor;
@@ -201,6 +202,9 @@ public class TransportPipes extends JavaPlugin {
 				TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer(containers.get(key));
 				PipeAPI.registerTransportPipesContainer(key.getBlock().getLocation(), tpc);
 			}
+		}
+		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
+			Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);
 		}
 
 		for (World world : Bukkit.getWorlds()) {
