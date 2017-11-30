@@ -78,10 +78,12 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		}
 		// check lwc lock
 		if (lwcLockableExists) {
-			com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().getPhysicalDatabase().loadProtection(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
-			if(protection != null) {
-			//if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
-				return true;
+			if (com.griefcraft.lwc.LWC.getInstance().getPhysicalDatabase() != null) {
+				com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().getPhysicalDatabase().loadProtection(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
+				if (protection != null) {
+					// if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
+					return true;
+				}
 			}
 		}
 		return false;
