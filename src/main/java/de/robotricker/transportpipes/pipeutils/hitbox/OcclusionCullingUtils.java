@@ -13,25 +13,25 @@ import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 public class OcclusionCullingUtils {
 
 	private static AxisAlignedBB blockAABB = new AxisAlignedBB(0d, 0d, 0d, 1d, 1d, 1d);
-	
+
 	public static boolean isPipeVisibleForPlayer(Player p, Pipe pipe) {
 		PipeRenderSystem renderSystem = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
 		AxisAlignedBB aabb = renderSystem.getOuterHitbox(pipe);
 		return isAABBVisible(pipe.getBlockLoc(), aabb, p.getEyeLocation());
 	}
-	
+
 	public static boolean isPipeItemVisibleForPlayer(Player p, PipeItem item) {
 		return isAABBVisible(item.getBlockLoc(), blockAABB, p.getEyeLocation());
 	}
-	
+
 	private static boolean isAABBVisible(Location aabbBlock, AxisAlignedBB aabb, Location playerLoc) {
 
 		double width = aabb.getWidth();
 		double height = aabb.getHeight();
 		double depth = aabb.getDepth();
-		
+
 		Location center = aabb.getAABBMiddle(aabbBlock).toLocation(aabbBlock.getWorld());
-		
+
 		Location centerXMin = center.clone().add(-width / 2, 0, 0);
 		Location centerXMax = center.clone().add(width / 2, 0, 0);
 		Location centerYMin = center.clone().add(0, -height / 2, 0);
@@ -42,7 +42,7 @@ public class OcclusionCullingUtils {
 		boolean centerXMinBlocked = false;
 		Vector[] locs = gridRaytrace(playerLoc, centerXMin.subtract(playerLoc).toVector());
 		for (Vector v : locs) {
-			if (v.toLocation(playerLoc.getWorld()).getBlock().getType().isOccluding()) {
+			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
 				centerXMinBlocked = true;
 				break;
 			}
@@ -50,7 +50,7 @@ public class OcclusionCullingUtils {
 		boolean centerXMaxBlocked = false;
 		locs = gridRaytrace(playerLoc, centerXMax.subtract(playerLoc).toVector());
 		for (Vector v : locs) {
-			if (v.toLocation(playerLoc.getWorld()).getBlock().getType().isOccluding()) {
+			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
 				centerXMaxBlocked = true;
 				break;
 			}
@@ -58,7 +58,7 @@ public class OcclusionCullingUtils {
 		boolean centerYMinBlocked = false;
 		locs = gridRaytrace(playerLoc, centerYMin.subtract(playerLoc).toVector());
 		for (Vector v : locs) {
-			if (v.toLocation(playerLoc.getWorld()).getBlock().getType().isOccluding()) {
+			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
 				centerYMinBlocked = true;
 				break;
 			}
@@ -66,7 +66,7 @@ public class OcclusionCullingUtils {
 		boolean centerYMaxBlocked = false;
 		locs = gridRaytrace(playerLoc, centerYMax.subtract(playerLoc).toVector());
 		for (Vector v : locs) {
-			if (v.toLocation(playerLoc.getWorld()).getBlock().getType().isOccluding()) {
+			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
 				centerYMaxBlocked = true;
 				break;
 			}
@@ -74,7 +74,7 @@ public class OcclusionCullingUtils {
 		boolean centerZMinBlocked = false;
 		locs = gridRaytrace(playerLoc, centerZMin.subtract(playerLoc).toVector());
 		for (Vector v : locs) {
-			if (v.toLocation(playerLoc.getWorld()).getBlock().getType().isOccluding()) {
+			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
 				centerZMinBlocked = true;
 				break;
 			}
@@ -82,13 +82,23 @@ public class OcclusionCullingUtils {
 		boolean centerZMaxBlocked = false;
 		locs = gridRaytrace(playerLoc, centerZMax.subtract(playerLoc).toVector());
 		for (Vector v : locs) {
-			if (v.toLocation(playerLoc.getWorld()).getBlock().getType().isOccluding()) {
+			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
 				centerZMaxBlocked = true;
 				break;
 			}
 		}
 
 		return !centerXMinBlocked || !centerXMaxBlocked || !centerYMinBlocked || !centerYMaxBlocked || !centerZMinBlocked || !centerZMaxBlocked;
+	}
+
+	private static boolean isBlockAtLocationOccluding(Location loc) {
+		try {
+			return loc.getBlock().getType().isOccluding();
+		} catch (IllegalStateException e) {
+			System.err.println("ASYNC ERROR OCCLUSION CULLING!");
+			System.err.println(e);
+			return false;
+		}
 	}
 
 	/**
