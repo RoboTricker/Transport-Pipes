@@ -305,7 +305,8 @@ public class TransportPipes extends JavaPlugin {
 		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970");
 		Sentry.getContext().setUser(new UserBuilder().setUsername("RoboTricker").build());
 		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
-		
+		Sentry.getContext().addTag("version", TransportPipes.instance.getDescription().getVersion());
+
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			
 			@Override

@@ -95,9 +95,10 @@ public class OcclusionCullingUtils {
 
 	private static boolean isBlockAtLocationOccluding(Location loc) {
 		try {
-			Block b = loc.getBlock();
-			Material m = b.getType();
-			return m.isOccluding();
+			//Block b = loc.getBlock();
+			//Material m = b.getType();
+			//return m.isOccluding();
+			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
 			Sentry.capture(e);
