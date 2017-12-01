@@ -17,6 +17,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.PipeDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import io.sentry.Sentry;
 
 public class PipeThread extends Thread {
 
@@ -71,6 +72,9 @@ public class PipeThread extends Thread {
 
 	@Override
 	public void run() {
+
+		TransportPipes.initSentryOnCurrentThread();
+
 		System.out.println("starting TransportPipes-Thread");
 		while (running) {
 
@@ -92,13 +96,13 @@ public class PipeThread extends Thread {
 				boolean extractItems = false;
 				boolean checkViewDistance = false;
 
-				//input Items tick
+				// input Items tick
 				inputItemsTick++;
 				if (inputItemsTick == INPUT_ITEMS_TICK_DIFF) {
 					inputItemsTick = 0;
 					extractItems = true;
 				}
-				//check view distance tick
+				// check view distance tick
 				viewDistanceTick++;
 				if (viewDistanceTick == VIEW_DISTANCE_TICK_DIFF) {
 					viewDistanceTick = 0;
@@ -108,7 +112,7 @@ public class PipeThread extends Thread {
 				tpsCounter++;
 				lastTick = currentTime;
 
-				//internal PipeThread scheduler. Has nothing to do with the pipes themselves
+				// internal PipeThread scheduler. Has nothing to do with the pipes themselves
 				lastAction = "Internal scheduler";
 				{
 					HashMap<Runnable, Integer> tempTickList = new HashMap<>();
@@ -131,10 +135,11 @@ public class PipeThread extends Thread {
 
 				long timeBefore = System.nanoTime();
 
-				//in this list are the items stored which are already processed in this tick (in order to not process an item 2 times in one tick)
+				// in this list are the items stored which are already processed in this tick
+				// (in order to not process an item 2 times in one tick)
 				List<PipeItem> itemsTicked = new ArrayList<>();
 
-				//update pipes
+				// update pipes
 				lastAction = "World loop";
 				for (World world : Bukkit.getWorlds()) {
 					lastAction = "Pipe map load";
@@ -146,8 +151,8 @@ public class PipeThread extends Thread {
 								if (!pipe.isInLoadedChunk()) {
 									continue;
 								}
-								
-								//insert items from "tempPipeItemsWithSpawn"
+
+								// insert items from "tempPipeItemsWithSpawn"
 								synchronized (pipe.tempPipeItemsWithSpawn) {
 									Iterator<PipeItem> itemIterator = pipe.tempPipeItemsWithSpawn.keySet().iterator();
 									while (itemIterator.hasNext()) {
@@ -162,13 +167,14 @@ public class PipeThread extends Thread {
 									}
 								}
 
-								//put the "tempPipeItems" which had been put there by the tick method in the pipe before, into the "pipeItems" where they got affected by the tick method
+								// put the "tempPipeItems" which had been put there by the tick method in the
+								// pipe before, into the "pipeItems" where they got affected by the tick method
 								synchronized (pipe.tempPipeItems) {
 									Iterator<PipeItem> itemIterator = pipe.tempPipeItems.keySet().iterator();
 									while (itemIterator.hasNext()) {
 										PipeItem pipeItem = itemIterator.next();
 
-										//only put them there if they got into "tempPipeItems" last tick
+										// only put them there if they got into "tempPipeItems" last tick
 										if (!itemsTicked.contains(pipeItem)) {
 											PipeDirection dir = pipe.tempPipeItems.get(pipeItem);
 											pipe.putPipeItem(pipeItem, dir);
@@ -177,7 +183,7 @@ public class PipeThread extends Thread {
 									}
 								}
 
-								//tick pipe (move the pipe items etc.)
+								// tick pipe (move the pipe items etc.)
 								lastAction = "Pipe tick";
 								pipe.tick(extractItems, itemsTicked);
 
@@ -193,12 +199,11 @@ public class PipeThread extends Thread {
 					TransportPipes.instance.pipePacketManager.tickSync();
 				}
 
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ConcurrentModificationException e) {
-				handleAsyncError(e);
 			} catch (IllegalPluginAccessException e) {
-				//do nothing when TP tries to register a scheduler but is already disabled
+				// do nothing when TP tries to register a scheduler but is already disabled
+			} catch (Exception e) {
+				e.printStackTrace();
+				Sentry.capture(e);
 			}
 		}
 		System.out.println("stopping TransportPipes-Thread");
@@ -209,11 +214,6 @@ public class PipeThread extends Thread {
 		synchronized (scheduleList) {
 			scheduleList.put(run, tickDelay);
 		}
-	}
-
-	public void handleAsyncError(Exception e) {
-		System.err.println("------------------------> ASYNC ERROR: <------------------------");
-		e.printStackTrace();
 	}
 
 }

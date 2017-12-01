@@ -6,6 +6,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import io.sentry.Sentry;
 
 public abstract class BlockContainer implements TransportPipesContainer {
 
@@ -78,11 +79,18 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		}
 		// check lwc lock
 		if (lwcLockableExists) {
-			//com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().getPhysicalDatabase().loadProtection(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
-			//if (protection != null) {
+			try {
+				// com.griefcraft.model.Protection protection =
+				// com.griefcraft.lwc.LWC.getInstance().getPhysicalDatabase().loadProtection(block.getWorld().getName(),
+				// block.getX(), block.getY(), block.getZ());
+				// if (protection != null) {
 				// if (com.griefcraft.lwc.LWC.getInstance().findProtection(block) != null) {
-				//return true;
-			//}
+				// return true;
+				// }
+			} catch (Exception e) {
+				e.printStackTrace();
+				Sentry.capture(e);
+			}
 		}
 		return false;
 

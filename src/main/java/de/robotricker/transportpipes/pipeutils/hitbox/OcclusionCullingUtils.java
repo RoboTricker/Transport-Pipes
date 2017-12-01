@@ -2,6 +2,7 @@ package de.robotricker.transportpipes.pipeutils.hitbox;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -9,6 +10,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import io.sentry.Sentry;
 
 public class OcclusionCullingUtils {
 
@@ -93,10 +95,12 @@ public class OcclusionCullingUtils {
 
 	private static boolean isBlockAtLocationOccluding(Location loc) {
 		try {
-			return loc.getBlock().getType().isOccluding();
-		} catch (IllegalStateException e) {
-			System.err.println("ASYNC ERROR OCCLUSION CULLING!");
-			System.err.println(e);
+			Block b = loc.getBlock();
+			Material m = b.getType();
+			return m.isOccluding();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 			return false;
 		}
 	}

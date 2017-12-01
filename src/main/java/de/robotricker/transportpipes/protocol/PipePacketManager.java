@@ -27,6 +27,7 @@ import de.robotricker.transportpipes.pipeutils.LocationUtils;
 import de.robotricker.transportpipes.pipeutils.hitbox.OcclusionCullingUtils;
 import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
+import io.sentry.Sentry;
 
 public class PipePacketManager implements Listener {
 
@@ -80,8 +81,9 @@ public class PipePacketManager implements Listener {
 					}
 				}
 			}
-		} catch (IllegalStateException | ConcurrentModificationException e) {
-			TransportPipes.instance.pipeThread.handleAsyncError(e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 		}
 	}
 
@@ -95,8 +97,9 @@ public class PipePacketManager implements Listener {
 					}
 				}
 			}
-		} catch (IllegalStateException | ConcurrentModificationException e) {
-			TransportPipes.instance.pipeThread.handleAsyncError(e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 		}
 	}
 
@@ -198,8 +201,9 @@ public class PipePacketManager implements Listener {
 								}
 
 							}
-						} catch (IllegalStateException | ConcurrentModificationException e) {
-							TransportPipes.instance.pipeThread.handleAsyncError(e);
+						} catch (Exception e) {
+							e.printStackTrace();
+							Sentry.capture(e);
 						}
 
 					}

@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +51,9 @@ import de.robotricker.transportpipes.saving.SavingManager;
 import de.robotricker.transportpipes.settings.SettingsInv;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 import de.robotricker.transportpipes.update.UpdateManager;
+import io.sentry.Sentry;
+import io.sentry.event.BreadcrumbBuilder;
+import io.sentry.event.UserBuilder;
 
 public class TransportPipes extends JavaPlugin {
 
@@ -76,6 +80,8 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
+
+		initSentryOnCurrentThread();
 
 		// Prepare collections
 		registeredPipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
@@ -293,6 +299,20 @@ public class TransportPipes extends JavaPlugin {
 
 	public Map<World, Map<BlockLoc, TransportPipesContainer>> getFullContainerMap() {
 		return registeredContainers;
+	}
+
+	public static void initSentryOnCurrentThread() {
+		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970");
+		Sentry.getContext().setUser(new UserBuilder().setUsername("RoboTricker").build());
+		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
+		
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				Sentry.capture(e);
+			}
+		});
 	}
 
 }
