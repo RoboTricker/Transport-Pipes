@@ -1,8 +1,11 @@
 package de.robotricker.transportpipes.pipeutils.hitbox;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -15,6 +18,7 @@ import io.sentry.Sentry;
 public class OcclusionCullingUtils {
 
 	private static AxisAlignedBB blockAABB = new AxisAlignedBB(0d, 0d, 0d, 1d, 1d, 1d);
+	private static List<ChunkSnapshot> cachedChunkSnapshots = new ArrayList<ChunkSnapshot>();
 
 	public static boolean isPipeVisibleForPlayer(Player p, Pipe pipe) {
 		PipeRenderSystem renderSystem = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
@@ -24,6 +28,10 @@ public class OcclusionCullingUtils {
 
 	public static boolean isPipeItemVisibleForPlayer(Player p, PipeItem item) {
 		return isAABBVisible(item.getBlockLoc(), blockAABB, p.getEyeLocation());
+	}
+
+	public static void clearCachedChunkSnapshots() {
+		cachedChunkSnapshots.clear();
 	}
 
 	private static boolean isAABBVisible(Location aabbBlock, AxisAlignedBB aabb, Location playerLoc) {
@@ -90,15 +98,36 @@ public class OcclusionCullingUtils {
 			}
 		}
 
-		return !centerXMinBlocked || !centerXMaxBlocked || !centerYMinBlocked || !centerYMaxBlocked || !centerZMinBlocked || !centerZMaxBlocked;
+		boolean visible = !centerXMinBlocked || !centerXMaxBlocked || !centerYMinBlocked || !centerYMaxBlocked || !centerZMinBlocked || !centerZMaxBlocked;
+		return visible;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static boolean isBlockAtLocationOccluding(Location loc) {
 		try {
-			//Block b = loc.getBlock();
-			//Material m = b.getType();
-			//return m.isOccluding();
-			return false;
+			ChunkSnapshot snapshot = null;
+			int chunkX = (int) Math.floor(loc.getBlockX() / 16d);
+			int chunkZ = (int) Math.floor(loc.getBlockZ() / 16d);
+			for (ChunkSnapshot cs : cachedChunkSnapshots) {
+				if (cs.getWorldName() == loc.getWorld().getName() && cs.getX() == chunkX && cs.getZ() == chunkZ) {
+					snapshot = cs;
+					break;
+				}
+			}
+			if (snapshot == null) {
+				snapshot = TransportPipes.instance.containerBlockUtils.getOrCreateChunkSnapshot(loc.getWorld(), chunkX, chunkZ);
+				cachedChunkSnapshots.add(snapshot);
+			}
+			int relativeX = loc.getBlockX() % 16;
+			if(relativeX < 0) {
+				relativeX = 16 + relativeX;
+			}
+			int relativeZ = loc.getBlockZ() % 16;
+			if(relativeZ < 0) {
+				relativeZ = 16 + relativeZ;
+			}
+			Material material = Material.getMaterial(snapshot.getBlockTypeId(relativeX, loc.getBlockY(), relativeZ));
+			return material.isOccluding();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Sentry.capture(e);

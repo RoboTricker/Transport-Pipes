@@ -13,10 +13,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.api.PipeAPI;
@@ -56,6 +61,9 @@ import io.sentry.event.BreadcrumbBuilder;
 import io.sentry.event.UserBuilder;
 
 public class TransportPipes extends JavaPlugin {
+
+	public static Location cachedBlockLoc;
+	public static Chunk cachedChunk;
 
 	public static TransportPipes instance;
 
@@ -230,6 +238,19 @@ public class TransportPipes extends JavaPlugin {
 				pipeThread.start();
 			}
 		});
+		
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler
+			public void onClick(PlayerInteractEvent e) {
+				if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+					if(e.getMaterial() == Material.APPLE) {
+						cachedBlockLoc = e.getClickedBlock().getLocation();
+						cachedChunk = e.getClickedBlock().getChunk();
+						System.out.println("block saved");
+					}
+				}
+			}
+		}, this);
 
 	}
 
@@ -277,6 +298,7 @@ public class TransportPipes extends JavaPlugin {
 				}
 			}
 		}
+		
 	}
 
 	public Map<BlockLoc, Pipe> getPipeMap(World world) {

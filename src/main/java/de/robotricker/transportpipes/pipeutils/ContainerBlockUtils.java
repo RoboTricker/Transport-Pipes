@@ -3,11 +3,13 @@ package de.robotricker.transportpipes.pipeutils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -40,10 +42,12 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class ContainerBlockUtils implements Listener {
 
-	private Map<World, List<Chunk>> loadedChunksGridCoords;
+	private Map<World, List<Chunk>> loadedChunkGridCoords;
+	private Map<Chunk, ChunkSnapshot> unloadedChunkSnapshots;
 
 	public ContainerBlockUtils() {
-		loadedChunksGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
+		loadedChunkGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
+		unloadedChunkSnapshots = Collections.synchronizedMap(new HashMap<Chunk, ChunkSnapshot>());
 	}
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -91,8 +95,7 @@ public class ContainerBlockUtils implements Listener {
 		List<Block> explodedPipeBlocksBefore = new ArrayList<Block>();
 		List<Block> explodedPipeBlocks = new ArrayList<Block>();
 
-		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(),
-				(int) Math.floor(e.getRadius()))) {
+		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
 			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
 			Pipe pipe = pipeMap.get(blockLoc);
 			if (pipe != null) {
@@ -102,8 +105,7 @@ public class ContainerBlockUtils implements Listener {
 			}
 		}
 
-		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(),
-				explodedPipeBlocks, 1f);
+		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(), explodedPipeBlocks, 1f);
 		Bukkit.getPluginManager().callEvent(explodeEvent);
 		if (!explodeEvent.isCancelled()) {
 			for (Block b : explodeEvent.blockList()) {
@@ -142,14 +144,12 @@ public class ContainerBlockUtils implements Listener {
 		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 		if (add) {
-			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null
-					|| !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 				TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
 				PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
 			}
 		} else {
-			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null
-					&& TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) != null && TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 				PipeAPI.unregisterTransportPipesContainer(toUpdate.getLocation());
 			}
 		}
@@ -160,11 +160,7 @@ public class ContainerBlockUtils implements Listener {
 	 */
 	public boolean isIdContainerBlock(int id) {
 		boolean v1_9or1_10 = Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10");
-		return id == Material.CHEST.getId() || id == Material.TRAPPED_CHEST.getId() || id == Material.HOPPER.getId()
-				|| id == Material.FURNACE.getId() || id == Material.BURNING_FURNACE.getId() || id == 379
-				|| id == Material.DISPENSER.getId() || id == Material.DROPPER.getId()
-				|| id == Material.BREWING_STAND.getId() || (!v1_9or1_10 && id >= Material.WHITE_SHULKER_BOX.getId()
-						&& id <= Material.BLACK_SHULKER_BOX.getId());
+		return id == Material.CHEST.getId() || id == Material.TRAPPED_CHEST.getId() || id == Material.HOPPER.getId() || id == Material.FURNACE.getId() || id == Material.BURNING_FURNACE.getId() || id == 379 || id == Material.DISPENSER.getId() || id == Material.DROPPER.getId() || id == Material.BREWING_STAND.getId() || (!v1_9or1_10 && id >= Material.WHITE_SHULKER_BOX.getId() && id <= Material.BLACK_SHULKER_BOX.getId());
 	}
 
 	public TransportPipesContainer createContainerFromBlock(Block block) {
@@ -179,8 +175,8 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	public boolean isInLoadedChunk(Location loc) {
-		synchronized (loadedChunksGridCoords) {
-			List<Chunk> loadedChunks = loadedChunksGridCoords.get(loc.getWorld());
+		synchronized (loadedChunkGridCoords) {
+			List<Chunk> loadedChunks = loadedChunkGridCoords.get(loc.getWorld());
 			if (loadedChunks != null) {
 				for (Chunk chunk : loadedChunks) {
 					int chunkX = chunk.getX();
@@ -197,24 +193,13 @@ public class ContainerBlockUtils implements Listener {
 	}
 
 	public void handleChunkLoadSync(Chunk loadedChunk) {
-		synchronized (loadedChunksGridCoords) {
-			if (!loadedChunksGridCoords.containsKey(loadedChunk.getWorld())) {
-				loadedChunksGridCoords.put(loadedChunk.getWorld(),
-						Collections.synchronizedList(new ArrayList<Chunk>()));
-			}
-			if (!loadedChunksGridCoords.get(loadedChunk.getWorld()).contains(loadedChunk)) {
-				loadedChunksGridCoords.get(loadedChunk.getWorld()).add(loadedChunk);
-			}
-		}
-
 		if (loadedChunk.getTileEntities() != null) {
 			for (BlockState bs : loadedChunk.getTileEntities()) {
 				if (isIdContainerBlock(bs.getTypeId())) {
 
 					updatePipeNeighborBlockSync(bs.getBlock(), true);
 
-					Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance
-							.getContainerMap(loadedChunk.getWorld());
+					Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(loadedChunk.getWorld());
 					synchronized (containerMap) {
 						BlockLoc bl = BlockLoc.convertBlockLoc(bs.getLocation());
 						TransportPipesContainer tpc = containerMap.get(bl);
@@ -227,19 +212,53 @@ public class ContainerBlockUtils implements Listener {
 		}
 	}
 
+	public ChunkSnapshot getOrCreateChunkSnapshot(World world, int chunkX, int chunkZ) {
+		synchronized (unloadedChunkSnapshots) {
+			Iterator<Chunk> it = unloadedChunkSnapshots.keySet().iterator();
+			while (it.hasNext()) {
+				Chunk chunk = it.next();
+				if (chunk.getWorld() == world && chunk.getX() == chunkX && chunk.getZ() == chunkZ) {
+					return unloadedChunkSnapshots.get(chunk);
+				}
+			}
+		}
+		return world.getChunkAt(chunkX, chunkZ).getChunkSnapshot();
+	}
+
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
+		synchronized (loadedChunkGridCoords) {
+			if (!loadedChunkGridCoords.containsKey(e.getWorld())) {
+				loadedChunkGridCoords.put(e.getWorld(), Collections.synchronizedList(new ArrayList<Chunk>()));
+			}
+			if (!loadedChunkGridCoords.get(e.getWorld()).contains(e.getChunk())) {
+				loadedChunkGridCoords.get(e.getWorld()).add(e.getChunk());
+			}
+		}
+		synchronized (unloadedChunkSnapshots) {
+			Iterator<Chunk> it = unloadedChunkSnapshots.keySet().iterator();
+			while (it.hasNext()) {
+				Chunk chunk = it.next();
+				if (chunk.getWorld() == e.getWorld() && chunk.getX() == e.getChunk().getX() && chunk.getZ() == e.getChunk().getZ()) {
+					it.remove();
+				}
+			}
+		}
+		
 		handleChunkLoadSync(e.getChunk());
 	}
 
 	@EventHandler
 	public void onChunkUnload(ChunkUnloadEvent e) {
-		synchronized (loadedChunksGridCoords) {
-			if (loadedChunksGridCoords.containsKey(e.getWorld())) {
-				if (loadedChunksGridCoords.get(e.getWorld()).contains(e.getChunk())) {
-					loadedChunksGridCoords.get(e.getWorld()).remove(e.getChunk());
+		synchronized (loadedChunkGridCoords) {
+			if (loadedChunkGridCoords.containsKey(e.getWorld())) {
+				if (loadedChunkGridCoords.get(e.getWorld()).contains(e.getChunk())) {
+					loadedChunkGridCoords.get(e.getWorld()).remove(e.getChunk());
 				}
 			}
+		}
+		synchronized (unloadedChunkSnapshots) {
+			unloadedChunkSnapshots.put(e.getChunk(), e.getChunk().getChunkSnapshot());
 		}
 	}
 

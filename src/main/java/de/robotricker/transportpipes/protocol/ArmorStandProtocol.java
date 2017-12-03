@@ -77,8 +77,7 @@ public class ArmorStandProtocol {
 		if (!isPlayerShowItems(p)) {
 			return;
 		}
-		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d,
-				item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
+		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d, item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
 	}
 
 	public void updatePipeItem(Player p, PipeItem item) {
@@ -184,22 +183,15 @@ public class ArmorStandProtocol {
 			List<WrappedWatchableObject> metaList = new ArrayList<>();
 			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(3, booleanSerializer), false));// customname
 																												// invisible
-			metaList.add(new WrappedWatchableObject(
-					new WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, byteSerializer), bitMask));// armorstand
-																											// specific
-																											// data...
+			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, byteSerializer), bitMask));// armorstand
+																																			// specific
+																																			// data...
 			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x20)));// invisible
 																														// (entity
 																														// specific
 																														// data)
-			metaList.add(new WrappedWatchableObject(
-					new WrappedDataWatcherObject(serverVersion <= 110 ? 11 : 12, vectorSerializer),
-					ReflectionManager.createVector3f((float) asd.getHeadRotation().getX(),
-							(float) asd.getHeadRotation().getY(), (float) asd.getHeadRotation().getZ())));// head rot
-			metaList.add(new WrappedWatchableObject(
-					new WrappedDataWatcherObject(serverVersion <= 110 ? 14 : 15, vectorSerializer),
-					ReflectionManager.createVector3f((float) asd.getArmRotation().getX(),
-							(float) asd.getArmRotation().getY(), (float) asd.getArmRotation().getZ())));// right arm rot
+			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 11 : 12, vectorSerializer), ReflectionManager.createVector3f((float) asd.getHeadRotation().getX(), (float) asd.getHeadRotation().getY(), (float) asd.getHeadRotation().getZ())));// head rot
+			metaList.add(new WrappedWatchableObject(new WrappedDataWatcherObject(serverVersion <= 110 ? 14 : 15, vectorSerializer), ReflectionManager.createVector3f((float) asd.getArmRotation().getX(), (float) asd.getArmRotation().getY(), (float) asd.getArmRotation().getZ())));// right arm rot
 
 			metaWrapper.setMetadata(metaList);
 			metaWrapper.sendPacket(p);
@@ -225,14 +217,8 @@ public class ArmorStandProtocol {
 			meta2Wrapper.setEntityID(asd.getEntityID());
 
 			List<WrappedWatchableObject> meta2List = new ArrayList<>();
-			meta2List.add(
-					new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x01 | 0x20)));// on
-																														// fire
-																														// +
-																														// invisible
-																														// (entity
-																														// specific
-																														// data)
+			meta2List.add(new WrappedWatchableObject(new WrappedDataWatcherObject(0, byteSerializer), (byte) (0x01 | 0x20)));// on
+																																// fire
 			meta2Wrapper.setMetadata(meta2List);
 
 			TransportPipes.instance.pipeThread.runTask(new Runnable() {

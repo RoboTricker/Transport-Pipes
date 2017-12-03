@@ -14,8 +14,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
@@ -120,6 +122,7 @@ public class PipePacketManager implements Listener {
 			if (ASD != null && !ASD.isEmpty()) {
 				list.add(pipe);
 				TransportPipes.instance.armorStandProtocol.sendArmorStandDatas(p, pipe.getBlockLoc(), ASD);
+				System.out.println("pipe spawned");
 			}
 		}
 	}
@@ -211,6 +214,9 @@ public class PipePacketManager implements Listener {
 
 			}
 		}
+
+		OcclusionCullingUtils.clearCachedChunkSnapshots();
+
 	}
 
 	@EventHandler
@@ -250,6 +256,28 @@ public class PipePacketManager implements Listener {
 			}
 			itemsForPlayers.get(e.getPlayer()).removeAll(rmList);
 		}
+	}
+
+	@EventHandler
+	public void onJoin(final PlayerJoinEvent e) {
+		TransportPipes.instance.pipeThread.runTask(new Runnable() {
+
+			@Override
+			public void run() {
+				TransportPipes.instance.armorStandProtocol.reloadPipeRenderSystem(e.getPlayer());
+			}
+		}, PipeThread.WANTED_TPS);
+	}
+	
+	@EventHandler
+	public void onTeleport(final PlayerTeleportEvent e) {
+		TransportPipes.instance.pipeThread.runTask(new Runnable() {
+
+			@Override
+			public void run() {
+				TransportPipes.instance.armorStandProtocol.reloadPipeRenderSystem(e.getPlayer());
+			}
+		}, PipeThread.WANTED_TPS);
 	}
 
 	private void quit(final Player p) {
