@@ -122,7 +122,6 @@ public class PipePacketManager implements Listener {
 			if (ASD != null && !ASD.isEmpty()) {
 				list.add(pipe);
 				TransportPipes.instance.armorStandProtocol.sendArmorStandDatas(p, pipe.getBlockLoc(), ASD);
-				System.out.println("pipe spawned");
 			}
 		}
 	}

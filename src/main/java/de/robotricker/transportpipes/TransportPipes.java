@@ -32,6 +32,7 @@ import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
+import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils.ChunkCoords;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
 import de.robotricker.transportpipes.pipeutils.LogisticsAPIUtils;
 import de.robotricker.transportpipes.pipeutils.SkyblockAPIUtils;
@@ -61,9 +62,6 @@ import io.sentry.event.BreadcrumbBuilder;
 import io.sentry.event.UserBuilder;
 
 public class TransportPipes extends JavaPlugin {
-
-	public static Location cachedBlockLoc;
-	public static Chunk cachedChunk;
 
 	public static TransportPipes instance;
 
@@ -239,18 +237,17 @@ public class TransportPipes extends JavaPlugin {
 			}
 		});
 		
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onClick(PlayerInteractEvent e) {
-				if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-					if(e.getMaterial() == Material.APPLE) {
-						cachedBlockLoc = e.getClickedBlock().getLocation();
-						cachedChunk = e.getClickedBlock().getChunk();
-						System.out.println("block saved");
+		Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
+			
+			@Override
+			public void run() {
+				for (World world : Bukkit.getWorlds()) {
+					for (Chunk loadedChunk : world.getLoadedChunks()) {
+						containerBlockUtils.getChunkSnapshots().put(new ChunkCoords(world.getName(), loadedChunk.getX(), loadedChunk.getZ()), loadedChunk.getChunkSnapshot());
 					}
 				}
 			}
-		}, this);
+		}, 10L, 10L);
 
 	}
 

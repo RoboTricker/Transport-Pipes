@@ -116,6 +116,9 @@ public class OcclusionCullingUtils {
 			}
 			if (snapshot == null) {
 				snapshot = TransportPipes.instance.containerBlockUtils.getOrCreateChunkSnapshot(loc.getWorld(), chunkX, chunkZ);
+				if(snapshot == null) {
+					return false;
+				}
 				cachedChunkSnapshots.add(snapshot);
 			}
 			int relativeX = loc.getBlockX() % 16;

@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes.pipeutils.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import de.robotricker.transportpipes.TransportPipes;
 
@@ -13,7 +12,7 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 			return false;
 		}
 
-		// TransportPipes.instance.savingManager.savePipesAsync(true);
+		TransportPipes.instance.savingManager.savePipesAsync(true);
 
 		/*
 		 * final Block b = ((Player) cs).getLocation().getBlock();
@@ -39,51 +38,45 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 		 * PipeType.COLORED, PipeColor.WHITE); } }, 20L); } }, 20L);
 		 */
 
-		cs.sendMessage("chunk loaded before: " + TransportPipes.cachedChunk.isLoaded());
+		/*
+		 * cs.sendMessage("chunk loaded before: " +
+		 * TransportPipes.cachedChunk.isLoaded());
+		 * 
+		 * 
+		 * if (args.length >= 2) { if (args[0].equalsIgnoreCase("sync")) { if
+		 * (args[1].equalsIgnoreCase("1")) { TransportPipes.cachedBlockLoc.getBlock(); }
+		 * else if (args[1].equalsIgnoreCase("2")) {
+		 * TransportPipes.cachedBlockLoc.getBlock().getType(); } else if
+		 * (args[1].equalsIgnoreCase("3")) {
+		 * TransportPipes.cachedBlockLoc.getBlock().getChunk(); } else if
+		 * (args[1].equalsIgnoreCase("4")) {
+		 * TransportPipes.cachedChunk.getChunkSnapshot(); } else if
+		 * (args[1].equalsIgnoreCase("5")) { TransportPipes.cachedBlockLoc.getWorld(); }
+		 * else if (args[1].equalsIgnoreCase("6")) {
+		 * TransportPipes.cachedBlockLoc.getWorld().getChunkAt(TransportPipes.
+		 * cachedBlockLoc); } } else if (args[0].equalsIgnoreCase("async")) {
+		 * Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new
+		 * Runnable() {
+		 * 
+		 * @Override public void run() { if (args[1].equalsIgnoreCase("1")) {
+		 * TransportPipes.cachedBlockLoc.getBlock(); } else if
+		 * (args[1].equalsIgnoreCase("2")) {
+		 * TransportPipes.cachedBlockLoc.getBlock().getType(); } else if
+		 * (args[1].equalsIgnoreCase("3")) {
+		 * TransportPipes.cachedBlockLoc.getBlock().getChunk(); } else if
+		 * (args[1].equalsIgnoreCase("4")) {
+		 * TransportPipes.cachedChunk.getChunkSnapshot(); } else if
+		 * (args[1].equalsIgnoreCase("5")) { TransportPipes.cachedBlockLoc.getWorld(); }
+		 * else if (args[1].equalsIgnoreCase("6")) {
+		 * TransportPipes.cachedBlockLoc.getWorld().getChunkAt(TransportPipes.
+		 * cachedBlockLoc); } cs.sendMessage("chunk loaded after after: " +
+		 * TransportPipes.cachedChunk.isLoaded()); } }); } }
+		 * 
+		 * cs.sendMessage("chunk loaded after: " +
+		 * TransportPipes.cachedChunk.isLoaded());
+		 */
 
-		
-		if (args.length >= 2) {
-			if (args[0].equalsIgnoreCase("sync")) {
-				if (args[1].equalsIgnoreCase("1")) {
-					TransportPipes.cachedBlockLoc.getBlock();
-				} else if (args[1].equalsIgnoreCase("2")) {
-					TransportPipes.cachedBlockLoc.getBlock().getType();
-				} else if (args[1].equalsIgnoreCase("3")) {
-					TransportPipes.cachedBlockLoc.getBlock().getChunk();
-				} else if (args[1].equalsIgnoreCase("4")) {
-					TransportPipes.cachedChunk.getChunkSnapshot();
-				} else if (args[1].equalsIgnoreCase("5")) {
-					TransportPipes.cachedBlockLoc.getWorld();
-				} else if (args[1].equalsIgnoreCase("6")) {
-					TransportPipes.cachedBlockLoc.getWorld().getChunkAt(TransportPipes.cachedBlockLoc);
-				}
-			} else if (args[0].equalsIgnoreCase("async")) {
-				Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
-
-					@Override
-					public void run() {
-						if (args[1].equalsIgnoreCase("1")) {
-							TransportPipes.cachedBlockLoc.getBlock();
-						} else if (args[1].equalsIgnoreCase("2")) {
-							TransportPipes.cachedBlockLoc.getBlock().getType();
-						} else if (args[1].equalsIgnoreCase("3")) {
-							TransportPipes.cachedBlockLoc.getBlock().getChunk();
-						} else if (args[1].equalsIgnoreCase("4")) {
-							TransportPipes.cachedChunk.getChunkSnapshot();
-						} else if (args[1].equalsIgnoreCase("5")) {
-							TransportPipes.cachedBlockLoc.getWorld();
-						} else if (args[1].equalsIgnoreCase("6")) {
-							TransportPipes.cachedBlockLoc.getWorld().getChunkAt(TransportPipes.cachedBlockLoc);
-						}
-						cs.sendMessage("chunk loaded after after: " + TransportPipes.cachedChunk.isLoaded());
-					}
-				});
-			}
-		}
-
-		cs.sendMessage("chunk loaded after: " + TransportPipes.cachedChunk.isLoaded());
-
-		cs.sendMessage("-------------------------§cPipes saved");
+		cs.sendMessage("§cPipes saved");
 
 		return true;
 	}
