@@ -7,10 +7,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
-import com.logisticscraft.logisticsapi.BlockSide;
 import com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent;
 import com.logisticscraft.logisticsapi.event.ItemContainerUnregisterEvent;
 import com.logisticscraft.logisticsapi.item.ItemContainer;
+import com.logisticscraft.logisticsapi.util.bukkit.BlockSide;
 
 import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -32,7 +32,7 @@ public class LogisticsAPIUtils implements Listener {
 		System.out.println("Item container unregistered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
 	}
-	
+
 	public static TransportPipesContainer wrapLogisticsAPIItemContainer(final ItemContainer ic) {
 		return new TransportPipesContainer() {
 
