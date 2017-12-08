@@ -202,6 +202,7 @@ public class ContainerBlockUtils implements Listener {
 				loadedChunkGridCoords.get(loadedChunk.getWorld()).add(loadedChunk);
 			}
 		}
+		chunkSnapshots.remove(new ChunkCoords(loadedChunk.getWorld().getName(), loadedChunk.getX(), loadedChunk.getZ()));
 
 		if (loadedChunk.getTileEntities() != null) {
 			for (BlockState bs : loadedChunk.getTileEntities()) {
@@ -227,16 +228,23 @@ public class ContainerBlockUtils implements Listener {
 			ChunkCoords cc = new ChunkCoords(world.getName(), chunkX, chunkZ);
 			if (chunkSnapshots.containsKey(cc)) {
 				return chunkSnapshots.get(cc);
+			} else {
+				try {
+					// chunk should be loaded
+					Chunk chunk = world.getChunkAt(chunkX, chunkZ);
+					ChunkSnapshot chunkSnapshot = chunk.getChunkSnapshot();
+					return chunkSnapshot;
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+					Sentry.capture("failed to create chunk snapshot async!");
+					Sentry.capture(e);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Sentry.capture(e);
 		}
 		return null;
-	}
-	
-	public Map<ChunkCoords, ChunkSnapshot> getChunkSnapshots(){
-		return chunkSnapshots;
 	}
 
 	@EventHandler

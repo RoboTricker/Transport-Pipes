@@ -236,18 +236,6 @@ public class TransportPipes extends JavaPlugin {
 				pipeThread.start();
 			}
 		});
-		
-		Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
-			
-			@Override
-			public void run() {
-				for (World world : Bukkit.getWorlds()) {
-					for (Chunk loadedChunk : world.getLoadedChunks()) {
-						containerBlockUtils.getChunkSnapshots().put(new ChunkCoords(world.getName(), loadedChunk.getX(), loadedChunk.getZ()), loadedChunk.getChunkSnapshot());
-					}
-				}
-			}
-		}, 10L, 10L);
 
 	}
 
