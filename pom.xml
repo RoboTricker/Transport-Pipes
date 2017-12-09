@@ -154,6 +154,14 @@
 			<id>frontfight.net</id>
 			<url>http://jenkins.frontfight.net/plugin/repository/everything/</url>
 		</repository>
+		<repository>
+			<id>bstats-repo</id>
+			<url>http://repo.bstats.org/content/repositories/releases/</url>
+		</repository>
+		<repository>
+			<id>vault-repo</id>
+			<url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -226,9 +234,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.Hidendra</groupId>
-			<artifactId>LWC</artifactId>
-			<version>lwc-3.51</version>
+			<groupId>com.griefcraft</groupId>
+			<artifactId>lwc</artifactId>
+			<version>1.9.3</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -261,8 +269,10 @@
 			<version>1.6.3</version>
 			<scope>compile</scope>
 		</dependency>
-		<!-- CraftBukkit (installed in local repo - only uncomment when compiling) 
-			<dependency> <groupId>org.bukkit</groupId> <artifactId>craftbukkit</artifactId> 
-			<version>1.12</version> <scope>provided</scope> </dependency> -->
+		<!--<dependency> <groupId>org.bstats</groupId> <artifactId>bstats-bukkit</artifactId> 
+			<version>1.2</version> </dependency> CraftBukkit (installed in local repo 
+			- only uncomment when compiling) <dependency> <groupId>org.bukkit</groupId> 
+			<artifactId>craftbukkit</artifactId> <version>1.12</version> <scope>provided</scope> 
+			</dependency> -->
 	</dependencies>
 </project>

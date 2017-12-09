@@ -13,15 +13,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.api.PipeAPI;
@@ -32,8 +27,8 @@ import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils.ChunkCoords;
 import de.robotricker.transportpipes.pipeutils.CraftUtils;
+import de.robotricker.transportpipes.pipeutils.LWCAPIUtils;
 import de.robotricker.transportpipes.pipeutils.LogisticsAPIUtils;
 import de.robotricker.transportpipes.pipeutils.SkyblockAPIUtils;
 import de.robotricker.transportpipes.pipeutils.commands.CreativeCommandExecutor;
@@ -58,7 +53,6 @@ import de.robotricker.transportpipes.settings.SettingsInv;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 import de.robotricker.transportpipes.update.UpdateManager;
 import io.sentry.Sentry;
-import io.sentry.event.BreadcrumbBuilder;
 import io.sentry.event.UserBuilder;
 
 public class TransportPipes extends JavaPlugin {
@@ -86,7 +80,7 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-
+		
 		initSentryOnCurrentThread();
 
 		// Prepare collections
@@ -218,6 +212,9 @@ public class TransportPipes extends JavaPlugin {
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
 			Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);
 		}
+		//if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+		//	com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, new LWCAPIUtils());
+		//}
 
 		for (World world : Bukkit.getWorlds()) {
 			for (Chunk loadedChunk : world.getLoadedChunks()) {
