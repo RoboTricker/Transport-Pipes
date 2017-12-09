@@ -45,7 +45,7 @@ import de.robotricker.transportpipes.pipeutils.config.RecipesConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.PipePacketManager;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.saving.SavingManager;
@@ -63,7 +63,7 @@ public class TransportPipes extends JavaPlugin {
 	private Map<World, Map<BlockLoc, Pipe>> registeredPipes;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
-	private List<PipeRenderSystem> renderSystems;
+	private List<RenderSystem> renderSystems;
 	private UpdateManager updateManager;
 	public ContainerBlockUtils containerBlockUtils;
 	public SavingManager savingManager;
@@ -192,14 +192,14 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
 		Bukkit.getPluginManager().registerEvents(updateManager, this);
-		for (PipeRenderSystem prs : renderSystems) {
+		for (RenderSystem prs : renderSystems) {
 			Bukkit.getPluginManager().registerEvents(prs, this);
 			if (prs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
 				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
-			System.out.println("LogisticsAPI found ... registering listener and ItemContainers");
+			TransportPipes.instance.getLogger().info("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
 			// register already registered ItemContainers
@@ -240,7 +240,7 @@ public class TransportPipes extends JavaPlugin {
 		return updateManager;
 	}
 
-	public List<PipeRenderSystem> getPipeRenderSystems() {
+	public List<RenderSystem> getPipeRenderSystems() {
 		return renderSystems;
 	}
 

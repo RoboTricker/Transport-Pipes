@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 
 public class AxisAlignedBB {
 
@@ -65,7 +65,7 @@ public class AxisAlignedBB {
 		return maxz - minz;
 	}
 
-	public PipeDirection rayIntersection(Vector ray, Vector rayOrigin, Location pipeBlockLoc) {
+	public WrappedDirection rayIntersection(Vector ray, Vector rayOrigin, Location pipeBlockLoc) {
 
 		//optimization to decrease division operations
 		Vector dirFrac = new Vector(1d / ray.getX(), 1d / ray.getY(), 1d / ray.getZ());
@@ -95,7 +95,7 @@ public class AxisAlignedBB {
 		Vector aabbMiddle = getAABBMiddle(pipeBlockLoc);
 		Vector faceMiddle = new Vector();
 
-		for (PipeDirection pd : PipeDirection.values()) {
+		for (WrappedDirection pd : WrappedDirection.values()) {
 			faceMiddle.setX(aabbMiddle.getX() + pd.getX() * (maxx - minx) / 2d);
 			faceMiddle.setY(aabbMiddle.getY() + pd.getY() * (maxy - miny) / 2d);
 			faceMiddle.setZ(aabbMiddle.getZ() + pd.getZ() * (maxz - minz) / 2d);

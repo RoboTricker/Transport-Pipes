@@ -10,7 +10,7 @@ import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRen
 public class GeneralConf extends Conf {
 
 	public GeneralConf() {
-		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "config.yml"));
+		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "config.yml"), TransportPipes.instance);
 		saveAsDefault("max_items_per_pipe", 10);
 		saveAsDefault("crafting_enabled", true);
 		saveAsDefault("check_updates", true);

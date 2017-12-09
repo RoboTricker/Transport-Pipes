@@ -3,7 +3,7 @@ package de.robotricker.transportpipes.pipes;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-public enum PipeDirection {
+public enum WrappedDirection {
 
 	EAST(1, 0, 0),
 	WEST(-1, 0, 0),
@@ -14,7 +14,7 @@ public enum PipeDirection {
 
 	private Vector v;
 
-	PipeDirection(int x, int y, int z) {
+	WrappedDirection(int x, int y, int z) {
 		this.v = new Vector(x, y, z);
 	}
 
@@ -34,9 +34,9 @@ public enum PipeDirection {
 		return v.getBlockZ();
 	}
 
-	public PipeDirection getOpposite() {
+	public WrappedDirection getOpposite() {
 		Vector v2 = v.clone().multiply(-1f);
-		for (PipeDirection dir : PipeDirection.values()) {
+		for (WrappedDirection dir : WrappedDirection.values()) {
 			if (v2.equals(dir.v)) {
 				return dir;
 			}
@@ -52,8 +52,8 @@ public enum PipeDirection {
 		return this == NORTH || this == EAST || this == SOUTH || this == WEST;
 	}
 
-	public static PipeDirection fromID(int id) {
-		for (PipeDirection pd : PipeDirection.values()) {
+	public static WrappedDirection fromID(int id) {
+		for (WrappedDirection pd : WrappedDirection.values()) {
 			if (pd.getId() == id) {
 				return pd;
 			}
@@ -61,20 +61,20 @@ public enum PipeDirection {
 		return null;
 	}
 
-	public static PipeDirection fromBlockFace(BlockFace bf) {
+	public static WrappedDirection fromBlockFace(BlockFace bf) {
 		switch (bf) {
 		case EAST:
-			return PipeDirection.EAST;
+			return WrappedDirection.EAST;
 		case WEST:
-			return PipeDirection.WEST;
+			return WrappedDirection.WEST;
 		case SOUTH:
-			return PipeDirection.SOUTH;
+			return WrappedDirection.SOUTH;
 		case NORTH:
-			return PipeDirection.NORTH;
+			return WrappedDirection.NORTH;
 		case UP:
-			return PipeDirection.UP;
+			return WrappedDirection.UP;
 		case DOWN:
-			return PipeDirection.DOWN;
+			return WrappedDirection.DOWN;
 		default:
 			return null;
 		}
@@ -99,8 +99,8 @@ public enum PipeDirection {
 		}
 	}
 
-	public PipeDirection getNextDirection() {
-		if (getId() == PipeDirection.values().length - 1) {
+	public WrappedDirection getNextDirection() {
+		if (getId() == WrappedDirection.values().length - 1) {
 			return fromID(0);
 		}
 		return fromID(getId() + 1);

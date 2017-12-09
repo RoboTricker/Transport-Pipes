@@ -23,11 +23,11 @@ import org.bukkit.material.TrapDoor;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 
 public class HitboxUtils {
 
@@ -63,7 +63,7 @@ public class HitboxUtils {
 		return new ArrayList<Block>();
 	}
 
-	public static PipeDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
+	public static WrappedDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
 		return TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, pipe);
 	}
 
@@ -81,7 +81,7 @@ public class HitboxUtils {
 			int indexOfClickedBlock = -1;
 			int i = 0;
 
-			PipeRenderSystem playerPipeManager = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
+			RenderSystem playerPipeManager = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
 
 			try (TimingCloseable tc2 = new TimingCloseable("getPipeLookingTo loop")) {
 				while (currentBlock == null) {
@@ -130,7 +130,7 @@ public class HitboxUtils {
 	 * and the pipe hitbox)
 	 */
 	public static Block getRelativeBlockOfPipe(Player p, Block pipeLoc) {
-		PipeDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
+		WrappedDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
 		return pd != null ? pipeLoc.getRelative(pd.toBlockFace()) : null;
 	}
 

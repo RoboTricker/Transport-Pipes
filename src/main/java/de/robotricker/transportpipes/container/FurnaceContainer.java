@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
 
@@ -28,7 +28,7 @@ public class FurnaceContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
+	public ItemStack extractItem(WrappedDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
@@ -46,7 +46,7 @@ public class FurnaceContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion) {
+	public ItemStack insertItem(WrappedDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return insertion;
 		}
@@ -54,7 +54,7 @@ public class FurnaceContainer extends BlockContainer {
 			return insertion;
 		}
 		if (ReflectionManager.isFurnaceBurnableItem(insertion)) {
-			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
+			if (insertDirection.isSide() || insertDirection == WrappedDirection.UP) {
 				ItemStack oldSmelting = cachedInv.getSmelting();
 				cachedInv.setSmelting(putItemInSlot(insertion, oldSmelting));
 				if (insertion == null || insertion.getAmount() == 0) {
@@ -78,7 +78,7 @@ public class FurnaceContainer extends BlockContainer {
 	}
 
 	@Override
-	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
+	public int howMuchSpaceForItemAsync(WrappedDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return 0;
 		}
@@ -86,7 +86,7 @@ public class FurnaceContainer extends BlockContainer {
 			return 0;
 		}
 		if (ReflectionManager.isFurnaceBurnableItem(insertion)) {
-			if (insertDirection.isSide() || insertDirection == PipeDirection.UP) {
+			if (insertDirection.isSide() || insertDirection == WrappedDirection.UP) {
 				return howManyItemsFit(insertion, cachedInv.getSmelting());
 			} else if (ReflectionManager.isFurnaceFuelItem(insertion)) {
 				return howManyItemsFit(insertion, cachedInv.getFuel());

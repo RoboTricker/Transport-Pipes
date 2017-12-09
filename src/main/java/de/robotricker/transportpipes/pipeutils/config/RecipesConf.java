@@ -21,7 +21,7 @@ import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 public class RecipesConf extends Conf {
 
 	public RecipesConf() {
-		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "recipes.yml"));
+		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "recipes.yml"), TransportPipes.instance);
 		saveShapedRecipeAsDefault("colored", 4, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "280:0");
 		saveShapedRecipeAsDefault("golden", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "41:0");
 		saveShapedRecipeAsDefault("iron", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "42:0");

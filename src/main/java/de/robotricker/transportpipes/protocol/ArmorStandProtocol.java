@@ -27,7 +27,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 
 public class ArmorStandProtocol {
@@ -41,7 +41,7 @@ public class ArmorStandProtocol {
 	private static final Serializer vectorSerializer = Registry.get(ReflectionManager.getVector3fClass());
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
-	public PipeRenderSystem getPlayerPipeRenderSystem(Player p) {
+	public RenderSystem getPlayerPipeRenderSystem(Player p) {
 		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
 	}
 
@@ -49,7 +49,7 @@ public class ArmorStandProtocol {
 		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).isShowItems();
 	}
 
-	public List<Player> getAllPlayersWithPipeManager(PipeRenderSystem renderSystem) {
+	public List<Player> getAllPlayersWithPipeManager(RenderSystem renderSystem) {
 		List<Player> players = new ArrayList<>();
 		players.addAll(Bukkit.getOnlinePlayers());
 
@@ -94,7 +94,7 @@ public class ArmorStandProtocol {
 		}
 	}
 
-	public void changePipeRenderSystem(Player p, PipeRenderSystem newRenderSystem) {
+	public void changePipeRenderSystem(Player p, RenderSystem newRenderSystem) {
 		// despawn all old pipes
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
 		if (pipeMap != null) {

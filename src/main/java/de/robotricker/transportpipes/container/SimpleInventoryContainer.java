@@ -21,7 +21,7 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 
 public class SimpleInventoryContainer extends BlockContainer {
@@ -39,7 +39,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems,
+	public ItemStack extractItem(WrappedDirection extractDirection, int extractAmount, List<ItemData> filterItems,
 			FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
@@ -72,7 +72,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion) {
+	public ItemStack insertItem(WrappedDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return insertion;
 		}
@@ -89,7 +89,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
+	public int howMuchSpaceForItemAsync(WrappedDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return 0;
 		}
@@ -120,7 +120,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 		if (cachedInv.getHolder() instanceof DoubleChest) {
 			Material chestMaterial = block.getType();
 			Location otherChestLoc = null;
-			for (PipeDirection pd : PipeDirection.values()) {
+			for (WrappedDirection pd : WrappedDirection.values()) {
 				if (pd.isSide()) {
 					if (block.getRelative(pd.getX(), pd.getY(), pd.getZ()).getType() == chestMaterial) {
 						otherChestLoc = block.getRelative(pd.getX(), pd.getY(), pd.getZ()).getLocation();

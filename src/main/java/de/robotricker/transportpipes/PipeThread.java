@@ -15,7 +15,7 @@ import org.bukkit.plugin.IllegalPluginAccessException;
 
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import io.sentry.Sentry;
 
@@ -75,7 +75,7 @@ public class PipeThread extends Thread {
 
 		TransportPipes.initSentryOnCurrentThread();
 
-		System.out.println("starting TransportPipes-Thread");
+		TransportPipes.instance.getLogger().info("starting TransportPipes-Thread");
 		while (running) {
 
 			try {
@@ -158,7 +158,7 @@ public class PipeThread extends Thread {
 									while (itemIterator.hasNext()) {
 										PipeItem pipeItem = itemIterator.next();
 
-										PipeDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
+										WrappedDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
 										pipe.putPipeItem(pipeItem, dir);
 
 										TransportPipes.instance.pipePacketManager.createPipeItem(pipeItem);
@@ -176,7 +176,7 @@ public class PipeThread extends Thread {
 
 										// only put them there if they got into "tempPipeItems" last tick
 										if (!itemsTicked.contains(pipeItem)) {
-											PipeDirection dir = pipe.tempPipeItems.get(pipeItem);
+											WrappedDirection dir = pipe.tempPipeItems.get(pipeItem);
 											pipe.putPipeItem(pipeItem, dir);
 											itemIterator.remove();
 										}
@@ -206,7 +206,7 @@ public class PipeThread extends Thread {
 				Sentry.capture(e);
 			}
 		}
-		System.out.println("stopping TransportPipes-Thread");
+		TransportPipes.instance.getLogger().info("stopping TransportPipes-Thread");
 
 	}
 

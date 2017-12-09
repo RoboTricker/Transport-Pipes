@@ -28,7 +28,7 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
@@ -43,17 +43,17 @@ public abstract class Pipe {
 	public static final long FLOAT_PRECISION = (long) (Math.pow(10, Math.max(Float.toString(ITEM_SPEED).split("\\.")[1].length(), Float.toString(ICE_ITEM_SPEED).split("\\.")[1].length())));
 
 	// contains all items managed by this pipe
-	public final Map<PipeItem, PipeDirection> pipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
+	public final Map<PipeItem, WrappedDirection> pipeItems = Collections.synchronizedMap(new HashMap<PipeItem, WrappedDirection>());
 
 	// here are pipes saved that should be put in "pipeItems" in the next tick and
 	// should NOT be spawned to the players (they are already spawned)
 	// remember to synchronize while iterating
-	public final Map<PipeItem, PipeDirection> tempPipeItems = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
+	public final Map<PipeItem, WrappedDirection> tempPipeItems = Collections.synchronizedMap(new HashMap<PipeItem, WrappedDirection>());
 
 	// here are pipes saved that should be put in "pipeItems" in the next tick and
 	// should be spawned to the players
 	// remember to synchronize while iterating
-	public final Map<PipeItem, PipeDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, PipeDirection>());
+	public final Map<PipeItem, WrappedDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, WrappedDirection>());
 
 	// the blockLoc of this pipe
 	private Location blockLoc;
@@ -75,7 +75,7 @@ public abstract class Pipe {
 	/**
 	 * puts an item into the pipe, so it will be handled in each tick
 	 */
-	public void putPipeItem(PipeItem item, PipeDirection dir) {
+	public void putPipeItem(PipeItem item, WrappedDirection dir) {
 		item.setBlockLoc(blockLoc);
 		pipeItems.put(item, dir);
 	}
@@ -83,7 +83,7 @@ public abstract class Pipe {
 	/**
 	 * gets the PipeItem direction in this pipe
 	 */
-	public PipeDirection getPipeItemDirection(PipeItem item) {
+	public WrappedDirection getPipeItemDirection(PipeItem item) {
 		return pipeItems.get(item);
 	}
 
@@ -97,8 +97,8 @@ public abstract class Pipe {
 
 	public void tick(boolean extractItems, List<PipeItem> itemsTicked) {
 
-		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
-		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
+		List<WrappedDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
+		List<WrappedDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
 
 		if (extractItems && this instanceof ExtractionPipe) {
 			// extract items from inventories
@@ -130,23 +130,23 @@ public abstract class Pipe {
 	 * returns whether the item is still in "pipeItems" and therefore should still
 	 * get processed or not.
 	 */
-	public abstract Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs);
+	public abstract Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs);
 
-	private void transportItems(List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections, List<PipeItem> itemsTicked) {
-		HashMap<PipeItem, PipeDirection> itemsMap;
+	private void transportItems(List<WrappedDirection> pipeConnections, List<WrappedDirection> blockConnections, List<PipeItem> itemsTicked) {
+		HashMap<PipeItem, WrappedDirection> itemsMap;
 		synchronized (pipeItems) {
 			itemsMap = new HashMap<>(pipeItems);
 		}
 		for (final PipeItem item : itemsMap.keySet()) {
-			PipeDirection itemDir = itemsMap.get(item);
+			WrappedDirection itemDir = itemsMap.get(item);
 
 			// if the item arrives at the middle of the pipe
 			if (item.relLoc().getFloatX() == 0.5f && item.relLoc().getFloatY() == 0.5f && item.relLoc().getFloatZ() == 0.5f) {
-				Set<PipeDirection> clonedAllConnections = new HashSet<>();
+				Set<WrappedDirection> clonedAllConnections = new HashSet<>();
 				clonedAllConnections.addAll(pipeConnections);
 				clonedAllConnections.addAll(blockConnections);
 
-				Map<PipeDirection, Integer> splittedItemsMap = handleArrivalAtMiddle(item, itemDir, clonedAllConnections);
+				Map<WrappedDirection, Integer> splittedItemsMap = handleArrivalAtMiddle(item, itemDir, clonedAllConnections);
 
 				if (splittedItemsMap == null || splittedItemsMap.isEmpty()) {
 					fullyRemovePipeItemFromSystem(item, splittedItemsMap != null);
@@ -157,7 +157,7 @@ public abstract class Pipe {
 				final RelLoc relLoc = RelLoc.fromString(item.relLoc().toString());
 
 				PipeItem lastPipeItem = null;
-				for (PipeDirection pd : splittedItemsMap.keySet()) {
+				for (WrappedDirection pd : splittedItemsMap.keySet()) {
 					int newAmount = splittedItemsMap.get(pd);
 
 					if (lastPipeItem == null) {
@@ -190,12 +190,12 @@ public abstract class Pipe {
 		}
 	}
 
-	private void moveItem(final PipeItem item, List<PipeDirection> pipeConnections, List<PipeDirection> blockConnections) {
+	private void moveItem(final PipeItem item, List<WrappedDirection> pipeConnections, List<WrappedDirection> blockConnections) {
 		if (!pipeItems.containsKey(item)) {
 			return;
 		}
 		RelLoc relLoc = item.relLoc();
-		PipeDirection itemDir = pipeItems.get(item);
+		WrappedDirection itemDir = pipeItems.get(item);
 		float xSpeed = itemDir.getX() * getPipeItemSpeed();
 		float ySpeed = itemDir.getY() * getPipeItemSpeed();
 		float zSpeed = itemDir.getZ() * getPipeItemSpeed();
@@ -219,7 +219,7 @@ public abstract class Pipe {
 					if (blockConnections.contains(itemDir)) {
 
 						final ItemStack itemStack = item.getItem();
-						final PipeDirection finalDir = itemDir;
+						final WrappedDirection finalDir = itemDir;
 						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 							@Override
@@ -239,7 +239,7 @@ public abstract class Pipe {
 										ItemStack overflow = containerMap.get(bl).insertItem(finalDir.getOpposite(), itemStack);
 										if (overflow != null) {
 											// move overflow items in opposite direction
-											PipeDirection newItemDir = finalDir.getOpposite();
+											WrappedDirection newItemDir = finalDir.getOpposite();
 											PipeItem pi = new PipeItem(overflow, Pipe.this.blockLoc, newItemDir);
 											tempPipeItemsWithSpawn.put(pi, newItemDir);
 										}
@@ -287,8 +287,8 @@ public abstract class Pipe {
 		return ITEM_SPEED;
 	}
 
-	public Collection<PipeDirection> getAllConnections() {
-		Set<PipeDirection> connections = new HashSet<>();
+	public Collection<WrappedDirection> getAllConnections() {
+		Set<WrappedDirection> connections = new HashSet<>();
 		connections.addAll(PipeUtils.getOnlyPipeConnections(this));
 		connections.addAll(PipeUtils.getOnlyBlockConnections(this));
 		return connections;
@@ -311,7 +311,7 @@ public abstract class Pipe {
 
 		List<Tag<?>> itemList = new ArrayList<>();
 
-		Map<PipeItem, PipeDirection> pipeItemMap = new HashMap<>();
+		Map<PipeItem, WrappedDirection> pipeItemMap = new HashMap<>();
 		pipeItemMap.putAll(pipeItems);
 		pipeItemMap.putAll(tempPipeItems);
 		pipeItemMap.putAll(tempPipeItemsWithSpawn);
@@ -327,8 +327,8 @@ public abstract class Pipe {
 		NBTUtils.saveListValue(tags, "PipeItems", CompoundTag.class, itemList);
 
 		List<Tag<?>> neighborPipesList = new ArrayList<>();
-		List<PipeDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
-		for (PipeDirection pd : neighborPipes) {
+		List<WrappedDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
+		for (WrappedDirection pd : neighborPipes) {
 			neighborPipesList.add(new IntTag("Direction", pd.getId()));
 		}
 		NBTUtils.saveListValue(tags, "NeighborPipes", IntTag.class, neighborPipesList);
@@ -343,7 +343,7 @@ public abstract class Pipe {
 			CompoundMap itemMap = itemCompoundTag.getValue();
 
 			RelLoc relLoc = RelLoc.fromString(NBTUtils.readStringTag(itemMap.get("RelLoc"), null));
-			PipeDirection dir = PipeDirection.fromID(NBTUtils.readIntTag(itemMap.get("Direction"), 0));
+			WrappedDirection dir = WrappedDirection.fromID(NBTUtils.readIntTag(itemMap.get("Direction"), 0));
 			ItemStack itemStack = InventoryUtils.StringToItemStack(NBTUtils.readStringTag(itemMap.get("Item"), null));
 
 			if (itemStack != null) {
@@ -390,23 +390,23 @@ public abstract class Pipe {
 		}
 	}
 
-	public int getSimilarItemAmountOnDirectionWay(PipeItem toCompare, PipeDirection direction) {
+	public int getSimilarItemAmountOnDirectionWay(PipeItem toCompare, WrappedDirection direction) {
 		int amount = 0;
 		synchronized (pipeItems) {
 			for (PipeItem pi : pipeItems.keySet()) {
-				PipeDirection pd = pipeItems.get(pi);
+				WrappedDirection pd = pipeItems.get(pi);
 				if (pi.getItem().isSimilar(toCompare.getItem()) && !pi.equals(toCompare) && pd.equals(direction)) {
-					if (pd == PipeDirection.NORTH && pi.relLoc().getFloatZ() < 0.5f) {
+					if (pd == WrappedDirection.NORTH && pi.relLoc().getFloatZ() < 0.5f) {
 
-					} else if (pd == PipeDirection.SOUTH && pi.relLoc().getFloatZ() > 0.5f) {
+					} else if (pd == WrappedDirection.SOUTH && pi.relLoc().getFloatZ() > 0.5f) {
 
-					} else if (pd == PipeDirection.EAST && pi.relLoc().getFloatX() > 0.5f) {
+					} else if (pd == WrappedDirection.EAST && pi.relLoc().getFloatX() > 0.5f) {
 
-					} else if (pd == PipeDirection.WEST && pi.relLoc().getFloatX() < 0.5f) {
+					} else if (pd == WrappedDirection.WEST && pi.relLoc().getFloatX() < 0.5f) {
 
-					} else if (pd == PipeDirection.UP && pi.relLoc().getFloatY() > 0.5f) {
+					} else if (pd == WrappedDirection.UP && pi.relLoc().getFloatY() > 0.5f) {
 
-					} else if (pd == PipeDirection.DOWN && pi.relLoc().getFloatY() < 0.5f) {
+					} else if (pd == WrappedDirection.DOWN && pi.relLoc().getFloatY() < 0.5f) {
 
 					} else {
 						continue;

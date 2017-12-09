@@ -10,18 +10,21 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 
 import de.robotricker.transportpipes.TransportPipes;
 
 public abstract class Conf {
 
+	private Plugin plugin;
 	private File configFile;
 	private YamlConfiguration yamlConf;
 	private Map<String, Object> defaultValues = new HashMap<>();
 	private Map<String, Object> cachedValues = new HashMap<>();
 
-	public Conf(File configFile) {
+	public Conf(File configFile, Plugin plugin) {
 		this.configFile = configFile;
+		this.plugin = plugin;
 		yamlConf = YamlConfiguration.loadConfiguration(configFile);
 	}
 
@@ -64,7 +67,7 @@ public abstract class Conf {
 	public void overrideAsync(String key, Object value) {
 		cachedValues.put(key, value);
 		yamlConf.set(key, value);
-		Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 
 			@Override
 			public void run() {

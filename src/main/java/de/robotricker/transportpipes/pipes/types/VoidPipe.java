@@ -9,7 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
@@ -20,7 +20,7 @@ public class VoidPipe extends Pipe {
 	}
 
 	@Override
-	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
 		return null;
 	}
 

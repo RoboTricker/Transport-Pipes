@@ -17,7 +17,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
@@ -34,14 +34,14 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
 		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
 
-		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
-		Map<PipeDirection, Integer> map = new HashMap<PipeDirection, Integer>();
+		Map<WrappedDirection, Integer> maxSpaceMap = new HashMap<WrappedDirection, Integer>();
+		Map<WrappedDirection, Integer> map = new HashMap<WrappedDirection, Integer>();
 
 		//update maxSpaceMap
-		for (PipeDirection pd : PipeDirection.values()) {
+		for (WrappedDirection pd : WrappedDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
 				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
@@ -54,7 +54,7 @@ public class ColoredPipe extends Pipe {
 		}
 
 		for (int i = 0; i < item.getItem().getAmount(); i++) {
-			PipeDirection nextDir = getNextItemDirection(item, before, new ArrayList<>(possibleDirs), map, maxSpaceMap);
+			WrappedDirection nextDir = getNextItemDirection(item, before, new ArrayList<>(possibleDirs), map, maxSpaceMap);
 			if (nextDir != null) {
 				if (map.containsKey(nextDir)) {
 					map.put(nextDir, map.get(nextDir) + 1);
@@ -67,11 +67,11 @@ public class ColoredPipe extends Pipe {
 		return map;
 	}
 
-	private PipeDirection getNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs, Map<PipeDirection, Integer> outputMap, Map<PipeDirection, Integer> maxSpaceMap) {
+	private WrappedDirection getNextItemDirection(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs, Map<WrappedDirection, Integer> outputMap, Map<WrappedDirection, Integer> maxSpaceMap) {
 
-		Iterator<PipeDirection> it = possibleDirs.iterator();
+		Iterator<WrappedDirection> it = possibleDirs.iterator();
 		while (it.hasNext()) {
-			PipeDirection pd = it.next();
+			WrappedDirection pd = it.next();
 			if (pd.equals(before.getOpposite())) {
 				it.remove();
 			} else {
@@ -83,7 +83,7 @@ public class ColoredPipe extends Pipe {
 				}
 			}
 		}
-		PipeDirection[] array = possibleDirs.toArray(new PipeDirection[0]);
+		WrappedDirection[] array = possibleDirs.toArray(new WrappedDirection[0]);
 		lastOutputIndex++;
 		if (lastOutputIndex >= possibleDirs.size()) {
 			lastOutputIndex = 0;

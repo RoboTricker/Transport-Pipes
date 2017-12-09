@@ -26,7 +26,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
 import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
@@ -40,7 +40,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 
 	private int lastOutputIndex = 0;
 
-	private PipeDirection extractDirection;
+	private WrappedDirection extractDirection;
 	private ExtractCondition extractCondition;
 	private ExtractAmount extractAmount;
 	private FilteringMode filteringMode;
@@ -56,14 +56,14 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
 		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
 
-		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
-		Map<PipeDirection, Integer> map = new HashMap<PipeDirection, Integer>();
+		Map<WrappedDirection, Integer> maxSpaceMap = new HashMap<WrappedDirection, Integer>();
+		Map<WrappedDirection, Integer> map = new HashMap<WrappedDirection, Integer>();
 
 		//update maxSpaceMap
-		for (PipeDirection pd : PipeDirection.values()) {
+		for (WrappedDirection pd : WrappedDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
 				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
@@ -76,7 +76,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		}
 
 		for (int i = 0; i < item.getItem().getAmount(); i++) {
-			PipeDirection nextDir = getNextItemDirection(item, before, new ArrayList<>(possibleDirs), map, maxSpaceMap);
+			WrappedDirection nextDir = getNextItemDirection(item, before, new ArrayList<>(possibleDirs), map, maxSpaceMap);
 			if (nextDir != null) {
 				if (map.containsKey(nextDir)) {
 					map.put(nextDir, map.get(nextDir) + 1);
@@ -89,11 +89,11 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		return map;
 	}
 
-	private PipeDirection getNextItemDirection(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs, Map<PipeDirection, Integer> outputMap, Map<PipeDirection, Integer> maxSpaceMap) {
+	private WrappedDirection getNextItemDirection(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs, Map<WrappedDirection, Integer> outputMap, Map<WrappedDirection, Integer> maxSpaceMap) {
 
-		Iterator<PipeDirection> it = possibleDirs.iterator();
+		Iterator<WrappedDirection> it = possibleDirs.iterator();
 		while (it.hasNext()) {
-			PipeDirection pd = it.next();
+			WrappedDirection pd = it.next();
 			if (pd.equals(before.getOpposite())) {
 				it.remove();
 			} else {
@@ -105,7 +105,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 				}
 			}
 		}
-		PipeDirection[] array = possibleDirs.toArray(new PipeDirection[0]);
+		WrappedDirection[] array = possibleDirs.toArray(new WrappedDirection[0]);
 		lastOutputIndex++;
 		if (lastOutputIndex >= possibleDirs.size()) {
 			lastOutputIndex = 0;
@@ -144,7 +144,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		if (extractDirectionId == -1) {
 			setExtractDirection(null);
 		} else {
-			setExtractDirection(PipeDirection.fromID(extractDirectionId));
+			setExtractDirection(WrappedDirection.fromID(extractDirectionId));
 		}
 		setExtractCondition(ExtractCondition.fromId(NBTUtils.readIntTag(tag.getValue().get("ExtractCondition"), ExtractCondition.NEEDS_REDSTONE.getId())));
 		setExtractAmount(ExtractAmount.fromId(NBTUtils.readIntTag(tag.getValue().get("ExtractAmount"), ExtractAmount.EXTRACT_1.getId())));
@@ -162,7 +162,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public void click(Player p, PipeDirection side) {
+	public void click(Player p, WrappedDirection side) {
 		ExtractionPipeInv.updateExtractionPipeInventory(p, this);
 	}
 
@@ -178,11 +178,11 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		return is;
 	}
 
-	public PipeDirection getExtractDirection() {
+	public WrappedDirection getExtractDirection() {
 		return extractDirection;
 	}
 
-	public void setExtractDirection(PipeDirection extractDirection) {
+	public void setExtractDirection(WrappedDirection extractDirection) {
 		this.extractDirection = extractDirection;
 	}
 
@@ -231,15 +231,15 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	 *            whether the direction should really cycle or just be checked for validity
 	 */
 	public void checkAndUpdateExtractDirection(boolean cycle) {
-		PipeDirection oldExtractDirection = getExtractDirection();
+		WrappedDirection oldExtractDirection = getExtractDirection();
 
-		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
+		List<WrappedDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
 		if (blockConnections.isEmpty()) {
 			extractDirection = null;
 		} else if (cycle || extractDirection == null || !blockConnections.contains(extractDirection)) {
 			do {
 				if (extractDirection == null) {
-					extractDirection = PipeDirection.NORTH;
+					extractDirection = WrappedDirection.NORTH;
 				} else {
 					extractDirection = extractDirection.getNextDirection();
 				}
@@ -256,7 +256,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 		}
 	}
 
-	protected void extractItems(List<PipeDirection> blockConnections) {
+	protected void extractItems(List<WrappedDirection> blockConnections) {
 
 		if (extractDirection == null) {
 			return;
@@ -277,7 +277,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 						}
 						boolean powered = getExtractCondition() == ExtractCondition.ALWAYS_EXTRACT;
 						if (getExtractCondition() == ExtractCondition.NEEDS_REDSTONE) {
-							for (PipeDirection pd : PipeDirection.values()) {
+							for (WrappedDirection pd : WrappedDirection.values()) {
 								Location relativeLoc = ExtractionPipe.this.getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
 								//don't power this pipe if at least 1 block around this pipe is inside an unloaded chunk
@@ -296,7 +296,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 						if (powered) {
 							BlockLoc bl = BlockLoc.convertBlockLoc(containerLoc);
 							TransportPipesContainer tpc = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld()).get(bl);
-							PipeDirection itemDir = extractDirection.getOpposite();
+							WrappedDirection itemDir = extractDirection.getOpposite();
 							if (tpc != null) {
 								List<ItemData> filterItems = new ArrayList<ItemData>();
 								for (ItemData filterItem : filteringItems) {

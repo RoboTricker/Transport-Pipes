@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -20,14 +20,14 @@ import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeEWModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeMIDModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeNSModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeUDModel;
 
-public class VanillaPipeRenderSystem extends PipeRenderSystem {
+public class VanillaPipeRenderSystem extends RenderSystem {
 
 	private Map<Pipe, List<ArmorStandData>> pipeAsd = new HashMap<>();
 
@@ -36,7 +36,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe, Collection<PipeDirection> allConnections) {
+	public void createPipeASD(Pipe pipe, Collection<WrappedDirection> allConnections) {
 		if (pipeAsd.containsKey(pipe)) {
 			return;
 		}
@@ -58,7 +58,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 
 		List<ArmorStandData> oldASD = pipeAsd.get(pipe);
 
-		Collection<PipeDirection> conns = pipe.getAllConnections();
+		Collection<WrappedDirection> conns = pipe.getAllConnections();
 		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), conns);
 
 		List<ArmorStandData> newASD = shape.getModel().createASD(VanillaPipeModelData.createModelData(pipe));
@@ -110,7 +110,7 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 	}
 
 	@Override
-	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
+	public WrappedDirection getClickedPipeFace(Player player, Pipe pipe) {
 		if (pipe == null) {
 			return null;
 		}
@@ -164,29 +164,29 @@ public class VanillaPipeRenderSystem extends PipeRenderSystem {
 			return model;
 		}
 
-		public static VanillaPipeShape getPipeShapeFromConnections(PipeType pipeType, Collection<PipeDirection> conn) {
-			PipeDirection[] array = conn.toArray(new PipeDirection[0]);
+		public static VanillaPipeShape getPipeShapeFromConnections(PipeType pipeType, Collection<WrappedDirection> conn) {
+			WrappedDirection[] array = conn.toArray(new WrappedDirection[0]);
 			if (pipeType == PipeType.GOLDEN || pipeType == PipeType.IRON || pipeType == PipeType.VOID) {
 				return MID;
 			}
 			if (conn.size() == 1) {
-				PipeDirection pd = array[0];
-				if (pd == PipeDirection.NORTH || pd == PipeDirection.SOUTH) {
+				WrappedDirection pd = array[0];
+				if (pd == WrappedDirection.NORTH || pd == WrappedDirection.SOUTH) {
 					return NORTH_SOUTH;
-				} else if (pd == PipeDirection.UP || pd == PipeDirection.DOWN) {
+				} else if (pd == WrappedDirection.UP || pd == WrappedDirection.DOWN) {
 					return UP_DOWN;
-				} else if (pd == PipeDirection.EAST || pd == PipeDirection.WEST) {
+				} else if (pd == WrappedDirection.EAST || pd == WrappedDirection.WEST) {
 					return EAST_WEST;
 				}
 			} else if (conn.size() == 2) {
-				PipeDirection pd1 = array[0];
-				PipeDirection pd2 = array[1];
+				WrappedDirection pd1 = array[0];
+				WrappedDirection pd2 = array[1];
 				if (pd1.getOpposite() == pd2) {
-					if (pd1 == PipeDirection.NORTH || pd1 == PipeDirection.SOUTH) {
+					if (pd1 == WrappedDirection.NORTH || pd1 == WrappedDirection.SOUTH) {
 						return NORTH_SOUTH;
-					} else if (pd1 == PipeDirection.UP || pd1 == PipeDirection.DOWN) {
+					} else if (pd1 == WrappedDirection.UP || pd1 == WrappedDirection.DOWN) {
 						return UP_DOWN;
-					} else if (pd1 == PipeDirection.EAST || pd1 == PipeDirection.WEST) {
+					} else if (pd1 == WrappedDirection.EAST || pd1 == WrappedDirection.WEST) {
 						return EAST_WEST;
 					}
 				}

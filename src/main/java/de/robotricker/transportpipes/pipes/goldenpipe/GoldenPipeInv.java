@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.GoldenPipe;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
@@ -37,11 +37,11 @@ public class GoldenPipeInv implements Listener {
 			scrollValues.put(pipe, new HashMap<Integer, Integer>());
 		}
 
-		Collection<PipeDirection> pipeConnections = pipe.getAllConnections();
+		Collection<WrappedDirection> pipeConnections = pipe.getAllConnections();
 
 		for (int line = 0; line < 6; line++) {
 			GoldenPipeColor gpc = GoldenPipeColor.values()[line];
-			PipeDirection pd = PipeDirection.fromID(line);
+			WrappedDirection pd = WrappedDirection.fromID(line);
 			int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
 
 			String filteringModeText = LocConf.load(pipe.getFilteringMode(line).getLocConfKey());
@@ -65,7 +65,7 @@ public class GoldenPipeInv implements Listener {
 				inv.setItem(line * 9 + 1, scrollLeft);
 				inv.setItem(line * 9 + 8, scrollRight);
 
-				ItemData[] items = pipe.getFilteringItems(PipeDirection.fromID(line));
+				ItemData[] items = pipe.getFilteringItems(WrappedDirection.fromID(line));
 				int indexWithScrollValue = scrollValue;
 				for (int i = 2; i < 8; i++) {
 					if (items[indexWithScrollValue] != null) {
@@ -168,7 +168,7 @@ public class GoldenPipeInv implements Listener {
 			}
 			//cache new items in golden pipe
 			linefor: for (int line = 0; line < 6; line++) {
-				ItemData[] items = pipe.getFilteringItems(PipeDirection.fromID(line));
+				ItemData[] items = pipe.getFilteringItems(WrappedDirection.fromID(line));
 				int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
 				for (int i = 2; i < 8; i++) {
 					ItemStack is = inv.getItem(line * 9 + i);

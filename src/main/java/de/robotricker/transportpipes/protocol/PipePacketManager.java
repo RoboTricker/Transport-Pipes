@@ -23,11 +23,11 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.LocationUtils;
 import de.robotricker.transportpipes.pipeutils.hitbox.OcclusionCullingUtils;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 import io.sentry.Sentry;
 
@@ -41,12 +41,12 @@ public class PipePacketManager implements Listener {
 		itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 	}
 
-	public void createPipe(Pipe pipe, Collection<PipeDirection> allConnections) {
+	public void createPipe(Pipe pipe, Collection<WrappedDirection> allConnections) {
 		// notify pipe that some connections might have changed. Knowing this the iron
 		// pipe can change its output direction for example.
 		pipe.notifyConnectionsChange();
 
-		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
+		for (RenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.createPipeASD(pipe, allConnections);
 		}
 		// client update is done in the next tick
@@ -57,7 +57,7 @@ public class PipePacketManager implements Listener {
 		// pipe can change its output direction for example.
 		pipe.notifyConnectionsChange();
 
-		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
+		for (RenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.updatePipeASD(pipe);
 		}
 		// client update is done inside the PipeManager method call (that's because here
@@ -68,7 +68,7 @@ public class PipePacketManager implements Listener {
 		for (Player p : pipesForPlayers.keySet()) {
 			despawnPipe(p, pipe);
 		}
-		for (PipeRenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
+		for (RenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
 			pm.destroyPipeASD(pipe);
 		}
 	}

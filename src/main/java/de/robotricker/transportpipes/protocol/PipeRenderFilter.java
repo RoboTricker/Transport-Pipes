@@ -16,7 +16,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
 
 public class PipeRenderFilter {
@@ -36,7 +36,7 @@ public class PipeRenderFilter {
 	}
 
 	public void doOcclusionCullingCheck(Player p, Pipe pipe) {
-		PipeRenderSystem prs = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
+		RenderSystem prs = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
 		AxisAlignedBB aabb = prs.getOuterHitbox(pipe);
 
 		//min

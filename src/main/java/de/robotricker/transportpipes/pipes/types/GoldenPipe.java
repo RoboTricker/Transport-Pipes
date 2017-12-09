@@ -22,7 +22,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
 import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
@@ -47,15 +47,15 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
+	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
 		Random random = new Random();
 		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
 
-		Map<PipeDirection, Integer> maxSpaceMap = new HashMap<PipeDirection, Integer>();
-		Map<PipeDirection, Integer> directionMap = new HashMap<PipeDirection, Integer>();
+		Map<WrappedDirection, Integer> maxSpaceMap = new HashMap<WrappedDirection, Integer>();
+		Map<WrappedDirection, Integer> directionMap = new HashMap<WrappedDirection, Integer>();
 
 		//update maxSpaceMap
-		for (PipeDirection pd : PipeDirection.values()) {
+		for (WrappedDirection pd : WrappedDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
 				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
@@ -68,8 +68,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		}
 
 		for (int i = 0; i < item.getItem().getAmount(); i++) {
-			List<PipeDirection> blockedDirections = new ArrayList<>();
-			for (PipeDirection pd : PipeDirection.values()) {
+			List<WrappedDirection> blockedDirections = new ArrayList<>();
+			for (WrappedDirection pd : WrappedDirection.values()) {
 				int currentAmount = directionMap.containsKey(pd) ? directionMap.get(pd) : 0;
 				currentAmount += getSimilarItemAmountOnDirectionWay(item, pd);
 				int maxFreeSpace = maxSpaceMap.get(pd);
@@ -77,12 +77,12 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 					blockedDirections.add(pd);
 				}
 			}
-			List<PipeDirection> possibleDirsDueToSorting = getPossibleDirectionsForItem(new ItemData(item.getItem()), before, blockedDirections);
+			List<WrappedDirection> possibleDirsDueToSorting = getPossibleDirectionsForItem(new ItemData(item.getItem()), before, blockedDirections);
 			if (possibleDirsDueToSorting.isEmpty()) {
 				continue;
 			}
 
-			PipeDirection randomDir = possibleDirsDueToSorting.get(random.nextInt(possibleDirsDueToSorting.size()));
+			WrappedDirection randomDir = possibleDirsDueToSorting.get(random.nextInt(possibleDirsDueToSorting.size()));
 			if (directionMap.containsKey(randomDir)) {
 				directionMap.put(randomDir, directionMap.get(randomDir) + 1);
 			} else {
@@ -93,17 +93,17 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		return directionMap;
 	}
 
-	public List<PipeDirection> getPossibleDirectionsForItem(ItemData itemData, PipeDirection before, List<PipeDirection> blockedDirections) {
+	public List<WrappedDirection> getPossibleDirectionsForItem(ItemData itemData, WrappedDirection before, List<WrappedDirection> blockedDirections) {
 		//all directions in which is an other pipe or inventory-block
-		List<PipeDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
-		List<PipeDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
+		List<WrappedDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
+		List<WrappedDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
 
 		//the possible directions in which the item could go
-		List<PipeDirection> possibleDirections = new ArrayList<>();
-		List<PipeDirection> emptyPossibleDirections = new ArrayList<>();
+		List<WrappedDirection> possibleDirections = new ArrayList<>();
+		List<WrappedDirection> emptyPossibleDirections = new ArrayList<>();
 
 		for (int line = 0; line < 6; line++) {
-			PipeDirection dir = PipeDirection.fromID(line);
+			WrappedDirection dir = WrappedDirection.fromID(line);
 			FilteringMode filteringMode = getFilteringMode(line);
 
 			List<ItemData> filterItems = new ArrayList<ItemData>();
@@ -227,11 +227,11 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public void click(Player p, PipeDirection side) {
+	public void click(Player p, WrappedDirection side) {
 		GoldenPipeInv.updateGoldenPipeInventory(p, this);
 	}
 
-	public ItemData[] getFilteringItems(PipeDirection pd) {
+	public ItemData[] getFilteringItems(WrappedDirection pd) {
 		return filteringItems[pd.getId()];
 	}
 
@@ -243,7 +243,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 		filteringModes[line] = filteringMode;
 	}
 
-	public void changeFilteringItems(PipeDirection pd, ItemData[] items) {
+	public void changeFilteringItems(WrappedDirection pd, ItemData[] items) {
 		for (int i = 0; i < filteringItems[pd.getId()].length; i++) {
 			if (i < items.length) {
 				filteringItems[pd.getId()][i] = items[i];

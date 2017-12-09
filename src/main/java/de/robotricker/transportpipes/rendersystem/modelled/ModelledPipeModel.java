@@ -4,11 +4,11 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.rendersystem.PipeModel;
+import de.robotricker.transportpipes.rendersystem.Model;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
 
-public abstract class ModelledPipeModel extends PipeModel {
+public abstract class ModelledPipeModel extends Model {
 
 	protected static final ItemStack ITEM_HOE_MID_GOLDEN = InventoryUtils.createToolItemStack(13);
 	protected static final ItemStack ITEM_HOE_MID_IRON = InventoryUtils.createToolItemStack(20);

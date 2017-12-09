@@ -28,7 +28,7 @@ import com.flowpowered.nbt.stream.NBTOutputStream;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
@@ -108,8 +108,7 @@ public class SavingManager implements Listener {
 
 					CompoundMap tags = new CompoundMap();
 
-					NBTUtils.saveStringValue(tags, "PluginVersion",
-							TransportPipes.instance.getDescription().getVersion());
+					NBTUtils.saveStringValue(tags, "PluginVersion", TransportPipes.instance.getDescription().getVersion());
 					NBTUtils.saveLongValue(tags, "LastSave", System.currentTimeMillis());
 
 					List<CompoundMap> rawPipeList = worlds.get(world);
@@ -130,8 +129,7 @@ public class SavingManager implements Listener {
 			e.printStackTrace();
 		}
 		if (message) {
-			System.out.println(
-					"[TransportPipes] saved " + pipesCount + " pipes in " + Bukkit.getWorlds().size() + " worlds");
+			TransportPipes.instance.getLogger().info("saved " + pipesCount + " pipes in " + Bukkit.getWorlds().size() + " worlds");
 		}
 		saving = false;
 	}
@@ -146,7 +144,7 @@ public class SavingManager implements Listener {
 		} else {
 			return;
 		}
-		
+
 		loading = true;
 
 		try {
@@ -166,7 +164,7 @@ public class SavingManager implements Listener {
 				in = new NBTInputStream(new FileInputStream(datFile), true);
 				compound = (CompoundTag) in.readTag();
 			} catch (EOFException | ZipException e) {
-				System.out.println("Wrong pipes.dat version detected. Converting to new nbt version");
+				TransportPipes.instance.getLogger().info("Wrong pipes.dat version detected. Converting to new nbt version");
 				in = new NBTInputStream(new FileInputStream(datFile), false);
 				compound = (CompoundTag) in.readTag();
 			}
@@ -174,12 +172,11 @@ public class SavingManager implements Listener {
 			// whether to convert the pipes.dat system to a version after 3.8.22 without
 			// PipeClassName but instead PipeType values
 			boolean convertSystem = false;
-			String pipesDatVersionString = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"),
-					TransportPipes.instance.getDescription().getVersion());
+			String pipesDatVersionString = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"), TransportPipes.instance.getDescription().getVersion());
 			long pipesDatVersion = UpdateManager.convertVersionToLong(pipesDatVersionString);
 			if (pipesDatVersion <= UpdateManager.convertVersionToLong("3.8.22")) {
 				convertSystem = true;
-				System.out.println("Converting pipes.dat system to new system");
+				TransportPipes.instance.getLogger().info("Converting pipes.dat system to new system");
 			}
 
 			List<Tag<?>> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
@@ -187,14 +184,11 @@ public class SavingManager implements Listener {
 			for (Tag<?> tag : pipeList) {
 				CompoundTag pipeTag = (CompoundTag) tag;
 
-				PipeType pt = PipeType
-						.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
-				Location pipeLoc = PipeUtils
-						.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
+				Location pipeLoc = PipeUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
 
 				if (convertSystem) {
-					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"),
-							"de.robotricker.transportpipes.pipes.PipeMID");
+					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"), "de.robotricker.transportpipes.pipes.PipeMID");
 					if (oldPipeClassName.endsWith("GoldenPipe")) {
 						pt = PipeType.GOLDEN;
 					} else if (oldPipeClassName.endsWith("IronPipe")) {
@@ -207,10 +201,10 @@ public class SavingManager implements Listener {
 					}
 				}
 
-				List<PipeDirection> neighborPipes = new ArrayList<PipeDirection>();
+				List<WrappedDirection> neighborPipes = new ArrayList<WrappedDirection>();
 				List<Tag<?>> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
 				for (Tag<?> neighborPipesEntry : neighborPipesList) {
-					neighborPipes.add(PipeDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
+					neighborPipes.add(WrappedDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
 				}
 
 				if (pipeLoc != null) {
@@ -248,12 +242,12 @@ public class SavingManager implements Listener {
 
 			in.close();
 
-			System.out.println("[TransportPipes] " + pipesCount + " pipes loaded in world " + world.getName());
+			TransportPipes.instance.getLogger().info(pipesCount + " pipes loaded in world " + world.getName());
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		loading = false;
 
 	}

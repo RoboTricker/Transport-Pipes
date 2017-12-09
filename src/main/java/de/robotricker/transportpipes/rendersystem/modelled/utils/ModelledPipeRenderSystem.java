@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -26,7 +26,7 @@ import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeCOLOREDModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeEXTRACTIONModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeGOLDENModel;
@@ -35,15 +35,15 @@ import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeIRONModel
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeVOIDModel;
 
-public class ModelledPipeRenderSystem extends PipeRenderSystem {
+public class ModelledPipeRenderSystem extends RenderSystem {
 
 	public static final String RESOURCEPACK_URL = "https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip";
 	private static final ItemStack ITEM_PIPE_WHITE = InventoryUtils.createToolItemStack(25);
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<>();
-	private Map<Pipe, Map<PipeDirection, ArmorStandData>> pipeConnsAsd = new HashMap<>();
+	private Map<Pipe, Map<WrappedDirection, ArmorStandData>> pipeConnsAsd = new HashMap<>();
 	private AxisAlignedBB pipeMidAABB;
-	private Map<PipeDirection, AxisAlignedBB> pipeConnsAABBs = new HashMap<>();
+	private Map<WrappedDirection, AxisAlignedBB> pipeConnsAABBs = new HashMap<>();
 
 	private Map<PipeType, ModelledPipeModel> pipeModels = new HashMap<>();
 
@@ -59,25 +59,25 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		pipeModels.put(PipeType.EXTRACTION, new ModelledPipeEXTRACTIONModel());
 
 		pipeMidAABB = new AxisAlignedBB(4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d);
-		pipeConnsAABBs.put(PipeDirection.NORTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 0d / 16d, 12d / 16d, 12d / 16d, 4d / 16d));
-		pipeConnsAABBs.put(PipeDirection.EAST, new AxisAlignedBB(12d / 16d, 4d / 16d, 4d / 16d, 16d / 16d, 12d / 16d, 12d / 16d));
-		pipeConnsAABBs.put(PipeDirection.SOUTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d, 16d / 16d));
-		pipeConnsAABBs.put(PipeDirection.WEST, new AxisAlignedBB(0d / 16d, 4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d));
-		pipeConnsAABBs.put(PipeDirection.UP, new AxisAlignedBB(4d / 16d, 12d / 16d, 4d / 16d, 12d / 16d, 16d / 16d, 12d / 16d));
-		pipeConnsAABBs.put(PipeDirection.DOWN, new AxisAlignedBB(4d / 16d, 0d / 16d, 4d / 16d, 12d / 16d, 4d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(WrappedDirection.NORTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 0d / 16d, 12d / 16d, 12d / 16d, 4d / 16d));
+		pipeConnsAABBs.put(WrappedDirection.EAST, new AxisAlignedBB(12d / 16d, 4d / 16d, 4d / 16d, 16d / 16d, 12d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(WrappedDirection.SOUTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d, 16d / 16d));
+		pipeConnsAABBs.put(WrappedDirection.WEST, new AxisAlignedBB(0d / 16d, 4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(WrappedDirection.UP, new AxisAlignedBB(4d / 16d, 12d / 16d, 4d / 16d, 12d / 16d, 16d / 16d, 12d / 16d));
+		pipeConnsAABBs.put(WrappedDirection.DOWN, new AxisAlignedBB(4d / 16d, 0d / 16d, 4d / 16d, 12d / 16d, 4d / 16d, 12d / 16d));
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe, Collection<PipeDirection> allConnections) {
+	public void createPipeASD(Pipe pipe, Collection<WrappedDirection> allConnections) {
 		if (pipeMidAsd.containsKey(pipe)) {
 			return;
 		}
 
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
-		Map<PipeDirection, ArmorStandData> connsMap = new HashMap<>();
+		Map<WrappedDirection, ArmorStandData> connsMap = new HashMap<>();
 		pipeConnsAsd.put(pipe, connsMap);
-		for (PipeDirection conn : allConnections) {
+		for (WrappedDirection conn : allConnections) {
 			connsMap.put(conn, model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, conn)));
 		}
 
@@ -92,11 +92,11 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 		List<ArmorStandData> removedASD = new ArrayList<>();
 		List<ArmorStandData> addedASD = new ArrayList<>();
 
-		Map<PipeDirection, ArmorStandData> connsMap = pipeConnsAsd.get(pipe);
+		Map<WrappedDirection, ArmorStandData> connsMap = pipeConnsAsd.get(pipe);
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 
-		Collection<PipeDirection> newConns = pipe.getAllConnections();
-		for (PipeDirection pd : PipeDirection.values()) {
+		Collection<WrappedDirection> newConns = pipe.getAllConnections();
+		for (WrappedDirection pd : WrappedDirection.values()) {
 			if (connsMap.containsKey(pd) && newConns.contains(pd)) {
 				// direction was active before and after update
 				ArmorStandData newASD = model.createConnASD(ModelledPipeConnModelData.createModelData(pipe, pd));
@@ -150,25 +150,25 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 	}
 
 	@Override
-	public PipeDirection getClickedPipeFace(Player player, Pipe pipe) {
+	public WrappedDirection getClickedPipeFace(Player player, Pipe pipe) {
 		if (pipe == null) {
 			return null;
 		}
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
-		Collection<PipeDirection> pipeConns = pipe.getAllConnections();
-		PipeDirection clickedMidFace = pipeMidAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
+		Collection<WrappedDirection> pipeConns = pipe.getAllConnections();
+		WrappedDirection clickedMidFace = pipeMidAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
 		if (clickedMidFace != null && !pipeConns.contains(clickedMidFace)) {
 			return clickedMidFace;
 		} else {
 			double nearestDistanceSquared = Double.MAX_VALUE;
-			PipeDirection currentClickedConnFace = null;
-			for (PipeDirection pd : pipeConns) {
+			WrappedDirection currentClickedConnFace = null;
+			for (WrappedDirection pd : pipeConns) {
 				AxisAlignedBB connAABB = pipeConnsAABBs.get(pd);
 				double newDistanceSquared = connAABB.getAABBMiddle(pipe.getBlockLoc()).distanceSquared(origin);
 				if (newDistanceSquared < nearestDistanceSquared) {
-					PipeDirection clickedConnFace = connAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
+					WrappedDirection clickedConnFace = connAABB.rayIntersection(ray, origin, pipe.getBlockLoc());
 					if (clickedConnFace != null) {
 						nearestDistanceSquared = newDistanceSquared;
 						currentClickedConnFace = clickedConnFace;
@@ -188,8 +188,8 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 		List<AxisAlignedBB> aabbs = new ArrayList<AxisAlignedBB>();
 		aabbs.add(pipeMidAABB);
-		Collection<PipeDirection> pipeConns = pipe.getAllConnections();
-		for (PipeDirection pd : pipeConns) {
+		Collection<WrappedDirection> pipeConns = pipe.getAllConnections();
+		for (WrappedDirection pd : pipeConns) {
 			aabbs.add(pipeConnsAABBs.get(pd));
 		}
 		double minx = Double.MAX_VALUE;
@@ -238,7 +238,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 	@EventHandler
 	public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
 		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
-			PipeRenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
 			if (beforePm.equals(this)) {
 				TransportPipes.instance.armorStandProtocol.changePipeRenderSystem(e.getPlayer(), TransportPipes.instance.getPipeRenderSystems().get(0));
 			}
@@ -255,7 +255,7 @@ public class ModelledPipeRenderSystem extends PipeRenderSystem {
 
 		@EventHandler
 		public void onAuthMeLogin(fr.xephi.authme.events.LoginEvent e) {
-			PipeRenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
 			if (beforePm.equals(ModelledPipeRenderSystem.this) && !loadedResourcePackPlayers.contains(e.getPlayer())) {
 				initPlayer(e.getPlayer());
 			}

@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 
 public class BrewingStandContainer extends BlockContainer {
 
@@ -27,14 +27,14 @@ public class BrewingStandContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(PipeDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
+	public ItemStack extractItem(WrappedDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
 		if (!cachedChunk.isLoaded()) {
 			return null;
 		}
 		if (isInvLocked(cachedBrewingStand)) {
 			return null;
 		}
-		if (extractDirection != PipeDirection.UP && cachedBrewingStand.getBrewingTime() == 0) {
+		if (extractDirection != WrappedDirection.UP && cachedBrewingStand.getBrewingTime() == 0) {
 			ItemStack taken = null;
 			if (cachedInv.getItem(0) != null && new ItemData(cachedInv.getItem(0)).checkFilter(filterItems, filteringMode)) {
 				taken = cachedInv.getItem(0);
@@ -55,7 +55,7 @@ public class BrewingStandContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack insertItem(PipeDirection insertDirection, ItemStack insertion) {
+	public ItemStack insertItem(WrappedDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return insertion;
 		}
@@ -91,7 +91,7 @@ public class BrewingStandContainer extends BlockContainer {
 	}
 
 	@Override
-	public int howMuchSpaceForItemAsync(PipeDirection insertDirection, ItemStack insertion) {
+	public int howMuchSpaceForItemAsync(WrappedDirection insertDirection, ItemStack insertion) {
 		if (!cachedChunk.isLoaded()) {
 			return 0;
 		}

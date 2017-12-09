@@ -70,7 +70,7 @@ public class LocConf extends Conf {
 	public static final String CREATIVE_TITLE = "creative.title";
 
 	public LocConf() {
-		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "localization.yml"));
+		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "localization.yml"), TransportPipes.instance);
 		saveAsDefault(PIPES_COLORED, "Pipe");
 		saveAsDefault(PIPES_ICE, "Ice-Pipe");
 		saveAsDefault(PIPES_GOLDEN, "Golden-Pipe");

@@ -18,23 +18,23 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.ClickablePipe;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
 
 public class IronPipe extends Pipe implements ClickablePipe {
 
-	private PipeDirection currentOutputDir;
+	private WrappedDirection currentOutputDir;
 
 	public IronPipe(Location blockLoc) {
 		super(blockLoc);
-		currentOutputDir = PipeDirection.UP;
+		currentOutputDir = WrappedDirection.UP;
 	}
 
 	@Override
-	public Map<PipeDirection, Integer> handleArrivalAtMiddle(PipeItem item, PipeDirection before, Collection<PipeDirection> possibleDirs) {
-		Map<PipeDirection, Integer> map = new HashMap<PipeDirection, Integer>();
+	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
+		Map<WrappedDirection, Integer> map = new HashMap<WrappedDirection, Integer>();
 		map.put(currentOutputDir, item.getItem().getAmount());
 		return map;
 	}
@@ -48,24 +48,24 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	@Override
 	public void loadFromNBTTag(CompoundTag tag) {
 		super.loadFromNBTTag(tag);
-		currentOutputDir = PipeDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0));
+		currentOutputDir = WrappedDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0));
 	}
 
 	public void cycleOutputDirection() {
-		Collection<PipeDirection> connections = getAllConnections();
+		Collection<WrappedDirection> connections = getAllConnections();
 		if (connections.isEmpty()) {
 			return;
 		}
 
-		PipeDirection oldOutputDir = currentOutputDir;
+		WrappedDirection oldOutputDir = currentOutputDir;
 
 		do {
 			int dirId = currentOutputDir.getId();
 			dirId++;
-			if (PipeDirection.fromID(dirId) == null) {
+			if (WrappedDirection.fromID(dirId) == null) {
 				dirId = 0;
 			}
-			currentOutputDir = PipeDirection.fromID(dirId);
+			currentOutputDir = WrappedDirection.fromID(dirId);
 		} while (!connections.contains(currentOutputDir));
 
 		if (oldOutputDir != currentOutputDir) {
@@ -79,12 +79,12 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	}
 
 	@Override
-	public void click(Player p, PipeDirection side) {
+	public void click(Player p, WrappedDirection side) {
 		cycleOutputDirection();
 		p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 	}
 
-	public PipeDirection getCurrentOutputDir() {
+	public WrappedDirection getCurrentOutputDir() {
 		return currentOutputDir;
 	}
 
@@ -108,7 +108,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	@Override
 	public void notifyConnectionsChange() {
 		super.notifyConnectionsChange();
-		Collection<PipeDirection> allConns = getAllConnections();
+		Collection<WrappedDirection> allConns = getAllConnections();
 		if (!allConns.isEmpty() && !allConns.contains(currentOutputDir)) {
 			cycleOutputDirection();
 		}

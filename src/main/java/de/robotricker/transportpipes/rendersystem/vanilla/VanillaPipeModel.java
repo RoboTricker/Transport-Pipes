@@ -7,10 +7,10 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.rendersystem.PipeModel;
+import de.robotricker.transportpipes.rendersystem.Model;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeModelData;
 
-public abstract class VanillaPipeModel extends PipeModel {
+public abstract class VanillaPipeModel extends Model {
 
 	protected static final ItemStack ITEM_BLAZE = new ItemStack(Material.BLAZE_ROD);
 	protected static final ItemStack ITEM_GOLD_BLOCK = new ItemStack(Material.GOLD_BLOCK);

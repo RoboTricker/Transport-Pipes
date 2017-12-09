@@ -1,6 +1,6 @@
 package de.robotricker.transportpipes.rendersystem.vanilla.utils;
 
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.ColoredPipe;
@@ -10,14 +10,14 @@ import de.robotricker.transportpipes.pipes.types.Pipe;
 public class VanillaPipeModelData {
 
 	private PipeType pipeType;
-	private PipeDirection ironPipe_outputDirection;
+	private WrappedDirection ironPipe_outputDirection;
 	private PipeColor coloredPipe_pipeColor;
 
 	public VanillaPipeModelData(PipeType pipeType) {
 		this.pipeType = pipeType;
 	}
 
-	public VanillaPipeModelData(PipeType pipeType, PipeDirection ironPipe_outputDirection) {
+	public VanillaPipeModelData(PipeType pipeType, WrappedDirection ironPipe_outputDirection) {
 		this(pipeType);
 		this.ironPipe_outputDirection = ironPipe_outputDirection;
 	}
@@ -31,7 +31,7 @@ public class VanillaPipeModelData {
 		return pipeType;
 	}
 
-	public PipeDirection getIronPipe_outputDirection() {
+	public WrappedDirection getIronPipe_outputDirection() {
 		return ironPipe_outputDirection;
 	}
 

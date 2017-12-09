@@ -16,7 +16,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.config.PlayerSettingsConf;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 
 public class SettingsInv implements Listener {
 
@@ -42,7 +42,7 @@ public class SettingsInv implements Listener {
 		populateInventoryLine(inv, 0, glassPane, glassPane, decreaseBtn, glassPane, eye, glassPane, increaseBtn, glassPane, glassPane);
 
 		// Render System setting
-		PipeRenderSystem pm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(viewer);
+		RenderSystem pm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(viewer);
 		ItemStack currentSystem = pm.getRepresentationItem().clone();
 		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), pm.getPipeRenderSystemName()), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
 
@@ -115,7 +115,7 @@ public class SettingsInv implements Listener {
 					int renderSystemId = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getRenderSystemId();
 					renderSystemId++;
 					renderSystemId %= TransportPipes.instance.getPipeRenderSystems().size();
-					PipeRenderSystem newRenderSystem = PipeRenderSystem.getRenderSystemFromId(renderSystemId);
+					RenderSystem newRenderSystem = RenderSystem.getRenderSystemFromId(renderSystemId);
 
 					TransportPipes.instance.armorStandProtocol.changePipeRenderSystem(p, newRenderSystem);
 

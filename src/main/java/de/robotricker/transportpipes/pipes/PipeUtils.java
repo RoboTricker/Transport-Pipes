@@ -62,7 +62,7 @@ public class PipeUtils {
 
 		Pipe pipe = pt.createPipe(blockLoc, pipeColor);
 
-		List<PipeDirection> neighborPipes = getOnlyPipeConnections(pipe);
+		List<WrappedDirection> neighborPipes = getOnlyPipeConnections(pipe);
 
 		if (player != null) {
 			PlayerPlacePipeEvent ppe = new PlayerPlacePipeEvent(player, pipe);
@@ -173,7 +173,7 @@ public class PipeUtils {
 
 				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
 				if (pipeMap != null) {
-					for (PipeDirection dir : PipeDirection.values()) {
+					for (WrappedDirection dir : WrappedDirection.values()) {
 						BlockLoc blockLocLong = BlockLoc.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 						if (pipeMap.containsKey(blockLocLong)) {
 							TransportPipes.instance.pipePacketManager.updatePipe(pipeMap.get(blockLocLong));
@@ -188,14 +188,14 @@ public class PipeUtils {
 	/**
 	 * gets all pipe connection directions (not block connections)
 	 **/
-	public static List<PipeDirection> getOnlyPipeConnections(Pipe pipe) {
+	public static List<WrappedDirection> getOnlyPipeConnections(Pipe pipe) {
 
-		List<PipeDirection> dirs = new ArrayList<>();
+		List<WrappedDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.getBlockLoc().getWorld());
 
 		if (pipeMap != null) {
-			for (PipeDirection dir : PipeDirection.values()) {
+			for (WrappedDirection dir : WrappedDirection.values()) {
 				Location blockLoc = pipe.getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ());
 				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 				if (pipeMap.containsKey(bl)) {
@@ -224,14 +224,14 @@ public class PipeUtils {
 	/**
 	 * gets all block connection directions (not pipe connections)
 	 **/
-	public static List<PipeDirection> getOnlyBlockConnections(Pipe pipe) {
+	public static List<WrappedDirection> getOnlyBlockConnections(Pipe pipe) {
 
-		List<PipeDirection> dirs = new ArrayList<>();
+		List<WrappedDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.getBlockLoc().getWorld());
 
 		if (containerMap != null) {
-			for (PipeDirection dir : PipeDirection.values()) {
+			for (WrappedDirection dir : WrappedDirection.values()) {
 				Location blockLoc = pipe.getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ());
 				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 				if (containerMap.containsKey(bl)) {
@@ -287,7 +287,7 @@ public class PipeUtils {
 		}
 	}
 
-	public static void registerPipe(final Pipe pipe, final List<PipeDirection> neighborPipes) {
+	public static void registerPipe(final Pipe pipe, final List<WrappedDirection> neighborPipes) {
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(pipe.getBlockLoc().getWorld());
 		if (pipeMap == null) {
 			pipeMap = Collections.synchronizedMap(new TreeMap<BlockLoc, Pipe>());
@@ -300,12 +300,12 @@ public class PipeUtils {
 			@Override
 			public void run() {
 
-				final Collection<PipeDirection> allConnections = new HashSet<>();
+				final Collection<WrappedDirection> allConnections = new HashSet<>();
 				allConnections.addAll(neighborPipes);
 
 				// update container blocks sync
 				Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(pipe.getBlockLoc().getWorld());
-				for (PipeDirection pd : PipeDirection.values()) {
+				for (WrappedDirection pd : WrappedDirection.values()) {
 					Location blockLoc = pipe.getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ());
 					if (containerMap != null && containerMap.containsKey(BlockLoc.convertBlockLoc(blockLoc))) {
 						allConnections.add(pd);

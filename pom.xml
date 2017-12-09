@@ -275,4 +275,5 @@
 			<artifactId>craftbukkit</artifactId> <version>1.12</version> <scope>provided</scope> 
 			</dependency> -->
 	</dependencies>
+	<url>https://github.com/RoboTricker/Transport-Pipes</url>
 </project>

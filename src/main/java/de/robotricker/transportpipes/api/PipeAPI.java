@@ -15,7 +15,7 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
@@ -128,7 +128,7 @@ public class PipeAPI {
 	/**
 	 * Puts any item into the given pipe object with a moving direction of "itemDirection".
 	 */
-	public static void putItemInPipe(Pipe pipe, ItemStack item, PipeDirection itemDirection) {
+	public static void putItemInPipe(Pipe pipe, ItemStack item, WrappedDirection itemDirection) {
 		PipeItem pi = new PipeItem(item, pipe.getBlockLoc(), itemDirection);
 		pipe.tempPipeItemsWithSpawn.put(pi, itemDirection);
 	}
@@ -155,7 +155,7 @@ public class PipeAPI {
 
 		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
 		if (pipeMap != null) {
-			for (PipeDirection pd : PipeDirection.values()) {
+			for (WrappedDirection pd : WrappedDirection.values()) {
 				bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
 				if (pipeMap.containsKey(bl)) {
 					final Pipe pipe = pipeMap.get(bl);
@@ -185,7 +185,7 @@ public class PipeAPI {
 
 				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
 				if (pipeMap != null) {
-					for (PipeDirection pd : PipeDirection.values()) {
+					for (WrappedDirection pd : WrappedDirection.values()) {
 						bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
 						if (pipeMap.containsKey(bl)) {
 							final Pipe pipe = pipeMap.get(bl);

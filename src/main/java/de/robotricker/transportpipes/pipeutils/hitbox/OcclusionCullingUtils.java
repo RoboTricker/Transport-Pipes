@@ -12,7 +12,7 @@ import org.bukkit.util.Vector;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import io.sentry.Sentry;
 
 public class OcclusionCullingUtils {
@@ -21,7 +21,7 @@ public class OcclusionCullingUtils {
 	private static List<ChunkSnapshot> cachedChunkSnapshots = new ArrayList<ChunkSnapshot>();
 
 	public static boolean isPipeVisibleForPlayer(Player p, Pipe pipe) {
-		PipeRenderSystem renderSystem = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
+		RenderSystem renderSystem = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
 		AxisAlignedBB aabb = renderSystem.getOuterHitbox(pipe);
 		return isAABBVisible(pipe.getBlockLoc(), aabb, p.getEyeLocation());
 	}

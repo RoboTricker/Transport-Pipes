@@ -5,12 +5,12 @@ import java.io.File;
 import org.bukkit.entity.Player;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.rendersystem.PipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 
 public class PlayerSettingsConf extends Conf {
 
 	public PlayerSettingsConf(Player p) {
-		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "settings" + File.separator + p.getUniqueId().toString() + ".yml"));
+		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "settings" + File.separator + p.getUniqueId().toString() + ".yml"), TransportPipes.instance);
 		saveAsDefault("renderDistance", TransportPipes.instance.generalConf.getDefaultRenderDistance());
 		saveAsDefault("renderSystemId", TransportPipes.instance.generalConf.getDefaultRenderSystemId());
 		saveAsDefault("showItems", TransportPipes.instance.generalConf.isDefaultShowItems());
@@ -25,14 +25,14 @@ public class PlayerSettingsConf extends Conf {
 		overrideAsync("renderDistance", renderDistance);
 	}
 
-	public PipeRenderSystem getRenderSystem() {
+	public RenderSystem getRenderSystem() {
 		// overwrite player specific render system with default one if forced to.
 		int renderSystemId = (int) read("renderSystemId");
 		int defaultRenderSystemId = TransportPipes.instance.generalConf.getDefaultRenderSystemId();
 		if (TransportPipes.instance.generalConf.isForceDefaultRenderSystem()) {
 			renderSystemId = defaultRenderSystemId;
 		}
-		return PipeRenderSystem.getRenderSystemFromId(renderSystemId);
+		return RenderSystem.getRenderSystemFromId(renderSystemId);
 	}
 
 	public void setRenderSystem(int renderSystemId) {

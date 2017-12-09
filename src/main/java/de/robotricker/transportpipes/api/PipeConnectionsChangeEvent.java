@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import de.robotricker.transportpipes.pipes.PipeDirection;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class PipeConnectionsChangeEvent extends Event {
@@ -38,7 +38,7 @@ public class PipeConnectionsChangeEvent extends Event {
 		return loc;
 	}
 
-	public Collection<PipeDirection> getPipeConnections() {
+	public Collection<WrappedDirection> getPipeConnections() {
 		return pipe.getAllConnections();
 	}
 
