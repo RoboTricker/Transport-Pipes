@@ -23,6 +23,7 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.LocationUtils;
@@ -33,43 +34,43 @@ import io.sentry.Sentry;
 
 public class PipePacketManager implements Listener {
 
-	private Map<Player, List<Pipe>> pipesForPlayers;
+	private Map<Player, List<Duct>> ductsForPlayers;
 	private Map<Player, List<PipeItem>> itemsForPlayers;
 
 	public PipePacketManager() {
-		pipesForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Pipe>>());
+		ductsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Duct>>());
 		itemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 	}
 
-	public void createPipe(Pipe pipe, Collection<WrappedDirection> allConnections) {
+	public void createDuct(Duct duct, Collection<WrappedDirection> allConnections) {
 		// notify pipe that some connections might have changed. Knowing this the iron
 		// pipe can change its output direction for example.
-		pipe.notifyConnectionsChange();
+		duct.notifyConnectionsChange();
 
-		for (RenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
-			pm.createPipeASD(pipe, allConnections);
+		for (RenderSystem pm : duct.getRenderSystems()) {
+			pm.createDuctASD(duct, allConnections);
 		}
 		// client update is done in the next tick
 	}
 
-	public void updatePipe(Pipe pipe) {
+	public void updateDuct(Duct duct) {
 		// notify pipe that some connections might have changed. Knowing this the iron
 		// pipe can change its output direction for example.
-		pipe.notifyConnectionsChange();
+		duct.notifyConnectionsChange();
 
-		for (RenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
-			pm.updatePipeASD(pipe);
+		for (RenderSystem pm : duct.getRenderSystems()) {
+			pm.updateDuctASD(duct);
 		}
 		// client update is done inside the PipeManager method call (that's because here
 		// you don't know which ArmorStands to remove and which ones to add)
 	}
 
-	public void destroyPipe(Pipe pipe) {
-		for (Player p : pipesForPlayers.keySet()) {
-			despawnPipe(p, pipe);
+	public void destroyDuct(Duct duct) {
+		for (Player p : ductsForPlayers.keySet()) {
+			despawnDuct(p, duct);
 		}
-		for (RenderSystem pm : TransportPipes.instance.getPipeRenderSystems()) {
-			pm.destroyPipeASD(pipe);
+		for (RenderSystem pm : duct.getRenderSystems()) {
+			pm.destroyDuctASD(duct);
 		}
 	}
 
@@ -111,13 +112,13 @@ public class PipePacketManager implements Listener {
 		}
 	}
 
-	public void spawnPipe(final Player p, final Pipe pipe) {
-		List<Pipe> list;
-		if (!pipesForPlayers.containsKey(p)) {
-			pipesForPlayers.put(p, new ArrayList<Pipe>());
+	public void spawnDuct(final Player p, final Duct duct) {
+		List<Duct> list;
+		if (!ductsForPlayers.containsKey(p)) {
+			ductsForPlayers.put(p, new ArrayList<Duct>());
 		}
-		list = pipesForPlayers.get(p);
-		if (!list.contains(pipe)) {
+		list = ductsForPlayers.get(p);
+		if (!list.contains(duct)) {
 			List<ArmorStandData> ASD = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDForPipe(pipe);
 			if (ASD != null && !ASD.isEmpty()) {
 				list.add(pipe);
@@ -138,12 +139,12 @@ public class PipePacketManager implements Listener {
 		}
 	}
 
-	public void despawnPipe(final Player p, final Pipe pipe) {
-		if (pipesForPlayers.containsKey(p)) {
-			List<Pipe> list = pipesForPlayers.get(p);
+	public void despawnDuct(final Player p, final Duct duct) {
+		if (ductsForPlayers.containsKey(p)) {
+			List<Pipe> list = ductsForPlayers.get(p);
 			if (list.contains(pipe)) {
 				list.remove(pipe);
-				TransportPipes.instance.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDIdsForPipe(pipe));
+				TransportPipes.instance.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getASDIdsForDuct(pipe));
 			}
 		}
 	}
@@ -232,15 +233,15 @@ public class PipePacketManager implements Listener {
 	public void onWorldChange(final PlayerChangedWorldEvent e) {
 		// remove cached pipes if the player changes world, so the pipe will be spawned
 		// if he switches back
-		if (pipesForPlayers.containsKey(e.getPlayer())) {
+		if (ductsForPlayers.containsKey(e.getPlayer())) {
 			List<Pipe> rmList = new ArrayList<>();
-			for (int i = 0; i < pipesForPlayers.get(e.getPlayer()).size(); i++) {
-				Pipe pipe = pipesForPlayers.get(e.getPlayer()).get(i);
+			for (int i = 0; i < ductsForPlayers.get(e.getPlayer()).size(); i++) {
+				Pipe pipe = ductsForPlayers.get(e.getPlayer()).get(i);
 				if (pipe.getBlockLoc().getWorld().equals(e.getFrom())) {
 					rmList.add(pipe);
 				}
 			}
-			pipesForPlayers.get(e.getPlayer()).removeAll(rmList);
+			ductsForPlayers.get(e.getPlayer()).removeAll(rmList);
 		}
 
 		// remove cached items if the player changes world, so the item will be spawned
@@ -284,8 +285,8 @@ public class PipePacketManager implements Listener {
 
 			@Override
 			public void run() {
-				if (PipePacketManager.this.pipesForPlayers.containsKey(p)) {
-					PipePacketManager.this.pipesForPlayers.remove(p);
+				if (PipePacketManager.this.ductsForPlayers.containsKey(p)) {
+					PipePacketManager.this.ductsForPlayers.remove(p);
 				}
 				if (PipePacketManager.this.itemsForPlayers.containsKey(p)) {
 					PipePacketManager.this.itemsForPlayers.remove(p);

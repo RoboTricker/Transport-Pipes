@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
@@ -26,27 +27,27 @@ public abstract class RenderSystem implements Listener {
 	/**
 	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe)
 	 */
-	public abstract void createPipeASD(Pipe pipe, Collection<WrappedDirection> allConnections);
+	public abstract void createDuctASD(Duct duct, Collection<WrappedDirection> allConnections);
 
 	/**
 	 * creates the needed ASD for this pipe and saves it in order to have it ready for getASDForPipe(Pipe) also sends the removed and added ASD to all clients with this PipeManager
 	 */
-	public abstract void updatePipeASD(Pipe pipe);
+	public abstract void updateDuctASD(Duct duct);
 
 	/**
 	 * removes all ASD associated with this pipe
 	 */
-	public abstract void destroyPipeASD(Pipe pipe);
+	public abstract void destroyDuctASD(Duct duct);
 
-	public abstract List<ArmorStandData> getASDForPipe(Pipe pipe);
+	public abstract List<ArmorStandData> getASDForDuct(Duct duct);
 
-	public int[] getASDIdsForPipe(Pipe pipe) {
-		return ProtocolUtils.convertArmorStandListToEntityIdArray(getASDForPipe(pipe));
+	public int[] getASDIdsForDuct(Duct duct) {
+		return ProtocolUtils.convertArmorStandListToEntityIdArray(getASDForDuct(duct));
 	}
 
-	public abstract WrappedDirection getClickedPipeFace(Player player, Pipe pipe);
+	public abstract WrappedDirection getClickedDuctFace(Player player, Duct duct);
 
-	public abstract AxisAlignedBB getOuterHitbox(Pipe pipe);
+	public abstract AxisAlignedBB getOuterHitbox(Duct duct);
 	
 	public abstract void initPlayer(Player p);
 

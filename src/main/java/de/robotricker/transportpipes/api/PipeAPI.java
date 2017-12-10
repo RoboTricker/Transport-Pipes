@@ -42,7 +42,7 @@ public class PipeAPI {
 	 * Detroys the pipe at the given location.
 	 */
 	public static void destroyPipe(Location blockLoc) {
-		Pipe pipe = PipeUtils.getPipeWithLocation(blockLoc);
+		Pipe pipe = PipeUtils.getDuctAtLocation(blockLoc);
 		if (pipe != null) {
 			PipeUtils.destroyPipe(null, pipe);
 		}
@@ -92,7 +92,7 @@ public class PipeAPI {
 	 * Checks whether at the given location is a pipe.
 	 */
 	public static boolean isPipe(Location blockLoc) {
-		return PipeUtils.getPipeWithLocation(blockLoc) != null;
+		return PipeUtils.getDuctAtLocation(blockLoc) != null;
 	}
 
 	/**

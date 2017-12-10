@@ -28,14 +28,16 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
+import de.robotricker.transportpipes.rendersystem.RenderSystem;
 
-public abstract class Pipe {
+public abstract class Pipe extends Duct {
 
 	public static final float ITEM_SPEED = 0.125f;// 0.0625f;
 	public static final float ICE_ITEM_SPEED = 0.5f;
@@ -55,21 +57,8 @@ public abstract class Pipe {
 	// remember to synchronize while iterating
 	public final Map<PipeItem, WrappedDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, WrappedDirection>());
 
-	// the blockLoc of this pipe
-	private Location blockLoc;
-	private Chunk cachedChunk;
-
 	public Pipe(Location blockLoc) {
-		this.blockLoc = blockLoc;
-		this.cachedChunk = blockLoc.getBlock().getChunk();
-	}
-
-	public Location getBlockLoc() {
-		return blockLoc;
-	}
-
-	public boolean isInLoadedChunk() {
-		return cachedChunk.isLoaded();
+		super(blockLoc);
 	}
 
 	/**
@@ -287,13 +276,6 @@ public abstract class Pipe {
 		return ITEM_SPEED;
 	}
 
-	public Collection<WrappedDirection> getAllConnections() {
-		Set<WrappedDirection> connections = new HashSet<>();
-		connections.addAll(PipeUtils.getOnlyPipeConnections(this));
-		connections.addAll(PipeUtils.getOnlyBlockConnections(this));
-		return connections;
-	}
-
 	/**
 	 * Determines wether the item should drop, be put in another pipe or be put in
 	 * an inventory when it reaches the end of a pipe
@@ -355,19 +337,7 @@ public abstract class Pipe {
 
 	}
 
-	/**
-	 * get the items that will be dropped on pipe destroy
-	 */
-	public abstract List<ItemStack> getDroppedItems();
-
 	public abstract PipeType getPipeType();
-
-	public abstract int[] getBreakParticleData();
-
-	public void notifyConnectionsChange() {
-		PipeConnectionsChangeEvent event = new PipeConnectionsChangeEvent(this);
-		Bukkit.getPluginManager().callEvent(event);
-	}
 
 	protected List<PipeItem> splitPipeItem(PipeItem toSplit, int... newAmounts) {
 		List<PipeItem> pipeItems = new ArrayList<PipeItem>();
@@ -416,6 +386,50 @@ public abstract class Pipe {
 			}
 		}
 		return amount;
+	}
+
+	@Override
+	public boolean canConnectToDuct(Duct duct) {
+		if (duct instanceof Pipe) {
+			Pipe neighborPipe = (Pipe) duct;
+			if (neighborPipe.getPipeType() == PipeType.EXTRACTION && getPipeType() == PipeType.EXTRACTION) {
+				return false;
+			}
+			if (neighborPipe.getPipeType() == PipeType.VOID && getPipeType() == PipeType.VOID) {
+				return false;
+			}
+			if (neighborPipe.getPipeType() == PipeType.COLORED && getPipeType() == PipeType.COLORED) {
+				if (!((ColoredPipe) neighborPipe).getPipeColor().equals(((ColoredPipe) duct).getPipeColor())) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public List<WrappedDirection> getOnlyBlockConnections() {
+		List<WrappedDirection> dirs = new ArrayList<>();
+
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
+
+		if (containerMap != null) {
+			for (WrappedDirection dir : WrappedDirection.values()) {
+				Location blockLoc = getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ());
+				BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+				if (containerMap.containsKey(bl)) {
+					dirs.add(dir);
+				}
+			}
+		}
+
+		return dirs;
+	}
+	
+	@Override
+	public List<RenderSystem> getRenderSystems() {
+		return TransportPipes.instance.getPipeRenderSystems();
 	}
 
 }

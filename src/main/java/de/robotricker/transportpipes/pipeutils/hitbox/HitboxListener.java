@@ -41,7 +41,7 @@ public class HitboxListener implements Listener {
 					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
 					// cancel block placement if the block would be placed inside a pipe or the
 					// clickedItem in the mainHand is a pipe
-					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null || PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) != null) {
+					if (PipeUtils.getDuctAtLocation(placeBlock.getLocation()) != null || PipeType.getFromPipeItem(p.getInventory().getItemInMainHand()) != null) {
 						e.setCancelled(true);
 					}
 				}
@@ -62,7 +62,7 @@ public class HitboxListener implements Listener {
 			if (pipeBlock != null) {
 				e.setCancelled(true);
 				if (PipeUtils.canBuild(p, pipeBlock, pipeBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-					PipeUtils.destroyPipe(p, PipeUtils.getPipeWithLocation(pipeBlock.getLocation()));
+					PipeUtils.destroyPipe(p, PipeUtils.getDuctAtLocation(pipeBlock.getLocation()));
 				}
 			}
 			// right click on pipe or a block (its irrelevant if you are looking on a block
@@ -88,7 +88,7 @@ public class HitboxListener implements Listener {
 				} else if (clickedBlock != null) {
 					Block placeBlock = clickedBlock.getRelative(e.getBlockFace());
 					// cancel block placement if the block would be placed inside a pipe
-					if (PipeUtils.getPipeWithLocation(placeBlock.getLocation()) != null) {
+					if (PipeUtils.getDuctAtLocation(placeBlock.getLocation()) != null) {
 						// only cancel the interaction if the player wants to place a block inside the
 						// pipe (if he looks onto an interactive block he has to sneak)
 						if (!(HitboxUtils.isInteractiveBlock(clickedBlock) || p.isSneaking())) {
@@ -135,7 +135,7 @@ public class HitboxListener implements Listener {
 			}
 
 			if (pipeBlock != null) {
-				Pipe pipeClickedAt = PipeUtils.getPipeWithLocation(pipeBlock.getLocation());
+				Pipe pipeClickedAt = PipeUtils.getDuctAtLocation(pipeBlock.getLocation());
 				if (pipeClickedAt instanceof ClickablePipe) {
 					if (PipeItemUtils.isItemStackWrench(clickedItem)) {
 						if (PipeUtils.canBuild(p, pipeClickedAt.getBlockLoc().getBlock(), pipeClickedAt.getBlockLoc().getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {

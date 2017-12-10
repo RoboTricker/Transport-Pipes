@@ -6,8 +6,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,6 +25,7 @@ import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -60,7 +63,7 @@ public class TransportPipes extends JavaPlugin {
 	public static TransportPipes instance;
 
 	// x << 34 | y << 26 | z
-	private Map<World, Map<BlockLoc, Pipe>> registeredPipes;
+	private Map<World, Map<BlockLoc, Duct>> registeredDucts;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
 	private List<RenderSystem> renderSystems;
@@ -80,11 +83,11 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		initSentryOnCurrentThread();
 
 		// Prepare collections
-		registeredPipes = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Pipe>>());
+		registeredDucts = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Duct>>());
 		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
 
 		// Prepare managers
@@ -212,9 +215,10 @@ public class TransportPipes extends JavaPlugin {
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
 			Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);
 		}
-		//if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
-		//	com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, new LWCAPIUtils());
-		//}
+		// if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+		// com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this,
+		// new LWCAPIUtils());
+		// }
 
 		for (World world : Bukkit.getWorlds()) {
 			for (Chunk loadedChunk : world.getLoadedChunks()) {
@@ -259,39 +263,78 @@ public class TransportPipes extends JavaPlugin {
 		savingManager.savePipesSync(true);
 
 		// despawn all pipes and items
-		Map<World, Map<BlockLoc, Pipe>> fullPipeMap = getFullPipeMap();
-		synchronized (fullPipeMap) {
-			for (Map<BlockLoc, Pipe> pipeMap : fullPipeMap.values()) {
-				for (Pipe pipe : pipeMap.values()) {
-					pipePacketManager.destroyPipe(pipe);
-					Collection<PipeItem> allItems = new ArrayList<>();
-					synchronized (pipe.pipeItems) {
-						allItems.addAll(pipe.pipeItems.keySet());
-					}
-					synchronized (pipe.tempPipeItems) {
-						allItems.addAll(pipe.tempPipeItems.keySet());
-					}
-					synchronized (pipe.tempPipeItemsWithSpawn) {
-						allItems.addAll(pipe.tempPipeItemsWithSpawn.keySet());
-					}
-					for (PipeItem pi : allItems) {
-						pipePacketManager.destroyPipeItem(pi);
+		Map<World, Map<BlockLoc, Duct>> fullDuctMap = getFullDuctMap();
+		synchronized (fullDuctMap) {
+			for (Map<BlockLoc, Duct> ductMap : fullDuctMap.values()) {
+				for (Duct duct : ductMap.values()) {
+					if (duct instanceof Pipe) {
+						Pipe pipe = (Pipe) duct;
+						pipePacketManager.destroyPipe(pipe);
+						Collection<PipeItem> allItems = new ArrayList<>();
+						synchronized (pipe.pipeItems) {
+							allItems.addAll(pipe.pipeItems.keySet());
+						}
+						synchronized (pipe.tempPipeItems) {
+							allItems.addAll(pipe.tempPipeItems.keySet());
+						}
+						synchronized (pipe.tempPipeItemsWithSpawn) {
+							allItems.addAll(pipe.tempPipeItemsWithSpawn.keySet());
+						}
+						for (PipeItem pi : allItems) {
+							pipePacketManager.destroyPipeItem(pi);
+						}
 					}
 				}
 			}
 		}
-		
+
 	}
 
 	public Map<BlockLoc, Pipe> getPipeMap(World world) {
-		if (registeredPipes.containsKey(world)) {
-			return registeredPipes.get(world);
+		Map<BlockLoc, Duct> ductMap = getDuctMap(world);
+		Map<BlockLoc, Pipe> pipeMap = new TreeMap<>();
+		synchronized (ductMap) {
+			Iterator<BlockLoc> it = ductMap.keySet().iterator();
+			while (it.hasNext()) {
+				BlockLoc bl = it.next();
+				if (ductMap.get(bl) instanceof Pipe) {
+					pipeMap.put(bl, (Pipe) ductMap.get(bl));
+				}
+			}
+		}
+		return pipeMap;
+	}
+
+	public Map<BlockLoc, Duct> getDuctMap(World world) {
+		if (registeredDucts.containsKey(world)) {
+			return registeredDucts.get(world);
 		}
 		return null;
 	}
 
+	public Map<World, Map<BlockLoc, Duct>> getFullDuctMap() {
+		return registeredDucts;
+	}
+
 	public Map<World, Map<BlockLoc, Pipe>> getFullPipeMap() {
-		return registeredPipes;
+		Map<World, Map<BlockLoc, Pipe>> fullPipeMap = new HashMap<>();
+		synchronized (registeredDucts) {
+			Iterator<World> it1 = registeredDucts.keySet().iterator();
+			while (it1.hasNext()) {
+				World world = it1.next();
+				Map<BlockLoc, Duct> ductMap = registeredDucts.get(world);
+				Map<BlockLoc, Pipe> pipeMap = new TreeMap<>();
+				Iterator<BlockLoc> it2 = ductMap.keySet().iterator();
+				while (it2.hasNext()) {
+					BlockLoc bl = it2.next();
+					if (ductMap.get(bl) instanceof Pipe) {
+						pipeMap.put(bl, (Pipe) ductMap.get(bl));
+					}
+				}
+				fullPipeMap.put(world, pipeMap);
+			}
+		}
+		return fullPipeMap;
 	}
 
 	public Map<BlockLoc, TransportPipesContainer> getContainerMap(World world) {
@@ -312,7 +355,7 @@ public class TransportPipes extends JavaPlugin {
 		Sentry.getContext().addTag("version", TransportPipes.instance.getDescription().getVersion());
 
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			
+
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
 				Sentry.capture(e);

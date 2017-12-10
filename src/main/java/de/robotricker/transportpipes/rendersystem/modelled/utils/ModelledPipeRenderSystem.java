@@ -16,8 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
@@ -68,11 +69,12 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe, Collection<WrappedDirection> allConnections) {
-		if (pipeMidAsd.containsKey(pipe)) {
+	public void createDuctASD(Duct duct, Collection<WrappedDirection> allConnections) {
+		if (pipeMidAsd.containsKey(duct)) {
 			return;
 		}
-
+		Pipe pipe = (Pipe) duct;
+		
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
 		Map<WrappedDirection, ArmorStandData> connsMap = new HashMap<>();
@@ -84,7 +86,9 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void updatePipeASD(Pipe pipe) {
+	public void updateDuctASD(Duct duct) {
+		Pipe pipe = (Pipe) duct;
+		
 		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe) || pipeConnsAsd.get(pipe) == null) {
 			return;
 		}
@@ -129,7 +133,9 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void destroyPipeASD(Pipe pipe) {
+	public void destroyDuctASD(Duct duct) {
+		Pipe pipe = (Pipe) duct;
+		
 		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe) || pipeConnsAsd.get(pipe) == null) {
 			return;
 		}
@@ -138,7 +144,9 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public List<ArmorStandData> getASDForPipe(Pipe pipe) {
+	public List<ArmorStandData> getASDForDuct(Duct duct) {
+		Pipe pipe = (Pipe) duct;
+		
 		List<ArmorStandData> ASD = new ArrayList<>();
 		if (pipeMidAsd.containsKey(pipe)) {
 			ASD.add(pipeMidAsd.get(pipe));
@@ -150,10 +158,12 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public WrappedDirection getClickedPipeFace(Player player, Pipe pipe) {
-		if (pipe == null) {
+	public WrappedDirection getClickedDuctFace(Player player, Duct duct) {
+		if (duct == null) {
 			return null;
 		}
+		Pipe pipe = (Pipe) duct;
+		
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
@@ -181,10 +191,11 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public AxisAlignedBB getOuterHitbox(Pipe pipe) {
-		if (pipe == null) {
+	public AxisAlignedBB getOuterHitbox(Duct duct) {
+		if (duct == null) {
 			return null;
 		}
+		Pipe pipe = (Pipe) duct;
 
 		List<AxisAlignedBB> aabbs = new ArrayList<AxisAlignedBB>();
 		aabbs.add(pipeMidAABB);

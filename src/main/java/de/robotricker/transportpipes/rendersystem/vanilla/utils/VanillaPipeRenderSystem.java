@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.WrappedDirection;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -36,10 +37,11 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void createPipeASD(Pipe pipe, Collection<WrappedDirection> allConnections) {
-		if (pipeAsd.containsKey(pipe)) {
+	public void createDuctASD(Duct duct, Collection<WrappedDirection> allConnections) {
+		if (pipeAsd.containsKey(duct)) {
 			return;
 		}
+		Pipe pipe = (Pipe) duct;
 
 		VanillaPipeShape shape = VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), allConnections);
 
@@ -48,10 +50,11 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void updatePipeASD(Pipe pipe) {
-		if (!pipeAsd.containsKey(pipe) || pipeAsd.get(pipe) == null) {
+	public void updateDuctASD(Duct duct) {
+		if (!pipeAsd.containsKey(duct) || pipeAsd.get(duct) == null) {
 			return;
 		}
+		Pipe pipe = (Pipe) duct;
 
 		List<ArmorStandData> removedASD = new ArrayList<>();
 		List<ArmorStandData> addedASD = new ArrayList<>();
@@ -97,7 +100,9 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void destroyPipeASD(Pipe pipe) {
+	public void destroyDuctASD(Duct duct) {
+		Pipe pipe = (Pipe) duct;
+		
 		if (!pipeAsd.containsKey(pipe) || pipeAsd.get(pipe) == null) {
 			return;
 		}
@@ -105,15 +110,19 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public List<ArmorStandData> getASDForPipe(Pipe pipe) {
+	public List<ArmorStandData> getASDForDuct(Duct duct) {
+		Pipe pipe = (Pipe) duct;
+		
 		return pipeAsd.get(pipe);
 	}
 
 	@Override
-	public WrappedDirection getClickedPipeFace(Player player, Pipe pipe) {
-		if (pipe == null) {
+	public WrappedDirection getClickedDuctFace(Player player, Duct duct) {
+		if (duct == null) {
 			return null;
 		}
+		Pipe pipe = (Pipe) duct;
+		
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
@@ -121,10 +130,12 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public AxisAlignedBB getOuterHitbox(Pipe pipe) {
-		if (pipe == null) {
+	public AxisAlignedBB getOuterHitbox(Duct duct) {
+		if (duct == null) {
 			return null;
 		}
+		Pipe pipe = (Pipe) duct;
+		
 		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), pipe.getAllConnections()).getModel().getAABB();
 	}
 

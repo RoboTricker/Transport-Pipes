@@ -64,7 +64,7 @@ public class HitboxUtils {
 	}
 
 	public static WrappedDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
-		return TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, pipe);
+		return TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedDuctFace(p, pipe);
 	}
 
 	public static Block getPipeLookingTo(Player p, Block clickedBlock) {
@@ -88,13 +88,13 @@ public class HitboxUtils {
 
 					if (line.size() > i) {
 						// check if on this block is a pipe
-						if (PipeUtils.getPipeWithLocation(line.get(i).getLocation()) != null) {
+						if (PipeUtils.getDuctAtLocation(line.get(i).getLocation()) != null) {
 							currentBlock = line.get(i);
 							indexOfPipeBlock = i;
 						}
 						// check if the player looks on the hitbox of the pipe (the player could
 						// possibly look on a block with a pipe but not on the hitbox itself)
-						if (currentBlock != null && playerPipeManager.getClickedPipeFace(p, PipeUtils.getPipeWithLocation(currentBlock.getLocation())) == null) {
+						if (currentBlock != null && playerPipeManager.getClickedDuctFace(p, PipeUtils.getDuctAtLocation(currentBlock.getLocation())) == null) {
 							currentBlock = null;
 							indexOfPipeBlock = -1;
 						}
@@ -130,7 +130,7 @@ public class HitboxUtils {
 	 * and the pipe hitbox)
 	 */
 	public static Block getRelativeBlockOfPipe(Player p, Block pipeLoc) {
-		WrappedDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedPipeFace(p, PipeUtils.getPipeWithLocation(pipeLoc.getLocation()));
+		WrappedDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedDuctFace(p, PipeUtils.getDuctAtLocation(pipeLoc.getLocation()));
 		return pd != null ? pipeLoc.getRelative(pd.toBlockFace()) : null;
 	}
 
