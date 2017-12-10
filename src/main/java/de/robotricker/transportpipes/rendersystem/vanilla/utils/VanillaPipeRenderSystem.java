@@ -12,6 +12,7 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -89,7 +90,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 		oldASD.clear();
 		oldASD.addAll(tempASD);
 
-		//SEND TO CLIENTS
+		// SEND TO CLIENTS
 		List<Player> players = protocol.getAllPlayersWithPipeManager(this);
 		int[] removedIds = ProtocolUtils.convertArmorStandListToEntityIdArray(removedASD);
 		for (Player p : players) {
@@ -102,7 +103,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	@Override
 	public void destroyDuctASD(Duct duct) {
 		Pipe pipe = (Pipe) duct;
-		
+
 		if (!pipeAsd.containsKey(pipe) || pipeAsd.get(pipe) == null) {
 			return;
 		}
@@ -112,7 +113,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	@Override
 	public List<ArmorStandData> getASDForDuct(Duct duct) {
 		Pipe pipe = (Pipe) duct;
-		
+
 		return pipeAsd.get(pipe);
 	}
 
@@ -122,7 +123,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 			return null;
 		}
 		Pipe pipe = (Pipe) duct;
-		
+
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
@@ -135,7 +136,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 			return null;
 		}
 		Pipe pipe = (Pipe) duct;
-		
+
 		return VanillaPipeShape.getPipeShapeFromConnections(pipe.getPipeType(), pipe.getAllConnections()).getModel().getAABB();
 	}
 
@@ -155,8 +156,13 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public int getRenderSystemId() {
-		return 0;
+	public int[] getRenderSystemIds() {
+		return new int[] { 0 };
+	}
+
+	@Override
+	public DuctType getDuctType() {
+		return DuctType.PIPE;
 	}
 
 	private enum VanillaPipeShape {

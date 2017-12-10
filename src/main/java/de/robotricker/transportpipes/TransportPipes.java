@@ -26,6 +26,7 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipes.types.Pipe;
@@ -66,7 +67,6 @@ public class TransportPipes extends JavaPlugin {
 	private Map<World, Map<BlockLoc, Duct>> registeredDucts;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
-	private List<RenderSystem> renderSystems;
 	private UpdateManager updateManager;
 	public ContainerBlockUtils containerBlockUtils;
 	public SavingManager savingManager;
@@ -99,9 +99,8 @@ public class TransportPipes extends JavaPlugin {
 		generalConf = new GeneralConf();
 		recipesConf = new RecipesConf();
 
-		renderSystems = new ArrayList<>();
-		renderSystems.add(new VanillaPipeRenderSystem(armorStandProtocol));
-		renderSystems.add(new ModelledPipeRenderSystem(armorStandProtocol));
+		DuctType.PIPE.addRenderSystem(new VanillaPipeRenderSystem(armorStandProtocol));
+		DuctType.PIPE.addRenderSystem(new ModelledPipeRenderSystem(armorStandProtocol));
 
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
@@ -195,10 +194,10 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
 		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
 		Bukkit.getPluginManager().registerEvents(updateManager, this);
-		for (RenderSystem prs : renderSystems) {
-			Bukkit.getPluginManager().registerEvents(prs, this);
-			if (prs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
-				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) prs).new AuthMeLoginListener(), this);
+		for (RenderSystem rs : DuctType.PIPE.getRenderSystems()) {
+			Bukkit.getPluginManager().registerEvents(rs, this);
+			if (rs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
+				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) rs).new AuthMeLoginListener(), this);
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {

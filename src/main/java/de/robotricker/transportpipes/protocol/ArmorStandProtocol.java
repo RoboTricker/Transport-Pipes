@@ -26,6 +26,8 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.settings.SettingsUtils;
@@ -41,23 +43,23 @@ public class ArmorStandProtocol {
 	private static final Serializer vectorSerializer = Registry.get(ReflectionManager.getVector3fClass());
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
-	public RenderSystem getPlayerPipeRenderSystem(Player p) {
-		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem();
+	public RenderSystem getPlayerRenderSystem(Player p, DuctType ductType) {
+		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem(ductType);
 	}
 
 	public boolean isPlayerShowItems(Player p) {
 		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).isShowItems();
 	}
 
-	public List<Player> getAllPlayersWithPipeManager(RenderSystem renderSystem) {
+	public List<Player> getAllPlayersWithRenderSystem(RenderSystem renderSystem) {
 		List<Player> players = new ArrayList<>();
 		players.addAll(Bukkit.getOnlinePlayers());
 
 		Iterator<Player> it = players.iterator();
 		while (it.hasNext()) {
 			Player p = it.next();
-			// remove all players which don't use the given PipeRenderSystem
-			if (!getPlayerPipeRenderSystem(p).equals(renderSystem)) {
+			// remove all players which don't use the given renderSystem
+			if (!getPlayerRenderSystem(p, renderSystem.getDuctType()).equals(renderSystem)) {
 				it.remove();
 			}
 		}
@@ -94,28 +96,28 @@ public class ArmorStandProtocol {
 		}
 	}
 
-	public void changePipeRenderSystem(Player p, RenderSystem newRenderSystem) {
-		// despawn all old pipes
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
-		if (pipeMap != null) {
-			synchronized (pipeMap) {
-				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.instance.pipePacketManager.despawnPipe(p, pipe);
+	public void changeDuctRenderSystem(Player p, int newRenderSystemId) {
+		// despawn all old ducts
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
+		if (ductMap != null) {
+			synchronized (ductMap) {
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.pipePacketManager.despawnDuct(p, duct);
 				}
 			}
 		}
 
-		if (newRenderSystem != null) {
-			// change render system
-			TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystem.getRenderSystemId());
-			newRenderSystem.initPlayer(p);
+		// change render system
+		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystemId);
+		for (DuctType dt : DuctType.values()) {
+			TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, dt).initPlayer(p);
+		}
 
-			// spawn all new pipes
-			if (pipeMap != null) {
-				synchronized (pipeMap) {
-					for (Pipe pipe : pipeMap.values()) {
-						TransportPipes.instance.pipePacketManager.spawnPipe(p, pipe);
-					}
+		// spawn all new ducts
+		if (ductMap != null) {
+			synchronized (ductMap) {
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.pipePacketManager.spawnDuct(p, duct);
 				}
 			}
 		}
@@ -125,17 +127,17 @@ public class ArmorStandProtocol {
 		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
 	}
 
-	public void reloadPipeRenderSystem(Player p) {
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
-		if (pipeMap != null) {
-			synchronized (pipeMap) {
+	public void reloadDuctRenderSystem(Player p) {
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
+		if (ductMap != null) {
+			synchronized (ductMap) {
 				// despawn all pipes
-				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.instance.pipePacketManager.despawnPipe(p, pipe);
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.pipePacketManager.despawnDuct(p, duct);
 				}
 				// spawn all pipes
-				for (Pipe pipe : pipeMap.values()) {
-					TransportPipes.instance.pipePacketManager.spawnPipe(p, pipe);
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.pipePacketManager.spawnDuct(p, duct);
 				}
 			}
 		}

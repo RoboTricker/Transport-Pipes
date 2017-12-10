@@ -17,6 +17,7 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
@@ -74,7 +75,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 			return;
 		}
 		Pipe pipe = (Pipe) duct;
-		
+
 		ModelledPipeModel model = pipeModels.get(pipe.getPipeType());
 		pipeMidAsd.put(pipe, model.createMidASD(ModelledPipeMidModelData.createModelData(pipe)));
 		Map<WrappedDirection, ArmorStandData> connsMap = new HashMap<>();
@@ -88,7 +89,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	@Override
 	public void updateDuctASD(Duct duct) {
 		Pipe pipe = (Pipe) duct;
-		
+
 		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe) || pipeConnsAsd.get(pipe) == null) {
 			return;
 		}
@@ -135,7 +136,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	@Override
 	public void destroyDuctASD(Duct duct) {
 		Pipe pipe = (Pipe) duct;
-		
+
 		if (!pipeMidAsd.containsKey(pipe) || !pipeConnsAsd.containsKey(pipe) || pipeConnsAsd.get(pipe) == null) {
 			return;
 		}
@@ -146,7 +147,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	@Override
 	public List<ArmorStandData> getASDForDuct(Duct duct) {
 		Pipe pipe = (Pipe) duct;
-		
+
 		List<ArmorStandData> ASD = new ArrayList<>();
 		if (pipeMidAsd.containsKey(pipe)) {
 			ASD.add(pipeMidAsd.get(pipe));
@@ -163,7 +164,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 			return null;
 		}
 		Pipe pipe = (Pipe) duct;
-		
+
 		Vector ray = player.getEyeLocation().getDirection();
 		Vector origin = player.getEyeLocation().toVector();
 
@@ -231,10 +232,15 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public int getRenderSystemId() {
-		return 1;
+	public int[] getRenderSystemIds() {
+		return new int[]{1};
 	}
 
+	@Override
+	public DuctType getDuctType() {
+		return DuctType.PIPE;
+	}
+	
 	@Override
 	public void initPlayer(Player p) {
 		if (Bukkit.getPluginManager().isPluginEnabled("AuthMe") && !fr.xephi.authme.api.v3.AuthMeApi.getInstance().isAuthenticated(p)) {
@@ -249,9 +255,9 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	@EventHandler
 	public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
 		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
-			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(e.getPlayer(), DuctType.PIPE);
 			if (beforePm.equals(this)) {
-				TransportPipes.instance.armorStandProtocol.changePipeRenderSystem(e.getPlayer(), TransportPipes.instance.getPipeRenderSystems().get(0));
+				TransportPipes.instance.armorStandProtocol.changeRenderSystem(e.getPlayer(), 0);
 			}
 			e.getPlayer().sendMessage("§cResourcepack Download failed: Switched to the Vanilla Model System");
 			e.getPlayer().sendMessage("§cDid you enable \"Server Resourcepacks\" in your server list?");
@@ -266,7 +272,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 
 		@EventHandler
 		public void onAuthMeLogin(fr.xephi.authme.events.LoginEvent e) {
-			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer());
+			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(e.getPlayer(), DuctType.PIPE);
 			if (beforePm.equals(ModelledPipeRenderSystem.this) && !loadedResourcePackPlayers.contains(e.getPlayer())) {
 				initPlayer(e.getPlayer());
 			}
