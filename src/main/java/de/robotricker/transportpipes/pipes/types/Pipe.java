@@ -21,21 +21,19 @@ import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.IntTag;
 import com.flowpowered.nbt.Tag;
 
-import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
+import de.robotricker.transportpipes.pipes.DuctUtils;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
-import de.robotricker.transportpipes.rendersystem.RenderSystem;
 
 public abstract class Pipe extends Duct {
 
@@ -86,8 +84,8 @@ public abstract class Pipe extends Duct {
 
 	public void tick(boolean extractItems, List<PipeItem> itemsTicked) {
 
-		List<WrappedDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
-		List<WrappedDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
+		List<WrappedDirection> pipeConnections = getOnlyConnectableDuctConnections();
+		List<WrappedDirection> blockConnections = getOnlyBlockConnections();
 
 		if (extractItems && this instanceof ExtractionPipe) {
 			// extract items from inventories
@@ -99,20 +97,6 @@ public abstract class Pipe extends Duct {
 		TransportPipes.instance.pipeThread.setLastAction("Pipe transport");
 		transportItems(pipeConnections, blockConnections, itemsTicked);
 
-	}
-
-	public void explode(final boolean withSound) {
-		TransportPipes.instance.pipeThread.runTask(new Runnable() {
-
-			@Override
-			public void run() {
-				PipeUtils.destroyPipe(null, Pipe.this);
-				if (withSound) {
-					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
-				}
-				blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
-			}
-		}, 0);
 	}
 
 	/**
@@ -245,18 +229,21 @@ public abstract class Pipe extends Duct {
 
 				if (itemHandling == ItemHandling.NOTHING) {
 					if (pipeConnections.contains(itemDir)) {
-						Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(newBlockLoc.getWorld());
-						if (pipeMap != null) {
+						Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(newBlockLoc.getWorld());
+						if (ductMap != null) {
 							BlockLoc newBlockLocLong = BlockLoc.convertBlockLoc(newBlockLoc);
-							if (pipeMap.containsKey(newBlockLocLong)) {
-								removePipeItem(item);
-								// switch relLoc values from 0 to 1 and vice-versa
-								item.relLoc().switchValues();
+							if (ductMap.containsKey(newBlockLocLong)) {
+								Duct newDuct = ductMap.get(newBlockLocLong);
+								if (newDuct.getDuctType() == DuctType.PIPE) {
+									
+									removePipeItem(item);
+									// switch relLoc values from 0 to 1 and vice-versa
+									item.relLoc().switchValues();
 
-								Pipe pipe = pipeMap.get(newBlockLocLong);
-								// put item in next pipe
-								pipe.tempPipeItems.put(item, itemDir);
-								itemHandling = ItemHandling.OUTPUT_TO_NEXT_PIPE;
+									// put item in next pipe
+									((Pipe) newDuct).tempPipeItems.put(item, itemDir);
+									itemHandling = ItemHandling.OUTPUT_TO_NEXT_PIPE;
+								}
 							}
 						}
 					}
@@ -289,7 +276,7 @@ public abstract class Pipe extends Duct {
 
 	public void saveToNBTTag(CompoundMap tags) {
 		NBTUtils.saveIntValue(tags, "PipeType", getPipeType().getId());
-		NBTUtils.saveStringValue(tags, "PipeLocation", PipeUtils.LocToString(blockLoc));
+		NBTUtils.saveStringValue(tags, "PipeLocation", DuctUtils.LocToString(blockLoc));
 
 		List<Tag<?>> itemList = new ArrayList<>();
 
@@ -309,7 +296,7 @@ public abstract class Pipe extends Duct {
 		NBTUtils.saveListValue(tags, "PipeItems", CompoundTag.class, itemList);
 
 		List<Tag<?>> neighborPipesList = new ArrayList<>();
-		List<WrappedDirection> neighborPipes = PipeUtils.getOnlyPipeConnections(this);
+		List<WrappedDirection> neighborPipes = getOnlyConnectableDuctConnections();
 		for (WrappedDirection pd : neighborPipes) {
 			neighborPipesList.add(new IntTag("Direction", pd.getId()));
 		}
@@ -426,10 +413,10 @@ public abstract class Pipe extends Duct {
 
 		return dirs;
 	}
-	
+
 	@Override
-	public List<RenderSystem> getRenderSystems() {
-		return TransportPipes.instance.getPipeRenderSystems();
+	public DuctType getDuctType() {
+		return DuctType.PIPE;
 	}
 
 }

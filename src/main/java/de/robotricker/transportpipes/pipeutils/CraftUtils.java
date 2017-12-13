@@ -12,6 +12,7 @@ import org.bukkit.inventory.Recipe;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 
@@ -44,31 +45,32 @@ public class CraftUtils implements Listener {
 		Player viewer = (Player) e.getViewers().get(0);
 
 		if (r.getResult() != null) {
-			PipeType pt = PipeType.getFromPipeItem(r.getResult());
-			if (pt != null) {
-				if (!viewer.hasPermission(pt.getCraftPermission())) {
+			DuctDetails ductDetails = DuctItemUtils.getDuctDetailsOfItem(r.getResult());
+			if (ductDetails != null) {
+				if (!viewer.hasPermission(ductDetails.getCraftPermission())) {
 					e.getInventory().setResult(null);
 					return;
 				}
-			} else if (PipeItemUtils.isItemStackWrench(r.getResult())) {
+			} else if (DuctItemUtils.getWrenchItem().isSimilar(r.getResult())) {
 				if (!viewer.hasPermission("transportpipes.craft.wrench")) {
 					e.getInventory().setResult(null);
 					return;
 				}
 			}
-		}
 
-		// prevent colored pipe crafting if the given pipe is not a colored pipe
-		if (PipeType.getFromPipeItem(r.getResult()) != null) {
-			boolean prevent = false;
-			for (int i = 1; i < 10; i++) {
-				ItemStack is = e.getInventory().getItem(i);
-				if (is != null && is.getType() == Material.SKULL_ITEM && is.getDurability() == SkullType.PLAYER.ordinal()) {
-					prevent |= PipeType.getFromPipeItem(is) == null;
+			if (ductDetails.getDuctType() == DuctType.PIPE) {
+				// prevent colored pipe crafting if the given pipe is not a colored pipe
+				boolean prevent = false;
+				for (int i = 1; i < 10; i++) {
+					ItemStack is = e.getInventory().getItem(i);
+					if (is != null && is.getType() == Material.SKULL_ITEM && is.getDurability() == SkullType.PLAYER.ordinal()) {
+						DuctDetails isDuctDetails = DuctItemUtils.getDuctDetailsOfItem(is);
+						prevent |= isDuctDetails == null;
+					}
 				}
-			}
-			if (prevent) {
-				e.getInventory().setResult(null);
+				if (prevent) {
+					e.getInventory().setResult(null);
+				}
 			}
 		}
 	}

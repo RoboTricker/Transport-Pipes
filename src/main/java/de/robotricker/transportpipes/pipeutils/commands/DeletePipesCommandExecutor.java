@@ -11,7 +11,8 @@ import org.bukkit.entity.Player;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.PipeUtils;
+import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctUtils;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
 public class DeletePipesCommandExecutor implements PipesCommandExecutor {
@@ -27,26 +28,26 @@ public class DeletePipesCommandExecutor implements PipesCommandExecutor {
 			BlockLoc playerBl = BlockLoc.convertBlockLoc(p.getLocation());
 			try {
 				int radiusSquared = (int) Math.pow(Integer.parseInt(args[0]), 2);
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(p.getWorld());
-				List<Pipe> removedPipes = new ArrayList<Pipe>();
+				Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
+				List<Duct> removedDucts = new ArrayList<Duct>();
 
-				if (pipeMap != null) {
+				if (ductMap != null) {
 
-					synchronized (pipeMap) {
-						Set<BlockLoc> keySet = pipeMap.keySet();
+					synchronized (ductMap) {
+						Set<BlockLoc> keySet = ductMap.keySet();
 						Iterator<BlockLoc> keySetIt = keySet.iterator();
 						while (keySetIt.hasNext()) {
 							BlockLoc bl = keySetIt.next();
 							if (bl.distanceSquared(playerBl) <= radiusSquared) {
-								removedPipes.add(pipeMap.get(bl));
+								removedDucts.add(ductMap.get(bl));
 							}
 						}
-						for (Pipe pipe : removedPipes) {
-							PipeUtils.destroyPipe(null, pipe);
+						for (Duct duct : removedDucts) {
+							DuctUtils.destroyDuct(null, duct);
 						}
 					}
 				}
-				cs.sendMessage("§c" + removedPipes.size() + " Pipes deleted");
+				cs.sendMessage("§c" + removedDucts.size() + " ducts deleted");
 			} catch (NumberFormatException e) {
 				cs.sendMessage("§cRadius has to be an integer");
 			}

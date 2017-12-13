@@ -17,13 +17,14 @@ import com.flowpowered.nbt.CompoundTag;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.ClickablePipe;
+import de.robotricker.transportpipes.pipes.ClickableDuct;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 
-public class IronPipe extends Pipe implements ClickablePipe {
+public class IronPipe extends Pipe implements ClickableDuct {
 
 	private WrappedDirection currentOutputDir;
 
@@ -72,7 +73,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				public void run() {
-					TransportPipes.instance.pipePacketManager.updatePipe(IronPipe.this);
+					TransportPipes.instance.pipePacketManager.updateDuct(IronPipe.this);
 				};
 			}, 0);
 		}
@@ -101,7 +102,7 @@ public class IronPipe extends Pipe implements ClickablePipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
-		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
+		is.add(DuctItemUtils.getClonedDuctItem(new PipeDetails(getPipeType())));
 		return is;
 	}
 

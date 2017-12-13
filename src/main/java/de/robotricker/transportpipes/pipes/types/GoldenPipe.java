@@ -20,16 +20,16 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.ClickablePipe;
+import de.robotricker.transportpipes.pipes.ClickableDuct;
 import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 
-public class GoldenPipe extends Pipe implements ClickablePipe {
+public class GoldenPipe extends Pipe implements ClickableDuct {
 
 	public static final int ITEMS_PER_ROW = 32;
 
@@ -95,8 +95,8 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 
 	public List<WrappedDirection> getPossibleDirectionsForItem(ItemData itemData, WrappedDirection before, List<WrappedDirection> blockedDirections) {
 		//all directions in which is an other pipe or inventory-block
-		List<WrappedDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
-		List<WrappedDirection> pipeConnections = PipeUtils.getOnlyPipeConnections(this);
+		List<WrappedDirection> blockConnections = getOnlyBlockConnections();
+		List<WrappedDirection> pipeConnections = getOnlyConnectableDuctConnections();
 
 		//the possible directions in which the item could go
 		List<WrappedDirection> possibleDirections = new ArrayList<>();
@@ -261,7 +261,7 @@ public class GoldenPipe extends Pipe implements ClickablePipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
-		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
+		is.add(DuctItemUtils.getClonedDuctItem(new PipeDetails(getPipeType())));
 		for (int line = 0; line < 6; line++) {
 			for (int i = 0; i < filteringItems[line].length; i++) {
 				if (filteringItems[line][i] != null) {

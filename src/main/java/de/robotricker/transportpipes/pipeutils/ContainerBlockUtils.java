@@ -38,6 +38,7 @@ import de.robotricker.transportpipes.container.BrewingStandContainer;
 import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import io.sentry.Sentry;
 
@@ -54,14 +55,14 @@ public class ContainerBlockUtils implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
 		if (isIdContainerBlock(e.getBlockPlaced().getTypeId())) {
-			updatePipeNeighborBlockSync(e.getBlock(), true);
+			updateDuctNeighborBlockSync(e.getBlock(), true);
 		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent e) {
 		if (isIdContainerBlock(e.getBlock().getTypeId())) {
-			updatePipeNeighborBlockSync(e.getBlock(), false);
+			updateDuctNeighborBlockSync(e.getBlock(), false);
 		}
 	}
 
@@ -69,7 +70,7 @@ public class ContainerBlockUtils implements Listener {
 	public void onBlockExplode(BlockExplodeEvent e) {
 		for (Block b : e.blockList()) {
 			if (isIdContainerBlock(b.getTypeId())) {
-				updatePipeNeighborBlockSync(b, false);
+				updateDuctNeighborBlockSync(b, false);
 			}
 		}
 	}
@@ -78,7 +79,7 @@ public class ContainerBlockUtils implements Listener {
 	public void onEntityExplode(EntityExplodeEvent e) {
 		for (Block b : e.blockList()) {
 			if (isIdContainerBlock(b.getTypeId())) {
-				updatePipeNeighborBlockSync(b, false);
+				updateDuctNeighborBlockSync(b, false);
 			}
 		}
 	}
@@ -88,45 +89,45 @@ public class ContainerBlockUtils implements Listener {
 		if (!TransportPipes.instance.generalConf.isDestroyPipeOnExplosion()) {
 			return;
 		}
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(e.getEntity().getWorld());
-		if (pipeMap == null) {
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(e.getEntity().getWorld());
+		if (ductMap == null) {
 			return;
 		}
 
-		List<Block> explodedPipeBlocksBefore = new ArrayList<Block>();
-		List<Block> explodedPipeBlocks = new ArrayList<Block>();
+		List<Block> explodedDuctBlocksBefore = new ArrayList<Block>();
+		List<Block> explodedDuctBlocks = new ArrayList<Block>();
 
 		for (Block block : LocationUtils.getNearbyBlocks(e.getEntity().getLocation(), (int) Math.floor(e.getRadius()))) {
 			BlockLoc blockLoc = BlockLoc.convertBlockLoc(block.getLocation());
-			Pipe pipe = pipeMap.get(blockLoc);
-			if (pipe != null) {
-				pipe.getBlockLoc().getBlock().setType(Material.GLASS);
-				explodedPipeBlocksBefore.add(pipe.getBlockLoc().getBlock());
-				explodedPipeBlocks.add(pipe.getBlockLoc().getBlock());
+			Duct duct = ductMap.get(blockLoc);
+			if (duct != null) {
+				duct.getBlockLoc().getBlock().setType(Material.GLASS);
+				explodedDuctBlocksBefore.add(duct.getBlockLoc().getBlock());
+				explodedDuctBlocks.add(duct.getBlockLoc().getBlock());
 			}
 		}
 
-		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(), explodedPipeBlocks, 1f);
+		EntityExplodeEvent explodeEvent = new EntityExplodeEvent(e.getEntity(), e.getEntity().getLocation(), explodedDuctBlocks, 1f);
 		Bukkit.getPluginManager().callEvent(explodeEvent);
 		if (!explodeEvent.isCancelled()) {
 			for (Block b : explodeEvent.blockList()) {
-				final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
-				if (pipe != null) {
+				final Duct duct = ductMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
+				if (duct != null) {
 					TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 						@Override
 						public void run() {
-							pipe.explode(false);
+							duct.explode(false);
 						}
 					}, 0);
 				}
 			}
 		}
 
-		for (Block b : explodedPipeBlocksBefore) {
-			final Pipe pipe = pipeMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
-			if (pipe != null) {
-				pipe.getBlockLoc().getBlock().setType(Material.AIR);
+		for (Block b : explodedDuctBlocksBefore) {
+			final Duct duct = ductMap.get(BlockLoc.convertBlockLoc(b.getLocation()));
+			if (duct != null) {
+				duct.getBlockLoc().getBlock().setType(Material.AIR);
 			}
 		}
 
@@ -141,7 +142,7 @@ public class ContainerBlockUtils implements Listener {
 	 * @param add
 	 *            true: block added | false: block removed
 	 */
-	public void updatePipeNeighborBlockSync(Block toUpdate, boolean add) {
+	public void updateDuctNeighborBlockSync(Block toUpdate, boolean add) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 		if (add) {
@@ -208,7 +209,7 @@ public class ContainerBlockUtils implements Listener {
 			for (BlockState bs : loadedChunk.getTileEntities()) {
 				if (isIdContainerBlock(bs.getTypeId())) {
 
-					updatePipeNeighborBlockSync(bs.getBlock(), true);
+					updateDuctNeighborBlockSync(bs.getBlock(), true);
 
 					Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(loadedChunk.getWorld());
 					synchronized (containerMap) {

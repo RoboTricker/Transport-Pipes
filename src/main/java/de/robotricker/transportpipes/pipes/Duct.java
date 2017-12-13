@@ -9,12 +9,15 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.api.PipeConnectionsChangeEvent;
+import de.robotricker.transportpipes.api.DuctConnectionsChangeEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 
 public abstract class Duct {
@@ -44,13 +47,13 @@ public abstract class Duct {
 	public abstract int[] getBreakParticleData();
 
 	public void notifyConnectionsChange() {
-		PipeConnectionsChangeEvent event = new PipeConnectionsChangeEvent(this);
+		DuctConnectionsChangeEvent event = new DuctConnectionsChangeEvent(this);
 		Bukkit.getPluginManager().callEvent(event);
 	}
 
 	public Collection<WrappedDirection> getAllConnections() {
 		Set<WrappedDirection> connections = new HashSet<>();
-		connections.addAll(getOnlyDuctConnections());
+		connections.addAll(getOnlyConnectableDuctConnections());
 		connections.addAll(getOnlyBlockConnections());
 		return connections;
 	}
@@ -58,9 +61,10 @@ public abstract class Duct {
 	public abstract boolean canConnectToDuct(Duct duct);
 
 	/**
-	 * gets all duct connection directions (not block connections)
+	 * gets all duct connection directions to which this duct can connect to (not
+	 * block connections)
 	 **/
-	public List<WrappedDirection> getOnlyDuctConnections() {
+	public List<WrappedDirection> getOnlyConnectableDuctConnections() {
 		List<WrappedDirection> dirs = new ArrayList<>();
 
 		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(getBlockLoc().getWorld());
@@ -80,12 +84,26 @@ public abstract class Duct {
 
 		return dirs;
 	}
-	
+
 	/**
 	 * gets all block connection directions (not duct connections)
 	 **/
 	public abstract List<WrappedDirection> getOnlyBlockConnections();
-	
-	public abstract List<RenderSystem> getRenderSystems();
+
+	public abstract DuctType getDuctType();
+
+	public void explode(final boolean withSound) {
+		TransportPipes.instance.pipeThread.runTask(new Runnable() {
+
+			@Override
+			public void run() {
+				DuctUtils.destroyDuct(null, Duct.this);
+				if (withSound) {
+					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
+				}
+				blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
+			}
+		}, 0);
+	}
 
 }

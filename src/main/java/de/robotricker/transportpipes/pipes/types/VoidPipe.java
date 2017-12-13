@@ -11,7 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
 
 public class VoidPipe extends Pipe {
 
@@ -37,7 +38,7 @@ public class VoidPipe extends Pipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
-		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
+		is.add(DuctItemUtils.getClonedDuctItem(new PipeDetails(getPipeType())));
 		return is;
 	}
 

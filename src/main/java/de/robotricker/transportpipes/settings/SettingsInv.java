@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.config.PlayerSettingsConf;
@@ -42,9 +43,9 @@ public class SettingsInv implements Listener {
 		populateInventoryLine(inv, 0, glassPane, glassPane, decreaseBtn, glassPane, eye, glassPane, increaseBtn, glassPane, glassPane);
 
 		// Render System setting
-		RenderSystem pm = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(viewer);
-		ItemStack currentSystem = pm.getRepresentationItem().clone();
-		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), pm.getPipeRenderSystemName()), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
+		int renderSystemId = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(viewer).getRenderSystemId();
+		ItemStack currentSystem = RenderSystem.getRenderSystemIdRepresentationItem(renderSystemId);
+		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), RenderSystem.getRenderSystemIdName(renderSystemId)), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
 
 		// Show items setting
 		boolean showItems = TransportPipes.instance.armorStandProtocol.isPlayerShowItems(viewer);
@@ -112,12 +113,11 @@ public class SettingsInv implements Listener {
 				if (!forceDefaultRenderSystem && e.getRawSlot() == 12) {
 					// change render system
 
-					int renderSystemId = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getRenderSystemId();
+					int renderSystemId = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystemId();
 					renderSystemId++;
-					renderSystemId %= TransportPipes.instance.getPipeRenderSystems().size();
-					RenderSystem newRenderSystem = RenderSystem.getRenderSystemFromId(renderSystemId);
+					renderSystemId %= RenderSystem.getRenderSystemAmount();
 
-					TransportPipes.instance.armorStandProtocol.changePipeRenderSystem(p, newRenderSystem);
+					TransportPipes.instance.armorStandProtocol.changePlayerRenderSystem(p, renderSystemId);
 
 					updateSettingsInventory(e.getClickedInventory(), p);
 					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
@@ -132,17 +132,6 @@ public class SettingsInv implements Listener {
 				}
 			}
 		}
-	}
-
-	@EventHandler
-	public void onJoin(final PlayerJoinEvent e) {
-		Bukkit.getScheduler().runTaskLater(TransportPipes.instance, new Runnable() {
-
-			@Override
-			public void run() {
-				TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(e.getPlayer()).initPlayer(e.getPlayer());
-			}
-		}, 40L);
 	}
 
 }

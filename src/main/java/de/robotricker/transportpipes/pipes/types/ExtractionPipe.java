@@ -18,25 +18,23 @@ import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.Tag;
 
-import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.ClickablePipe;
+import de.robotricker.transportpipes.pipes.ClickableDuct;
 import de.robotricker.transportpipes.pipes.FilteringMode;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
 
-public class ExtractionPipe extends Pipe implements ClickablePipe {
+public class ExtractionPipe extends Pipe implements ClickableDuct {
 
 	private int lastOutputIndex = 0;
 
@@ -174,7 +172,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
-		is.add(PipeItemUtils.getPipeItem(getPipeType(), null));
+		is.add(DuctItemUtils.getClonedDuctItem(new PipeDetails(getPipeType())));
 		return is;
 	}
 
@@ -233,7 +231,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 	public void checkAndUpdateExtractDirection(boolean cycle) {
 		WrappedDirection oldExtractDirection = getExtractDirection();
 
-		List<WrappedDirection> blockConnections = PipeUtils.getOnlyBlockConnections(this);
+		List<WrappedDirection> blockConnections = getOnlyBlockConnections();
 		if (blockConnections.isEmpty()) {
 			extractDirection = null;
 		} else if (cycle || extractDirection == null || !blockConnections.contains(extractDirection)) {
@@ -250,7 +248,7 @@ public class ExtractionPipe extends Pipe implements ClickablePipe {
 			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				public void run() {
-					TransportPipes.instance.pipePacketManager.updatePipe(ExtractionPipe.this);
+					TransportPipes.instance.pipePacketManager.updateDuct(ExtractionPipe.this);
 				};
 			}, 0);
 		}

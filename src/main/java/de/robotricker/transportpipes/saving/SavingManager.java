@@ -28,6 +28,7 @@ import com.flowpowered.nbt.stream.NBTOutputStream;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.PipeUtils;
@@ -48,47 +49,47 @@ public class SavingManager implements Listener {
 		loading = false;
 	}
 
-	public void savePipesAsync(final boolean message) {
+	public void saveDuctsAsync(final boolean message) {
 		Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
 
 			@Override
 			public void run() {
-				savePipesSync(message);
+				saveDuctsSync(message);
 			}
 		});
 	}
 
-	public void savePipesSync(boolean message) {
+	public void saveDuctsSync(boolean message) {
 		if (saving) {
 			return;
 		}
 		saving = true;
-		int pipesCount = 0;
+		int ductsCount = 0;
 		try {
 			HashMap<World, List<CompoundMap>> worlds = new HashMap<>();
 
 			// cache worlds
 			for (World world : Bukkit.getWorlds()) {
-				List<CompoundMap> pipeList = new ArrayList<>();
-				worlds.put(world, pipeList);
+				List<CompoundMap> ductList = new ArrayList<>();
+				worlds.put(world, ductList);
 
 				// put pipes in Tag Lists
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-				if (pipeMap != null) {
-					synchronized (pipeMap) {
-						for (Pipe pipe : pipeMap.values()) {
-							// save individual pipe
+				Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+				if (ductMap != null) {
+					synchronized (ductMap) {
+						for (Duct duct : ductMap.values()) {
+							// save individual ducts
 							CompoundMap tags = new CompoundMap();
-							pipe.saveToNBTTag(tags);
-							pipeList.add(tags);
-							pipesCount++;
+							duct.saveToNBTTag(tags);
+							ductList.add(tags);
+							ductsCount++;
 						}
 					}
 				}
 
 			}
 
-			// save Tag Lists to files
+			// save tag lists to files
 			for (World world : worlds.keySet()) {
 				try {
 					File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
@@ -111,12 +112,12 @@ public class SavingManager implements Listener {
 					NBTUtils.saveStringValue(tags, "PluginVersion", TransportPipes.instance.getDescription().getVersion());
 					NBTUtils.saveLongValue(tags, "LastSave", System.currentTimeMillis());
 
-					List<CompoundMap> rawPipeList = worlds.get(world);
-					List<Tag<?>> finalPipeList = new ArrayList<>();
-					for (CompoundMap map : rawPipeList) {
-						finalPipeList.add(new CompoundTag("Pipe", map));
+					List<CompoundMap> rawDuctList = worlds.get(world);
+					List<Tag<?>> finalDuctList = new ArrayList<>();
+					for (CompoundMap map : rawDuctList) {
+						finalDuctList.add(new CompoundTag("Pipe", map));
 					}
-					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalPipeList);
+					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalDuctList);
 
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);
@@ -129,15 +130,15 @@ public class SavingManager implements Listener {
 			e.printStackTrace();
 		}
 		if (message) {
-			TransportPipes.instance.getLogger().info("saved " + pipesCount + " pipes in " + Bukkit.getWorlds().size() + " worlds");
+			TransportPipes.instance.getLogger().info("saved " + ductsCount + " ducts in " + Bukkit.getWorlds().size() + " worlds");
 		}
 		saving = false;
 	}
 
 	/**
-	 * loads all pipes and items in this world if it isn't loaded already
+	 * loads all ducts and items in this world if it isn't loaded already
 	 */
-	public void loadPipesSync(final World world) {
+	public void loadDuctsSync(final World world) {
 
 		if (!loadedWorlds.contains(world)) {
 			loadedWorlds.add(world);
@@ -149,7 +150,7 @@ public class SavingManager implements Listener {
 
 		try {
 
-			int pipesCount = 0;
+			int ductsCount = 0;
 
 			File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
 
@@ -179,9 +180,9 @@ public class SavingManager implements Listener {
 				TransportPipes.instance.getLogger().info("Converting pipes.dat system to new system");
 			}
 
-			List<Tag<?>> pipeList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
+			List<Tag<?>> ductList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
 
-			for (Tag<?> tag : pipeList) {
+			for (Tag<?> tag : ductList) {
 				CompoundTag pipeTag = (CompoundTag) tag;
 
 				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
@@ -215,7 +216,7 @@ public class SavingManager implements Listener {
 					// save and spawn pipe
 					PipeUtils.registerPipe(pipe, neighborPipes);
 
-					pipesCount++;
+					ductsCount++;
 				}
 
 			}
@@ -242,7 +243,7 @@ public class SavingManager implements Listener {
 
 			in.close();
 
-			TransportPipes.instance.getLogger().info(pipesCount + " pipes loaded in world " + world.getName());
+			TransportPipes.instance.getLogger().info(ductsCount + " pipes loaded in world " + world.getName());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -262,7 +263,7 @@ public class SavingManager implements Listener {
 
 	@EventHandler
 	public void onWorldLoad(WorldLoadEvent e) {
-		loadPipesSync(e.getWorld());
+		loadDuctsSync(e.getWorld());
 	}
 
 }

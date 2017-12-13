@@ -23,8 +23,9 @@ import org.bukkit.material.TrapDoor;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctUtils;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
@@ -63,42 +64,43 @@ public class HitboxUtils {
 		return new ArrayList<Block>();
 	}
 
-	public static WrappedDirection getFaceOfPipeLookingTo(Player p, Pipe pipe) {
-		return TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedDuctFace(p, pipe);
+	public static WrappedDirection getFaceOfDuctLookingTo(Player p, Duct duct) {
+		return TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, duct.getDuctType()).getClickedDuctFace(p, duct);
 	}
 
-	public static Block getPipeLookingTo(Player p, Block clickedBlock) {
+	public static Block getDuctBlockLookingTo(Player p, Block clickedBlock) {
 
-		try (TimingCloseable tc = new TimingCloseable("getPipeLookingTo")) {
+		try (TimingCloseable tc = new TimingCloseable("getDuctLookingTo")) {
 
 			List<Block> line = null;
-			try (TimingCloseable tc2 = new TimingCloseable("getPipeLookingTo getLineOfSight")) {
+			try (TimingCloseable tc2 = new TimingCloseable("getDuctLookingTo getLineOfSight")) {
 				line = getLineOfSight(p);
 			}
 
 			Block currentBlock = null;
-			int indexOfPipeBlock = -1;
+			int indexOfDuctBlock = -1;
 			int indexOfClickedBlock = -1;
 			int i = 0;
 
-			RenderSystem playerPipeManager = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p);
-
-			try (TimingCloseable tc2 = new TimingCloseable("getPipeLookingTo loop")) {
+			try (TimingCloseable tc2 = new TimingCloseable("getDuctLookingTo loop")) {
 				while (currentBlock == null) {
 
 					if (line.size() > i) {
-						// check if on this block is a pipe
-						if (PipeUtils.getDuctAtLocation(line.get(i).getLocation()) != null) {
+						// check if on this block is a duct
+						Duct tempDuct = DuctUtils.getDuctAtLocation(line.get(i).getLocation());
+						if (tempDuct != null) {
 							currentBlock = line.get(i);
-							indexOfPipeBlock = i;
+							indexOfDuctBlock = i;
 						}
-						// check if the player looks on the hitbox of the pipe (the player could
-						// possibly look on a block with a pipe but not on the hitbox itself)
-						if (currentBlock != null && playerPipeManager.getClickedDuctFace(p, PipeUtils.getDuctAtLocation(currentBlock.getLocation())) == null) {
-							currentBlock = null;
-							indexOfPipeBlock = -1;
+						// check if the player looks on the hitbox of the duct (the player could
+						// possibly look on a block with a duct but not on the hitbox itself)
+						if (currentBlock != null) {
+							RenderSystem playerRenderSystem = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, tempDuct.getDuctType());
+							if (playerRenderSystem.getClickedDuctFace(p, tempDuct) == null) {
+								currentBlock = null;
+								indexOfDuctBlock = -1;
+							}
 						}
-
 					} else {
 						break;
 					}
@@ -116,8 +118,8 @@ public class HitboxUtils {
 			}
 			// check if the clicked block is before the "pipe block", so that you can't
 			// interact with a pipe behind a block
-			if (indexOfPipeBlock != -1 && indexOfClickedBlock != -1) {
-				if (indexOfClickedBlock <= indexOfPipeBlock) {
+			if (indexOfDuctBlock != -1 && indexOfClickedBlock != -1) {
+				if (indexOfClickedBlock <= indexOfDuctBlock) {
 					return null;
 				}
 			}
@@ -126,12 +128,16 @@ public class HitboxUtils {
 	}
 
 	/**
-	 * gets the neighbor block of the pipe (calculated by the player direction ray
-	 * and the pipe hitbox)
+	 * gets the neighbor block of the duct (where a block would be placed if right clicked) (calculated by the player direction ray
+	 * and the duct hitbox)
 	 */
-	public static Block getRelativeBlockOfPipe(Player p, Block pipeLoc) {
-		WrappedDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerPipeRenderSystem(p).getClickedDuctFace(p, PipeUtils.getDuctAtLocation(pipeLoc.getLocation()));
-		return pd != null ? pipeLoc.getRelative(pd.toBlockFace()) : null;
+	public static Block getRelativeBlockOfDuct(Player p, Block ductLoc) {
+		Duct duct = DuctUtils.getDuctAtLocation(ductLoc.getLocation());
+		if(duct == null) {
+			return null;
+		}
+		WrappedDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, duct.getDuctType()).getClickedDuctFace(p, duct);
+		return pd != null ? ductLoc.getRelative(pd.toBlockFace()) : null;
 	}
 
 	public static void decreaseItemInHand(Player p, boolean mainHand) {
@@ -166,17 +172,17 @@ public class HitboxUtils {
 	}
 
 	/**
-	 * "simulate" a block place when you click on the side of a pipe
+	 * "simulate" a block place when you click on the side of a duct
 	 */
 	public static boolean placeBlock(Player p, Block b, Block placedAgainst, int id, byte data, EquipmentSlot es) {
-		if (!PipeUtils.canBuild(p, b, placedAgainst, es)) {
+		if (!DuctUtils.canBuild(p, b, placedAgainst, es)) {
 			return false;
 		}
-		// check if there is already a pipe at this position
+		// check if there is already a duct at this position
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(b.getWorld());
-		if (pipeMap != null) {
-			if (pipeMap.containsKey(BlockLoc.convertBlockLoc(b.getLocation()))) {
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(b.getWorld());
+		if (ductMap != null) {
+			if (ductMap.containsKey(BlockLoc.convertBlockLoc(b.getLocation()))) {
 				return false;
 			}
 		}
@@ -187,7 +193,7 @@ public class HitboxUtils {
 		b.setTypeIdAndData(id, data, true);
 
 		if (TransportPipes.instance.containerBlockUtils.isIdContainerBlock(id)) {
-			TransportPipes.instance.containerBlockUtils.updatePipeNeighborBlockSync(b, true);
+			TransportPipes.instance.containerBlockUtils.updateDuctNeighborBlockSync(b, true);
 		}
 
 		return true;

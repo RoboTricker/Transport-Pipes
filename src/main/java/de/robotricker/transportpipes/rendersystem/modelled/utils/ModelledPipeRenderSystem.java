@@ -40,7 +40,6 @@ import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeVOIDModel
 public class ModelledPipeRenderSystem extends RenderSystem {
 
 	public static final String RESOURCEPACK_URL = "https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip";
-	private static final ItemStack ITEM_PIPE_WHITE = InventoryUtils.createToolItemStack(25);
 
 	private Map<Pipe, ArmorStandData> pipeMidAsd = new HashMap<>();
 	private Map<Pipe, Map<WrappedDirection, ArmorStandData>> pipeConnsAsd = new HashMap<>();
@@ -124,7 +123,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 		}
 
 		// SEND TO CLIENTS
-		List<Player> players = protocol.getAllPlayersWithPipeManager(this);
+		List<Player> players = protocol.getAllPlayersWithRenderSystem(this);
 		int[] removedIds = ProtocolUtils.convertArmorStandListToEntityIdArray(removedASD);
 		for (Player p : players) {
 			protocol.removeArmorStandDatas(p, removedIds);
@@ -222,16 +221,6 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public String getPipeRenderSystemName() {
-		return LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_MODELLED);
-	}
-
-	@Override
-	public ItemStack getRepresentationItem() {
-		return InventoryUtils.changeDisplayName(ITEM_PIPE_WHITE, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
-	}
-
-	@Override
 	public int[] getRenderSystemIds() {
 		return new int[]{1};
 	}
@@ -257,7 +246,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
 			RenderSystem beforePm = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(e.getPlayer(), DuctType.PIPE);
 			if (beforePm.equals(this)) {
-				TransportPipes.instance.armorStandProtocol.changeRenderSystem(e.getPlayer(), 0);
+				TransportPipes.instance.armorStandProtocol.changePlayerRenderSystem(e.getPlayer(), 0);
 			}
 			e.getPlayer().sendMessage("§cResourcepack Download failed: Switched to the Vanilla Model System");
 			e.getPlayer().sendMessage("§cDid you enable \"Server Resourcepacks\" in your server list?");

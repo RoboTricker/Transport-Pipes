@@ -15,7 +15,7 @@ public class ReloadPipesCommandExecutor implements PipesCommandExecutor {
 		}
 
 		for (Player on : Bukkit.getOnlinePlayers()) {
-			TransportPipes.instance.armorStandProtocol.reloadPipeRenderSystem(on);
+			TransportPipes.instance.armorStandProtocol.reloadRenderSystem(on);
 		}
 
 		cs.sendMessage("§cPipes reloaded");

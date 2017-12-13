@@ -6,22 +6,23 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
-public class PlayerDestroyPipeEvent extends Event implements Cancellable {
+public class PlayerDestroyDuctEvent extends Event implements Cancellable {
 
 	private boolean cancelled;
 	private Player player;
-	private Pipe pipe;
+	private Duct duct;
 	private Location loc;
 	private static final HandlerList handlers = new HandlerList();
 
-	public PlayerDestroyPipeEvent(Player player, Pipe pipe) {
+	public PlayerDestroyDuctEvent(Player player, Duct duct) {
 		super();
 		this.cancelled = false;
 		this.player = player;
-		this.pipe = pipe;
-		this.loc = pipe.getBlockLoc();
+		this.duct = duct;
+		this.loc = duct.getBlockLoc();
 	}
 
 	@Override
@@ -47,8 +48,8 @@ public class PlayerDestroyPipeEvent extends Event implements Cancellable {
 		return player;
 	}
 	
-	public Pipe getPipe() {
-		return pipe;
+	public Duct getDuct() {
+		return duct;
 	}
 
 	public Location getLocation() {

@@ -16,7 +16,7 @@ import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -91,7 +91,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 		oldASD.addAll(tempASD);
 
 		// SEND TO CLIENTS
-		List<Player> players = protocol.getAllPlayersWithPipeManager(this);
+		List<Player> players = protocol.getAllPlayersWithRenderSystem(this);
 		int[] removedIds = ProtocolUtils.convertArmorStandListToEntityIdArray(removedASD);
 		for (Player p : players) {
 			protocol.removeArmorStandDatas(p, removedIds);
@@ -143,16 +143,6 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	@Override
 	public void initPlayer(Player p) {
 		p.updateInventory();
-	}
-
-	@Override
-	public String getPipeRenderSystemName() {
-		return LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_VANILLA);
-	}
-
-	@Override
-	public ItemStack getRepresentationItem() {
-		return PipeItemUtils.getPipeItem(PipeType.COLORED, PipeColor.WHITE);
 	}
 
 	@Override

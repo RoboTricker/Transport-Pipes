@@ -27,13 +27,18 @@ public class PlayerSettingsConf extends Conf {
 		overrideAsync("renderDistance", renderDistance);
 	}
 
-	public RenderSystem getRenderSystem(DuctType ductType) {
-		// overwrite player specific render system with default one if forced to.
+	public int getRenderSystemId() {
 		int renderSystemId = (int) read("renderSystemId");
+		// overwrite player specific render system with default one if forced to.
 		int defaultRenderSystemId = TransportPipes.instance.generalConf.getDefaultRenderSystemId();
 		if (TransportPipes.instance.generalConf.isForceDefaultRenderSystem()) {
 			renderSystemId = defaultRenderSystemId;
 		}
+		return renderSystemId;
+	}
+
+	public RenderSystem getRenderSystem(DuctType ductType) {
+		int renderSystemId = getRenderSystemId();
 		return RenderSystem.getRenderSystemFromId(renderSystemId, ductType);
 	}
 

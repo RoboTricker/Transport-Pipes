@@ -6,19 +6,20 @@ import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import de.robotricker.transportpipes.pipes.Duct;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 
-public class PipeConnectionsChangeEvent extends Event {
+public class DuctConnectionsChangeEvent extends Event {
 
-	private Pipe pipe;
+	private Duct duct;
 	private Location loc;
 	private static final HandlerList handlers = new HandlerList();
 
-	public PipeConnectionsChangeEvent(Pipe pipe) {
+	public DuctConnectionsChangeEvent(Duct duct) {
 		super(true);
-		this.pipe = pipe;
-		this.loc = pipe.getBlockLoc();
+		this.duct = duct;
+		this.loc = duct.getBlockLoc();
 	}
 
 	@Override
@@ -30,16 +31,16 @@ public class PipeConnectionsChangeEvent extends Event {
 		return handlers;
 	}
 
-	public Pipe getPipe() {
-		return pipe;
+	public Duct getDuct() {
+		return duct;
 	}
 
 	public Location getLocation() {
 		return loc;
 	}
 
-	public Collection<WrappedDirection> getPipeConnections() {
-		return pipe.getAllConnections();
+	public Collection<WrappedDirection> getDuctConnections() {
+		return duct.getAllConnections();
 	}
 
 }

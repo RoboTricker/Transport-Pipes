@@ -1,15 +1,17 @@
 package de.robotricker.transportpipes.pipeutils.commands;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public class CreativeCommandExecutor implements PipesCommandExecutor {
@@ -25,25 +27,14 @@ public class CreativeCommandExecutor implements PipesCommandExecutor {
 			Inventory inv = Bukkit.createInventory(null, 9 * 3, LocConf.load(LocConf.CREATIVE_TITLE));
 
 			int i = 0;
-			for (PipeColor pc : PipeColor.values()) {
-				ItemStack is = PipeItemUtils.getPipeItem(PipeType.COLORED, pc);
-				is.setAmount(16);
-				inv.setItem(i, is);
+			List<ItemStack> ductItems = DuctItemUtils.getAllDuctItems();
+			for (ItemStack is : ductItems) {
+				ItemStack clonedIs = is.clone();
+				clonedIs.setAmount(16);
+				inv.setItem(i, clonedIs);
 				i++;
 			}
-
-			i = 9;
-			for (PipeType pt : PipeType.values()) {
-				if (pt == PipeType.COLORED) {
-					continue;
-				}
-				ItemStack is = PipeItemUtils.getPipeItem(pt, null);
-				is.setAmount(16);
-				inv.setItem(i, is);
-				i++;
-			}
-
-			inv.setItem(18, PipeItemUtils.getWrenchItem());
+			inv.setItem(i++, DuctItemUtils.getClonedWrenchItem());
 
 			((Player) cs).openInventory(inv);
 		} else {

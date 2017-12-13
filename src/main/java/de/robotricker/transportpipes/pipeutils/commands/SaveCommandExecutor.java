@@ -12,7 +12,7 @@ public class SaveCommandExecutor implements PipesCommandExecutor {
 			return false;
 		}
 
-		TransportPipes.instance.savingManager.savePipesAsync(true);
+		TransportPipes.instance.savingManager.saveDuctsAsync(true);
 
 		/*
 		 * final Block b = ((Player) cs).getLocation().getBlock();

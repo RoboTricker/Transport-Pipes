@@ -21,7 +21,8 @@ import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 
 public class ColoredPipe extends Pipe {
 
@@ -111,7 +112,7 @@ public class ColoredPipe extends Pipe {
 	@Override
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
-		is.add(PipeItemUtils.getPipeItem(getPipeType(), getPipeColor()));
+		is.add(DuctItemUtils.getClonedDuctItem(new PipeDetails(getPipeColor())));
 		return is;
 	}
 

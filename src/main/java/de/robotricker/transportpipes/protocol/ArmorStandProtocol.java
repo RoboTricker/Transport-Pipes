@@ -96,7 +96,7 @@ public class ArmorStandProtocol {
 		}
 	}
 
-	public void changeDuctRenderSystem(Player p, int newRenderSystemId) {
+	public void changePlayerRenderSystem(Player p, int newRenderSystemId) {
 		// despawn all old ducts
 		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
 		if (ductMap != null) {
@@ -127,7 +127,7 @@ public class ArmorStandProtocol {
 		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
 	}
 
-	public void reloadDuctRenderSystem(Player p) {
+	public void reloadRenderSystem(Player p) {
 		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
 		if (ductMap != null) {
 			synchronized (ductMap) {

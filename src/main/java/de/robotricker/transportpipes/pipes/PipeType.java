@@ -1,16 +1,5 @@
 package de.robotricker.transportpipes.pipes;
 
-import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
-
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipes.types.ColoredPipe;
-import de.robotricker.transportpipes.pipes.types.ExtractionPipe;
-import de.robotricker.transportpipes.pipes.types.GoldenPipe;
-import de.robotricker.transportpipes.pipes.types.IcePipe;
-import de.robotricker.transportpipes.pipes.types.IronPipe;
-import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipes.types.VoidPipe;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 
 public enum PipeType {
@@ -46,48 +35,10 @@ public enum PipeType {
 		return craft_permission;
 	}
 
-	public Pipe createPipe(Location blockLoc, PipeColor pc) {
-		if (this == COLORED) {
-			return new ColoredPipe(blockLoc, pc);
-		} else if (this == GOLDEN) {
-			return new GoldenPipe(blockLoc);
-		} else if (this == IRON) {
-			return new IronPipe(blockLoc);
-		} else if (this == ICE) {
-			return new IcePipe(blockLoc);
-		} else if (this == VOID) {
-			return new VoidPipe(blockLoc);
-		} else if (this == PipeType.EXTRACTION) {
-			return new ExtractionPipe(blockLoc);
-		}
-		return null;
-	}
-
 	public static PipeType getFromId(int id) {
 		for (PipeType pt : PipeType.values()) {
 			if (pt.getId() == id) {
 				return pt;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * returns the pipeType you can place with this item, or null if there is no pipe available for this item
-	 */
-	public static PipeType getFromPipeItem(ItemStack item) {
-		if (item == null) {
-			return null;
-		}
-		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-			String displayName = item.getItemMeta().getDisplayName();
-			if (PipeColor.getPipeColorByPipeItem(item) != null) {
-				return PipeType.COLORED;
-			}
-			for (PipeType pt : PipeType.values()) {
-				if (displayName.equals(pt.getFormattedPipeName())) {
-					return pt;
-				}
 			}
 		}
 		return null;

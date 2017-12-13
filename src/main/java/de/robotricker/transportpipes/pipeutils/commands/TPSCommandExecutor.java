@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
@@ -45,27 +47,31 @@ public class TPSCommandExecutor implements PipesCommandExecutor {
 		for (World world : Bukkit.getWorlds()) {
 			int worldPipes = 0;
 			int worldItems = 0;
-			Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-			if (pipeMap != null) {
-				synchronized (pipeMap) {
-					for (Pipe pipe : pipeMap.values()) {
-						worldPipes++;
-						worldItems += pipe.pipeItems.size() + pipe.tempPipeItems.size() + pipe.tempPipeItemsWithSpawn.size();
+			Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+			if (ductMap != null) {
+				synchronized (ductMap) {
+					for (Duct duct : ductMap.values()) {
+						if (duct.getDuctType() == DuctType.PIPE) {
+							Pipe pipe = (Pipe) duct;
+							worldPipes++;
+							worldItems += pipe.pipeItems.size() + pipe.tempPipeItems.size() + pipe.tempPipeItemsWithSpawn.size();
+						}
 					}
 				}
 				cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
 			}
 		}
 
-		/*cs.sendMessage("Timings:");
-		for (String timing : TimingCloseable.timings.keySet()) {
-			long time = TimingCloseable.timings.get(timing);
-			long maxTime = TimingCloseable.timingsRecord.get(timing);
-			String timeS = String.format("%.3f", time / 1000000f);
-			String maxTimeS = String.format("%.3f", maxTime / 1000000f);
-			long amount = TimingCloseable.timingsAmount.get(timing);
-			cs.sendMessage(timing + ": §6" + timeS + "§r millis (Max: §6" + maxTimeS + "§r, " + amount + " times)");
-		}*/
+		/*
+		 * cs.sendMessage("Timings:"); for (String timing :
+		 * TimingCloseable.timings.keySet()) { long time =
+		 * TimingCloseable.timings.get(timing); long maxTime =
+		 * TimingCloseable.timingsRecord.get(timing); String timeS =
+		 * String.format("%.3f", time / 1000000f); String maxTimeS =
+		 * String.format("%.3f", maxTime / 1000000f); long amount =
+		 * TimingCloseable.timingsAmount.get(timing); cs.sendMessage(timing + ": §6" +
+		 * timeS + "§r millis (Max: §6" + maxTimeS + "§r, " + amount + " times)"); }
+		 */
 
 		cs.sendMessage(LocConf.load(LocConf.COMMANDS_FOOTER));
 

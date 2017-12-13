@@ -16,7 +16,8 @@ import org.bukkit.material.MaterialData;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
 
 public class RecipesConf extends Conf {
 
@@ -74,7 +75,7 @@ public class RecipesConf extends Conf {
 		if (pc != null) {
 			basePath += "." + pc.name().toLowerCase();
 		}
-		ItemStack resultItem = PipeItemUtils.getPipeItem(pt, pc).clone();
+		ItemStack resultItem = pt == PipeType.COLORED ? DuctItemUtils.getClonedDuctItem(new PipeDetails(pc)) : DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
 			ShapedRecipe recipe = new ShapedRecipe(resultItem);
@@ -126,7 +127,7 @@ public class RecipesConf extends Conf {
 
 	public Recipe createWrenchRecipe() {
 		String basePath = "recipe.wrench";
-		ItemStack resultItem = PipeItemUtils.getWrenchItem().clone();
+		ItemStack resultItem = DuctItemUtils.getWrenchItem().clone();
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
 			ShapedRecipe recipe = new ShapedRecipe(resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
