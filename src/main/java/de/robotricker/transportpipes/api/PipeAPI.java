@@ -15,36 +15,48 @@ import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
+import de.robotricker.transportpipes.pipes.DuctUtils;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
 
 /**
  * 
- * This class is the interface between the TransportPipes plugin and other plugins.<br>
- * It allows you to build/destroy pipes programmatically and gather some extra information about the PipeThread etc.<br>
+ * This class is the interface between the TransportPipes plugin and other
+ * plugins.<br>
+ * It allows you to build/destroy pipes programmatically and gather some extra
+ * information about the PipeThread etc.<br>
  * 
  * @author RoboTricker
  */
 public class PipeAPI {
 
 	/**
-	 * Builds a pipe at the given location. Additionally you can determine which type and which color the pipe should have.<br>
+	 * Builds a pipe at the given location. Additionally you can determine which
+	 * type and which color the pipe should have.<br>
 	 * The PipeColor is ignored if PipeType is not COLORED.
 	 */
 	public static void buildPipe(Location blockLoc, PipeType pt, PipeColor pipeColor) {
-		PipeUtils.buildPipe(null, blockLoc.getBlock().getLocation(), pt, pipeColor);
+		PipeDetails pd;
+		if (pt == PipeType.COLORED) {
+			pd = new PipeDetails(pipeColor);
+		} else {
+			pd = new PipeDetails(pt);
+		}
+		DuctUtils.buildDuct(null, blockLoc.getBlock().getLocation(), pd);
 	}
 
 	/**
-	 * Detroys the pipe at the given location.
+	 * Detroys the duct at the given location.
 	 */
-	public static void destroyPipe(Location blockLoc) {
-		Pipe pipe = PipeUtils.getDuctAtLocation(blockLoc);
-		if (pipe != null) {
-			PipeUtils.destroyPipe(null, pipe);
+	public static void destroyDuct(Location blockLoc) {
+		Duct duct = DuctUtils.getDuctAtLocation(blockLoc);
+		if (duct != null) {
+			DuctUtils.destroyDuct(null, duct);
 		}
 	}
 
@@ -64,26 +76,26 @@ public class PipeAPI {
 	}
 
 	/**
-	 * Returns the amount of pipes in all worlds.
+	 * Returns the amount of ducts in all worlds.
 	 */
-	public static int getPipeCount() {
+	public static int getDuctCount() {
 		int amount = 0;
 		for (World world : Bukkit.getWorlds()) {
-			Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-			if (pipeMap != null) {
-				amount += pipeMap.size();
+			Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+			if (ductMap != null) {
+				amount += ductMap.size();
 			}
 		}
 		return amount;
 	}
 
 	/**
-	 * Returns the amount of pipes in the given world.
+	 * Returns the amount of ducts in the given world.
 	 */
-	public static int getPipeCount(World world) {
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-		if (pipeMap != null) {
-			return pipeMap.size();
+	public static int getDuctCount(World world) {
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+		if (ductMap != null) {
+			return ductMap.size();
 		}
 		return 0;
 	}
@@ -91,8 +103,12 @@ public class PipeAPI {
 	/**
 	 * Checks whether at the given location is a pipe.
 	 */
-	public static boolean isPipe(Location blockLoc) {
-		return PipeUtils.getDuctAtLocation(blockLoc) != null;
+	public static boolean isDuct(Location blockLoc, DuctType dt) {
+		Duct duct = DuctUtils.getDuctAtLocation(blockLoc);
+		if(dt == null) {
+			return duct != null;
+		}
+		return duct != null && duct.getDuctType() == dt;
 	}
 
 	/**
@@ -101,32 +117,34 @@ public class PipeAPI {
 	public static Pipe getPipeAtLocation(Location blockLoc) {
 		World world = blockLoc.getWorld();
 		BlockLoc bl = new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
-		if (TransportPipes.instance.getPipeMap(world) != null) {
-			return TransportPipes.instance.getPipeMap(world).get(bl);
+		if (TransportPipes.instance.getDuctMap(world) != null) {
+			Duct duct = TransportPipes.instance.getDuctMap(world).get(bl);
+			return duct != null && duct instanceof Pipe ? (Pipe) duct : null;
 		}
 		return null;
 	}
 
 	/**
-	 * Destroys all pipes in this world.
+	 * Destroys all ducts in this world.
 	 */
-	public static void destroyPipes(World world) {
-		List<Pipe> toDestroy = new ArrayList<>();
+	public static void destroyDucts(World world) {
+		List<Duct> toDestroy = new ArrayList<>();
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-		if (pipeMap != null) {
-			synchronized (pipeMap) {
-				toDestroy.addAll(pipeMap.values());
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+		if (ductMap != null) {
+			synchronized (ductMap) {
+				toDestroy.addAll(ductMap.values());
 			}
 		}
 
-		for (Pipe pipe : toDestroy) {
-			destroyPipe(pipe.getBlockLoc());
+		for (Duct duct : toDestroy) {
+			destroyDuct(duct.getBlockLoc());
 		}
 	}
 
 	/**
-	 * Puts any item into the given pipe object with a moving direction of "itemDirection".
+	 * Puts any item into the given pipe object with a moving direction of
+	 * "itemDirection".
 	 */
 	public static void putItemInPipe(Pipe pipe, ItemStack item, WrappedDirection itemDirection) {
 		PipeItem pi = new PipeItem(item, pipe.getBlockLoc(), itemDirection);
@@ -134,8 +152,10 @@ public class PipeAPI {
 	}
 
 	/**
-	 * Registers a custom container block at the given location. Every pipe around this block will try to extract/insert items from/into this container.<br>
-	 * Create your own implementation of the TransportPipesContainer interface in order to specify which items to extract and where inserted items should go.
+	 * Registers a custom container block at the given location. Every pipe around
+	 * this block will try to extract/insert items from/into this container.<br>
+	 * Create your own implementation of the TransportPipesContainer interface in
+	 * order to specify which items to extract and where inserted items should go.
 	 * 
 	 * @param tpc
 	 *            your own implementation of the TransportPipesContainer interface
@@ -153,19 +173,21 @@ public class PipeAPI {
 		}
 		containerMap.put(bl, tpc);
 
-		Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
-		if (pipeMap != null) {
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(blockLoc.getWorld());
+		if (ductMap != null) {
 			for (WrappedDirection pd : WrappedDirection.values()) {
 				bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
-				if (pipeMap.containsKey(bl)) {
-					final Pipe pipe = pipeMap.get(bl);
-					TransportPipes.instance.pipeThread.runTask(new Runnable() {
+				if (ductMap.containsKey(bl)) {
+					final Duct duct = ductMap.get(bl);
+					if (duct.getDuctType() == DuctType.PIPE) {
+						TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
-						@Override
-						public void run() {
-							TransportPipes.instance.pipePacketManager.updatePipe(pipe);
-						}
-					}, 0);
+							@Override
+							public void run() {
+								TransportPipes.instance.pipePacketManager.updateDuct((Pipe) duct);
+							}
+						}, 0);
+					}
 				}
 			}
 		}
@@ -173,7 +195,8 @@ public class PipeAPI {
 	}
 
 	/**
-	 * Unregisters a custom container block. See {@link PipeAPI#registerTransportPipesContainer(Location, TransportPipesContainer)}
+	 * Unregisters a custom container block. See
+	 * {@link PipeAPI#registerTransportPipesContainer(Location, TransportPipesContainer)}
 	 */
 	public static void unregisterTransportPipesContainer(Location blockLoc) {
 		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
@@ -183,19 +206,21 @@ public class PipeAPI {
 			if (containerMap.containsKey(bl)) {
 				containerMap.remove(bl);
 
-				Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(blockLoc.getWorld());
-				if (pipeMap != null) {
+				Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(blockLoc.getWorld());
+				if (ductMap != null) {
 					for (WrappedDirection pd : WrappedDirection.values()) {
 						bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
-						if (pipeMap.containsKey(bl)) {
-							final Pipe pipe = pipeMap.get(bl);
-							TransportPipes.instance.pipeThread.runTask(new Runnable() {
+						if (ductMap.containsKey(bl)) {
+							final Duct duct = ductMap.get(bl);
+							if (duct.getDuctType() == DuctType.PIPE) {
+								TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
-								@Override
-								public void run() {
-									TransportPipes.instance.pipePacketManager.updatePipe(pipe);
-								}
-							}, 0);
+									@Override
+									public void run() {
+										TransportPipes.instance.pipePacketManager.updateDuct((Pipe) duct);
+									}
+								}, 0);
+							}
 						}
 					}
 				}

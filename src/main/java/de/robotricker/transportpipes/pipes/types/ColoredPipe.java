@@ -22,6 +22,8 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.update.UpdateManager;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
 import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 
 public class ColoredPipe extends Pipe {
@@ -41,7 +43,7 @@ public class ColoredPipe extends Pipe {
 		Map<WrappedDirection, Integer> maxSpaceMap = new HashMap<WrappedDirection, Integer>();
 		Map<WrappedDirection, Integer> map = new HashMap<WrappedDirection, Integer>();
 
-		//update maxSpaceMap
+		// update maxSpaceMap
 		for (WrappedDirection pd : WrappedDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
@@ -117,15 +119,16 @@ public class ColoredPipe extends Pipe {
 	}
 
 	@Override
-	public void saveToNBTTag(CompoundMap tags) {
-		super.saveToNBTTag(tags);
-		NBTUtils.saveStringValue(tags, "PipeColor", pipeColor.name());
+	public DuctDetails getDuctDetails() {
+		return new PipeDetails(getPipeColor());
 	}
 
 	@Override
-	public void loadFromNBTTag(CompoundTag tag) {
-		super.loadFromNBTTag(tag);
-		pipeColor = PipeColor.valueOf(NBTUtils.readStringTag(tag.getValue().get("PipeColor"), PipeColor.WHITE.name()));
+	public void loadFromNBTTag(CompoundTag tag, long datFileVersion) {
+		super.loadFromNBTTag(tag, datFileVersion);
+		if (datFileVersion < UpdateManager.convertVersionToLong("4.3.0")) {
+			pipeColor = PipeColor.valueOf(NBTUtils.readStringTag(tag.getValue().get("PipeColor"), PipeColor.WHITE.name()));
+		}
 	}
 
 }

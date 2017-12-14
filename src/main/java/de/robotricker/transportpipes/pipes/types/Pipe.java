@@ -34,6 +34,7 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
+import de.robotricker.transportpipes.update.UpdateManager;
 
 public abstract class Pipe extends Duct {
 
@@ -235,7 +236,7 @@ public abstract class Pipe extends Duct {
 							if (ductMap.containsKey(newBlockLocLong)) {
 								Duct newDuct = ductMap.get(newBlockLocLong);
 								if (newDuct.getDuctType() == DuctType.PIPE) {
-									
+
 									removePipeItem(item);
 									// switch relLoc values from 0 to 1 and vice-versa
 									item.relLoc().switchValues();
@@ -274,12 +275,13 @@ public abstract class Pipe extends Duct {
 		OUTPUT_TO_NEXT_PIPE()
 	}
 
+	@Override
 	public void saveToNBTTag(CompoundMap tags) {
-		NBTUtils.saveIntValue(tags, "PipeType", getPipeType().getId());
-		NBTUtils.saveStringValue(tags, "PipeLocation", DuctUtils.LocToString(blockLoc));
+		super.saveToNBTTag(tags);
+
+		NBTUtils.saveStringValue(tags, "PipeType", getPipeType().name());
 
 		List<Tag<?>> itemList = new ArrayList<>();
-
 		Map<PipeItem, WrappedDirection> pipeItemMap = new HashMap<>();
 		pipeItemMap.putAll(pipeItems);
 		pipeItemMap.putAll(tempPipeItems);
@@ -295,17 +297,14 @@ public abstract class Pipe extends Duct {
 		}
 		NBTUtils.saveListValue(tags, "PipeItems", CompoundTag.class, itemList);
 
-		List<Tag<?>> neighborPipesList = new ArrayList<>();
-		List<WrappedDirection> neighborPipes = getOnlyConnectableDuctConnections();
-		for (WrappedDirection pd : neighborPipes) {
-			neighborPipesList.add(new IntTag("Direction", pd.getId()));
-		}
-		NBTUtils.saveListValue(tags, "NeighborPipes", IntTag.class, neighborPipesList);
-
 	}
 
-	public void loadFromNBTTag(CompoundTag tag) {
+	@Override
+	public void loadFromNBTTag(CompoundTag tag, long datVersion) {
+		super.loadFromNBTTag(tag, datVersion);
+
 		CompoundMap compoundValues = tag.getValue();
+
 		List<Tag<?>> pipeItems = NBTUtils.readListTag(compoundValues.get("PipeItems"));
 		for (Tag<?> itemTag : pipeItems) {
 			CompoundTag itemCompoundTag = (CompoundTag) itemTag;

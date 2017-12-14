@@ -13,6 +13,7 @@ import de.robotricker.transportpipes.pipes.types.IcePipe;
 import de.robotricker.transportpipes.pipes.types.IronPipe;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipes.types.VoidPipe;
+import io.sentry.Sentry;
 
 public class PipeDetails extends DuctDetails {
 
@@ -43,6 +44,15 @@ public class PipeDetails extends DuctDetails {
 
 	public PipeColor getPipeColor() {
 		return pipeColor;
+	}
+
+	public void setPipeType(PipeType pipeType) {
+		this.pipeType = pipeType;
+		setCraftPermission(pipeType.getCraftPermission());
+	}
+
+	public void setPipeColor(PipeColor pipeColor) {
+		this.pipeColor = pipeColor;
 	}
 
 	@Override
@@ -87,6 +97,29 @@ public class PipeDetails extends DuctDetails {
 		if (pipeType != other.pipeType)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		String pipeTypeString = "PipeType:" + pipeType.name() + ";";
+		String pipeColorString = pipeColor != null ? "PipeColor:" + pipeColor.name() + ";" : "";
+		return super.toString() + pipeTypeString + pipeColorString;
+	}
+
+	@Override
+	public void fromString(String serialization) {
+		try {
+			for (String element : serialization.split(";")) {
+				if (element.startsWith("PipeType:")) {
+					setPipeType(PipeType.valueOf(element.substring(9)));
+				} else if (element.startsWith("PipeColor:")) {
+					setPipeColor(PipeColor.valueOf(element.substring(10)));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
+		}
 	}
 
 }

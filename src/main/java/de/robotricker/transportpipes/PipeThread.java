@@ -15,6 +15,8 @@ import org.bukkit.plugin.IllegalPluginAccessException;
 
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import io.sentry.Sentry;
@@ -143,12 +145,16 @@ public class PipeThread extends Thread {
 				lastAction = "World loop";
 				for (World world : Bukkit.getWorlds()) {
 					lastAction = "Pipe map load";
-					Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-					if (pipeMap != null) {
-						synchronized (pipeMap) {
+					Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+					if (ductMap != null) {
+						synchronized (ductMap) {
 							lastAction = "Pipe loop";
-							for (Pipe pipe : pipeMap.values()) {
-								if (!pipe.isInLoadedChunk()) {
+							for (Duct duct : ductMap.values()) {
+								if(duct.getDuctType() != DuctType.PIPE) {
+									continue;
+								}
+								Pipe pipe = (Pipe) duct;
+								if (!duct.isInLoadedChunk()) {
 									continue;
 								}
 

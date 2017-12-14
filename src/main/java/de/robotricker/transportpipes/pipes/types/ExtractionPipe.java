@@ -30,6 +30,7 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
 import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 import de.robotricker.transportpipes.pipeutils.config.LocConf;
 import de.robotricker.transportpipes.pipeutils.hitbox.TimingCloseable;
@@ -60,7 +61,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 		Map<WrappedDirection, Integer> maxSpaceMap = new HashMap<WrappedDirection, Integer>();
 		Map<WrappedDirection, Integer> map = new HashMap<WrappedDirection, Integer>();
 
-		//update maxSpaceMap
+		// update maxSpaceMap
 		for (WrappedDirection pd : WrappedDirection.values()) {
 			maxSpaceMap.put(pd, Integer.MAX_VALUE);
 			if (containerMap != null) {
@@ -136,8 +137,9 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 	}
 
 	@Override
-	public void loadFromNBTTag(CompoundTag tag) {
-		super.loadFromNBTTag(tag);
+	public void loadFromNBTTag(CompoundTag tag, long datFileVersion) {
+		super.loadFromNBTTag(tag, datFileVersion);
+		
 		int extractDirectionId = NBTUtils.readIntTag(tag.getValue().get("ExtractDirection"), -1);
 		if (extractDirectionId == -1) {
 			setExtractDirection(null);
@@ -223,10 +225,12 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 	}
 
 	/**
-	 * checks if the current extract direction is valid and updates it to a valid value if necessary
+	 * checks if the current extract direction is valid and updates it to a valid
+	 * value if necessary
 	 * 
 	 * @param cycle
-	 *            whether the direction should really cycle or just be checked for validity
+	 *            whether the direction should really cycle or just be checked for
+	 *            validity
 	 */
 	public void checkAndUpdateExtractDirection(boolean cycle) {
 		WrappedDirection oldExtractDirection = getExtractDirection();
@@ -264,12 +268,12 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 
 			final Location containerLoc = getBlockLoc().clone().add(extractDirection.getX(), extractDirection.getY(), extractDirection.getZ());
 
-			//input items
+			// input items
 			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
 				@Override
 				public void run() {
-					try (TimingCloseable tc = new TimingCloseable("extract item scheduler")){
+					try (TimingCloseable tc = new TimingCloseable("extract item scheduler")) {
 						if (!isInLoadedChunk()) {
 							return;
 						}
@@ -278,7 +282,8 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 							for (WrappedDirection pd : WrappedDirection.values()) {
 								Location relativeLoc = ExtractionPipe.this.getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ());
 
-								//don't power this pipe if at least 1 block around this pipe is inside an unloaded chunk
+								// don't power this pipe if at least 1 block around this pipe is inside an
+								// unloaded chunk
 								if (!TransportPipes.instance.containerBlockUtils.isInLoadedChunk(relativeLoc)) {
 									break;
 								}
@@ -304,7 +309,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 								}
 								ItemStack taken = tpc.extractItem(itemDir, getExtractAmount().getAmount(), filterItems, getFilteringMode());
 								if (taken != null) {
-									//extraction successful
+									// extraction successful
 									PipeItem pi = new PipeItem(taken, ExtractionPipe.this.getBlockLoc(), itemDir);
 									tempPipeItemsWithSpawn.put(pi, itemDir);
 								}
@@ -328,6 +333,11 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 	public void notifyConnectionsChange() {
 		super.notifyConnectionsChange();
 		checkAndUpdateExtractDirection(false);
+	}
+
+	@Override
+	public DuctDetails getDuctDetails() {
+		return new PipeDetails(getPipeType());
 	}
 
 	public enum ExtractCondition {

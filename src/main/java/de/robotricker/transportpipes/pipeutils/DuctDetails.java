@@ -22,7 +22,11 @@ public abstract class DuctDetails {
 	public String getCraftPermission() {
 		return craftPermission;
 	}
-	
+
+	public void setCraftPermission(String craftPermission) {
+		this.craftPermission = craftPermission;
+	}
+
 	public abstract Duct createDuct(Location blockLoc);
 	
 	@Override
@@ -31,4 +35,12 @@ public abstract class DuctDetails {
 	@Override
 	public abstract int hashCode();
 
+	@Override
+	public String toString() {
+		String ductTypeString = "DuctType:" + ductType.name() + ";";
+		return ductTypeString;
+	}
+	
+	public abstract void fromString(String serialization);
+	
 }

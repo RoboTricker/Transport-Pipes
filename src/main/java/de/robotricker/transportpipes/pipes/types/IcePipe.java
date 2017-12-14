@@ -16,6 +16,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
 import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDetails;
 
@@ -111,4 +112,9 @@ public class IcePipe extends Pipe {
 		return ICE_ITEM_SPEED;
 	}
 
+	@Override
+	public DuctDetails getDuctDetails() {
+		return new PipeDetails(getPipeType());
+	}
+	
 }

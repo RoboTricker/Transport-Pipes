@@ -10,15 +10,15 @@ public class SkyblockAPIUtils implements Listener {
 
 	@EventHandler
 	public void onReset(com.wasteofplastic.acidisland.events.IslandResetEvent e) {
-		destroyAllPipesOnIsland(e.getLocation());
+		destroyAllDuctsOnIsland(e.getLocation());
 	}
 
 	@EventHandler
 	public void onReset(com.wasteofplastic.acidisland.events.IslandDeleteEvent e) {
-		destroyAllPipesOnIsland(e.getLocation());
+		destroyAllDuctsOnIsland(e.getLocation());
 	}
 
-	private void destroyAllPipesOnIsland(Location islandLoc) {
+	private void destroyAllDuctsOnIsland(Location islandLoc) {
 		int dist = 200;
 		final Location min = islandLoc.clone().add(-dist, 0, -dist);
 		min.setY(0);
@@ -34,8 +34,8 @@ public class SkyblockAPIUtils implements Listener {
 					tempLoc.setX(x);
 					tempLoc.setY(y);
 					tempLoc.setZ(z);
-					if (PipeAPI.isPipe(tempLoc) && !skyblockApi.islandAtLocation(tempLoc)) {
-						PipeAPI.destroyPipe(tempLoc);
+					if (PipeAPI.isDuct(tempLoc, null) && !skyblockApi.islandAtLocation(tempLoc)) {
+						PipeAPI.destroyDuct(tempLoc);
 					}
 				}
 			}

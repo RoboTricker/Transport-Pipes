@@ -22,6 +22,7 @@ import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
 import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 
 public class IronPipe extends Pipe implements ClickableDuct {
@@ -47,8 +48,8 @@ public class IronPipe extends Pipe implements ClickableDuct {
 	}
 
 	@Override
-	public void loadFromNBTTag(CompoundTag tag) {
-		super.loadFromNBTTag(tag);
+	public void loadFromNBTTag(CompoundTag tag, long datFileVersion) {
+		super.loadFromNBTTag(tag, datFileVersion);
 		currentOutputDir = WrappedDirection.fromID(NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), 0));
 	}
 
@@ -106,6 +107,11 @@ public class IronPipe extends Pipe implements ClickableDuct {
 		return is;
 	}
 
+	@Override
+	public DuctDetails getDuctDetails() {
+		return new PipeDetails(getPipeType());
+	}
+	
 	@Override
 	public void notifyConnectionsChange() {
 		super.notifyConnectionsChange();

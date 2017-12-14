@@ -25,16 +25,18 @@ import com.flowpowered.nbt.Tag;
 import com.flowpowered.nbt.stream.NBTInputStream;
 import com.flowpowered.nbt.stream.NBTOutputStream;
 
-import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.pipes.BlockLoc;
 import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
+import de.robotricker.transportpipes.pipes.DuctUtils;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.PipeUtils;
 import de.robotricker.transportpipes.pipes.colored.PipeColor;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
+import de.robotricker.transportpipes.pipeutils.PipeDetails;
 import de.robotricker.transportpipes.update.UpdateManager;
 
 public class SavingManager implements Listener {
@@ -73,7 +75,7 @@ public class SavingManager implements Listener {
 				List<CompoundMap> ductList = new ArrayList<>();
 				worlds.put(world, ductList);
 
-				// put pipes in Tag Lists
+				// put ducts in tag lists
 				Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
 				if (ductMap != null) {
 					synchronized (ductMap) {
@@ -115,14 +117,15 @@ public class SavingManager implements Listener {
 					List<CompoundMap> rawDuctList = worlds.get(world);
 					List<Tag<?>> finalDuctList = new ArrayList<>();
 					for (CompoundMap map : rawDuctList) {
-						finalDuctList.add(new CompoundTag("Pipe", map));
+						finalDuctList.add(new CompoundTag("Duct", map));
 					}
-					NBTUtils.saveListValue(tags, "Pipes", CompoundTag.class, finalDuctList);
+					NBTUtils.saveListValue(tags, "Ducts", CompoundTag.class, finalDuctList);
 
 					CompoundTag compound = new CompoundTag("Data", tags);
 					out.writeTag(compound);
 					out.close();
 				} catch (FileNotFoundException ignored) {
+
 				}
 			}
 
@@ -136,24 +139,20 @@ public class SavingManager implements Listener {
 	}
 
 	/**
-	 * loads all ducts and items in this world if it isn't loaded already
+	 * loads all ducts and optional pipe items in this world if it isn't loaded
+	 * already
 	 */
 	public void loadDuctsSync(final World world) {
-
 		if (!loadedWorlds.contains(world)) {
 			loadedWorlds.add(world);
 		} else {
 			return;
 		}
-
 		loading = true;
-
 		try {
-
 			int ductsCount = 0;
 
 			File datFile = new File(Bukkit.getWorldContainer(), world.getName() + "/pipes.dat");
-
 			if (!datFile.exists()) {
 				return;
 			}
@@ -170,25 +169,19 @@ public class SavingManager implements Listener {
 				compound = (CompoundTag) in.readTag();
 			}
 
-			// whether to convert the pipes.dat system to a version after 3.8.22 without
-			// PipeClassName but instead PipeType values
-			boolean convertSystem = false;
 			String pipesDatVersionString = NBTUtils.readStringTag(compound.getValue().get("PluginVersion"), TransportPipes.instance.getDescription().getVersion());
 			long pipesDatVersion = UpdateManager.convertVersionToLong(pipesDatVersionString);
+
 			if (pipesDatVersion <= UpdateManager.convertVersionToLong("3.8.22")) {
-				convertSystem = true;
-				TransportPipes.instance.getLogger().info("Converting pipes.dat system to new system");
-			}
 
-			List<Tag<?>> ductList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
+				List<Tag<?>> ductList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
 
-			for (Tag<?> tag : ductList) {
-				CompoundTag pipeTag = (CompoundTag) tag;
+				for (Tag<?> tag : ductList) {
+					CompoundTag pipeTag = (CompoundTag) tag;
 
-				PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
-				Location pipeLoc = PipeUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+					PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
+					Location pipeLoc = DuctUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
 
-				if (convertSystem) {
 					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"), "de.robotricker.transportpipes.pipes.PipeMID");
 					if (oldPipeClassName.endsWith("GoldenPipe")) {
 						pt = PipeType.GOLDEN;
@@ -200,50 +193,111 @@ public class SavingManager implements Listener {
 					if (icePipe) {
 						pt = PipeType.ICE;
 					}
+
+					List<WrappedDirection> neighborPipes = new ArrayList<WrappedDirection>();
+					List<Tag<?>> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
+					for (Tag<?> neighborPipesEntry : neighborPipesList) {
+						neighborPipes.add(WrappedDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
+					}
+
+					PipeDetails pipeDetails = new PipeDetails(pt);
+					if (pt == PipeType.COLORED) {
+						pipeDetails.setPipeColor(PipeColor.WHITE);
+					}
+
+					if (pipeLoc != null) {
+						Pipe pipe = (Pipe) pipeDetails.createDuct(pipeLoc);
+
+						pipe.loadFromNBTTag(pipeTag, pipesDatVersion);
+
+						// save and spawn pipe
+						DuctUtils.registerDuct(pipe, neighborPipes);
+
+						ductsCount++;
+					}
+
 				}
 
-				List<WrappedDirection> neighborPipes = new ArrayList<WrappedDirection>();
-				List<Tag<?>> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
-				for (Tag<?> neighborPipesEntry : neighborPipesList) {
-					neighborPipes.add(WrappedDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
-				}
-
-				if (pipeLoc != null) {
-					Pipe pipe = pt.createPipe(pipeLoc, PipeColor.WHITE); // PipeColor will be replaced when loading from
-																			// NBT inside pipe
-					pipe.loadFromNBTTag(pipeTag);
-
-					// save and spawn pipe
-					PipeUtils.registerPipe(pipe, neighborPipes);
-
-					ductsCount++;
-				}
-
-			}
-
-			if (convertSystem) {
 				TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 					@Override
 					public void run() {
 						// update all pipes connections because the in the old system "NeighborPipes"
 						// wasn't saved for each pipe
-						Map<BlockLoc, Pipe> pipeMap = TransportPipes.instance.getPipeMap(world);
-						if (pipeMap != null) {
-							synchronized (pipeMap) {
-								for (Pipe pipe : pipeMap.values()) {
-									TransportPipes.instance.pipePacketManager.updatePipe(pipe);
+						Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+						if (ductMap != null) {
+							synchronized (ductMap) {
+								for (Duct duct : ductMap.values()) {
+									TransportPipes.instance.pipePacketManager.updateDuct(duct);
 								}
 							}
 						}
 					};
 
 				}, 2);
+			} else if (pipesDatVersion < UpdateManager.convertVersionToLong("4.3.0")) {
+
+				List<Tag<?>> ductList = NBTUtils.readListTag(compound.getValue().get("Pipes"));
+
+				for (Tag<?> tag : ductList) {
+					CompoundTag pipeTag = (CompoundTag) tag;
+
+					PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
+					Location pipeLoc = DuctUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+
+					List<WrappedDirection> neighborPipes = new ArrayList<WrappedDirection>();
+					List<Tag<?>> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
+					for (Tag<?> neighborPipesEntry : neighborPipesList) {
+						neighborPipes.add(WrappedDirection.fromID(NBTUtils.readIntTag(neighborPipesEntry, 0)));
+					}
+
+					PipeDetails pipeDetails = new PipeDetails(pt);
+					if (pt == PipeType.COLORED) {
+						pipeDetails.setPipeColor(PipeColor.WHITE);
+					}
+
+					if (pipeLoc != null) {
+						Pipe pipe = (Pipe) pipeDetails.createDuct(pipeLoc);
+
+						pipe.loadFromNBTTag(pipeTag, pipesDatVersion);
+
+						// save and spawn pipe
+						DuctUtils.registerDuct(pipe, neighborPipes);
+
+						ductsCount++;
+					}
+
+				}
+
+			} else {
+				List<Tag<?>> ductList = NBTUtils.readListTag(compound.getValue().get("Ducts"));
+				for (Tag<?> tag : ductList) {
+					CompoundTag ductTag = (CompoundTag) tag;
+
+					DuctType ductType = DuctType.valueOf(NBTUtils.readStringTag(ductTag.getValue().get("DuctType"), null));
+					String serializedDuctDetails = NBTUtils.readStringTag(ductTag.getValue().get("DuctDetails"), null);
+					DuctDetails ductDetails = ductType.createDuctDetails(serializedDuctDetails);
+					Location ductLoc = DuctUtils.StringToLoc(NBTUtils.readStringTag(ductTag.getValue().get("DuctLocation"), null));
+
+					List<WrappedDirection> neighborDucts = new ArrayList<WrappedDirection>();
+					List<Tag<?>> neighborDuctsList = NBTUtils.readListTag(ductTag.getValue().get("NeighborDucts"));
+					for (Tag<?> neighborDuctsEntry : neighborDuctsList) {
+						neighborDucts.add(WrappedDirection.fromID(NBTUtils.readIntTag(neighborDuctsEntry, 0)));
+					}
+
+					Duct duct = ductDetails.createDuct(ductLoc);
+					duct.loadFromNBTTag(ductTag, pipesDatVersion);
+
+					// save and spawn duct
+					DuctUtils.registerDuct(duct, neighborDucts);
+
+					ductsCount++;
+				}
 			}
 
 			in.close();
 
-			TransportPipes.instance.getLogger().info(ductsCount + " pipes loaded in world " + world.getName());
+			TransportPipes.instance.getLogger().info(ductsCount + " ducts loaded in world " + world.getName());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -257,7 +311,7 @@ public class SavingManager implements Listener {
 	public void onWorldSave(WorldSaveEvent e) {
 		// only save once for all worlds
 		if (e.getWorld().equals(Bukkit.getWorlds().get(0))) {
-			savePipesAsync(false);
+			saveDuctsAsync(false);
 		}
 	}
 

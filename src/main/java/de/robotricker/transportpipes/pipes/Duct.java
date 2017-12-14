@@ -2,6 +2,7 @@ package de.robotricker.transportpipes.pipes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +15,22 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.IntTag;
+import com.flowpowered.nbt.Tag;
+
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.DuctConnectionsChangeEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
+import de.robotricker.transportpipes.pipeutils.InventoryUtils;
+import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
+import de.robotricker.transportpipes.update.UpdateManager;
 
 public abstract class Duct {
 
@@ -92,6 +104,8 @@ public abstract class Duct {
 
 	public abstract DuctType getDuctType();
 
+	public abstract DuctDetails getDuctDetails();
+	
 	public void explode(final boolean withSound) {
 		TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
@@ -104,6 +118,23 @@ public abstract class Duct {
 				blockLoc.getWorld().playEffect(blockLoc.clone().add(0.5d, 0.5d, 0.5d), Effect.SMOKE, 31);
 			}
 		}, 0);
+	}
+
+	public void saveToNBTTag(CompoundMap tags) {
+		NBTUtils.saveStringValue(tags, "DuctType", getDuctType().name());
+		NBTUtils.saveStringValue(tags, "DuctLocation", DuctUtils.LocToString(blockLoc));
+		NBTUtils.saveStringValue(tags, "DuctDetails", getDuctDetails().toString());
+
+		List<Tag<?>> neighborDuctsList = new ArrayList<>();
+		List<WrappedDirection> neighborDucts = getOnlyConnectableDuctConnections();
+		for (WrappedDirection pd : neighborDucts) {
+			neighborDuctsList.add(new IntTag("Direction", pd.getId()));
+		}
+		NBTUtils.saveListValue(tags, "NeighborDucts", IntTag.class, neighborDuctsList);
+	}
+
+	public void loadFromNBTTag(CompoundTag tag, long datVersion) {
+		
 	}
 
 }

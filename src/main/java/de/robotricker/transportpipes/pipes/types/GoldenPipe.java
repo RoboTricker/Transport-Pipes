@@ -27,6 +27,7 @@ import de.robotricker.transportpipes.pipes.PipeType;
 import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.pipeutils.NBTUtils;
 import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.pipeutils.DuctDetails;
 import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
 
 public class GoldenPipe extends Pipe implements ClickableDuct {
@@ -176,8 +177,8 @@ public class GoldenPipe extends Pipe implements ClickableDuct {
 	}
 
 	@Override
-	public void loadFromNBTTag(CompoundTag tag) {
-		super.loadFromNBTTag(tag);
+	public void loadFromNBTTag(CompoundTag tag, long datFileVersion) {
+		super.loadFromNBTTag(tag, datFileVersion);
 
 		CompoundMap map = tag.getValue();
 		if (NBTUtils.readListTag(map.get("Lines")).isEmpty()) {
@@ -272,4 +273,9 @@ public class GoldenPipe extends Pipe implements ClickableDuct {
 		return is;
 	}
 
+	@Override
+	public DuctDetails getDuctDetails() {
+		return new PipeDetails(getPipeType());
+	}
+	
 }
