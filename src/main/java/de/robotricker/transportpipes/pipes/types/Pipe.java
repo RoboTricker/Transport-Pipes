@@ -279,8 +279,6 @@ public abstract class Pipe extends Duct {
 	public void saveToNBTTag(CompoundMap tags) {
 		super.saveToNBTTag(tags);
 
-		NBTUtils.saveStringValue(tags, "PipeType", getPipeType().name());
-
 		List<Tag<?>> itemList = new ArrayList<>();
 		Map<PipeItem, WrappedDirection> pipeItemMap = new HashMap<>();
 		pipeItemMap.putAll(pipeItems);
@@ -385,7 +383,7 @@ public abstract class Pipe extends Duct {
 				return false;
 			}
 			if (neighborPipe.getPipeType() == PipeType.COLORED && getPipeType() == PipeType.COLORED) {
-				if (!((ColoredPipe) neighborPipe).getPipeColor().equals(((ColoredPipe) duct).getPipeColor())) {
+				if (!((ColoredPipe) neighborPipe).getPipeColor().equals(((ColoredPipe) this).getPipeColor())) {
 					return false;
 				}
 			}

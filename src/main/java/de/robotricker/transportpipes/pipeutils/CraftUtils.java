@@ -58,7 +58,7 @@ public class CraftUtils implements Listener {
 				}
 			}
 
-			if (ductDetails.getDuctType() == DuctType.PIPE) {
+			if (ductDetails != null && ductDetails.getDuctType() == DuctType.PIPE) {
 				// prevent colored pipe crafting if the given pipe is not a colored pipe
 				boolean prevent = false;
 				for (int i = 1; i < 10; i++) {

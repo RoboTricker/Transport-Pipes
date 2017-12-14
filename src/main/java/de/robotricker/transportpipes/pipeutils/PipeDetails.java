@@ -28,6 +28,10 @@ public class PipeDetails extends DuctDetails {
 		super(DuctType.PIPE, pipeType.getCraftPermission());
 		this.pipeType = pipeType;
 	}
+	
+	public PipeDetails() {
+		super(DuctType.PIPE, null);
+	}
 
 	/**
 	 * automatically sets PipeType to COLORED
@@ -92,9 +96,9 @@ public class PipeDetails extends DuctDetails {
 		if (getClass() != obj.getClass())
 			return false;
 		PipeDetails other = (PipeDetails) obj;
-		if (pipeColor != other.pipeColor)
-			return false;
 		if (pipeType != other.pipeType)
+			return false;
+		if (pipeType == PipeType.COLORED && pipeColor != other.pipeColor)
 			return false;
 		return true;
 	}

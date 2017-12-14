@@ -110,6 +110,9 @@ public class ArmorStandProtocol {
 		// change render system
 		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystemId);
 		for (DuctType dt : DuctType.values()) {
+			if(!dt.isEnabled()) {
+				continue;
+			}
 			TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, dt).initPlayer(p);
 		}
 

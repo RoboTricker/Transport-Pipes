@@ -75,7 +75,12 @@ public class RecipesConf extends Conf {
 		if (pc != null) {
 			basePath += "." + pc.name().toLowerCase();
 		}
-		ItemStack resultItem = pt == PipeType.COLORED ? DuctItemUtils.getClonedDuctItem(new PipeDetails(pc)) : DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
+		ItemStack resultItem;
+		if (pt == PipeType.COLORED) {
+			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pc == null ? PipeColor.WHITE : pc));
+		} else {
+			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
+		}
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
 			ShapedRecipe recipe = new ShapedRecipe(resultItem);

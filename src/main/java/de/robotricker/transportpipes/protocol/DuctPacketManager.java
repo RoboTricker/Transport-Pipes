@@ -269,6 +269,9 @@ public class DuctPacketManager implements Listener {
 			@Override
 			public void run() {
 				for (DuctType dt : DuctType.values()) {
+					if(!dt.isEnabled()) {
+						continue;
+					}
 					TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(e.getPlayer(), dt).initPlayer(e.getPlayer());
 				}
 
