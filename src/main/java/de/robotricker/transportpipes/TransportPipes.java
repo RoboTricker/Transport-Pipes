@@ -349,20 +349,20 @@ public class TransportPipes extends JavaPlugin {
 	}
 
 	public static void initSentryOnCurrentThread() {
-		/*
-		 * Sentry.init(
-		 * "https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970?stacktrace.app.packages=de.robotricker"
-		 * ); Sentry.getContext().setUser(new
-		 * UserBuilder().setUsername("RoboTricker").build());
-		 * Sentry.getContext().addTag("thread", Thread.currentThread().getName());
-		 * Sentry.getContext().addTag("version",
-		 * TransportPipes.instance.getDescription().getVersion());
-		 * 
-		 * Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-		 * 
-		 * @Override public void uncaughtException(Thread t, Throwable e) {
-		 * Sentry.capture(e); } });
-		 */
+
+		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970?stacktrace.app.packages=de.robotricker");
+		Sentry.getContext().setUser(new UserBuilder().setUsername("RoboTricker").build());
+		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
+		Sentry.getContext().addTag("version", TransportPipes.instance.getDescription().getVersion());
+
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				Sentry.capture(e);
+			}
+		});
+
 	}
 
 }
