@@ -24,44 +24,44 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
+import de.robotricker.transportpipes.duct.pipe.extractionpipe.ExtractionPipeInv;
+import de.robotricker.transportpipes.duct.pipe.goldenpipe.GoldenPipeInv;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Duct;
-import de.robotricker.transportpipes.pipes.DuctType;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipes.extractionpipe.ExtractionPipeInv;
-import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeInv;
-import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.ContainerBlockUtils;
-import de.robotricker.transportpipes.pipeutils.CraftUtils;
-import de.robotricker.transportpipes.pipeutils.DuctDetails;
-import de.robotricker.transportpipes.pipeutils.InventoryUtils;
-import de.robotricker.transportpipes.pipeutils.LWCAPIUtils;
-import de.robotricker.transportpipes.pipeutils.LogisticsAPIUtils;
-import de.robotricker.transportpipes.pipeutils.PipeDetails;
-import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
-import de.robotricker.transportpipes.pipeutils.SkyblockAPIUtils;
-import de.robotricker.transportpipes.pipeutils.commands.CreativeCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.DeletePipesCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.ReloadPipesCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.SaveCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.SettingsCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.TPSCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.commands.UpdateCommandExecutor;
-import de.robotricker.transportpipes.pipeutils.config.GeneralConf;
-import de.robotricker.transportpipes.pipeutils.config.LocConf;
-import de.robotricker.transportpipes.pipeutils.config.RecipesConf;
-import de.robotricker.transportpipes.pipeutils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.DuctPacketManager;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
-import de.robotricker.transportpipes.saving.SavingManager;
 import de.robotricker.transportpipes.settings.SettingsInv;
-import de.robotricker.transportpipes.settings.SettingsUtils;
-import de.robotricker.transportpipes.update.UpdateManager;
+import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.ContainerBlockUtils;
+import de.robotricker.transportpipes.utils.CraftUtils;
+import de.robotricker.transportpipes.utils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.LWCAPIUtils;
+import de.robotricker.transportpipes.utils.LogisticsAPIUtils;
+import de.robotricker.transportpipes.utils.SavingUtils;
+import de.robotricker.transportpipes.utils.SettingsUtils;
+import de.robotricker.transportpipes.utils.SkyblockAPIUtils;
+import de.robotricker.transportpipes.utils.UpdateUtils;
+import de.robotricker.transportpipes.utils.commands.CreativeCommandExecutor;
+import de.robotricker.transportpipes.utils.commands.DeletePipesCommandExecutor;
+import de.robotricker.transportpipes.utils.commands.ReloadPipesCommandExecutor;
+import de.robotricker.transportpipes.utils.commands.SaveCommandExecutor;
+import de.robotricker.transportpipes.utils.commands.SettingsCommandExecutor;
+import de.robotricker.transportpipes.utils.commands.TPSCommandExecutor;
+import de.robotricker.transportpipes.utils.commands.UpdateCommandExecutor;
+import de.robotricker.transportpipes.utils.config.GeneralConf;
+import de.robotricker.transportpipes.utils.config.LocConf;
+import de.robotricker.transportpipes.utils.config.RecipesConf;
+import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
+import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.hitbox.HitboxListener;
 import io.sentry.Sentry;
 import io.sentry.event.UserBuilder;
 
@@ -73,9 +73,9 @@ public class TransportPipes extends JavaPlugin {
 	private Map<World, Map<BlockLoc, Duct>> registeredDucts;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
-	private UpdateManager updateManager;
+	private UpdateUtils updateManager;
 	public ContainerBlockUtils containerBlockUtils;
-	public SavingManager savingManager;
+	public SavingUtils savingManager;
 	public SettingsUtils settingsUtils;
 	public PipeThread pipeThread;
 	public ArmorStandProtocol armorStandProtocol;
@@ -221,13 +221,13 @@ public class TransportPipes extends JavaPlugin {
 			}
 		});
 
-		updateManager = new UpdateManager(this);
+		updateManager = new UpdateUtils(this);
 
 		// register listeners
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(new ExtractionPipeInv(), this);
-		Bukkit.getPluginManager().registerEvents(savingManager = new SavingManager(), this);
+		Bukkit.getPluginManager().registerEvents(savingManager = new SavingUtils(), this);
 		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
@@ -278,7 +278,7 @@ public class TransportPipes extends JavaPlugin {
 
 	}
 
-	public UpdateManager getUpdateManager() {
+	public UpdateUtils getUpdateManager() {
 		return updateManager;
 	}
 

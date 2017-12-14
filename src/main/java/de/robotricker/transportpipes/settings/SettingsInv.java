@@ -13,11 +13,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipes.DuctType;
-import de.robotricker.transportpipes.pipeutils.InventoryUtils;
-import de.robotricker.transportpipes.pipeutils.config.LocConf;
-import de.robotricker.transportpipes.pipeutils.config.PlayerSettingsConf;
+import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
+import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.config.LocConf;
+import de.robotricker.transportpipes.utils.config.PlayerSettingsConf;
 
 public class SettingsInv implements Listener {
 

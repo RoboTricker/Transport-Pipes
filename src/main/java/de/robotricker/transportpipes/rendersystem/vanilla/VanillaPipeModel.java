@@ -5,10 +5,10 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.Model;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeModelData;
+import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
 
 public abstract class VanillaPipeModel extends Model {
 

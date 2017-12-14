@@ -1,11 +1,11 @@
 package de.robotricker.transportpipes.rendersystem.vanilla.utils;
 
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipes.types.ColoredPipe;
-import de.robotricker.transportpipes.pipes.types.IronPipe;
-import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.duct.pipe.ColoredPipe;
+import de.robotricker.transportpipes.duct.pipe.IronPipe;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class VanillaPipeModelData {
 

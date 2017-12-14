@@ -7,19 +7,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.pipes.Duct;
-import de.robotricker.transportpipes.pipes.DuctType;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipeutils.DuctItemUtils;
-import de.robotricker.transportpipes.pipeutils.InventoryUtils;
-import de.robotricker.transportpipes.pipeutils.PipeDetails;
-import de.robotricker.transportpipes.pipeutils.config.LocConf;
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
 import de.robotricker.transportpipes.protocol.ProtocolUtils;
+import de.robotricker.transportpipes.utils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.config.LocConf;
+import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
 
 public abstract class RenderSystem implements Listener {
 

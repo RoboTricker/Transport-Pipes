@@ -24,13 +24,13 @@ import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Duct;
-import de.robotricker.transportpipes.pipes.DuctType;
-import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
-import de.robotricker.transportpipes.settings.SettingsUtils;
+import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.SettingsUtils;
 
 public class ArmorStandProtocol {
 

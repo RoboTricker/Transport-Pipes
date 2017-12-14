@@ -1,6 +1,6 @@
 package de.robotricker.transportpipes.pipeitems;
 
-import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
 
 /**
  * this class represents the location of a pipeItem inside a pipe.<br>

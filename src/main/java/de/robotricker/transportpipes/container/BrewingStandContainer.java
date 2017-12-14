@@ -9,9 +9,9 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
-import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class BrewingStandContainer extends BlockContainer {
 

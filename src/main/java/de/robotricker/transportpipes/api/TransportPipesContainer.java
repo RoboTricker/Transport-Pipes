@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
-import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public interface TransportPipesContainer {
 

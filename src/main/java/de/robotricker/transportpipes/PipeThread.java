@@ -13,12 +13,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.IllegalPluginAccessException;
 
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Duct;
-import de.robotricker.transportpipes.pipes.DuctType;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.tickdata.PipeTickData;
 import io.sentry.Sentry;
 
 public class PipeThread extends Thread {
@@ -141,57 +142,21 @@ public class PipeThread extends Thread {
 				// (in order to not process an item 2 times in one tick)
 				List<PipeItem> itemsTicked = new ArrayList<>();
 
-				// update pipes
+				// update ducts
 				lastAction = "World loop";
 				for (World world : Bukkit.getWorlds()) {
-					lastAction = "Pipe map load";
+					lastAction = "duct map load";
 					Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
 					if (ductMap != null) {
 						synchronized (ductMap) {
-							lastAction = "Pipe loop";
+							lastAction = "duct loop";
 							for (Duct duct : ductMap.values()) {
-								if(duct.getDuctType() != DuctType.PIPE) {
-									continue;
-								}
-								Pipe pipe = (Pipe) duct;
-								if (!duct.isInLoadedChunk()) {
+								if (duct.isInLoadedChunk()) {
 									continue;
 								}
 
-								// insert items from "tempPipeItemsWithSpawn"
-								synchronized (pipe.tempPipeItemsWithSpawn) {
-									Iterator<PipeItem> itemIterator = pipe.tempPipeItemsWithSpawn.keySet().iterator();
-									while (itemIterator.hasNext()) {
-										PipeItem pipeItem = itemIterator.next();
-
-										WrappedDirection dir = pipe.tempPipeItemsWithSpawn.get(pipeItem);
-										pipe.putPipeItem(pipeItem, dir);
-
-										TransportPipes.instance.pipePacketManager.createPipeItem(pipeItem);
-
-										itemIterator.remove();
-									}
-								}
-
-								// put the "tempPipeItems" which had been put there by the tick method in the
-								// pipe before, into the "pipeItems" where they got affected by the tick method
-								synchronized (pipe.tempPipeItems) {
-									Iterator<PipeItem> itemIterator = pipe.tempPipeItems.keySet().iterator();
-									while (itemIterator.hasNext()) {
-										PipeItem pipeItem = itemIterator.next();
-
-										// only put them there if they got into "tempPipeItems" last tick
-										if (!itemsTicked.contains(pipeItem)) {
-											WrappedDirection dir = pipe.tempPipeItems.get(pipeItem);
-											pipe.putPipeItem(pipeItem, dir);
-											itemIterator.remove();
-										}
-									}
-								}
-
-								// tick pipe (move the pipe items etc.)
 								lastAction = "Pipe tick";
-								pipe.tick(extractItems, itemsTicked);
+								duct.tick(new PipeTickData(extractItems, itemsTicked));
 
 							}
 						}

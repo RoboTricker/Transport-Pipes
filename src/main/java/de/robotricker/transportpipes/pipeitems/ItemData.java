@@ -10,9 +10,9 @@ import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.Tag;
 
-import de.robotricker.transportpipes.pipes.FilteringMode;
-import de.robotricker.transportpipes.pipeutils.InventoryUtils;
-import de.robotricker.transportpipes.pipeutils.NBTUtils;
+import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
+import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.NBTUtils;
 
 public class ItemData {
 

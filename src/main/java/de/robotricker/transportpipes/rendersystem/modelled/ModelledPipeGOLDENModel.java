@@ -4,11 +4,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.pipeitems.RelLoc;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
+import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class ModelledPipeGOLDENModel extends ModelledPipeModel {
 

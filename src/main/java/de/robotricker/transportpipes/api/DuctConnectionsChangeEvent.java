@@ -6,9 +6,9 @@ import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import de.robotricker.transportpipes.pipes.Duct;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class DuctConnectionsChangeEvent extends Event {
 

@@ -13,16 +13,16 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.pipes.BlockLoc;
-import de.robotricker.transportpipes.pipes.Duct;
-import de.robotricker.transportpipes.pipes.DuctType;
-import de.robotricker.transportpipes.pipes.DuctUtils;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipes.types.Pipe;
-import de.robotricker.transportpipes.pipeutils.PipeDetails;
+import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.DuctUtils;
+import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 
 /**
  * 

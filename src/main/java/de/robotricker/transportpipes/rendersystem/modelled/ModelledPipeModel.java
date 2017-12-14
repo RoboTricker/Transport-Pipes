@@ -2,11 +2,11 @@ package de.robotricker.transportpipes.rendersystem.modelled;
 
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.pipeutils.InventoryUtils;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.Model;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
+import de.robotricker.transportpipes.utils.InventoryUtils;
 
 public abstract class ModelledPipeModel extends Model {
 

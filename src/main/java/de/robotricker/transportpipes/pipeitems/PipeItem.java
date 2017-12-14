@@ -4,8 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class PipeItem {
 

@@ -6,12 +6,12 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeModelData;
+import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
 
 public class VanillaPipeMIDModel extends VanillaPipeModel {
 
