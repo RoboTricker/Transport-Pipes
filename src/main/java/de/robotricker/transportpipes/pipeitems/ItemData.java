@@ -11,8 +11,8 @@ import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
-import de.robotricker.transportpipes.utils.InventoryUtils;
-import de.robotricker.transportpipes.utils.NBTUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
 public class ItemData {
 

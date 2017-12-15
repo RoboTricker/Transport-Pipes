@@ -26,9 +26,9 @@ import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.ContainerBlockUtils;
-import de.robotricker.transportpipes.utils.DuctUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 
 public class HitboxUtils {
 
@@ -65,7 +65,7 @@ public class HitboxUtils {
 	}
 
 	public static WrappedDirection getFaceOfDuctLookingTo(Player p, Duct duct) {
-		return TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, duct.getDuctType()).getClickedDuctFace(p, duct);
+		return TransportPipes.instance.ductManager.getPlayerRenderSystem(p, duct.getDuctType()).getClickedDuctFace(p, duct);
 	}
 
 	public static Block getDuctBlockLookingTo(Player p, Block clickedBlock) {
@@ -95,7 +95,7 @@ public class HitboxUtils {
 						// check if the player looks on the hitbox of the duct (the player could
 						// possibly look on a block with a duct but not on the hitbox itself)
 						if (currentBlock != null) {
-							RenderSystem playerRenderSystem = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, tempDuct.getDuctType());
+							RenderSystem playerRenderSystem = TransportPipes.instance.ductManager.getPlayerRenderSystem(p, tempDuct.getDuctType());
 							if (playerRenderSystem.getClickedDuctFace(p, tempDuct) == null) {
 								currentBlock = null;
 								indexOfDuctBlock = -1;
@@ -136,7 +136,7 @@ public class HitboxUtils {
 		if(duct == null) {
 			return null;
 		}
-		WrappedDirection pd = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, duct.getDuctType()).getClickedDuctFace(p, duct);
+		WrappedDirection pd = TransportPipes.instance.ductManager.getPlayerRenderSystem(p, duct.getDuctType()).getClickedDuctFace(p, duct);
 		return pd != null ? ductLoc.getRelative(pd.toBlockFace()) : null;
 	}
 

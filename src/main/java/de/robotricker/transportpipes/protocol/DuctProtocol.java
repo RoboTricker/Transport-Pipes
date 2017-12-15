@@ -30,9 +30,9 @@ import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.SettingsUtils;
+import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
 
-public class ArmorStandProtocol {
+public class DuctProtocol {
 
 	private static int nextEntityID = 99999;
 	private static UUID uuid = UUID.randomUUID();
@@ -43,40 +43,12 @@ public class ArmorStandProtocol {
 	private static final Serializer vectorSerializer = Registry.get(ReflectionManager.getVector3fClass());
 	private static final Serializer booleanSerializer = Registry.get(Boolean.class);
 
-	public RenderSystem getPlayerRenderSystem(Player p, DuctType ductType) {
-		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem(ductType);
-	}
-
-	public boolean isPlayerShowItems(Player p) {
-		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).isShowItems();
-	}
-
-	public List<Player> getAllPlayersWithRenderSystem(RenderSystem renderSystem) {
-		List<Player> players = new ArrayList<>();
-		players.addAll(Bukkit.getOnlinePlayers());
-
-		Iterator<Player> it = players.iterator();
-		while (it.hasNext()) {
-			Player p = it.next();
-			// remove all players which don't use the given renderSystem
-			if (!getPlayerRenderSystem(p, renderSystem.getDuctType()).equals(renderSystem)) {
-				it.remove();
-			}
-		}
-		return players;
-	}
-
-	public void removePipeItem(final Player p, PipeItem item) {
-		int id = item.getArmorStand().getEntityID();
-		removeArmorStandDatas(p, new int[] { id });
-	}
-
 	/**
-	 * not updating Item -> only sending (this is also sent when the player comes
+	 * not updating item -> only sending (this is also sent when the player comes
 	 * near enough to see the item even if the item is already in a pipe)
 	 */
 	public void sendPipeItem(Player p, PipeItem item) {
-		if (!isPlayerShowItems(p)) {
+		if (!TransportPipes.instance.ductManager.isPlayerShowItems(p)) {
 			return;
 		}
 		sendArmorStandData(p, item.getBlockLoc(), item.getArmorStand(), new Vector(item.relLoc().getFloatX() - 0.5d, item.relLoc().getFloatY() - 0.5d, item.relLoc().getFloatZ() - 0.5d));
@@ -96,54 +68,9 @@ public class ArmorStandProtocol {
 		}
 	}
 
-	public void changePlayerRenderSystem(Player p, int newRenderSystemId) {
-		// despawn all old ducts
-		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
-		if (ductMap != null) {
-			synchronized (ductMap) {
-				for (Duct duct : ductMap.values()) {
-					TransportPipes.instance.pipePacketManager.despawnDuct(p, duct);
-				}
-			}
-		}
-
-		// change render system
-		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystemId);
-		for (DuctType dt : DuctType.values()) {
-			if(!dt.isEnabled()) {
-				continue;
-			}
-			TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, dt).initPlayer(p);
-		}
-
-		// spawn all new ducts
-		if (ductMap != null) {
-			synchronized (ductMap) {
-				for (Duct duct : ductMap.values()) {
-					TransportPipes.instance.pipePacketManager.spawnDuct(p, duct);
-				}
-			}
-		}
-	}
-
-	public void changeShowItems(Player p, boolean showItems) {
-		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
-	}
-
-	public void reloadRenderSystem(Player p) {
-		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
-		if (ductMap != null) {
-			synchronized (ductMap) {
-				// despawn all pipes
-				for (Duct duct : ductMap.values()) {
-					TransportPipes.instance.pipePacketManager.despawnDuct(p, duct);
-				}
-				// spawn all pipes
-				for (Duct duct : ductMap.values()) {
-					TransportPipes.instance.pipePacketManager.spawnDuct(p, duct);
-				}
-			}
-		}
+	public void removePipeItem(final Player p, PipeItem item) {
+		int id = item.getArmorStand().getEntityID();
+		removeArmorStandDatas(p, new int[] { id });
 	}
 
 	public void sendArmorStandData(final Player p, Location blockLoc, ArmorStandData asd, Vector itemOffset) {

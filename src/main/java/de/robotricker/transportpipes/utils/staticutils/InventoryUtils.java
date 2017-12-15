@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

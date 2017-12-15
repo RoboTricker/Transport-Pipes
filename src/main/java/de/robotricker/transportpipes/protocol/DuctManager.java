@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,22 +28,56 @@ import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.LocationUtils;
-import de.robotricker.transportpipes.utils.SettingsUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.hitbox.OcclusionCullingUtils;
+import de.robotricker.transportpipes.utils.staticutils.LocationUtils;
+import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
 import io.sentry.Sentry;
 
-public class DuctPacketManager implements Listener {
+public class DuctManager implements Listener {
 
+	private DuctProtocol protocol;
 	private Map<Player, List<Duct>> ductsForPlayers;
 	private Map<Player, List<PipeItem>> pipeItemsForPlayers;
 
-	public DuctPacketManager() {
-		ductsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Duct>>());
-		pipeItemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
+	public DuctManager() {
+		this.protocol = new DuctProtocol();
+		this.ductsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<Duct>>());
+		this.pipeItemsForPlayers = Collections.synchronizedMap(new HashMap<Player, List<PipeItem>>());
 	}
 
+	public DuctProtocol getProtocol() {
+		return protocol;
+	}
+
+	public RenderSystem getPlayerRenderSystem(Player p, DuctType ductType) {
+		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem(ductType);
+	}
+
+	public List<Player> getAllPlayersWithRenderSystem(RenderSystem renderSystem) {
+		List<Player> players = new ArrayList<>();
+		players.addAll(Bukkit.getOnlinePlayers());
+
+		Iterator<Player> it = players.iterator();
+		while (it.hasNext()) {
+			Player p = it.next();
+			// remove all players which don't use the given renderSystem
+			if (!getPlayerRenderSystem(p, renderSystem.getDuctType()).equals(renderSystem)) {
+				it.remove();
+			}
+		}
+		return players;
+	}
+
+	public boolean isPlayerShowItems(Player p) {
+		return TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).isShowItems();
+	}
+
+	/**
+	 * creates the duct inside the renderSystems. This creates all needed ASD and
+	 * notifies a connection change to this duct. This method does not send the ASD
+	 * to the client, this is done in the tick() method
+	 */
 	public void createDuct(Duct duct, Collection<WrappedDirection> allConnections) {
 		// notify duct that some connections might have changed. Knowing this the iron
 		// pipe can change its output direction for example.
@@ -51,9 +86,13 @@ public class DuctPacketManager implements Listener {
 		for (RenderSystem pm : duct.getDuctType().getRenderSystems()) {
 			pm.createDuctASD(duct, allConnections);
 		}
-		// client update is done in the next tick
 	}
 
+	/**
+	 * updates the duct inside the renderSystems. This updated all needed ASD and
+	 * notifies a connection change to this duct. The renderSystem will send the
+	 * removed / added ASD to all clients with this renderSystem.
+	 */
 	public void updateDuct(Duct duct) {
 		// notify duct that some connections might have changed. Knowing this the iron
 		// pipe can change its output direction for example.
@@ -62,11 +101,12 @@ public class DuctPacketManager implements Listener {
 		for (RenderSystem pm : duct.getDuctType().getRenderSystems()) {
 			pm.updateDuctASD(duct);
 		}
-		// client update is done inside the renderSystem method call (that's because
-		// here
-		// you don't know which ArmorStands to remove and which ones to add)
 	}
 
+	/**
+	 * destroys the cached ASD data inside the renderSystems. It also despawns the
+	 * duct for all players.
+	 */
 	public void destroyDuct(Duct duct) {
 		for (Player p : ductsForPlayers.keySet()) {
 			despawnDuct(p, duct);
@@ -76,6 +116,9 @@ public class DuctPacketManager implements Listener {
 		}
 	}
 
+	/**
+	 * spawns the pipeItem for all players (if they are near enough)
+	 */
 	public void createPipeItem(PipeItem pipeItem) {
 		try {
 			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
@@ -92,13 +135,16 @@ public class DuctPacketManager implements Listener {
 		}
 	}
 
+	/**
+	 * updates the pipeItem (location) for all players (if they are near enough)
+	 */
 	public void updatePipeItem(PipeItem pipeItem) {
 		try {
 			List<Player> playerList = LocationUtils.getPlayerList(pipeItem.getBlockLoc().getWorld());
 			for (Player on : playerList) {
 				if (on.getWorld().equals(pipeItem.getBlockLoc().getWorld())) {
 					if (pipeItem.getBlockLoc().distance(on.getLocation()) <= TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(on).getRenderDistance()) {
-						TransportPipes.instance.armorStandProtocol.updatePipeItem(on, pipeItem);
+						getProtocol().updatePipeItem(on, pipeItem);
 					}
 				}
 			}
@@ -108,28 +154,38 @@ public class DuctPacketManager implements Listener {
 		}
 	}
 
+	/**
+	 * permanently destroys the pipeItem for all players
+	 */
 	public void destroyPipeItem(PipeItem pipeItem) {
 		for (Player p : pipeItemsForPlayers.keySet()) {
 			despawnItem(p, pipeItem);
 		}
 	}
 
-	public void spawnDuct(final Player p, final Duct duct) {
+	/**
+	 * sends the ASD (from the player's renderSystem) for the given duct to the
+	 * player.
+	 */
+	private void spawnDuct(final Player p, final Duct duct) {
 		List<Duct> list;
 		if (!ductsForPlayers.containsKey(p)) {
 			ductsForPlayers.put(p, new ArrayList<Duct>());
 		}
 		list = ductsForPlayers.get(p);
 		if (!list.contains(duct)) {
-			List<ArmorStandData> ASD = TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, duct.getDuctType()).getASDForDuct(duct);
+			List<ArmorStandData> ASD = getPlayerRenderSystem(p, duct.getDuctType()).getASDForDuct(duct);
 			if (ASD != null && !ASD.isEmpty()) {
 				list.add(duct);
-				TransportPipes.instance.armorStandProtocol.sendArmorStandDatas(p, duct.getBlockLoc(), ASD);
+				getProtocol().sendArmorStandDatas(p, duct.getBlockLoc(), ASD);
 			}
 		}
 	}
 
-	public void spawnItem(final Player p, final PipeItem item) {
+	/**
+	 * sends the ASD for the given pipeItem to the player
+	 */
+	private void spawnItem(final Player p, final PipeItem item) {
 		List<PipeItem> list;
 		if (!pipeItemsForPlayers.containsKey(p)) {
 			pipeItemsForPlayers.put(p, new ArrayList<PipeItem>());
@@ -137,30 +193,41 @@ public class DuctPacketManager implements Listener {
 		list = pipeItemsForPlayers.get(p);
 		if (!list.contains(item)) {
 			list.add(item);
-			TransportPipes.instance.armorStandProtocol.sendPipeItem(p, item);
+			getProtocol().sendPipeItem(p, item);
 		}
 	}
 
-	public void despawnDuct(final Player p, final Duct duct) {
+	/**
+	 * despawns the ASD for the given duct on the client
+	 */
+	private void despawnDuct(final Player p, final Duct duct) {
 		if (ductsForPlayers.containsKey(p)) {
 			List<Duct> list = ductsForPlayers.get(p);
 			if (list.contains(duct)) {
 				list.remove(duct);
-				TransportPipes.instance.armorStandProtocol.removeArmorStandDatas(p, TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(p, duct.getDuctType()).getASDIdsForDuct(duct));
+				getProtocol().removeArmorStandDatas(p, getPlayerRenderSystem(p, duct.getDuctType()).getASDIdsForDuct(duct));
 			}
 		}
 	}
 
-	public void despawnItem(final Player p, final PipeItem item) {
+	/**
+	 * despawns the ASD for the given pipeItem on the client
+	 */
+	private void despawnItem(final Player p, final PipeItem item) {
 		if (pipeItemsForPlayers.containsKey(p)) {
 			List<PipeItem> list = pipeItemsForPlayers.get(p);
 			if (list.contains(item)) {
 				list.remove(item);
-				TransportPipes.instance.armorStandProtocol.removePipeItem(p, item);
+				getProtocol().removePipeItem(p, item);
 			}
 		}
 	}
 
+	/**
+	 * called every tick. This method makes sure that all ducts and items far away
+	 * from the player or occluded from the player are despawned and the ducts and
+	 * items near enough are spawned.
+	 */
 	public void tickSync() {
 
 		for (World world : Bukkit.getWorlds()) {
@@ -223,6 +290,56 @@ public class DuctPacketManager implements Listener {
 
 	}
 
+	public void changePlayerRenderSystem(Player p, int newRenderSystemId) {
+		// despawn all old ducts
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
+		if (ductMap != null) {
+			synchronized (ductMap) {
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.ductManager.despawnDuct(p, duct);
+				}
+			}
+		}
+
+		// change render system
+		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystemId);
+		for (DuctType dt : DuctType.values()) {
+			if (!dt.isEnabled()) {
+				continue;
+			}
+			TransportPipes.instance.ductManager.getPlayerRenderSystem(p, dt).initPlayer(p);
+		}
+
+		// spawn all new ducts
+		if (ductMap != null) {
+			synchronized (ductMap) {
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.ductManager.spawnDuct(p, duct);
+				}
+			}
+		}
+	}
+
+	public void changeShowItems(Player p, boolean showItems) {
+		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setShowItems(showItems);
+	}
+
+	public void reloadRenderSystem(Player p) {
+		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(p.getWorld());
+		if (ductMap != null) {
+			synchronized (ductMap) {
+				// despawn all pipes
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.ductManager.despawnDuct(p, duct);
+				}
+				// spawn all pipes
+				for (Duct duct : ductMap.values()) {
+					TransportPipes.instance.ductManager.spawnDuct(p, duct);
+				}
+			}
+		}
+	}
+
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		quit(e.getPlayer());
@@ -269,17 +386,17 @@ public class DuctPacketManager implements Listener {
 			@Override
 			public void run() {
 				for (DuctType dt : DuctType.values()) {
-					if(!dt.isEnabled()) {
+					if (!dt.isEnabled()) {
 						continue;
 					}
-					TransportPipes.instance.armorStandProtocol.getPlayerRenderSystem(e.getPlayer(), dt).initPlayer(e.getPlayer());
+					getPlayerRenderSystem(e.getPlayer(), dt).initPlayer(e.getPlayer());
 				}
 
 				TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 					@Override
 					public void run() {
-						TransportPipes.instance.armorStandProtocol.reloadRenderSystem(e.getPlayer());
+						reloadRenderSystem(e.getPlayer());
 					}
 				}, PipeThread.WANTED_TPS);
 
@@ -293,7 +410,7 @@ public class DuctPacketManager implements Listener {
 
 			@Override
 			public void run() {
-				TransportPipes.instance.armorStandProtocol.reloadRenderSystem(e.getPlayer());
+				reloadRenderSystem(e.getPlayer());
 			}
 		}, PipeThread.WANTED_TPS);
 	}
@@ -303,11 +420,11 @@ public class DuctPacketManager implements Listener {
 
 			@Override
 			public void run() {
-				if (DuctPacketManager.this.ductsForPlayers.containsKey(p)) {
-					DuctPacketManager.this.ductsForPlayers.remove(p);
+				if (DuctManager.this.ductsForPlayers.containsKey(p)) {
+					DuctManager.this.ductsForPlayers.remove(p);
 				}
-				if (DuctPacketManager.this.pipeItemsForPlayers.containsKey(p)) {
-					DuctPacketManager.this.pipeItemsForPlayers.remove(p);
+				if (DuctManager.this.pipeItemsForPlayers.containsKey(p)) {
+					DuctManager.this.pipeItemsForPlayers.remove(p);
 				}
 			}
 		}, 0);

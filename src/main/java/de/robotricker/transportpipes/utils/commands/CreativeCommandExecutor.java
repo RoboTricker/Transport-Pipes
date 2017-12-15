@@ -11,8 +11,8 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.config.LocConf;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 
 public class CreativeCommandExecutor implements PipesCommandExecutor {
 

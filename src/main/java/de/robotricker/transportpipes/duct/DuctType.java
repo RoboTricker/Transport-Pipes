@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
+import de.robotricker.transportpipes.utils.tick.TickRunnable;
 import io.sentry.Sentry;
 
 public enum DuctType {
@@ -20,6 +21,7 @@ public enum DuctType {
 	private Class<? extends DuctDetails> ductDetailsClass;
 	private String pluginName;
 	private boolean enabled = false;
+	private TickRunnable tickRunnable;
 
 	DuctType(String pluginName) {
 		this.renderSystems = Collections.synchronizedSet(new HashSet<RenderSystem>());
@@ -37,11 +39,19 @@ public enum DuctType {
 	public void setDuctDetailsClass(Class<? extends DuctDetails> ductDetailsClass) {
 		this.ductDetailsClass = ductDetailsClass;
 	}
+	
+	public void setTickRunnable(TickRunnable tickRunnable) {
+		this.tickRunnable = tickRunnable;
+	}
 
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	public void runTickRunnable(long numberOfTicksSinceStart) {
+		this.tickRunnable.run(numberOfTicksSinceStart);
+	}
+	
 	public DuctDetails createDuctDetails(String serialization) {
 		try {
 			DuctDetails ductDetails = ductDetailsClass.newInstance();

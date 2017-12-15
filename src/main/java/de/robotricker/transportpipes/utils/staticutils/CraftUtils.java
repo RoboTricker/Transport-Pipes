@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -60,7 +60,6 @@ public class CraftUtils implements Listener {
 			}
 
 			if (ductDetails != null && ductDetails.getDuctType() == DuctType.PIPE) {
-				// prevent colored pipe crafting if the given pipe is not a colored pipe
 				boolean prevent = false;
 				for (int i = 1; i < 10; i++) {
 					ItemStack is = e.getInventory().getItem(i);

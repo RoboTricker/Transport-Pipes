@@ -6,7 +6,7 @@ import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystem.Model;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
-import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public abstract class ModelledPipeModel extends Model {
 

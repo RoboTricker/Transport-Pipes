@@ -3,7 +3,7 @@ package de.robotricker.transportpipes.duct.pipe.utils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public enum PipeColor {
 
@@ -46,25 +46,6 @@ public enum PipeColor {
 
 	public ItemStack getDyeItem() {
 		return dyeItem;
-	}
-
-	public static PipeColor getPipeColorByPipeItem(ItemStack item) {
-		if(item == null){
-			return null;
-		}
-		if(!item.hasItemMeta() || !item.getItemMeta().hasDisplayName() || item.getItemMeta().getDisplayName().length() <= 2){
-			return null;
-		}
-		if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().substring(2).equalsIgnoreCase(PipeType.COLORED.getFormattedPipeName())) {
-			for (PipeColor pipeColor : PipeColor.values()) {
-                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-                    if (item.getItemMeta().getDisplayName().startsWith(pipeColor.getColorCode())) {
-                        return pipeColor;
-                    }
-                }
-            }
-		}
-		return null;
 	}
 
 }

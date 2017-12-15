@@ -11,8 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
-import de.robotricker.transportpipes.utils.InventoryUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public class FurnaceContainer extends BlockContainer {
 

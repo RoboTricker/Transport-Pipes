@@ -19,11 +19,11 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.ClickableDuct;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
-import de.robotricker.transportpipes.utils.NBTUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
 public class IronPipe extends Pipe implements ClickableDuct {
 
@@ -74,7 +74,7 @@ public class IronPipe extends Pipe implements ClickableDuct {
 			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				public void run() {
-					TransportPipes.instance.pipePacketManager.updateDuct(IronPipe.this);
+					TransportPipes.instance.ductManager.updateDuct(IronPipe.this);
 				};
 			}, 0);
 		}

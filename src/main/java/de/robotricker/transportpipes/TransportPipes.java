@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,23 +33,13 @@ import de.robotricker.transportpipes.duct.pipe.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
-import de.robotricker.transportpipes.protocol.DuctPacketManager;
+import de.robotricker.transportpipes.protocol.DuctProtocol;
+import de.robotricker.transportpipes.protocol.DuctManager;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.settings.SettingsInv;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.ContainerBlockUtils;
-import de.robotricker.transportpipes.utils.CraftUtils;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
-import de.robotricker.transportpipes.utils.InventoryUtils;
-import de.robotricker.transportpipes.utils.LWCAPIUtils;
-import de.robotricker.transportpipes.utils.LogisticsAPIUtils;
-import de.robotricker.transportpipes.utils.SavingUtils;
-import de.robotricker.transportpipes.utils.SettingsUtils;
-import de.robotricker.transportpipes.utils.SkyblockAPIUtils;
-import de.robotricker.transportpipes.utils.UpdateUtils;
 import de.robotricker.transportpipes.utils.commands.CreativeCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.DeletePipesCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.ReloadPipesCommandExecutor;
@@ -62,6 +53,18 @@ import de.robotricker.transportpipes.utils.config.RecipesConf;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.hitbox.HitboxListener;
+import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
+import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.LWCAPIUtils;
+import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
+import de.robotricker.transportpipes.utils.staticutils.SavingUtils;
+import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
+import de.robotricker.transportpipes.utils.staticutils.SkyblockAPIUtils;
+import de.robotricker.transportpipes.utils.staticutils.UpdateUtils;
+import de.robotricker.transportpipes.utils.tick.PipeTickData;
+import de.robotricker.transportpipes.utils.tick.TickRunnable;
 import io.sentry.Sentry;
 import io.sentry.event.UserBuilder;
 
@@ -69,7 +72,6 @@ public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
 
-	// x << 34 | y << 26 | z
 	private Map<World, Map<BlockLoc, Duct>> registeredDucts;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
 
@@ -78,8 +80,7 @@ public class TransportPipes extends JavaPlugin {
 	public SavingUtils savingManager;
 	public SettingsUtils settingsUtils;
 	public PipeThread pipeThread;
-	public ArmorStandProtocol armorStandProtocol;
-	public DuctPacketManager pipePacketManager;
+	public DuctManager ductManager;
 
 	// configs
 	public LocConf locConf;
@@ -92,15 +93,43 @@ public class TransportPipes extends JavaPlugin {
 
 		initSentryOnCurrentThread();
 		DuctType.PIPE.setDuctDetailsClass(PipeDetails.class);
-		DuctType.checkEnabledPlugins();
+		DuctType.PIPE.setTickRunnable(new TickRunnable() {
+
+			@Override
+			public void run(long numberOfTicksSinceStart) {
+
+				boolean extractItems = numberOfTicksSinceStart % PipeThread.EXTRACT_ITEMS_TICK_DIFF == 0;
+
+				// in this list are the items stored which are already processed in this tick
+				// (in order to not process an item 2 times in one tick)
+				List<PipeItem> itemsTicked = new ArrayList<>();
+
+				// update pipes
+				for (World world : Bukkit.getWorlds()) {
+					Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
+					if (ductMap != null) {
+						synchronized (ductMap) {
+							for (Duct duct : ductMap.values()) {
+								if (duct.getDuctType() != DuctType.PIPE) {
+									continue;
+								}
+								if (!duct.isInLoadedChunk()) {
+									continue;
+								}
+								duct.tick(new PipeTickData(extractItems, itemsTicked));
+							}
+						}
+					}
+				}
+			}
+		});
 
 		// Prepare collections
 		registeredDucts = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, Duct>>());
 		registeredContainers = Collections.synchronizedMap(new HashMap<World, Map<BlockLoc, TransportPipesContainer>>());
 
 		// Prepare managers
-		armorStandProtocol = new ArmorStandProtocol();
-		pipePacketManager = new DuctPacketManager();
+		ductManager = new DuctManager();
 		settingsUtils = new SettingsUtils();
 
 		locConf = new LocConf();
@@ -143,8 +172,8 @@ public class TransportPipes extends JavaPlugin {
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeType.VOID), ITEM_PIPE_VOID);
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeType.EXTRACTION), ITEM_PIPE_EXTRACTION);
 
-		DuctType.PIPE.addRenderSystem(new VanillaPipeRenderSystem(armorStandProtocol));
-		DuctType.PIPE.addRenderSystem(new ModelledPipeRenderSystem(armorStandProtocol));
+		DuctType.PIPE.addRenderSystem(new VanillaPipeRenderSystem(ductManager));
+		DuctType.PIPE.addRenderSystem(new ModelledPipeRenderSystem(ductManager));
 
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
@@ -231,7 +260,7 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
-		Bukkit.getPluginManager().registerEvents(pipePacketManager, this);
+		Bukkit.getPluginManager().registerEvents(ductManager, this);
 		Bukkit.getPluginManager().registerEvents(updateManager, this);
 		for (RenderSystem rs : DuctType.PIPE.getRenderSystems()) {
 			Bukkit.getPluginManager().registerEvents(rs, this);
@@ -251,18 +280,20 @@ public class TransportPipes extends JavaPlugin {
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
-			Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);
-		}
-		// if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
-		// com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this,
-		// new LWCAPIUtils());
-		// }
-
-		for (World world : Bukkit.getWorlds()) {
-			for (Chunk loadedChunk : world.getLoadedChunks()) {
-				containerBlockUtils.handleChunkLoadSync(loadedChunk);
+			try {
+				Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);
+			} catch (Exception e) {
+				e.printStackTrace();
+				Sentry.capture(e);
 			}
-			savingManager.loadDuctsSync(world);
+		}
+		if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+			try {
+				com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, new LWCAPIUtils());
+			} catch (Exception e) {
+				e.printStackTrace();
+				Sentry.capture(e);
+			}
 		}
 
 		CraftUtils.initRecipes();
@@ -271,6 +302,16 @@ public class TransportPipes extends JavaPlugin {
 
 			@Override
 			public void run() {
+
+				DuctType.checkEnabledPlugins();
+
+				for (World world : Bukkit.getWorlds()) {
+					for (Chunk loadedChunk : world.getLoadedChunks()) {
+						containerBlockUtils.handleChunkLoadSync(loadedChunk);
+					}
+					savingManager.loadDuctsSync(world);
+				}
+
 				pipeThread.setRunning(true);
 				pipeThread.start();
 			}
@@ -280,10 +321,6 @@ public class TransportPipes extends JavaPlugin {
 
 	public UpdateUtils getUpdateManager() {
 		return updateManager;
-	}
-
-	public String getFormattedWrenchName() {
-		return "§c" + LocConf.load(LocConf.PIPES_WRENCH);
 	}
 
 	@Override
@@ -302,7 +339,7 @@ public class TransportPipes extends JavaPlugin {
 			for (Map<BlockLoc, Duct> ductMap : fullDuctMap.values()) {
 				for (Duct duct : ductMap.values()) {
 
-					pipePacketManager.destroyDuct(duct);
+					ductManager.destroyDuct(duct);
 
 					if (duct instanceof Pipe) {
 						Pipe pipe = (Pipe) duct;
@@ -317,7 +354,7 @@ public class TransportPipes extends JavaPlugin {
 							allItems.addAll(pipe.tempPipeItemsWithSpawn.keySet());
 						}
 						for (PipeItem pi : allItems) {
-							pipePacketManager.destroyPipeItem(pi);
+							ductManager.destroyPipeItem(pi);
 						}
 					}
 				}
@@ -346,6 +383,18 @@ public class TransportPipes extends JavaPlugin {
 
 	public Map<World, Map<BlockLoc, TransportPipesContainer>> getFullContainerMap() {
 		return registeredContainers;
+	}
+
+	public static boolean isBlockProtectedByLWC(Block b) {
+		if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+			try {
+				return com.griefcraft.lwc.LWC.getInstance().findProtection(b) != null;
+			} catch (Exception e) {
+				e.printStackTrace();
+				Sentry.capture(e);
+			}
+		}
+		return false;
 	}
 
 	public static void initSentryOnCurrentThread() {

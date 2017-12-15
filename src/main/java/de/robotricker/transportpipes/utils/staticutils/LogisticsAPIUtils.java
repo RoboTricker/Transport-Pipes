@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,7 @@ import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class LogisticsAPIUtils implements Listener {
 

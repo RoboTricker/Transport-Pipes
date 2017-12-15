@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils.tickdata;
+package de.robotricker.transportpipes.utils.tick;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +39,7 @@ import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
+import de.robotricker.transportpipes.utils.BlockLoc;
 import io.sentry.Sentry;
 
 public class ContainerBlockUtils implements Listener {

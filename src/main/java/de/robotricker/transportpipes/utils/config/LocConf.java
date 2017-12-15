@@ -68,6 +68,7 @@ public class LocConf extends Conf {
 	public static final String COMMANDS_FOOTER = "commands.footer";
 	public static final String COMMANDS_NOPERM = "commands.noperm";
 	public static final String CREATIVE_TITLE = "creative.title";
+	public static final String LWC_ERROR = "lwc.pipe_next_to_locked_chest";
 
 	public LocConf() {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "localization.yml"), TransportPipes.instance);
@@ -129,6 +130,7 @@ public class LocConf extends Conf {
 		saveAsDefault(COMMANDS_FOOTER, "&7&l&m--------------------------------------");
 		saveAsDefault(COMMANDS_NOPERM, "&4You don't have permission to perform this command.");
 		saveAsDefault(CREATIVE_TITLE, "Pipe Overview");
+		saveAsDefault(LWC_ERROR, "&cYou can't use pipes with a locked block.");
 		finishDefault();
 	}
 

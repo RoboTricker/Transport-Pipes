@@ -12,14 +12,15 @@ import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
-import de.robotricker.transportpipes.protocol.ProtocolUtils;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
-import de.robotricker.transportpipes.utils.InventoryUtils;
+import de.robotricker.transportpipes.protocol.DuctManager;
+import de.robotricker.transportpipes.protocol.DuctProtocol;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.ProtocolUtils;
 
 public abstract class RenderSystem implements Listener {
 
@@ -29,10 +30,10 @@ public abstract class RenderSystem implements Listener {
 		InventoryUtils.changeDisplayName(MODELLED_REPRESENTATION_ITEM, PipeColor.WHITE.getColorCode() + PipeType.COLORED.getFormattedPipeName());
 	}
 
-	protected ArmorStandProtocol protocol;
+	protected DuctManager ductManager;
 
-	public RenderSystem(ArmorStandProtocol protocol) {
-		this.protocol = protocol;
+	public RenderSystem(DuctManager ductManager) {
+		this.ductManager = ductManager;
 	}
 
 	/**

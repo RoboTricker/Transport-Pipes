@@ -20,9 +20,9 @@ import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.DuctUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class PipeAPI {
 	public static void destroyDuct(Location blockLoc) {
 		Duct duct = DuctUtils.getDuctAtLocation(blockLoc);
 		if (duct != null) {
-			DuctUtils.destroyDuct(null, duct);
+			DuctUtils.destroyDuct(null, duct, false);
 		}
 	}
 
@@ -184,7 +184,7 @@ public class PipeAPI {
 
 							@Override
 							public void run() {
-								TransportPipes.instance.pipePacketManager.updateDuct((Pipe) duct);
+								TransportPipes.instance.ductManager.updateDuct((Pipe) duct);
 							}
 						}, 0);
 					}
@@ -217,7 +217,7 @@ public class PipeAPI {
 
 									@Override
 									public void run() {
-										TransportPipes.instance.pipePacketManager.updateDuct((Pipe) duct);
+										TransportPipes.instance.ductManager.updateDuct((Pipe) duct);
 									}
 								}, 0);
 							}

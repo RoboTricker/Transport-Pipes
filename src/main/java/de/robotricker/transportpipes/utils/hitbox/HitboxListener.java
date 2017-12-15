@@ -17,9 +17,9 @@ import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
-import de.robotricker.transportpipes.utils.DuctUtils;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 
 public class HitboxListener implements Listener {
 
@@ -64,7 +64,7 @@ public class HitboxListener implements Listener {
 			if (ductBlock != null) {
 				e.setCancelled(true);
 				if (DuctUtils.canBuild(p, ductBlock, ductBlock, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
-					DuctUtils.destroyDuct(p, DuctUtils.getDuctAtLocation(ductBlock.getLocation()));
+					DuctUtils.destroyDuct(p, DuctUtils.getDuctAtLocation(ductBlock.getLocation()), true);
 				}
 			}
 			// right click on duct or a block (its irrelevant if you are looking on a block

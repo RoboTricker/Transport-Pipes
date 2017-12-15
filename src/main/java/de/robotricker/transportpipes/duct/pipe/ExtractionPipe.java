@@ -27,13 +27,13 @@ import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
-import de.robotricker.transportpipes.utils.NBTUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
 public class ExtractionPipe extends Pipe implements ClickableDuct {
 
@@ -252,7 +252,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 			TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 				public void run() {
-					TransportPipes.instance.pipePacketManager.updateDuct(ExtractionPipe.this);
+					TransportPipes.instance.ductManager.updateDuct(ExtractionPipe.this);
 				};
 			}, 0);
 		}

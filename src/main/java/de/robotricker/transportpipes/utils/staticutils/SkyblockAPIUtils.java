@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;

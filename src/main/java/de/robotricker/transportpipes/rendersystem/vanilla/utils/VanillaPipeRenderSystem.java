@@ -16,25 +16,26 @@ import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.protocol.ArmorStandProtocol;
-import de.robotricker.transportpipes.protocol.ProtocolUtils;
+import de.robotricker.transportpipes.protocol.DuctManager;
+import de.robotricker.transportpipes.protocol.DuctProtocol;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeEWModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeMIDModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeNSModel;
 import de.robotricker.transportpipes.rendersystem.vanilla.VanillaPipeUDModel;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.ProtocolUtils;
 
 public class VanillaPipeRenderSystem extends RenderSystem {
 
 	private Map<Pipe, List<ArmorStandData>> pipeAsd = new HashMap<>();
 
-	public VanillaPipeRenderSystem(ArmorStandProtocol protocol) {
-		super(protocol);
+	public VanillaPipeRenderSystem(DuctManager ductManager) {
+		super(ductManager);
 	}
 
 	@Override
@@ -91,11 +92,11 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 		oldASD.addAll(tempASD);
 
 		// SEND TO CLIENTS
-		List<Player> players = protocol.getAllPlayersWithRenderSystem(this);
+		List<Player> players = ductManager.getAllPlayersWithRenderSystem(this);
 		int[] removedIds = ProtocolUtils.convertArmorStandListToEntityIdArray(removedASD);
 		for (Player p : players) {
-			protocol.removeArmorStandDatas(p, removedIds);
-			protocol.sendArmorStandDatas(p, pipe.getBlockLoc(), addedASD);
+			ductManager.getProtocol().removeArmorStandDatas(p, removedIds);
+			ductManager.getProtocol().sendArmorStandDatas(p, pipe.getBlockLoc(), addedASD);
 		}
 
 	}

@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 
 public class DuctItemUtils {
@@ -18,7 +19,7 @@ public class DuctItemUtils {
 
 	static {
 		wrenchItem = InventoryUtils.createGlowingItemStack(Material.STICK, (short) 0);
-		InventoryUtils.changeDisplayName(wrenchItem, TransportPipes.instance.getFormattedWrenchName());
+		InventoryUtils.changeDisplayName(wrenchItem, "§c" + LocConf.load(LocConf.PIPES_WRENCH));
 	}
 
 	public static ItemStack getDuctItem(DuctDetails ductDetails) {

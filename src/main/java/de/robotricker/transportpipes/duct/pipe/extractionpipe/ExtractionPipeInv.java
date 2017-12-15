@@ -18,8 +18,8 @@ import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
-import de.robotricker.transportpipes.utils.InventoryUtils;
 import de.robotricker.transportpipes.utils.config.LocConf;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public class ExtractionPipeInv implements Listener {
 
@@ -96,11 +96,11 @@ public class ExtractionPipeInv implements Listener {
 
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && extractionPipeInventories.containsValue(e.getClickedInventory())) {
+		if (e.getInventory() != null && extractionPipeInventories.containsValue(e.getInventory())) {
 			ExtractionPipe pipe = null;
 			//get pipe with inventory
 			for (ExtractionPipe ep : extractionPipeInventories.keySet()) {
-				if (extractionPipeInventories.get(ep).equals(e.getClickedInventory())) {
+				if (extractionPipeInventories.get(ep).equals(e.getInventory())) {
 					pipe = ep;
 					break;
 				}
@@ -117,7 +117,7 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 2) {
 				e.setCancelled(true);
 
-				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getInventory());
 				
 				pipe.checkAndUpdateExtractDirection(true);
 
@@ -129,7 +129,7 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 4) {
 				e.setCancelled(true);
 
-				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getInventory());
 				
 				pipe.setExtractAmount(pipe.getExtractAmount().getNextAmount());
 
@@ -141,7 +141,7 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 6) {
 				e.setCancelled(true);
 
-				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getInventory());
 				
 				pipe.setExtractCondition(pipe.getExtractCondition().getNextCondition());
 
@@ -156,7 +156,7 @@ public class ExtractionPipeInv implements Listener {
 				pipe.setFilteringMode(pipe.getFilteringMode().getNextMode());
 
 				// Update inv
-				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getInventory());
 				updateExtractionPipeInventory((Player) e.getWhoClicked(), pipe);
 
 				return;
@@ -165,7 +165,7 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 19) {
 				e.setCancelled(true);
 
-				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getInventory());
 
 				int scrollValue = scrollValues.get(pipe);
 				if (scrollValue > 0) {
@@ -181,7 +181,7 @@ public class ExtractionPipeInv implements Listener {
 			if (e.getRawSlot() == 26) {
 				e.setCancelled(true);
 
-				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveExtractionPipeInv((Player) e.getWhoClicked(), e.getInventory());
 
 				int scrollValue = scrollValues.get(pipe);
 				if (scrollValue < GoldenPipe.ITEMS_PER_ROW - 6) {

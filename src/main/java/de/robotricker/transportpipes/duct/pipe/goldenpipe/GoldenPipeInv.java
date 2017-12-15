@@ -18,9 +18,9 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
-import de.robotricker.transportpipes.utils.InventoryUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public class GoldenPipeInv implements Listener {
 
@@ -84,11 +84,11 @@ public class GoldenPipeInv implements Listener {
 
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && goldenPipeInventories.containsValue(e.getClickedInventory())) {
+		if (e.getInventory() != null && goldenPipeInventories.containsValue(e.getInventory())) {
 			GoldenPipe pipe = null;
 			//get pipe with inventory
 			for (GoldenPipe gp : goldenPipeInventories.keySet()) {
-				if (goldenPipeInventories.get(gp).equals(e.getClickedInventory())) {
+				if (goldenPipeInventories.get(gp).equals(e.getInventory())) {
 					pipe = gp;
 					break;
 				}
@@ -102,22 +102,22 @@ public class GoldenPipeInv implements Listener {
 				return;
 			}
 			//clicked filtering mode wool
-			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 0) {
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getInventory().getSize() && e.getRawSlot() % 9 == 0) {
 				e.setCancelled(true);
 
 				int line = (int) (e.getRawSlot() / 9);
 				pipe.setFilteringMode(line, pipe.getFilteringMode(line).getNextMode());
 
 				// Update inv
-				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getInventory());
 				updateGoldenPipeInventory((Player) e.getWhoClicked(), pipe);
 				return;
 			}
 			//clicked scroll left
-			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 1) {
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getInventory().getSize() && e.getRawSlot() % 9 == 1) {
 				e.setCancelled(true);
 
-				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getInventory());
 
 				int line = (int) (e.getRawSlot() / 9);
 				int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;
@@ -131,10 +131,10 @@ public class GoldenPipeInv implements Listener {
 				return;
 			}
 			//clicked scroll right
-			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getClickedInventory().getSize() && e.getRawSlot() % 9 == 8) {
+			if (e.getRawSlot() >= 0 && e.getRawSlot() <= e.getInventory().getSize() && e.getRawSlot() % 9 == 8) {
 				e.setCancelled(true);
 
-				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getClickedInventory());
+				saveGoldenPipeInv((Player) e.getWhoClicked(), e.getInventory());
 
 				int line = (int) (e.getRawSlot() / 9);
 				int scrollValue = scrollValues.get(pipe).containsKey(line) ? scrollValues.get(pipe).get(line) : 0;

@@ -1,24 +1,14 @@
 package de.robotricker.transportpipes.container;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import com.griefcraft.cache.LRUCache;
-import com.griefcraft.model.Protection;
-
 import de.robotricker.transportpipes.api.TransportPipesContainer;
-import io.sentry.Sentry;
 
 public abstract class BlockContainer implements TransportPipesContainer {
 
 	private static boolean vanillaLockableExists = false;
-	private static boolean lwcLockableExists = false;
 
 	static {
 		try {
@@ -27,7 +17,6 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		} catch (ClassNotFoundException e) {
 			vanillaLockableExists = false;
 		}
-		lwcLockableExists = Bukkit.getPluginManager().isPluginEnabled("LWC");
 	}
 
 	protected Block block;
@@ -82,18 +71,6 @@ public abstract class BlockContainer implements TransportPipesContainer {
 		if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
 			if (((org.bukkit.block.Lockable) ih).isLocked()) {
 				return true;
-			}
-		}
-		// check lwc lock
-		if (lwcLockableExists) {
-			try {
-				com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().getProtectionCache().getProtection(block.getWorld().getName() + ":" + block.getX() + ":" + block.getY() + ":" + block.getZ());
-				if (protection != null) {
-					return true;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				Sentry.capture(e);
 			}
 		}
 		return false;

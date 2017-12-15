@@ -13,7 +13,7 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.DuctUtils;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 
 public class DeletePipesCommandExecutor implements PipesCommandExecutor {
 
@@ -43,7 +43,7 @@ public class DeletePipesCommandExecutor implements PipesCommandExecutor {
 							}
 						}
 						for (Duct duct : removedDucts) {
-							DuctUtils.destroyDuct(null, duct);
+							DuctUtils.destroyDuct(null, duct, false);
 						}
 					}
 				}

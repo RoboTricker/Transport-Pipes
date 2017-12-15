@@ -16,8 +16,8 @@ import org.bukkit.material.MaterialData;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
-import de.robotricker.transportpipes.utils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 
 public class RecipesConf extends Conf {
 

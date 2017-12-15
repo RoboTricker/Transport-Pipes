@@ -21,8 +21,8 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.InventoryUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public class SimpleInventoryContainer extends BlockContainer {
 

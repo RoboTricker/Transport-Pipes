@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,11 +26,15 @@ import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PlayerDestroyDuctEvent;
 import de.robotricker.transportpipes.api.PlayerPlaceDuctEvent;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
+import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.WrappedDirection;
+import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
 
@@ -63,7 +67,7 @@ public class DuctUtils {
 						BlockLoc neighborBl = BlockLoc.convertBlockLoc(blockLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
 						if (ductMap.containsKey(neighborBl)) {
 							if (duct == null || ductMap.get(neighborBl).getDuctType() == duct.getDuctType()) {
-								TransportPipes.instance.pipePacketManager.updateDuct(ductMap.get(neighborBl));
+								TransportPipes.instance.ductManager.updateDuct(ductMap.get(neighborBl));
 							}
 						}
 					}
@@ -123,16 +127,18 @@ public class DuctUtils {
 
 			@Override
 			public void run() {
-				TransportPipes.instance.pipePacketManager.createDuct(duct, allConnections);
+				TransportPipes.instance.ductManager.createDuct(duct, allConnections);
 			}
 		}, 0);
 	}
-	
+
 	/**
 	 * invoke this if you want to build a new duct at this location. If there is a
 	 * duct already, it will do nothing. Otherwise it will place the duct and send
 	 * the packets to the players near. don't call this if you only want to update
-	 * the duct! returns whether the duct could be placed
+	 * the duct! returns whether the duct could be placed.
+	 * 
+	 * Only call from bukkit thread!
 	 */
 	public static boolean buildDuct(Player player, final Location blockLoc, DuctDetails ductDetails) {
 		// check if there is already a duct at this position
@@ -153,6 +159,21 @@ public class DuctUtils {
 
 		List<WrappedDirection> neighborPipes = duct.getOnlyConnectableDuctConnections();
 
+		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(duct.getBlockLoc().getWorld());
+		if (containerMap != null) {
+			for (WrappedDirection dir : WrappedDirection.values()) {
+				BlockLoc bl = BlockLoc.convertBlockLoc(duct.getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ()));
+				if (containerMap.containsKey(bl)) {
+					if(TransportPipes.isBlockProtectedByLWC(bl.toLocation(duct.getBlockLoc().getWorld()).getBlock())) {
+						if(player != null) {
+							player.sendMessage(LocConf.load(LocConf.LWC_ERROR));
+						}
+						return false;
+					}
+				}
+			}
+		}
+		
 		if (player != null) {
 			PlayerPlaceDuctEvent ppe = new PlayerPlaceDuctEvent(player, duct);
 			Bukkit.getPluginManager().callEvent(ppe);
@@ -174,7 +195,7 @@ public class DuctUtils {
 	 * invoke this if you want to destroy a duct. This will remove the duct from the
 	 * ducts list and destroys it for all players
 	 */
-	public static void destroyDuct(final Player player, final Duct ductToDestroy) {
+	public static void destroyDuct(final Player player, final Duct ductToDestroy, final boolean dropItems) {
 
 		if (player != null) {
 			PlayerDestroyDuctEvent pde = new PlayerDestroyDuctEvent(player, ductToDestroy);
@@ -189,7 +210,7 @@ public class DuctUtils {
 			// only remove the duct if it is in the duct list!
 			if (ductMap.containsKey(BlockLoc.convertBlockLoc(ductToDestroy.getBlockLoc()))) {
 
-				TransportPipes.instance.pipePacketManager.destroyDuct(ductToDestroy);
+				TransportPipes.instance.ductManager.destroyDuct(ductToDestroy);
 
 				ductMap.remove(BlockLoc.convertBlockLoc(ductToDestroy.getBlockLoc()));
 
@@ -210,7 +231,7 @@ public class DuctUtils {
 								}
 							});
 							// destroy item for players
-							TransportPipes.instance.pipePacketManager.destroyPipeItem(item);
+							TransportPipes.instance.ductManager.destroyPipeItem(item);
 						}
 						// and clear old pipe items map
 						pipeToDestroy.pipeItems.clear();
@@ -226,7 +247,7 @@ public class DuctUtils {
 
 					@Override
 					public void run() {
-						if (player != null && player.getGameMode() != GameMode.CREATIVE) {
+						if ((player != null && player.getGameMode() != GameMode.CREATIVE) || dropItems) {
 							Location dropLoc = ductToDestroy.getBlockLoc().clone().add(0.5d, 0.5d, 0.5d);
 							for (ItemStack dropIs : droppedItems) {
 								dropLoc.getWorld().dropItem(dropLoc, dropIs);
@@ -255,18 +276,6 @@ public class DuctUtils {
 			}
 		}
 
-	}
-
-	public static String LocToString(Location loc) {
-		return loc.getWorld().getName() + ":" + loc.getX() + ":" + loc.getY() + ":" + loc.getZ();
-	}
-
-	public static Location StringToLoc(String loc) {
-		try {
-			return new Location(Bukkit.getWorld(loc.split(":")[0]), Double.parseDouble(loc.split(":")[1]), Double.parseDouble(loc.split(":")[2]), Double.parseDouble(loc.split(":")[3]));
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 }

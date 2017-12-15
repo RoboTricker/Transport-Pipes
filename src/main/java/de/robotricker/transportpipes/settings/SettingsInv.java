@@ -15,9 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
-import de.robotricker.transportpipes.utils.InventoryUtils;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.config.PlayerSettingsConf;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public class SettingsInv implements Listener {
 
@@ -48,7 +48,7 @@ public class SettingsInv implements Listener {
 		InventoryUtils.changeDisplayNameAndLoreConfig(currentSystem, String.format(LocConf.load(LocConf.SETTINGS_RENDERSYSTEM_TITLE), RenderSystem.getRenderSystemIdName(renderSystemId)), LocConf.loadStringList(LocConf.SETTINGS_RENDERSYSTEM_DESCRIPTION));
 
 		// Show items setting
-		boolean showItems = TransportPipes.instance.armorStandProtocol.isPlayerShowItems(viewer);
+		boolean showItems = TransportPipes.instance.ductManager.isPlayerShowItems(viewer);
 		ItemStack currentShowItems;
 		if (showItems) {
 			currentShowItems = new ItemStack(Material.GLASS);
@@ -78,7 +78,7 @@ public class SettingsInv implements Listener {
 
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e) {
-		if (e.getClickedInventory() != null && e.getClickedInventory().getName().equals(LocConf.load(LocConf.SETTINGS_TITLE))) {
+		if (e.getInventory() != null && e.getInventory().getName().equals(LocConf.load(LocConf.SETTINGS_TITLE))) {
 			boolean forceDefaultRenderSystem = TransportPipes.instance.generalConf.isForceDefaultRenderSystem();
 
 			Player p = (Player) e.getWhoClicked();
@@ -93,7 +93,7 @@ public class SettingsInv implements Listener {
 					if (after >= 1) {
 						p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 						psc.setRenderDistance(after);
-						updateSettingsInventory(e.getClickedInventory(), p);
+						updateSettingsInventory(e.getInventory(), p);
 					} else {
 						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BASS, 1f, 1f);
 					}
@@ -105,7 +105,7 @@ public class SettingsInv implements Listener {
 					if (after <= 64) {
 						p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 						psc.setRenderDistance(after);
-						updateSettingsInventory(e.getClickedInventory(), p);
+						updateSettingsInventory(e.getInventory(), p);
 					} else {
 						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BASS, 1f, 1f);
 					}
@@ -117,17 +117,17 @@ public class SettingsInv implements Listener {
 					renderSystemId++;
 					renderSystemId %= RenderSystem.getRenderSystemAmount();
 
-					TransportPipes.instance.armorStandProtocol.changePlayerRenderSystem(p, renderSystemId);
+					TransportPipes.instance.ductManager.changePlayerRenderSystem(p, renderSystemId);
 
-					updateSettingsInventory(e.getClickedInventory(), p);
+					updateSettingsInventory(e.getInventory(), p);
 					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 				}
 				if ((!forceDefaultRenderSystem && e.getRawSlot() == 14) || (forceDefaultRenderSystem && e.getRawSlot() == 13)) {
 					// change show items
-					boolean showItems = TransportPipes.instance.armorStandProtocol.isPlayerShowItems(p);
-					TransportPipes.instance.armorStandProtocol.changeShowItems(p, !showItems);
+					boolean showItems = TransportPipes.instance.ductManager.isPlayerShowItems(p);
+					TransportPipes.instance.ductManager.changeShowItems(p, !showItems);
 
-					updateSettingsInventory(e.getClickedInventory(), p);
+					updateSettingsInventory(e.getInventory(), p);
 					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
 				}
 			}

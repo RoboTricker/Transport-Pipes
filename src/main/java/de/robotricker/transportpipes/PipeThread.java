@@ -19,15 +19,15 @@ import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
-import de.robotricker.transportpipes.utils.tickdata.PipeTickData;
+import de.robotricker.transportpipes.utils.tick.PipeTickData;
 import io.sentry.Sentry;
 
 public class PipeThread extends Thread {
 
 	public final static int WANTED_TPS = 10;
 	private final static long TICK_DIFF = 1000 / WANTED_TPS;
-	private final static int INPUT_ITEMS_TICK_DIFF = 5;
-	private final static int VIEW_DISTANCE_TICK_DIFF = 3;
+	public final static int EXTRACT_ITEMS_TICK_DIFF = 5;
+	public final static int VIEW_DISTANCE_TICK_DIFF = 3;
 
 	private final Map<Runnable, Integer> scheduleList = Collections.synchronizedMap(new LinkedHashMap<Runnable, Integer>());
 
@@ -35,15 +35,13 @@ public class PipeThread extends Thread {
 	private boolean running = false;
 
 	private long lastTick = 0;
-	private int inputItemsTick = 0;
-	private int viewDistanceTick = 0;
 
 	private long lastSecond = 0;
 	private int tpsCounter = 0;
 
 	public long timeTick = 0;
 
-	private String lastAction = "Starting";
+	private long numberOfTicksSinceStart = 0;
 
 	public PipeThread() {
 		super("TransportPipes Thread");
@@ -51,14 +49,6 @@ public class PipeThread extends Thread {
 
 	public int getCalculatedTps() {
 		return calculatedTps;
-	}
-
-	public String getLastAction() {
-		return lastAction;
-	}
-
-	public void setLastAction(String lastAction) {
-		this.lastAction = lastAction;
 	}
 
 	public long getLastTickDiff() {
@@ -82,10 +72,8 @@ public class PipeThread extends Thread {
 		while (running) {
 
 			try {
-				lastAction = "Sleeping";
 				Thread.sleep(50);
 				long currentTime = System.currentTimeMillis();
-				lastAction = "TPS calc";
 				if (currentTime - lastSecond >= 1000) {
 					lastSecond = currentTime;
 					calculatedTps = tpsCounter;
@@ -95,28 +83,11 @@ public class PipeThread extends Thread {
 					continue;
 				}
 
-				lastAction = "Tick checks";
-				boolean extractItems = false;
-				boolean checkViewDistance = false;
-
-				// input Items tick
-				inputItemsTick++;
-				if (inputItemsTick == INPUT_ITEMS_TICK_DIFF) {
-					inputItemsTick = 0;
-					extractItems = true;
-				}
-				// check view distance tick
-				viewDistanceTick++;
-				if (viewDistanceTick == VIEW_DISTANCE_TICK_DIFF) {
-					viewDistanceTick = 0;
-					checkViewDistance = true;
-				}
-
 				tpsCounter++;
 				lastTick = currentTime;
+				numberOfTicksSinceStart++;
 
-				// internal PipeThread scheduler. Has nothing to do with the pipes themselves
-				lastAction = "Internal scheduler";
+				// internal PipeThread scheduler. This is not related to the pipes themselves
 				{
 					HashMap<Runnable, Integer> tempTickList = new HashMap<>();
 					synchronized (scheduleList) {
@@ -138,36 +109,18 @@ public class PipeThread extends Thread {
 
 				long timeBefore = System.nanoTime();
 
-				// in this list are the items stored which are already processed in this tick
-				// (in order to not process an item 2 times in one tick)
-				List<PipeItem> itemsTicked = new ArrayList<>();
-
-				// update ducts
-				lastAction = "World loop";
-				for (World world : Bukkit.getWorlds()) {
-					lastAction = "duct map load";
-					Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(world);
-					if (ductMap != null) {
-						synchronized (ductMap) {
-							lastAction = "duct loop";
-							for (Duct duct : ductMap.values()) {
-								if (duct.isInLoadedChunk()) {
-									continue;
-								}
-
-								lastAction = "Pipe tick";
-								duct.tick(new PipeTickData(extractItems, itemsTicked));
-
-							}
-						}
+				for (DuctType ductType : DuctType.values()) {
+					if (!ductType.isEnabled()) {
+						continue;
 					}
+					ductType.runTickRunnable(numberOfTicksSinceStart);
 				}
 
 				timeTick = (System.nanoTime() - timeBefore);
 
-				if (checkViewDistance) {
-					lastAction = "View distance";
-					TransportPipes.instance.pipePacketManager.tickSync();
+				// update ducts based on view distance
+				if (numberOfTicksSinceStart % VIEW_DISTANCE_TICK_DIFF == 0) {
+					TransportPipes.instance.ductManager.tickSync();
 				}
 
 			} catch (IllegalPluginAccessException e) {
@@ -182,9 +135,7 @@ public class PipeThread extends Thread {
 	}
 
 	public void runTask(Runnable run, int tickDelay) {
-		synchronized (scheduleList) {
-			scheduleList.put(run, tickDelay);
-		}
+		scheduleList.put(run, tickDelay);
 	}
 
 }

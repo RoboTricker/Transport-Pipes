@@ -30,14 +30,14 @@ import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.DuctUtils;
-import de.robotricker.transportpipes.utils.InventoryUtils;
-import de.robotricker.transportpipes.utils.NBTUtils;
-import de.robotricker.transportpipes.utils.UpdateUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
-import de.robotricker.transportpipes.utils.tickdata.PipeTickData;
-import de.robotricker.transportpipes.utils.tickdata.TickData;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
+import de.robotricker.transportpipes.utils.staticutils.UpdateUtils;
+import de.robotricker.transportpipes.utils.tick.PipeTickData;
+import de.robotricker.transportpipes.utils.tick.TickData;
 
 public abstract class Pipe extends Duct {
 
@@ -100,7 +100,7 @@ public abstract class Pipe extends Duct {
 				WrappedDirection dir = tempPipeItemsWithSpawn.get(pipeItem);
 				putPipeItem(pipeItem, dir);
 
-				TransportPipes.instance.pipePacketManager.createPipeItem(pipeItem);
+				TransportPipes.instance.ductManager.createPipeItem(pipeItem);
 
 				itemIterator.remove();
 			}
@@ -127,12 +127,10 @@ public abstract class Pipe extends Duct {
 
 		if (pipeTickData.extractItems && this instanceof ExtractionPipe) {
 			// extract items from inventories
-			TransportPipes.instance.pipeThread.setLastAction("Pipe extract");
 			((ExtractionPipe) this).extractItems(blockConnections);
 		}
 
 		// handle item transport through pipe
-		TransportPipes.instance.pipeThread.setLastAction("Pipe transport");
 		transportItems(pipeConnections, blockConnections, pipeTickData.itemsTicked);
 
 	}
@@ -181,7 +179,7 @@ public abstract class Pipe extends Duct {
 
 					pipeItems.put(lastPipeItem, pd);
 					if (!lastPipeItem.equals(item)) {
-						TransportPipes.instance.pipePacketManager.createPipeItem(lastPipeItem);
+						TransportPipes.instance.ductManager.createPipeItem(lastPipeItem);
 					}
 					moveItem(lastPipeItem, pipeConnections, blockConnections);
 					// specifies that this item isn't handled inside another pipe in this tick if it
@@ -216,7 +214,7 @@ public abstract class Pipe extends Duct {
 		relLoc.addValues(xSpeed, ySpeed, zSpeed);
 
 		// update
-		TransportPipes.instance.pipePacketManager.updatePipeItem(item);
+		TransportPipes.instance.ductManager.updatePipeItem(item);
 
 		// if the item is at the end of the transportation
 		if (relLoc.getFloatX() == 1.0f || relLoc.getFloatY() == 1.0f || relLoc.getFloatZ() == 1.0f || relLoc.getFloatX() == 0.0f || relLoc.getFloatY() == 0.0f || relLoc.getFloatZ() == 0.0f) {
@@ -367,7 +365,7 @@ public abstract class Pipe extends Duct {
 
 	protected void fullyRemovePipeItemFromSystem(final PipeItem item, boolean dropItem) {
 		removePipeItem(item);
-		TransportPipes.instance.pipePacketManager.destroyPipeItem(item);
+		TransportPipes.instance.ductManager.destroyPipeItem(item);
 
 		if (dropItem) {
 			final ItemStack itemStack = item.getItem();

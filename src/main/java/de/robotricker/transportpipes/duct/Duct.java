@@ -28,13 +28,14 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.DuctUtils;
-import de.robotricker.transportpipes.utils.InventoryUtils;
-import de.robotricker.transportpipes.utils.NBTUtils;
-import de.robotricker.transportpipes.utils.UpdateUtils;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
-import de.robotricker.transportpipes.utils.tickdata.TickData;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.LocationUtils;
+import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
+import de.robotricker.transportpipes.utils.staticutils.UpdateUtils;
+import de.robotricker.transportpipes.utils.tick.TickData;
 
 public abstract class Duct {
 
@@ -117,7 +118,7 @@ public abstract class Duct {
 
 			@Override
 			public void run() {
-				DuctUtils.destroyDuct(null, Duct.this);
+				DuctUtils.destroyDuct(null, Duct.this, false);
 				if (withSound) {
 					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
 				}
@@ -128,7 +129,7 @@ public abstract class Duct {
 
 	public void saveToNBTTag(CompoundMap tags) {
 		NBTUtils.saveStringValue(tags, "DuctType", getDuctType().name());
-		NBTUtils.saveStringValue(tags, "DuctLocation", DuctUtils.LocToString(blockLoc));
+		NBTUtils.saveStringValue(tags, "DuctLocation", LocationUtils.LocToString(blockLoc));
 		NBTUtils.saveStringValue(tags, "DuctDetails", getDuctDetails().toString());
 
 		List<Tag<?>> neighborDuctsList = new ArrayList<>();

@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.utils.staticutils;
 
 import java.io.EOFException;
 import java.io.File;
@@ -31,6 +31,8 @@ import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
+import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 
@@ -175,7 +177,7 @@ public class SavingUtils implements Listener {
 					CompoundTag pipeTag = (CompoundTag) tag;
 
 					PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
-					Location pipeLoc = DuctUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+					Location pipeLoc = LocationUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
 
 					String oldPipeClassName = NBTUtils.readStringTag(pipeTag.getValue().get("PipeClassName"), "de.robotricker.transportpipes.pipes.PipeMID");
 					if (oldPipeClassName.endsWith("GoldenPipe")) {
@@ -223,7 +225,7 @@ public class SavingUtils implements Listener {
 						if (ductMap != null) {
 							synchronized (ductMap) {
 								for (Duct duct : ductMap.values()) {
-									TransportPipes.instance.pipePacketManager.updateDuct(duct);
+									TransportPipes.instance.ductManager.updateDuct(duct);
 								}
 							}
 						}
@@ -238,7 +240,7 @@ public class SavingUtils implements Listener {
 					CompoundTag pipeTag = (CompoundTag) tag;
 
 					PipeType pt = PipeType.getFromId(NBTUtils.readIntTag(pipeTag.getValue().get("PipeType"), PipeType.COLORED.getId()));
-					Location pipeLoc = DuctUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
+					Location pipeLoc = LocationUtils.StringToLoc(NBTUtils.readStringTag(pipeTag.getValue().get("PipeLocation"), null));
 
 					List<WrappedDirection> neighborPipes = new ArrayList<WrappedDirection>();
 					List<Tag<?>> neighborPipesList = NBTUtils.readListTag(pipeTag.getValue().get("NeighborPipes"));
@@ -272,7 +274,7 @@ public class SavingUtils implements Listener {
 					DuctType ductType = DuctType.valueOf(NBTUtils.readStringTag(ductTag.getValue().get("DuctType"), null));
 					String serializedDuctDetails = NBTUtils.readStringTag(ductTag.getValue().get("DuctDetails"), null);
 					DuctDetails ductDetails = ductType.createDuctDetails(serializedDuctDetails);
-					Location ductLoc = DuctUtils.StringToLoc(NBTUtils.readStringTag(ductTag.getValue().get("DuctLocation"), null));
+					Location ductLoc = LocationUtils.StringToLoc(NBTUtils.readStringTag(ductTag.getValue().get("DuctLocation"), null));
 
 					List<WrappedDirection> neighborDucts = new ArrayList<WrappedDirection>();
 					List<Tag<?>> neighborDuctsList = NBTUtils.readListTag(ductTag.getValue().get("NeighborDucts"));
