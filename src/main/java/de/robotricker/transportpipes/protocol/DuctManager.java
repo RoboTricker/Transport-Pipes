@@ -29,7 +29,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
-import de.robotricker.transportpipes.utils.hitbox.OcclusionCullingUtils;
+import de.robotricker.transportpipes.utils.hitbox.occlusionculling.OcclusionCullingUtils;
 import de.robotricker.transportpipes.utils.staticutils.LocationUtils;
 import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
 import io.sentry.Sentry;
@@ -285,8 +285,6 @@ public class DuctManager implements Listener {
 
 			}
 		}
-
-		OcclusionCullingUtils.clearCachedChunkSnapshots();
 
 	}
 

@@ -284,7 +284,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 
 								// don't power this pipe if at least 1 block around this pipe is inside an
 								// unloaded chunk
-								if (!TransportPipes.instance.containerBlockUtils.isInLoadedChunk(relativeLoc)) {
+								if (!TransportPipes.instance.blockChangeListener.isInLoadedChunk(relativeLoc)) {
 									break;
 								}
 

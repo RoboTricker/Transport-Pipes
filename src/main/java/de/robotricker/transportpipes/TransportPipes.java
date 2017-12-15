@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -53,6 +54,7 @@ import de.robotricker.transportpipes.utils.config.RecipesConf;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.hitbox.HitboxListener;
+import de.robotricker.transportpipes.utils.hitbox.occlusionculling.BlockChangeListener;
 import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
@@ -81,7 +83,8 @@ public class TransportPipes extends JavaPlugin {
 	public SettingsUtils settingsUtils;
 	public PipeThread pipeThread;
 	public DuctManager ductManager;
-
+	public BlockChangeListener blockChangeListener;
+	
 	// configs
 	public LocConf locConf;
 	public GeneralConf generalConf;
@@ -262,6 +265,7 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new SettingsInv(), this);
 		Bukkit.getPluginManager().registerEvents(ductManager, this);
 		Bukkit.getPluginManager().registerEvents(updateManager, this);
+		Bukkit.getPluginManager().registerEvents(blockChangeListener = new BlockChangeListener(), this);
 		for (RenderSystem rs : DuctType.PIPE.getRenderSystems()) {
 			Bukkit.getPluginManager().registerEvents(rs, this);
 			if (rs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
@@ -307,7 +311,7 @@ public class TransportPipes extends JavaPlugin {
 
 				for (World world : Bukkit.getWorlds()) {
 					for (Chunk loadedChunk : world.getLoadedChunks()) {
-						containerBlockUtils.handleChunkLoadSync(loadedChunk);
+						blockChangeListener.handleChunkLoadSync(loadedChunk);
 					}
 					savingManager.loadDuctsSync(world);
 				}

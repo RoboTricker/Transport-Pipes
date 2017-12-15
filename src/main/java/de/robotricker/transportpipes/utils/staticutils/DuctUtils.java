@@ -159,21 +159,23 @@ public class DuctUtils {
 
 		List<WrappedDirection> neighborPipes = duct.getOnlyConnectableDuctConnections();
 
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(duct.getBlockLoc().getWorld());
-		if (containerMap != null) {
-			for (WrappedDirection dir : WrappedDirection.values()) {
-				BlockLoc bl = BlockLoc.convertBlockLoc(duct.getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ()));
-				if (containerMap.containsKey(bl)) {
-					if(TransportPipes.isBlockProtectedByLWC(bl.toLocation(duct.getBlockLoc().getWorld()).getBlock())) {
-						if(player != null) {
-							player.sendMessage(LocConf.load(LocConf.LWC_ERROR));
+		if (ductDetails.getDuctType() == DuctType.PIPE) {
+			Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(duct.getBlockLoc().getWorld());
+			if (containerMap != null) {
+				for (WrappedDirection dir : WrappedDirection.values()) {
+					BlockLoc bl = BlockLoc.convertBlockLoc(duct.getBlockLoc().clone().add(dir.getX(), dir.getY(), dir.getZ()));
+					if (containerMap.containsKey(bl)) {
+						if (TransportPipes.isBlockProtectedByLWC(bl.toLocation(duct.getBlockLoc().getWorld()).getBlock())) {
+							if (player != null) {
+								player.sendMessage(LocConf.load(LocConf.LWC_ERROR));
+							}
+							return false;
 						}
-						return false;
 					}
 				}
 			}
 		}
-		
+
 		if (player != null) {
 			PlayerPlaceDuctEvent ppe = new PlayerPlaceDuctEvent(player, duct);
 			Bukkit.getPluginManager().callEvent(ppe);

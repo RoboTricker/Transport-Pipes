@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -40,17 +41,10 @@ import de.robotricker.transportpipes.container.SimpleInventoryContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.hitbox.occlusionculling.BlockChangeListener.ChunkCoords;
 import io.sentry.Sentry;
 
 public class ContainerBlockUtils implements Listener {
-
-	private Map<World, List<Chunk>> loadedChunkGridCoords;
-	private Map<ChunkCoords, ChunkSnapshot> chunkSnapshots;
-
-	public ContainerBlockUtils() {
-		loadedChunkGridCoords = Collections.synchronizedMap(new HashMap<World, List<Chunk>>());
-		chunkSnapshots = Collections.synchronizedMap(new HashMap<ChunkCoords, ChunkSnapshot>());
-	}
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
@@ -176,35 +170,7 @@ public class ContainerBlockUtils implements Listener {
 		return null;
 	}
 
-	public boolean isInLoadedChunk(Location loc) {
-		synchronized (loadedChunkGridCoords) {
-			List<Chunk> loadedChunks = loadedChunkGridCoords.get(loc.getWorld());
-			if (loadedChunks != null) {
-				for (Chunk chunk : loadedChunks) {
-					int chunkX = chunk.getX();
-					int chunkZ = chunk.getZ();
-					if (chunkX * 16 <= loc.getBlockX() && (chunkX + 1) * 16 > loc.getBlockX()) {
-						if (chunkZ * 16 <= loc.getBlockZ() && (chunkZ + 1) * 16 > loc.getBlockZ()) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
 	public void handleChunkLoadSync(Chunk loadedChunk) {
-		synchronized (loadedChunkGridCoords) {
-			if (!loadedChunkGridCoords.containsKey(loadedChunk.getWorld())) {
-				loadedChunkGridCoords.put(loadedChunk.getWorld(), Collections.synchronizedList(new ArrayList<Chunk>()));
-			}
-			if (!loadedChunkGridCoords.get(loadedChunk.getWorld()).contains(loadedChunk)) {
-				loadedChunkGridCoords.get(loadedChunk.getWorld()).add(loadedChunk);
-			}
-		}
-		chunkSnapshots.remove(new ChunkCoords(loadedChunk.getWorld().getName(), loadedChunk.getX(), loadedChunk.getZ()));
-
 		if (loadedChunk.getTileEntities() != null) {
 			for (BlockState bs : loadedChunk.getTileEntities()) {
 				if (isIdContainerBlock(bs.getTypeId())) {
@@ -222,91 +188,6 @@ public class ContainerBlockUtils implements Listener {
 				}
 			}
 		}
-	}
-
-	public ChunkSnapshot getOrCreateChunkSnapshot(final World world, final int chunkX, final int chunkZ) {
-		try {
-			ChunkCoords cc = new ChunkCoords(world.getName(), chunkX, chunkZ);
-			if (chunkSnapshots.containsKey(cc)) {
-				return chunkSnapshots.get(cc);
-			} else {
-				try {
-					// chunk should be loaded
-					Chunk chunk = world.getChunkAt(chunkX, chunkZ);
-					ChunkSnapshot chunkSnapshot = chunk.getChunkSnapshot();
-					return chunkSnapshot;
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-					Sentry.capture("failed to create chunk snapshot async!");
-					Sentry.capture(e);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Sentry.capture(e);
-		}
-		return null;
-	}
-
-	@EventHandler
-	public void onChunkLoad(ChunkLoadEvent e) {
-		handleChunkLoadSync(e.getChunk());
-	}
-
-	@EventHandler
-	public void onChunkUnload(ChunkUnloadEvent e) {
-		synchronized (loadedChunkGridCoords) {
-			if (loadedChunkGridCoords.containsKey(e.getWorld())) {
-				if (loadedChunkGridCoords.get(e.getWorld()).contains(e.getChunk())) {
-					loadedChunkGridCoords.get(e.getWorld()).remove(e.getChunk());
-				}
-			}
-		}
-		chunkSnapshots.put(new ChunkCoords(e.getWorld().getName(), e.getChunk().getX(), e.getChunk().getZ()), e.getChunk().getChunkSnapshot());
-	}
-
-	public static class ChunkCoords {
-		public String worldName;
-		public int chunkX;
-		public int chunkZ;
-
-		public ChunkCoords(String worldName, int chunkX, int chunkZ) {
-			this.worldName = worldName;
-			this.chunkX = chunkX;
-			this.chunkZ = chunkZ;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + chunkX;
-			result = prime * result + chunkZ;
-			result = prime * result + ((worldName == null) ? 0 : worldName.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ChunkCoords other = (ChunkCoords) obj;
-			if (chunkX != other.chunkX)
-				return false;
-			if (chunkZ != other.chunkZ)
-				return false;
-			if (worldName == null) {
-				if (other.worldName != null)
-					return false;
-			} else if (!worldName.equals(other.worldName))
-				return false;
-			return true;
-		}
-
 	}
 
 }

@@ -1,7 +1,8 @@
-package de.robotricker.transportpipes.utils.hitbox;
+package de.robotricker.transportpipes.utils.hitbox.occlusionculling;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
@@ -11,15 +12,15 @@ import org.bukkit.util.Vector;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.Duct;
-import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
+import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.utils.hitbox.occlusionculling.BlockChangeListener.ChunkCoords;
 import io.sentry.Sentry;
 
 public class OcclusionCullingUtils {
 
 	private static AxisAlignedBB blockAABB = new AxisAlignedBB(0d, 0d, 0d, 1d, 1d, 1d);
-	private static List<ChunkSnapshot> cachedChunkSnapshots = new ArrayList<ChunkSnapshot>();
 
 	public static boolean isDuctVisibleForPlayer(Player p, Duct duct) {
 		RenderSystem renderSystem = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem(duct.getDuctType());
@@ -30,11 +31,7 @@ public class OcclusionCullingUtils {
 	public static boolean isPipeItemVisibleForPlayer(Player p, PipeItem item) {
 		return isAABBVisible(item.getBlockLoc(), blockAABB, p.getEyeLocation());
 	}
-
-	public static void clearCachedChunkSnapshots() {
-		cachedChunkSnapshots.clear();
-	}
-
+	
 	private static boolean isAABBVisible(Location aabbBlock, AxisAlignedBB aabb, Location playerLoc) {
 
 		double width = aabb.getWidth();
@@ -109,25 +106,19 @@ public class OcclusionCullingUtils {
 			ChunkSnapshot snapshot = null;
 			int chunkX = (int) Math.floor(loc.getBlockX() / 16d);
 			int chunkZ = (int) Math.floor(loc.getBlockZ() / 16d);
-			for (ChunkSnapshot cs : cachedChunkSnapshots) {
-				if (cs.getWorldName() == loc.getWorld().getName() && cs.getX() == chunkX && cs.getZ() == chunkZ) {
-					snapshot = cs;
-					break;
-				}
+			ChunkCoords cc = new ChunkCoords(loc.getWorld().getName(), chunkX, chunkZ);
+			if (TransportPipes.instance.blockChangeListener.cachedChunkSnapshots.containsKey(cc)) {
+				snapshot = TransportPipes.instance.blockChangeListener.cachedChunkSnapshots.get(cc);
 			}
 			if (snapshot == null) {
-				snapshot = TransportPipes.instance.containerBlockUtils.getOrCreateChunkSnapshot(loc.getWorld(), chunkX, chunkZ);
-				if(snapshot == null) {
-					return false;
-				}
-				cachedChunkSnapshots.add(snapshot);
+				return false;
 			}
 			int relativeX = loc.getBlockX() % 16;
-			if(relativeX < 0) {
+			if (relativeX < 0) {
 				relativeX = 16 + relativeX;
 			}
 			int relativeZ = loc.getBlockZ() % 16;
-			if(relativeZ < 0) {
+			if (relativeZ < 0) {
 				relativeZ = 16 + relativeZ;
 			}
 			Material material = Material.getMaterial(snapshot.getBlockTypeId(relativeX, loc.getBlockY(), relativeZ));
