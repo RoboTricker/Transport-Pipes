@@ -28,7 +28,7 @@ public class RecipesConf extends Conf {
 		saveShapedRecipeAsDefault("iron", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "42:0");
 		saveShapedRecipeAsDefault("ice", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "80:0");
 		saveShapedRecipeAsDefault("void", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "49:0");
-		saveShapedRecipeAsDefault("extraction", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "5:0");
+		saveShapedRecipeAsDefault("extraction", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "5");
 		saveShapelessRecipeAsDefault("colored.white", 1, "pipe", "351:15");
 		saveShapelessRecipeAsDefault("colored.blue", 1, "pipe", "351:4");
 		saveShapelessRecipeAsDefault("colored.red", 1, "pipe", "351:1");
@@ -98,10 +98,11 @@ public class RecipesConf extends Conf {
 					typeData = Byte.parseByte(itemString.split(":")[1]);
 				} else {
 					typeId = Integer.parseInt(itemString);
-					typeData = 0;
 				}
 				if (typeId != -1 && typeData != -1) {
 					recipe.setIngredient(key.charAt(0), new MaterialData(typeId, typeData));
+				} else if (typeId != -1) {
+					recipe.setIngredient(key.charAt(0), Material.getMaterial(typeId), -1);
 				}
 			}
 			return recipe;
@@ -119,10 +120,11 @@ public class RecipesConf extends Conf {
 					typeData = Byte.parseByte(itemString.split(":")[1]);
 				} else {
 					typeId = Integer.parseInt(itemString);
-					typeData = 0;
 				}
 				if (typeId != -1 && typeData != -1) {
 					recipe.addIngredient(new MaterialData(typeId, typeData));
+				} else if (typeId != -1) {
+					recipe.addIngredient(Material.getMaterial(typeId), -1);
 				}
 			}
 			return recipe;
@@ -149,10 +151,11 @@ public class RecipesConf extends Conf {
 					typeData = Byte.parseByte(itemString.split(":")[1]);
 				} else {
 					typeId = Integer.parseInt(itemString);
-					typeData = 0;
 				}
 				if (typeId != -1 && typeData != -1) {
 					recipe.setIngredient(key.charAt(0), new MaterialData(typeId, typeData));
+				} else if (typeId != -1) {
+					recipe.setIngredient(key.charAt(0), Material.getMaterial(typeId), -1);
 				}
 			}
 			return recipe;
@@ -170,10 +173,11 @@ public class RecipesConf extends Conf {
 					typeData = Byte.parseByte(itemString.split(":")[1]);
 				} else {
 					typeId = Integer.parseInt(itemString);
-					typeData = 0;
 				}
 				if (typeId != -1 && typeData != -1) {
 					recipe.addIngredient(new MaterialData(typeId, typeData));
+				} else if (typeId != -1) {
+					recipe.addIngredient(Material.getMaterial(typeId), -1);
 				}
 			}
 			return recipe;

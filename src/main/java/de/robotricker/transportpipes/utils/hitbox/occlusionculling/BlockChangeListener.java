@@ -2,17 +2,24 @@ package de.robotricker.transportpipes.utils.hitbox.occlusionculling;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
@@ -39,15 +46,37 @@ public class BlockChangeListener implements Listener {
 		handleChunkLoadSync(e.getChunk());
 	}
 
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onChunkUnload(ChunkUnloadEvent e) {
+		Chunk chunk = e.getChunk();
+		updateCachedChunkSync(new ChunkCoords(chunk.getWorld().getName(), chunk.getX(), chunk.getZ()), null);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onBlockExplode(BlockExplodeEvent e) {
+		handleExplosionSync(e.blockList());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onEntityExplode(EntityExplodeEvent e) {
+		handleExplosionSync(e.blockList());
+	}
+
 	public void handleChunkLoadSync(Chunk loadedChunk) {
 		updateCachedChunkSync(new ChunkCoords(loadedChunk.getWorld().getName(), loadedChunk.getX(), loadedChunk.getZ()), loadedChunk);
 		TransportPipes.instance.containerBlockUtils.handleChunkLoadSync(loadedChunk);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onChunkUnload(ChunkUnloadEvent e) {
-		Chunk chunk = e.getChunk();
-		updateCachedChunkSync(new ChunkCoords(chunk.getWorld().getName(), chunk.getX(), chunk.getZ()), null);
+	public void handleExplosionSync(List<Block> blockList) {
+		Set<ChunkCoords> chunks = new HashSet<>();
+		for (Block block : blockList) {
+			int chunkX = (int) Math.floor(block.getX() / 16d);
+			int chunkZ = (int) Math.floor(block.getZ() / 16d);
+			chunks.add(new ChunkCoords(block.getWorld().getName(), chunkX, chunkZ));
+		}
+		for (ChunkCoords cc : chunks) {
+			updateCachedChunkSync(cc, cc.getRealChunkSync());
+		}
 	}
 
 	public void updateCachedChunkSync(final ChunkCoords cc, final Chunk chunk) {
@@ -56,7 +85,7 @@ public class BlockChangeListener implements Listener {
 			return;
 		}
 		Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-			
+
 			@Override
 			public void run() {
 				cachedChunkSnapshots.put(cc, chunk.getChunkSnapshot());
@@ -71,7 +100,7 @@ public class BlockChangeListener implements Listener {
 		return cachedChunkSnapshots.containsKey(cc);
 	}
 
-	public static class ChunkCoords{
+	public static class ChunkCoords {
 		public String worldName;
 		public int chunkX;
 		public int chunkZ;
@@ -111,6 +140,11 @@ public class BlockChangeListener implements Listener {
 			} else if (!worldName.equals(other.worldName))
 				return false;
 			return true;
+		}
+
+		public Chunk getRealChunkSync() {
+			World world = Bukkit.getWorld(worldName);
+			return world.getChunkAt(chunkX, chunkZ);
 		}
 
 	}
