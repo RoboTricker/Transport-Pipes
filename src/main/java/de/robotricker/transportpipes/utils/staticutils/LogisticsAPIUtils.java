@@ -18,7 +18,7 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class LogisticsAPIUtils implements Listener {
 
-	/*@EventHandler
+	@EventHandler
 	public void onRegister(final com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent e) {
 		TransportPipes.instance.getLogger().info("Item container registered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
@@ -29,19 +29,19 @@ public class LogisticsAPIUtils implements Listener {
 	public void onUnregister(com.logisticscraft.logisticsapi.event.ItemContainerUnregisterEvent e) {
 		TransportPipes.instance.getLogger().info("Item container unregistered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
-	}*/
+	}
 
 	public static TransportPipesContainer wrapLogisticsAPIItemContainer(final com.logisticscraft.logisticsapi.item.ItemContainer ic) {
 		return new TransportPipesContainer() {
 
 			@Override
 			public ItemStack insertItem(WrappedDirection insertDirection, ItemStack insertion) {
-				return ic.insertItem(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
+				return ic.insertItem(com.logisticscraft.logisticsapi.BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
 			}
 
 			@Override
 			public int howMuchSpaceForItemAsync(WrappedDirection insertDirection, ItemStack insertion) {
-				return ic.howMuchSpaceForItemAsync(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
+				return ic.howMuchSpaceForItemAsync(com.logisticscraft.logisticsapi.BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
 			}
 
 			@Override
@@ -50,7 +50,7 @@ public class LogisticsAPIUtils implements Listener {
 				for (ItemData id : filterItems) {
 					wrappedFilterItems.add(id.toItemStack());
 				}
-				return ic.extractItem(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
+				return ic.extractItem(com.logisticscraft.logisticsapi.BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
 			}
 		};
 	}
