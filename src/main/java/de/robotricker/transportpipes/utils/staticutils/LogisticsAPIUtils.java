@@ -18,7 +18,7 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class LogisticsAPIUtils implements Listener {
 
-	@EventHandler
+	/*@EventHandler
 	public void onRegister(final com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent e) {
 		TransportPipes.instance.getLogger().info("Item container registered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
@@ -53,6 +53,6 @@ public class LogisticsAPIUtils implements Listener {
 				return ic.extractItem(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
 			}
 		};
-	}
+	}*/
 
 }

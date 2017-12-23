@@ -272,7 +272,7 @@ public class TransportPipes extends JavaPlugin {
 				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) rs).new AuthMeLoginListener(), this);
 			}
 		}
-		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
+		/*if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
 			TransportPipes.instance.getLogger().info("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
@@ -282,7 +282,7 @@ public class TransportPipes extends JavaPlugin {
 				TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer(containers.get(key));
 				PipeAPI.registerTransportPipesContainer(key.getBlock().getLocation(), tpc);
 			}
-		}
+		}*/
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
 			try {
 				Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);
