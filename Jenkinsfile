@@ -3,11 +3,17 @@ pipeline {
   stages {
     stage('Initialize') {
       steps {
-        sh '''echo PATH = ${PATH}
-
-
-
-'''
+        sh 'mvn clean'
+      }
+    }
+    stage('Build') {
+      steps {
+        sh 'mvn install'
+      }
+    }
+    stage('Archive artifacts') {
+      steps {
+        archiveArtifacts 'target/**.jar'
       }
     }
   }
