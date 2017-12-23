@@ -9,11 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
-import com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent;
-import com.logisticscraft.logisticsapi.event.ItemContainerUnregisterEvent;
-import com.logisticscraft.logisticsapi.item.ItemContainer;
-import com.logisticscraft.logisticsapi.util.bukkit.BlockSide;
-
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -24,29 +19,29 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 public class LogisticsAPIUtils implements Listener {
 
 	@EventHandler
-	public void onRegister(final ItemContainerRegisterEvent e) {
+	public void onRegister(final com.logisticscraft.logisticsapi.event.ItemContainerRegisterEvent e) {
 		TransportPipes.instance.getLogger().info("Item container registered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
 		PipeAPI.registerTransportPipesContainer(e.getLocation(), wrapLogisticsAPIItemContainer(e.getItemContainer()));
 	}
 
 	@EventHandler
-	public void onUnregister(ItemContainerUnregisterEvent e) {
+	public void onUnregister(com.logisticscraft.logisticsapi.event.ItemContainerUnregisterEvent e) {
 		TransportPipes.instance.getLogger().info("Item container unregistered at " + e.getLocation());
 		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
 	}
 
-	public static TransportPipesContainer wrapLogisticsAPIItemContainer(final ItemContainer ic) {
+	public static TransportPipesContainer wrapLogisticsAPIItemContainer(final com.logisticscraft.logisticsapi.item.ItemContainer ic) {
 		return new TransportPipesContainer() {
 
 			@Override
 			public ItemStack insertItem(WrappedDirection insertDirection, ItemStack insertion) {
-				return ic.insertItem(BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
+				return ic.insertItem(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
 			}
 
 			@Override
 			public int howMuchSpaceForItemAsync(WrappedDirection insertDirection, ItemStack insertion) {
-				return ic.howMuchSpaceForItemAsync(BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
+				return ic.howMuchSpaceForItemAsync(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(insertDirection.toBlockFace()), insertion);
 			}
 
 			@Override
@@ -55,7 +50,7 @@ public class LogisticsAPIUtils implements Listener {
 				for (ItemData id : filterItems) {
 					wrappedFilterItems.add(id.toItemStack());
 				}
-				return ic.extractItem(BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
+				return ic.extractItem(com.logisticscraft.logisticsapi.util.bukkit.BlockSide.fromBlockFace(extractDirection.toBlockFace()), extractAmount, wrappedFilterItems, com.logisticscraft.logisticsapi.item.FilteringMode.fromId(filteringMode.getId()));
 			}
 		};
 	}
