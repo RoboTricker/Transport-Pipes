@@ -1,9 +1,13 @@
 pipeline {
-  agent none
+  agent any
   stages {
     stage('Initialize') {
       steps {
-        sh 'mvn clean'
+        sh '''echo PATH = ${PATH}
+
+
+
+'''
       }
     }
   }
