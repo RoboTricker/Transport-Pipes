@@ -11,6 +11,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -19,6 +20,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
@@ -52,6 +54,7 @@ import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.LWCAPIUtils;
+import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
 import de.robotricker.transportpipes.utils.staticutils.SavingUtils;
 import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
 import de.robotricker.transportpipes.utils.staticutils.SkyblockAPIUtils;
@@ -263,7 +266,7 @@ public class TransportPipes extends JavaPlugin {
 				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) rs).new AuthMeLoginListener(), this);
 			}
 		}
-		/*if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
+		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
 			TransportPipes.instance.getLogger().info("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
@@ -273,7 +276,7 @@ public class TransportPipes extends JavaPlugin {
 				TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer(containers.get(key));
 				PipeAPI.registerTransportPipesContainer(key.getBlock().getLocation(), tpc);
 			}
-		}*/
+		}
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
 			try {
 				Bukkit.getPluginManager().registerEvents(new SkyblockAPIUtils(), this);

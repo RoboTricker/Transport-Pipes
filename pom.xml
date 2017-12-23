@@ -136,7 +136,7 @@
 		</repository>
 		<repository>
 			<id>frontfight.net</id>
-			<url>http://frontfight.net:8081/repository/maven-public/</url>
+			<url>http://repo.frontfight.net/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>bstats-repo</id>
@@ -223,12 +223,12 @@
 			<version>1.9.3</version>
 			<scope>provided</scope>
 		</dependency>
-		<!--<dependency>
+		<dependency>
 			<groupId>com.logisticscraft</groupId>
 			<artifactId>logistics-api</artifactId>
 			<version>0.0.4-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>-->
+		</dependency>
 		<dependency>
 			<groupId>com.flowpowered</groupId>
 			<artifactId>flow-nbt</artifactId>
