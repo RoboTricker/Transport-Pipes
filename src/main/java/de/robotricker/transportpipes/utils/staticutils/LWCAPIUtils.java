@@ -4,9 +4,6 @@ import java.util.Map;
 
 import org.bukkit.Location;
 
-import com.griefcraft.scripting.JavaModule;
-import com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent;
-
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
@@ -15,10 +12,10 @@ import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 
-public class LWCAPIUtils extends JavaModule {
+public class LWCAPIUtils extends com.griefcraft.scripting.JavaModule {
 
 	@Override
-	public void onPostRegistration(LWCProtectionRegistrationPostEvent e) {
+	public void onPostRegistration(com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent e) {
 		boolean destroyedAtLeastOneDuct = false;
 
 		Location protectionLoc = e.getProtection().getBlock().getLocation();
