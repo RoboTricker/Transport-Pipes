@@ -12,33 +12,35 @@ import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 
-public class LWCAPIUtils extends com.griefcraft.scripting.JavaModule {
+public class LWCAPIUtils {
 
-	@Override
-	public void onPostRegistration(com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent e) {
-		boolean destroyedAtLeastOneDuct = false;
+	public class LWCJavaModule extends com.griefcraft.scripting.JavaModule {
+		@Override
+		public void onPostRegistration(com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent e) {
+			boolean destroyedAtLeastOneDuct = false;
 
-		Location protectionLoc = e.getProtection().getBlock().getLocation();
-		BlockLoc protectionBl = BlockLoc.convertBlockLoc(protectionLoc);
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(protectionLoc.getWorld());
-		if (containerMap != null && containerMap.containsKey(protectionBl)) {
-			Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(e.getProtection().getBukkitWorld());
-			if (ductMap != null) {
-				for (WrappedDirection dir : WrappedDirection.values()) {
-					BlockLoc ductLoc = BlockLoc.convertBlockLoc(protectionLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
-					if (ductMap.containsKey(ductLoc)) {
-						Duct duct = ductMap.get(ductLoc);
-						if (duct.getDuctType() == DuctType.PIPE) {
-							DuctUtils.destroyDuct(null, duct, true);
-							destroyedAtLeastOneDuct = true;
+			Location protectionLoc = e.getProtection().getBlock().getLocation();
+			BlockLoc protectionBl = BlockLoc.convertBlockLoc(protectionLoc);
+			Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(protectionLoc.getWorld());
+			if (containerMap != null && containerMap.containsKey(protectionBl)) {
+				Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(e.getProtection().getBukkitWorld());
+				if (ductMap != null) {
+					for (WrappedDirection dir : WrappedDirection.values()) {
+						BlockLoc ductLoc = BlockLoc.convertBlockLoc(protectionLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
+						if (ductMap.containsKey(ductLoc)) {
+							Duct duct = ductMap.get(ductLoc);
+							if (duct.getDuctType() == DuctType.PIPE) {
+								DuctUtils.destroyDuct(null, duct, true);
+								destroyedAtLeastOneDuct = true;
+							}
 						}
 					}
 				}
 			}
-		}
 
-		if (destroyedAtLeastOneDuct) {
-			e.getPlayer().sendMessage(LocConf.load(LocConf.LWC_ERROR));
+			if (destroyedAtLeastOneDuct) {
+				e.getPlayer().sendMessage(LocConf.load(LocConf.LWC_ERROR));
+			}
 		}
 	}
 
