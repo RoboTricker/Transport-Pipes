@@ -14,8 +14,8 @@ import de.robotricker.transportpipes.utils.config.LocConf;
 
 public class LWCAPIUtils {
 
-	public class LWCJavaModule extends com.griefcraft.scripting.JavaModule {
-		@Override
+	public class LWCJavaModule { // extends com.griefcraft.scripting.JavaModule {
+		//@Override
 		public void onPostRegistration(com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent e) {
 			boolean destroyedAtLeastOneDuct = false;
 

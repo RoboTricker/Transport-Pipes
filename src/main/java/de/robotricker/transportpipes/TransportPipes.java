@@ -287,7 +287,7 @@ public class TransportPipes extends JavaPlugin {
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
 			try {
-				com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, new LWCAPIUtils().new LWCJavaModule());
+				//com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, new LWCAPIUtils().new LWCJavaModule());
 			} catch (Exception e) {
 				e.printStackTrace();
 				Sentry.capture(e);
