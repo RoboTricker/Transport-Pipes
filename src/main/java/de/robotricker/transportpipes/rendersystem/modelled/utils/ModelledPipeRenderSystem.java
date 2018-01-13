@@ -40,16 +40,12 @@ import de.robotricker.transportpipes.utils.staticutils.ProtocolUtils;
 
 public class ModelledPipeRenderSystem extends RenderSystem {
 
-	public static final String RESOURCEPACK_URL = "https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip";
-
 	private Map<Pipe, ArmorStandData> midAsd = new HashMap<>();
 	private Map<Pipe, Map<WrappedDirection, ArmorStandData>> connsAsd = new HashMap<>();
 	private AxisAlignedBB midAABB;
 	private Map<WrappedDirection, AxisAlignedBB> connsAABBs = new HashMap<>();
 
 	private Map<PipeType, ModelledPipeModel> models = new HashMap<>();
-
-	private List<Player> loadedResourcePackPlayers = new ArrayList<>();
 
 	public ModelledPipeRenderSystem(DuctManager ductManager) {
 		super(ductManager);
@@ -230,41 +226,8 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 	}
 	
 	@Override
-	public void initPlayer(Player p) {
-		if (Bukkit.getPluginManager().isPluginEnabled("AuthMe") && !fr.xephi.authme.api.v3.AuthMeApi.getInstance().isAuthenticated(p)) {
-			return;
-		}
-		if (!loadedResourcePackPlayers.contains(p)) {
-			p.closeInventory();
-			p.setResourcePack(TransportPipes.instance.generalConf.getResourcepackURL());
-		}
+	public boolean usesResourcePack() {
+		return true;
 	}
-
-	@EventHandler
-	public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
-		if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
-			RenderSystem beforePm = TransportPipes.instance.ductManager.getPlayerRenderSystem(e.getPlayer(), DuctType.PIPE);
-			if (beforePm.equals(this)) {
-				ductManager.changePlayerRenderSystem(e.getPlayer(), 0);
-			}
-			e.getPlayer().sendMessage("§cResourcepack Download failed: Switched to the Vanilla Model System");
-			e.getPlayer().sendMessage("§cDid you enable \"Server Resourcepacks\" in your server list?");
-		} else {
-			if (!loadedResourcePackPlayers.contains(e.getPlayer())) {
-				loadedResourcePackPlayers.add(e.getPlayer());
-			}
-		}
-	}
-
-	public class AuthMeLoginListener implements Listener {
-
-		@EventHandler
-		public void onAuthMeLogin(fr.xephi.authme.events.LoginEvent e) {
-			RenderSystem beforePm = TransportPipes.instance.ductManager.getPlayerRenderSystem(e.getPlayer(), DuctType.PIPE);
-			if (beforePm.equals(ModelledPipeRenderSystem.this) && !loadedResourcePackPlayers.contains(e.getPlayer())) {
-				initPlayer(e.getPlayer());
-			}
-		}
-	}
-
+	
 }

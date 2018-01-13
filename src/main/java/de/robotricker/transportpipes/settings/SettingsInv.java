@@ -116,11 +116,14 @@ public class SettingsInv implements Listener {
 					int renderSystemId = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystemId();
 					renderSystemId++;
 					renderSystemId %= RenderSystem.getRenderSystemAmount();
+					if (RenderSystem.getRenderSystemFromId(renderSystemId, DuctType.PIPE).usesResourcePack() && !TransportPipes.instance.generalConf.isResourcepackEnabled()) {
+						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BASS, 1f, 1f);
+					} else {
+						TransportPipes.instance.ductManager.changePlayerRenderSystem(p, renderSystemId);
 
-					TransportPipes.instance.ductManager.changePlayerRenderSystem(p, renderSystemId);
-
-					updateSettingsInventory(e.getInventory(), p);
-					p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+						updateSettingsInventory(e.getInventory(), p);
+						p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+					}
 				}
 				if ((!forceDefaultRenderSystem && e.getRawSlot() == 14) || (forceDefaultRenderSystem && e.getRawSlot() == 13)) {
 					// change show items

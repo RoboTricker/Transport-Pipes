@@ -142,11 +142,6 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void initPlayer(Player p) {
-		p.updateInventory();
-	}
-
-	@Override
 	public int[] getRenderSystemIds() {
 		return new int[] { 0 };
 	}
@@ -154,6 +149,11 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 	@Override
 	public DuctType getDuctType() {
 		return DuctType.PIPE;
+	}
+	
+	@Override
+	public boolean usesResourcePack() {
+		return false;
 	}
 
 	private enum VanillaPipeShape {

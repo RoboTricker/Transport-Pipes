@@ -1,6 +1,12 @@
 package de.robotricker.transportpipes;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +14,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -32,10 +40,12 @@ import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.protocol.DuctManager;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
+import de.robotricker.transportpipes.rendersystem.RenderSystem.ResourcepackListener;
 import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.settings.SettingsInv;
 import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.commands.CreativeCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.DeletePipesCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.ReloadPipesCommandExecutor;
@@ -52,8 +62,8 @@ import de.robotricker.transportpipes.utils.hitbox.occlusionculling.BlockChangeLi
 import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
-import de.robotricker.transportpipes.utils.staticutils.LWCAPIUtils;
 import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
 import de.robotricker.transportpipes.utils.staticutils.SavingUtils;
 import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
@@ -67,6 +77,8 @@ import io.sentry.event.UserBuilder;
 public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
+	public static String RESOURCEPACK_URL = "https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip";
+	public static byte[] resourcepackHash;
 
 	private Map<World, Map<BlockLoc, Duct>> registeredDucts;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
@@ -78,7 +90,8 @@ public class TransportPipes extends JavaPlugin {
 	public PipeThread pipeThread;
 	public DuctManager ductManager;
 	public BlockChangeListener blockChangeListener;
-	
+	public ResourcepackListener resourcepackListener;
+
 	// configs
 	public LocConf locConf;
 	public GeneralConf generalConf;
@@ -260,21 +273,20 @@ public class TransportPipes extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(ductManager, this);
 		Bukkit.getPluginManager().registerEvents(updateManager, this);
 		Bukkit.getPluginManager().registerEvents(blockChangeListener = new BlockChangeListener(), this);
-		for (RenderSystem rs : DuctType.PIPE.getRenderSystems()) {
-			Bukkit.getPluginManager().registerEvents(rs, this);
-			if (rs instanceof ModelledPipeRenderSystem && Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
-				Bukkit.getPluginManager().registerEvents(((ModelledPipeRenderSystem) rs).new AuthMeLoginListener(), this);
-			}
-		}
+		Bukkit.getPluginManager().registerEvents(resourcepackListener = new RenderSystem.ResourcepackListener(ductManager), this);
 		if (Bukkit.getPluginManager().isPluginEnabled("LogisticsApi")) {
 			TransportPipes.instance.getLogger().info("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
-			// register already registered ItemContainers
-			Map<Location, com.logisticscraft.logisticsapi.item.ItemContainer> containers = com.logisticscraft.logisticsapi.item.ItemManager.getContainers();
-			for (Location key : containers.keySet()) {
-				TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer(containers.get(key));
-				PipeAPI.registerTransportPipesContainer(key.getBlock().getLocation(), tpc);
+			// register already registered ItemStorages
+			Map<Chunk, Map<Location, com.logisticscraft.logisticsapi.block.LogisticBlock>> containers = com.logisticscraft.logisticsapi.LogisticsApi.getInstance().getBlockManager().getPlacedBlocks();
+			for (Map<Location, com.logisticscraft.logisticsapi.block.LogisticBlock> chunk : containers.values()) {
+				for (Entry<Location, com.logisticscraft.logisticsapi.block.LogisticBlock> block : chunk.entrySet()) {
+					if (block.getValue() instanceof com.logisticscraft.logisticsapi.item.ItemStorage) {
+						TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer((com.logisticscraft.logisticsapi.item.ItemStorage) block.getValue());
+						PipeAPI.registerTransportPipesContainer(block.getKey(), tpc);
+					}
+				}
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
@@ -287,7 +299,36 @@ public class TransportPipes extends JavaPlugin {
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
 			try {
-				//com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, new LWCAPIUtils().new LWCJavaModule());
+				com.griefcraft.scripting.JavaModule module = new com.griefcraft.scripting.JavaModule() {
+					@Override
+					public void onPostRegistration(com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent e) {
+						boolean destroyedAtLeastOneDuct = false;
+
+						Location protectionLoc = e.getProtection().getBlock().getLocation();
+						BlockLoc protectionBl = BlockLoc.convertBlockLoc(protectionLoc);
+						Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(protectionLoc.getWorld());
+						if (containerMap != null && containerMap.containsKey(protectionBl)) {
+							Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(e.getProtection().getBukkitWorld());
+							if (ductMap != null) {
+								for (WrappedDirection dir : WrappedDirection.values()) {
+									BlockLoc ductLoc = BlockLoc.convertBlockLoc(protectionLoc.clone().add(dir.getX(), dir.getY(), dir.getZ()));
+									if (ductMap.containsKey(ductLoc)) {
+										Duct duct = ductMap.get(ductLoc);
+										if (duct.getDuctType() == DuctType.PIPE) {
+											DuctUtils.destroyDuct(null, duct, true);
+											destroyedAtLeastOneDuct = true;
+										}
+									}
+								}
+							}
+						}
+
+						if (destroyedAtLeastOneDuct) {
+							e.getPlayer().sendMessage(LocConf.load(LocConf.LWC_ERROR));
+						}
+					}
+				};
+				com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, module);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Sentry.capture(e);
@@ -314,6 +355,31 @@ public class TransportPipes extends JavaPlugin {
 				pipeThread.start();
 			}
 		});
+
+		try {
+			URL url = new URL(RESOURCEPACK_URL);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			byte[] resourcePackBytes = new byte[connection.getContentLength()];
+			InputStream in = connection.getInputStream();
+
+			int b;
+			int i = 0;
+			while ((b = in.read()) != -1) {
+				resourcePackBytes[i] = (byte) b;
+				i++;
+			}
+
+			in.close();
+
+			if (resourcePackBytes != null) {
+				MessageDigest md = MessageDigest.getInstance("SHA-1");
+				resourcepackHash = md.digest(resourcePackBytes);
+			}
+		} catch (NoSuchAlgorithmException | IOException e) {
+			e.printStackTrace();
+			Sentry.capture(e);
+		}
 
 	}
 

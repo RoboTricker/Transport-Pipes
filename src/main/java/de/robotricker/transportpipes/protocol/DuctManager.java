@@ -301,12 +301,6 @@ public class DuctManager implements Listener {
 
 		// change render system
 		TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).setRenderSystem(newRenderSystemId);
-		for (DuctType dt : DuctType.values()) {
-			if (!dt.isEnabled()) {
-				continue;
-			}
-			TransportPipes.instance.ductManager.getPlayerRenderSystem(p, dt).initPlayer(p);
-		}
 
 		// spawn all new ducts
 		if (ductMap != null) {
@@ -383,12 +377,10 @@ public class DuctManager implements Listener {
 
 			@Override
 			public void run() {
-				for (DuctType dt : DuctType.values()) {
-					if (!dt.isEnabled()) {
-						continue;
-					}
-					getPlayerRenderSystem(e.getPlayer(), dt).initPlayer(e.getPlayer());
+				if (TransportPipes.instance.ductManager.getPlayerRenderSystem(e.getPlayer(), DuctType.PIPE).usesResourcePack() && !TransportPipes.instance.generalConf.isResourcepackEnabled()) {
+					TransportPipes.instance.ductManager.changePlayerRenderSystem(e.getPlayer(), 0);
 				}
+				TransportPipes.instance.resourcepackListener.initPlayer(e.getPlayer());
 
 				TransportPipes.instance.pipeThread.runTask(new Runnable() {
 

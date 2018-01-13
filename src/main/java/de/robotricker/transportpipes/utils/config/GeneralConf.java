@@ -20,7 +20,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("force_default_rendersystem", false);
 		saveAsDefault("default_renderdistance", 25);
 		saveAsDefault("default_showitems", true);
-		saveAsDefault("custom_resourcepack", "default");
+		saveAsDefault("resourcepack", "default"); // default, server, none, [URL]
 		finishDefault();
 	}
 
@@ -61,12 +61,19 @@ public class GeneralConf extends Conf {
 		return (int) read("default_renderdistance");
 	}
 
-	public String getResourcepackURL() {
-		String customResourcePack = (String) read("custom_resourcepack");
-		if (customResourcePack.equalsIgnoreCase("default")) {
-			return ModelledPipeRenderSystem.RESOURCEPACK_URL;
+	public boolean isResourcepackEnabled() {
+		String customResourcePack = (String) read("resourcepack");
+		return !customResourcePack.equalsIgnoreCase("none");
+	}
+
+	public String getResourcepack() {
+		String resourcepack = (String) read("resourcepack");
+		if (resourcepack.equalsIgnoreCase("default")) {
+			return TransportPipes.RESOURCEPACK_URL;
+		} else if (resourcepack.equalsIgnoreCase("server") || resourcepack.equalsIgnoreCase("none")) {
+			return null;
 		} else {
-			return customResourcePack;
+			return resourcepack;
 		}
 	}
 

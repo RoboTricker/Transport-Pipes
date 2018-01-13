@@ -1,19 +1,25 @@
 package de.robotricker.transportpipes.rendersystem;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.DuctManager;
-import de.robotricker.transportpipes.protocol.DuctProtocol;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
@@ -22,7 +28,7 @@ import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.ProtocolUtils;
 
-public abstract class RenderSystem implements Listener {
+public abstract class RenderSystem {
 
 	private static ItemStack MODELLED_REPRESENTATION_ITEM = InventoryUtils.createToolItemStack(25);
 
@@ -64,8 +70,6 @@ public abstract class RenderSystem implements Listener {
 
 	public abstract AxisAlignedBB getOuterHitbox(Duct duct);
 
-	public abstract void initPlayer(Player p);
-
 	/**
 	 * for one DuctType there mustn't be a renderSystemId for multiple renderSystems
 	 */
@@ -101,9 +105,52 @@ public abstract class RenderSystem implements Listener {
 		}
 		return null;
 	}
-	
+
 	public static int getRenderSystemAmount() {
 		return 2;
+	}
+
+	public abstract boolean usesResourcePack();
+
+	protected static Set<Player> loadedResourcePackPlayers = new HashSet<>();
+
+	public static class ResourcepackListener implements Listener {
+
+		private DuctManager ductManager;
+
+		public ResourcepackListener(DuctManager ductManager) {
+			this.ductManager = ductManager;
+			if (Bukkit.getPluginManager().isPluginEnabled("AuthMe")) {
+				Bukkit.getPluginManager().registerEvents(new Listener() {
+					@EventHandler
+					public void onAuthMeLogin(fr.xephi.authme.events.LoginEvent e) {
+						initPlayer(e.getPlayer());
+					}
+				}, TransportPipes.instance);
+			}
+		}
+
+		@EventHandler
+		public void onResourcePackStatus(PlayerResourcePackStatusEvent e) {
+			if (e.getStatus() == Status.DECLINED || e.getStatus() == Status.FAILED_DOWNLOAD) {
+				ductManager.changePlayerRenderSystem(e.getPlayer(), 0);
+				e.getPlayer().sendMessage("§cResourcepack Download failed!");
+				e.getPlayer().sendMessage("§cDid you enable \"Server Resourcepacks\" in your server list?");
+			} else {
+				loadedResourcePackPlayers.add(e.getPlayer());
+			}
+		}
+
+		public void initPlayer(Player p) {
+			if (Bukkit.getPluginManager().isPluginEnabled("AuthMe") && !fr.xephi.authme.api.v3.AuthMeApi.getInstance().isAuthenticated(p)) {
+				return;
+			}
+			if (!loadedResourcePackPlayers.contains(p) && TransportPipes.instance.generalConf.getResourcepack() != null) {
+				p.closeInventory();
+				p.setResourcePack(TransportPipes.instance.generalConf.getResourcepack(), TransportPipes.resourcepackHash);
+			}
+		}
+
 	}
 
 }
