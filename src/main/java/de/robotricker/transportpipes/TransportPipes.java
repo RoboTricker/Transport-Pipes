@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -19,6 +21,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.logisticscraft.logisticsapi.LogisticsApi;
+import com.logisticscraft.logisticsapi.block.LogisticBlock;
+import com.logisticscraft.logisticsapi.item.ItemStorage;
 
 import de.robotricker.transportpipes.api.PipeAPI;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -53,7 +59,6 @@ import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
-import de.robotricker.transportpipes.utils.staticutils.LWCAPIUtils;
 import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
 import de.robotricker.transportpipes.utils.staticutils.SavingUtils;
 import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
@@ -271,10 +276,14 @@ public class TransportPipes extends JavaPlugin {
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
 			// register already registered ItemContainers
-			Map<Location, com.logisticscraft.logisticsapi.item.ItemContainer> containers = com.logisticscraft.logisticsapi.item.ItemManager.getContainers();
-			for (Location key : containers.keySet()) {
-				TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer(containers.get(key));
-				PipeAPI.registerTransportPipesContainer(key.getBlock().getLocation(), tpc);
+			Map<Chunk, Map<Location, LogisticBlock>> containers = LogisticsApi.getInstance().getBlockManager().getPlacedBlocks();
+			for (Map<Location, LogisticBlock> chunk : containers.values()) {
+			    for(Entry<Location, LogisticBlock> block : chunk.entrySet()){
+			        if(block.getValue() instanceof ItemStorage){
+			            TransportPipesContainer tpc = LogisticsAPIUtils.wrapLogisticsAPIItemContainer((ItemStorage) block.getValue());
+			            PipeAPI.registerTransportPipesContainer(block.getKey(), tpc);
+			        }
+			    }
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("AcidIsland")) {
