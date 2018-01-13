@@ -278,7 +278,7 @@ public class TransportPipes extends JavaPlugin {
 			TransportPipes.instance.getLogger().info("LogisticsAPI found ... registering listener and ItemContainers");
 			// register listener
 			Bukkit.getPluginManager().registerEvents(new LogisticsAPIUtils(), this);
-			// register already registered ItemStorages
+			// register already registered ItemContainers
 			Map<Chunk, Map<Location, com.logisticscraft.logisticsapi.block.LogisticBlock>> containers = com.logisticscraft.logisticsapi.LogisticsApi.getInstance().getBlockManager().getPlacedBlocks();
 			for (Map<Location, com.logisticscraft.logisticsapi.block.LogisticBlock> chunk : containers.values()) {
 				for (Entry<Location, com.logisticscraft.logisticsapi.block.LogisticBlock> block : chunk.entrySet()) {

@@ -12,7 +12,7 @@ https://discord.gg/wPKCAX5
 or write a new issue here on GitHub.
 # Builds
 
-<a href="http://jenkins.frontfight.net/job/Transport-Pipes">![Build Status](http://jenkins.frontfight.net/job/Transport-Pipes/badge/icon)</a>
+<a href="http://jenkins.frontfight.net/job/TransportPipes">![Build Status](http://jenkins.frontfight.net/job/TransportPipes/badge/icon)</a>
 
 If you want to have access to snapshot versions of this plugin, visit the following jenkins page: http://jenkins.frontfight.net
 Otherwise you can download the releases on the plugin's spigot page.
