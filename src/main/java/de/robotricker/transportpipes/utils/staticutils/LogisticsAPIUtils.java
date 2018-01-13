@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes.utils.staticutils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.event.EventHandler;
@@ -10,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import com.logisticscraft.logisticsapi.data.LogisticBlockFace;
 import com.logisticscraft.logisticsapi.event.LogisticBlockLoadEvent;
 import com.logisticscraft.logisticsapi.event.LogisticBlockUnloadEvent;
+import com.logisticscraft.logisticsapi.item.ItemFilter;
 import com.logisticscraft.logisticsapi.item.ItemStorage;
 
 import de.robotricker.transportpipes.TransportPipes;
@@ -51,14 +51,26 @@ public class LogisticsAPIUtils implements Listener {
 
             @Override
             public ItemStack extractItem(WrappedDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
-                List<ItemStack> wrappedFilterItems = new ArrayList<>();
-                for (ItemData id : filterItems) {
-                    wrappedFilterItems.add(id.toItemStack());
-                }
-                // TODO: Implement simulated filters first!
-                return ic.extractItem(LogisticBlockFace.getBlockFace(extractDirection.toBlockFace()), extractAmount, false);
+                return ic.extractItem(LogisticBlockFace.getBlockFace(extractDirection.toBlockFace()), extractAmount, new LogisticFilter(filterItems, filteringMode), false);
             }
         };
+    }
+    
+    private static class LogisticFilter implements ItemFilter{
+
+        private List<ItemData> filterItems;
+        private FilteringMode filteringMode;
+        
+        public LogisticFilter(List<ItemData> filterItems, FilteringMode filteringMode) {
+            this.filterItems = filterItems;
+            this.filteringMode = filteringMode;
+        }
+
+        @Override
+        public boolean matchesFilter(ItemStack item) {
+            return new ItemData(item).checkFilter(filterItems, filteringMode);
+        }
+        
     }
 
 }
