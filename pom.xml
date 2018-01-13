@@ -54,6 +54,12 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+						<relocations>
+							<relocation>
+								<pattern>io.sentry</pattern>
+								<shadedPattern>de.robotricker.io.sentry</shadedPattern>
+							</relocation>
+						</relocations>
 						</configuration>
 					</execution>
 				</executions>
