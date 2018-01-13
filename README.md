@@ -22,7 +22,7 @@ You can also add TransportPipes as a Maven dependency:
 <repositories>
   <repository>
     <id>frontfight-repo</id>
-    <url>http://jenkins.frontfight.net/plugin/repository/everything/</url>
+    <url>http://repo.frontfight.net/repository/maven-public/</url>
   </repository>
   ...
 </repositories>
