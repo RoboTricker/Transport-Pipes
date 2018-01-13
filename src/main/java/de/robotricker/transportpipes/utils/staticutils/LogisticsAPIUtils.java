@@ -23,7 +23,7 @@ public class LogisticsAPIUtils implements Listener {
 
     @EventHandler
     public void onRegister(final LogisticBlockLoadEvent e) {
-        if(e instanceof ItemStorage){
+        if(e.getLogisticBlock() instanceof ItemStorage){
             TransportPipes.instance.getLogger().info("Item container registered at " + e.getLocation());
             PipeAPI.unregisterTransportPipesContainer(e.getLocation());
             PipeAPI.registerTransportPipesContainer(e.getLocation(), wrapLogisticsAPIItemContainer((ItemStorage) e.getLogisticBlock()));
