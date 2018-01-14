@@ -16,7 +16,7 @@ public class DuctRegistrationEvent extends Event{
 	private static final HandlerList handlers = new HandlerList();
 
 	public DuctRegistrationEvent(Duct duct) {
-		super(true);
+		super();
 		this.duct = duct;
 		this.loc = duct.getBlockLoc();
 	}
