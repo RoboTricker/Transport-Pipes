@@ -24,6 +24,8 @@ import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.api.DuctRegistrationEvent;
+import de.robotricker.transportpipes.api.DuctUnregistrationEvent;
 import de.robotricker.transportpipes.api.PlayerDestroyDuctEvent;
 import de.robotricker.transportpipes.api.PlayerPlaceDuctEvent;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
@@ -130,6 +132,8 @@ public class DuctUtils {
 				TransportPipes.instance.ductManager.createDuct(duct, allConnections);
 			}
 		}, 0);
+		
+		Bukkit.getPluginManager().callEvent(new DuctRegistrationEvent(duct));
 	}
 
 	/**
@@ -275,6 +279,8 @@ public class DuctUtils {
 						}
 					}
 				});
+				
+				Bukkit.getPluginManager().callEvent(new DuctUnregistrationEvent(ductToDestroy));
 			}
 		}
 
