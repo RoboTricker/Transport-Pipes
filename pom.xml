@@ -144,8 +144,12 @@
 			<url>https://repo.destroystokyo.com/repository/maven-public/</url>
 		</repository>
 		<repository>
-			<id>frontfight.net</id>
+			<id>frontfight-remote</id>
 			<url>http://repo.frontfight.net/repository/maven-public/</url>
+		</repository>
+		<repository>
+			<id>frontfight-local</id>
+			<url>http://127.0.0.1:8081/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>bstats-repo</id>

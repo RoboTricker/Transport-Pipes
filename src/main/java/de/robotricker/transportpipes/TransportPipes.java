@@ -327,6 +327,7 @@ public class TransportPipes extends JavaPlugin {
 			}
 		});
 
+		//calculate SHA-1 hash for resourcepack
 		try {
 			URL url = new URL(RESOURCEPACK_URL);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
