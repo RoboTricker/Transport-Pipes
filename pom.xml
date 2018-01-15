@@ -144,7 +144,7 @@
 			<url>https://repo.destroystokyo.com/repository/maven-public/</url>
 		</repository>
 		<repository>
-			<id>frontfight-remote</id>
+			<id>frontfight-repo</id>
 			<url>http://repo.frontfight.net/repository/maven-public/</url>
 		</repository>
 		<repository>
