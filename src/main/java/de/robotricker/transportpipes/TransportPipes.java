@@ -76,7 +76,7 @@ public class TransportPipes extends JavaPlugin {
 
 	public static TransportPipes instance;
 	public static String RESOURCEPACK_URL = "https://raw.githubusercontent.com/RoboTricker/Transport-Pipes/master/src/main/resources/TransportPipes-ResourcePack.zip";
-	public static byte[] resourcepackHash;
+	public static byte[] resourcepackHash = null;
 
 	private Map<World, Map<BlockLoc, Duct>> registeredDucts;
 	private Map<World, Map<BlockLoc, TransportPipesContainer>> registeredContainers;
@@ -327,30 +327,32 @@ public class TransportPipes extends JavaPlugin {
 			}
 		});
 
-		//calculate SHA-1 hash for resourcepack
-		try {
-			URL url = new URL(RESOURCEPACK_URL);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			byte[] resourcePackBytes = new byte[connection.getContentLength()];
-			InputStream in = connection.getInputStream();
+		if (generalConf.getResourcepack() != null) {
+			// calculate SHA-1 hash for resourcepack
+			try {
+				URL url = new URL(generalConf.getResourcepack());
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setRequestMethod("GET");
+				byte[] resourcePackBytes = new byte[connection.getContentLength()];
+				InputStream in = connection.getInputStream();
 
-			int b;
-			int i = 0;
-			while ((b = in.read()) != -1) {
-				resourcePackBytes[i] = (byte) b;
-				i++;
+				int b;
+				int i = 0;
+				while ((b = in.read()) != -1) {
+					resourcePackBytes[i] = (byte) b;
+					i++;
+				}
+
+				in.close();
+
+				if (resourcePackBytes != null) {
+					MessageDigest md = MessageDigest.getInstance("SHA-1");
+					resourcepackHash = md.digest(resourcePackBytes);
+				}
+			} catch (NoSuchAlgorithmException | IOException e) {
+				e.printStackTrace();
+				Sentry.capture(e);
 			}
-
-			in.close();
-
-			if (resourcePackBytes != null) {
-				MessageDigest md = MessageDigest.getInstance("SHA-1");
-				resourcepackHash = md.digest(resourcePackBytes);
-			}
-		} catch (NoSuchAlgorithmException | IOException e) {
-			e.printStackTrace();
-			Sentry.capture(e);
 		}
 
 	}
