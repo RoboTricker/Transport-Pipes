@@ -12,7 +12,6 @@ build:
   tags:
     - maven
   script:
-    - echo "Building project with maven"
     - mvn clean package
   artifacts:
     paths:
@@ -22,5 +21,4 @@ deploy:
   tags:
     - maven
   script:
-    - echo "Deploying project with maven"
     - mvn deploy
