@@ -12,7 +12,7 @@ https://discord.gg/wPKCAX5
 or write a new issue here on GitHub.
 # Builds
 
-<a href="http://jenkins.frontfight.net/job/TransportPipes">![Build Status](http://jenkins.frontfight.net/job/TransportPipes/badge/icon)</a>
+[![buddy pipeline](https://app.buddy.works/frontfight/transport-pipes/pipelines/pipeline/70783/badge.svg?token=af5df8195478f162a67689596e95fb28d1f25c97c1a8d6c8849d544aaab3b698 "buddy pipeline")](https://app.buddy.works/frontfight/transport-pipes/pipelines/pipeline/70783)
 
 If you want to have access to snapshot versions of this plugin, visit the following jenkins page: http://jenkins.frontfight.net
 Otherwise you can download the releases on the plugin's spigot page.
