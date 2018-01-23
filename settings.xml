@@ -8,6 +8,6 @@
       <username>${env.mavendeploy_user}</username>
       <password>${env.mavendeploy_password}</password>
     </server>
-  </server>
+  </servers>
           
 </settings>
