@@ -63,6 +63,7 @@ import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
+import de.robotricker.transportpipes.utils.staticutils.ProtocolUtils;
 import de.robotricker.transportpipes.utils.staticutils.SavingUtils;
 import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
 import de.robotricker.transportpipes.utils.staticutils.SkyblockAPIUtils;

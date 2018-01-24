@@ -78,7 +78,6 @@
 		</repository>
    	</distributionManagement>
 
-
 	<profiles>
 		<!-- Jenkins profile -->
 		<!-- Set the buildNumber using the jenkins env. variable -->

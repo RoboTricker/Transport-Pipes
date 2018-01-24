@@ -1,9 +1,5 @@
 package de.robotricker.transportpipes.utils.hitbox.occlusionculling;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +9,6 @@ import org.bukkit.util.Vector;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
-import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.utils.hitbox.occlusionculling.BlockChangeListener.ChunkCoords;
 import io.sentry.Sentry;
@@ -23,9 +18,7 @@ public class OcclusionCullingUtils {
 	private static AxisAlignedBB blockAABB = new AxisAlignedBB(0d, 0d, 0d, 1d, 1d, 1d);
 
 	public static boolean isDuctVisibleForPlayer(Player p, Duct duct) {
-		RenderSystem renderSystem = TransportPipes.instance.settingsUtils.getOrLoadPlayerSettings(p).getRenderSystem(duct.getDuctType());
-		AxisAlignedBB aabb = renderSystem.getOuterHitbox(duct);
-		return isAABBVisible(duct.getBlockLoc(), aabb, p.getEyeLocation());
+		return isAABBVisible(duct.getBlockLoc(), blockAABB, p.getEyeLocation());
 	}
 
 	public static boolean isPipeItemVisibleForPlayer(Player p, PipeItem item) {
