@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -22,6 +24,7 @@ import org.bukkit.plugin.RegisteredListener;
 
 import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.EnumWrappers.Particle;
+import com.google.common.collect.Collections2;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.DuctRegistrationEvent;
@@ -80,6 +83,14 @@ public class DuctUtils {
 	}
 
 	public static boolean canBuild(Player p, Block b, Block placedAgainst, EquipmentSlot es) {
+		for(String worldName : TransportPipes.instance.generalConf.getDisabledWorlds()) {
+			if(worldName.equalsIgnoreCase(b.getWorld().getName())) {
+				if(p != null) {
+					p.sendMessage("§cPipes are disabled in this world.");
+				}
+				return false;
+			}
+		}
 		try (TimingCloseable tc = new TimingCloseable("HitboxListener canbuild check")) {
 			BlockBreakEvent bbe = new BlockBreakEvent(b, p);
 

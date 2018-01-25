@@ -21,6 +21,7 @@ public class GeneralConf extends Conf {
 		saveAsDefault("default_renderdistance", 25);
 		saveAsDefault("default_showitems", true);
 		saveAsDefault("resourcepack", "default"); // default, server, none, [URL]
+		saveAsDefault("disabled_worlds", Arrays.asList());
 		finishDefault();
 	}
 
@@ -75,6 +76,11 @@ public class GeneralConf extends Conf {
 		} else {
 			return resourcepack;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> getDisabledWorlds(){
+		return (List<String>) read("disabled_worlds");
 	}
 
 }
