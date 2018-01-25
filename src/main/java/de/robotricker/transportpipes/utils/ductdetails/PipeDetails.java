@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.ColoredPipe;
+import de.robotricker.transportpipes.duct.pipe.CraftingPipe;
 import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.duct.pipe.IcePipe;
@@ -73,6 +74,8 @@ public class PipeDetails extends DuctDetails {
 			return new VoidPipe(blockLoc);
 		} else if (getPipeType() == PipeType.EXTRACTION) {
 			return new ExtractionPipe(blockLoc);
+		} else if (getPipeType() == PipeType.CRAFTING) {
+			return new CraftingPipe(blockLoc);
 		}
 		return null;
 	}

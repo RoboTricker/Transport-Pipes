@@ -29,6 +29,7 @@ public class RecipesConf extends Conf {
 		saveShapedRecipeAsDefault("ice", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "80:0");
 		saveShapedRecipeAsDefault("void", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "49:0");
 		saveShapedRecipeAsDefault("extraction", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "5");
+		saveShapedRecipeAsDefault("crafting", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "58:0");
 		saveShapelessRecipeAsDefault("colored.white", 1, "pipe", "351:15");
 		saveShapelessRecipeAsDefault("colored.blue", 1, "pipe", "351:4");
 		saveShapelessRecipeAsDefault("colored.red", 1, "pipe", "351:1");

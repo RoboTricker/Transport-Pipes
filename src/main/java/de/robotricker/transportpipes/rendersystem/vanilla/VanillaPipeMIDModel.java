@@ -35,6 +35,8 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 			return createVoidASD();
 		case EXTRACTION:
 			return createExtractionASD();
+		case CRAFTING:
+			return createCraftingASD();
 		default:
 			return null;
 		}
@@ -71,7 +73,6 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.255f - 0.26f, 0.5f), new Vector(1, 0, 0), true, ITEM_CARPET_BLACK, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
-
 	}
 
 	private List<ArmorStandData> createIronASD(WrappedDirection outputPd) {
@@ -86,7 +87,6 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.255f - 0.26f, 0.5f), new Vector(1, 0, 0), true, outputPd == WrappedDirection.DOWN ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE, null, new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
-
 	}
 
 	private List<ArmorStandData> createVoidASD() {
@@ -95,7 +95,6 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_VOID_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
-
 	}
 
 	private List<ArmorStandData> createExtractionASD() {
@@ -104,7 +103,14 @@ public class VanillaPipeMIDModel extends VanillaPipeModel {
 		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_EXTRACTION_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
 
 		return asds;
+	}
+	
+	private List<ArmorStandData> createCraftingASD() {
+		List<ArmorStandData> asds = new ArrayList<>();
 
+		asds.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), new Vector(1, 0, 0), true, ITEM_CRAFTING_BLOCK, null, new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f)));
+
+		return asds;
 	}
 
 }

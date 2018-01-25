@@ -9,7 +9,8 @@ public enum PipeType {
 	IRON(2, "§7", LocConf.PIPES_IRON, "transportpipes.craft.ironpipe"),
 	ICE(3, "§b", LocConf.PIPES_ICE, "transportpipes.craft.icepipe"),
 	VOID(4, "§5", LocConf.PIPES_VOID, "transportpipes.craft.voidpipe"),
-	EXTRACTION(5, "§d", LocConf.PIPES_EXTRACTION, "transportpipes.craft.extractionpipe");
+	EXTRACTION(5, "§d", LocConf.PIPES_EXTRACTION, "transportpipes.craft.extractionpipe"),
+	CRAFTING(6, "§e", LocConf.PIPES_CRAFTING, "transportpipes.craft.craftingpipe");
 
 	private int id;
 	private String pipeName_colorCode;

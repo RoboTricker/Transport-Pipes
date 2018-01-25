@@ -18,6 +18,7 @@ public abstract class VanillaPipeModel extends Model {
 	protected static final ItemStack ITEM_ICE_BLOCK = new ItemStack(Material.ICE);
 	protected static final ItemStack ITEM_VOID_BLOCK = new ItemStack(Material.OBSIDIAN);
 	protected static final ItemStack ITEM_EXTRACTION_BLOCK = new ItemStack(Material.WOOD);
+	protected static final ItemStack ITEM_CRAFTING_BLOCK = new ItemStack(Material.WORKBENCH);
 	protected static final ItemStack ITEM_CARPET_WHITE = new ItemStack(Material.CARPET, 1, (short) 0);
 	protected static final ItemStack ITEM_CARPET_YELLOW = new ItemStack(Material.CARPET, 1, (short) 4);
 	protected static final ItemStack ITEM_CARPET_GREEN = new ItemStack(Material.CARPET, 1, (short) 5);

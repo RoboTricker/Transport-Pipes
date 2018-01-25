@@ -16,6 +16,7 @@ public class LocConf extends Conf {
 	public static final String PIPES_IRON = "pipes.iron";
 	public static final String PIPES_VOID = "pipes.void";
 	public static final String PIPES_EXTRACTION = "pipes.extraction";
+	public static final String PIPES_CRAFTING = "pipes.crafting";
 	public static final String PIPES_WRENCH = "pipes.wrench";
 	public static final String GOLDENPIPE_TITLE = "goldenpipe.title";
 	public static final String GOLDENPIPE_COLORS_WHITE = "goldenpipe.colors.white";
@@ -44,6 +45,7 @@ public class LocConf extends Conf {
 	public static final String EXTRACTIONPIPE_AMOUNT_EXTRACT1 = "extractionpipe.amount.extract1";
 	public static final String EXTRACTIONPIPE_AMOUNT_EXTRACT16 = "extractionpipe.amount.extract16";
 	public static final String EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE = "extractionpipe.amount.clicktochange";
+	public static final String CRAFTINGPIPE_TITLE = "craftingpipe.title";
 	public static final String SETTINGS_TITLE = "settings.title";
 	public static final String SETTINGS_RENDERDISTANCE_TITLE = "settings.renderdistance.title";
 	public static final String SETTINGS_RENDERDISTANCE_DECREASE = "settings.renderdistance.decrease";
@@ -78,6 +80,7 @@ public class LocConf extends Conf {
 		saveAsDefault(PIPES_IRON, "Iron-Pipe");
 		saveAsDefault(PIPES_VOID, "Void-Pipe");
 		saveAsDefault(PIPES_EXTRACTION, "Extraction-Pipe");
+		saveAsDefault(PIPES_CRAFTING, "Crafting-Pipe");
 		saveAsDefault(PIPES_WRENCH, "Wrench");
 		saveAsDefault(GOLDENPIPE_TITLE, "Golden-Pipe");
 		saveAsDefault(GOLDENPIPE_COLORS_WHITE, "&fWhite");
@@ -106,6 +109,7 @@ public class LocConf extends Conf {
 		saveAsDefault(EXTRACTIONPIPE_AMOUNT_EXTRACT1, "&7Extract Amount: &a1");
 		saveAsDefault(EXTRACTIONPIPE_AMOUNT_EXTRACT16, "&7Extract Amount: &a16");
 		saveAsDefault(EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE, "&7Click to change extract amount");
+		saveAsDefault(CRAFTINGPIPE_TITLE, "Crafting-Pipe");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DECREASE, "&6Decrease");

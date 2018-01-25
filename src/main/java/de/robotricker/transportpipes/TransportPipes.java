@@ -168,6 +168,8 @@ public class TransportPipes extends JavaPlugin {
 		InventoryUtils.changeDisplayName(ITEM_PIPE_VOID, PipeType.VOID.getFormattedPipeName());
 		ItemStack ITEM_PIPE_EXTRACTION = InventoryUtils.createSkullItemStack("e8501df6-3418-3470-afe3-723dd4a48186", "eyJ0aW1lc3RhbXAiOjE1MDEwNzYzNjQ4NDIsInByb2ZpbGVJZCI6ImJmMzU3YmY0MDcyMTRiN2RiYTA0MjU3MWVjMzJjYTZmIiwicHJvZmlsZU5hbWUiOiJDb2xieUJlZWVlIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9mZTdjZDdiZGMyMTkyNmMwY2RkZGVkNmJhOTExNmNkNjEzODExMTE1OWQzZjM2ZTdiZjg1ZTBlNzIxOGU5OWI3In19fQ==", "mMcIkdBMD+K13Gu7H5egtb9E70X14pobMdcGKwl5gVDX06Rriy+UIajOgKzzX5coyQsY/GxiSdk7Qj4vTrVEVbDYLtnFNCrLcWEPgB8UrG66ncZ1PpPn0T+uhGrZpLpFVhAblJ2TPiUjm5tfcVLjOF7nRroaUE29eIvksJ7fOrQN4X0qeG6bnaprV6GLUMUdeRKJHEWNGiR7ZABsj1m/NAh3Kn6hQhAp5B1cyvQti0a/xGDybrufgoRA/d7oOoch0flUM1udyB9lCdlT/mBNe1lhJj1jlLWhawLSs89MO7h01hJe0YjD0O6y4yQwb3f331EMWlVscnHADsOxEqy7sLaVaPfFJ0lT3je2bZVeKkGFWWC+ry7+B5AUMeYqh8IukL2S9AlETeu+byvpgc9lnhy8CpKmQ+5qztgOuALr0MNz+MCsj1LSEWqS8p1bYTNKIL9el/WdodTdP2j/uXtUt+h2NdoHcxUW4e1P+EED3r5Jr3+Ay9CCLcFri787jOXDVO+r8NG15J2JSOiiByIX2mLE8pX3kSaQm8jt9bQNjXeiUXprHBJ9xyui23+1BX9wsK5QFCHXSLMHPNS/6oTQlVkYQZ0ejUKBJ9I6b3KAYYmM3wwnARY2isrC/jNriFVu9CVZgJ52d5+MIPcDAbi0SYPyVSSGrJYdlTWCB3aUXLg=");
 		InventoryUtils.changeDisplayName(ITEM_PIPE_EXTRACTION, PipeType.EXTRACTION.getFormattedPipeName());
+		ItemStack ITEM_PIPE_CRAFTING = InventoryUtils.createSkullItemStack("2589f15a-2e13-4af3-b21c-3b1df42c98d0", "eyJ0aW1lc3RhbXAiOjE1MTY5MDQ1MTQ0NDIsInByb2ZpbGVJZCI6IjNlMjZiMDk3MWFjZDRjNmQ5MzVjNmFkYjE1YjYyMDNhIiwicHJvZmlsZU5hbWUiOiJOYWhlbGUiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2JjOWYzMWUzNzBlZWFhODliYzRlZTNjOTUzZjZkMjFiZjQzMmYyMWNlNzIyZjM4NTdlZGVmNTEyY2M4ZTMyIn19fQ==", "Tb7OI2UPy/Z6qmrdy/gwC0qt5iYYBuvSRnx06zGjACNciinz3i1gL8Cy792UtOsF2Om4h/V5ZJ4HVe8ylHFOtjjgulhYRmAm+i/6JaK+UPuYF8oVpguCS/n4rhKgqw3lHshjRckScPIM9fFCVzP3ylfQq7hpElgs/8zmnr6towf8z2hAf2e6rIy1MgPepWlD3t1usgdu9v4vIFTwneHT8vB8LQj1nbIJQucpuaTx+EDMNnFl32rRzAyTeCjBT0vKHvTxN+rOPhheOyZ14h8LatLLab9w/suSzhqgMWRCKjrznpaRFufc1VDNEjJUa4P0rMiXa1F6EqEnf+BVBJIMsijJVWtshpIUjZ5Vzle6Y6CN5aEtDxZ3xfrvwVIHlqFYtLsRJWSowPvHzTMmkoHUeMlf0AZwFvd74L4zvSb2Ux+QPWyC0lhAg3vLMyEI/1z73x6zLPjiRCY2cDeeTVuc/s5C6nwbSBAkx/2Rg+A5QQ+S87iQjg43AOGOE/FdtmKu94c7xf6vmid1e/aHoxiKfwwdRozA2sAbc1U9PgEvdYqRne/22+ahB016BmbwI6BvQPbX0BsvBbl0kv4iux1vr1GHfEn/XDLXtC1D5YiJ5mBhpvihAGDhATWs9AotbG9cFhTEUgEJzQaaMR9FRLzzhMYKR+nNW3DNWFfyLBAVxgU=");
+		InventoryUtils.changeDisplayName(ITEM_PIPE_CRAFTING, PipeType.CRAFTING.getFormattedPipeName());
 
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeColor.WHITE), ITEM_PIPE_WHITE);
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeColor.BLUE), ITEM_PIPE_BLUE);
@@ -180,6 +182,7 @@ public class TransportPipes extends JavaPlugin {
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeType.ICE), ITEM_PIPE_ICE);
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeType.VOID), ITEM_PIPE_VOID);
 		DuctItemUtils.registerDuctItem(new PipeDetails(PipeType.EXTRACTION), ITEM_PIPE_EXTRACTION);
+		DuctItemUtils.registerDuctItem(new PipeDetails(PipeType.CRAFTING), ITEM_PIPE_CRAFTING);
 
 		DuctType.PIPE.addRenderSystem(new VanillaPipeRenderSystem(ductManager));
 		DuctType.PIPE.addRenderSystem(new ModelledPipeRenderSystem(ductManager));
@@ -263,8 +266,6 @@ public class TransportPipes extends JavaPlugin {
 
 		// register listeners
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
-		Bukkit.getPluginManager().registerEvents(new GoldenPipeInv(), this);
-		Bukkit.getPluginManager().registerEvents(new ExtractionPipeInv(), this);
 		Bukkit.getPluginManager().registerEvents(savingManager = new SavingUtils(), this);
 		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);

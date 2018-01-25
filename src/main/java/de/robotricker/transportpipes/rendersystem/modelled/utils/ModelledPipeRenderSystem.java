@@ -26,6 +26,7 @@ import de.robotricker.transportpipes.protocol.DuctManager;
 import de.robotricker.transportpipes.protocol.DuctProtocol;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeCOLOREDModel;
+import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeCRAFTINGModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeEXTRACTIONModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeGOLDENModel;
 import de.robotricker.transportpipes.rendersystem.modelled.ModelledPipeICEModel;
@@ -55,6 +56,7 @@ public class ModelledPipeRenderSystem extends RenderSystem {
 		models.put(PipeType.IRON, new ModelledPipeIRONModel());
 		models.put(PipeType.VOID, new ModelledPipeVOIDModel());
 		models.put(PipeType.EXTRACTION, new ModelledPipeEXTRACTIONModel());
+		models.put(PipeType.CRAFTING, new ModelledPipeCRAFTINGModel());
 
 		midAABB = new AxisAlignedBB(4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d);
 		connsAABBs.put(WrappedDirection.NORTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 0d / 16d, 12d / 16d, 12d / 16d, 4d / 16d));

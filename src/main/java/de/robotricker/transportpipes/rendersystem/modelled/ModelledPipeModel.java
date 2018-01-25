@@ -21,6 +21,8 @@ public abstract class ModelledPipeModel extends Model {
 	protected static final ItemStack ITEM_HOE_MID_EXTRACTION = InventoryUtils.createToolItemStack(37);
 	protected static final ItemStack ITEM_HOE_CONN_EXTRACTION_CLOSED = InventoryUtils.createToolItemStack(38);
 	protected static final ItemStack ITEM_HOE_CONN_EXTRACTION_OPENED = InventoryUtils.createToolItemStack(39);
+	protected static final ItemStack ITEM_HOE_MID_CRAFTING = InventoryUtils.createToolItemStack(42);
+	protected static final ItemStack ITEM_HOE_CONN_CRAFTING = InventoryUtils.createToolItemStack(43);
 
 	public abstract ArmorStandData createMidASD(ModelledPipeMidModelData data);
 

@@ -18,6 +18,8 @@ import com.flowpowered.nbt.Tag;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.ClickableDuct;
+import de.robotricker.transportpipes.duct.DuctInv;
+import de.robotricker.transportpipes.duct.InventoryDuct;
 import de.robotricker.transportpipes.duct.pipe.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
@@ -30,13 +32,15 @@ import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
-public class GoldenPipe extends Pipe implements ClickableDuct {
+public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 	public static final int ITEMS_PER_ROW = 32;
 
 	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
 	private ItemData[][] filteringItems;
 	private FilteringMode[] filteringModes;
+	
+	private GoldenPipeInv inventory;
 
 	public GoldenPipe(Location blockLoc) {
 		super(blockLoc);
@@ -45,6 +49,7 @@ public class GoldenPipe extends Pipe implements ClickableDuct {
 		for (int i = 0; i < 6; i++) {
 			filteringModes[i] = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
 		}
+		inventory = new GoldenPipeInv(this);
 	}
 
 	@Override
@@ -229,7 +234,12 @@ public class GoldenPipe extends Pipe implements ClickableDuct {
 
 	@Override
 	public void click(Player p, WrappedDirection side) {
-		GoldenPipeInv.updateGoldenPipeInventory(p, this);
+		getDuctInventory(p).openOrUpdateInventory(p);
+	}
+	
+	@Override
+	public DuctInv getDuctInventory(Player p) {
+		return inventory;
 	}
 
 	public ItemData[] getFilteringItems(WrappedDirection pd) {

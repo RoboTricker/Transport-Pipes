@@ -21,6 +21,8 @@ import com.flowpowered.nbt.Tag;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.ClickableDuct;
+import de.robotricker.transportpipes.duct.DuctInv;
+import de.robotricker.transportpipes.duct.InventoryDuct;
 import de.robotricker.transportpipes.duct.pipe.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
@@ -35,7 +37,7 @@ import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
-public class ExtractionPipe extends Pipe implements ClickableDuct {
+public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 	private int lastOutputIndex = 0;
 
@@ -44,6 +46,8 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 	private ExtractAmount extractAmount;
 	private FilteringMode filteringMode;
 	private ItemData[] filteringItems;
+	
+	private ExtractionPipeInv inventory;
 
 	public ExtractionPipe(Location blockLoc) {
 		super(blockLoc);
@@ -52,6 +56,8 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 		extractAmount = ExtractAmount.EXTRACT_1;
 		filteringMode = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
 		filteringItems = new ItemData[GoldenPipe.ITEMS_PER_ROW];
+		
+		this.inventory = new ExtractionPipeInv(this);
 	}
 
 	@Override
@@ -163,7 +169,12 @@ public class ExtractionPipe extends Pipe implements ClickableDuct {
 
 	@Override
 	public void click(Player p, WrappedDirection side) {
-		ExtractionPipeInv.updateExtractionPipeInventory(p, this);
+		getDuctInventory(p).openOrUpdateInventory(p);
+	}
+	
+	@Override
+	public DuctInv getDuctInventory(Player p) {
+		return inventory;
 	}
 
 	@Override
