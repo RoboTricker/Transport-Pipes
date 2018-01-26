@@ -15,7 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.duct.Duct;
-import de.robotricker.transportpipes.duct.DuctInv;
+import de.robotricker.transportpipes.duct.DuctSharedInv;
 import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
@@ -23,7 +23,7 @@ import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
-public class ExtractionPipeInv extends DuctInv {
+public class ExtractionPipeInv extends DuctSharedInv {
 
 	private int scrollValue = 0;
 
@@ -32,7 +32,7 @@ public class ExtractionPipeInv extends DuctInv {
 	}
 
 	@Override
-	protected void populateInventory(Player p) {
+	protected void populateInventory(Player p, Inventory inventory) {
 		ExtractionPipe ep = (ExtractionPipe) duct;
 
 		String extractDirectionDisplayName = null;
@@ -89,7 +89,7 @@ public class ExtractionPipeInv extends DuctInv {
 	}
 
 	@Override
-	protected boolean notifyInvClick(Player p, int rawSlot) {
+	protected boolean notifyInvClick(Player p, int rawSlot, Inventory inventory) {
 		ExtractionPipe ep = (ExtractionPipe) duct;
 		boolean cancelled = false;
 
@@ -97,7 +97,7 @@ public class ExtractionPipeInv extends DuctInv {
 		if (rawSlot == 2) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			ep.checkAndUpdateExtractDirection(true);
 
@@ -109,7 +109,7 @@ public class ExtractionPipeInv extends DuctInv {
 		if (rawSlot == 4) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			ep.setExtractAmount(ep.getExtractAmount().getNextAmount());
 
@@ -121,7 +121,7 @@ public class ExtractionPipeInv extends DuctInv {
 		if (rawSlot == 6) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			ep.setExtractCondition(ep.getExtractCondition().getNextCondition());
 
@@ -136,7 +136,7 @@ public class ExtractionPipeInv extends DuctInv {
 			ep.setFilteringMode(ep.getFilteringMode().getNextMode());
 
 			// Update inv
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 			openOrUpdateInventory(p);
 
 			return cancelled;
@@ -145,7 +145,7 @@ public class ExtractionPipeInv extends DuctInv {
 		if (rawSlot == 19) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			if (scrollValue > 0) {
 				scrollValue--;
@@ -159,7 +159,7 @@ public class ExtractionPipeInv extends DuctInv {
 		if (rawSlot == 26) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			if (scrollValue < GoldenPipe.ITEMS_PER_ROW - 6) {
 				scrollValue++;
@@ -174,7 +174,7 @@ public class ExtractionPipeInv extends DuctInv {
 	}
 
 	@Override
-	protected void notifyInvSave(Player p) {
+	protected void notifyInvSave(Player p, Inventory inventory) {
 		ExtractionPipe ep = (ExtractionPipe) duct;
 
 		ItemData[] items = ep.getFilteringItems();

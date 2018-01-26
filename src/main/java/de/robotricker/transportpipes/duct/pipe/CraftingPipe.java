@@ -2,7 +2,7 @@ package de.robotricker.transportpipes.duct.pipe;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,16 +10,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.ClickableDuct;
 import de.robotricker.transportpipes.duct.DuctInv;
 import de.robotricker.transportpipes.duct.InventoryDuct;
 import de.robotricker.transportpipes.duct.pipe.craftingpipe.CraftingPipeProcessInv;
 import de.robotricker.transportpipes.duct.pipe.craftingpipe.CraftingPipeRecipeInv;
+import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
@@ -29,20 +30,61 @@ import de.robotricker.transportpipes.utils.tick.TickData;
 
 public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
-	//ignoring amount
-	private ItemStack[] recipeItems;
+	// ignoring amount
+	private ItemData[] recipeItems;
+	private ItemStack recipeResult;
 	private ItemStack[] processItems;
+	private ItemStack resultCache;
 
 	private CraftingPipeRecipeInv recipeInventory;
 	private CraftingPipeProcessInv processInventory;
 
+	private WrappedDirection outputDirection;
+	// a list of PipeItems that were just crafted
+	// every PipeItem in this list should be ignored on "handleArrivalAtMiddle"
+	private List<PipeItem> pipeItemsJustCrafted;
+
 	public CraftingPipe(Location blockLoc) {
 		super(blockLoc);
-		this.recipeItems = new ItemStack[9];
+		this.recipeItems = new ItemData[9];
 		this.processItems = new ItemStack[9];
 
 		this.recipeInventory = new CraftingPipeRecipeInv(this);
 		this.processInventory = new CraftingPipeProcessInv(this);
+
+		this.outputDirection = null;
+		this.pipeItemsJustCrafted = new ArrayList<>();
+	}
+
+	public WrappedDirection getOutputDirection() {
+		return outputDirection;
+	}
+
+	public void setOutputDirection(WrappedDirection outputDirection) {
+		this.outputDirection = outputDirection;
+	}
+
+	/**
+	 * checks if the current outputdirection is valid and updates it to a valid
+	 * value if necessary
+	 * 
+	 * @param cycle
+	 *            whether the direction should really cycle or just be checked for
+	 *            validity
+	 */
+	public void checkAndUpdateOutputDirection(boolean cycle) {
+		Collection<WrappedDirection> connections = getAllConnections();
+		if (connections.isEmpty()) {
+			outputDirection = null;
+		} else if (cycle || outputDirection == null || !connections.contains(outputDirection)) {
+			do {
+				if (outputDirection == null) {
+					outputDirection = WrappedDirection.NORTH;
+				} else {
+					outputDirection = outputDirection.getNextDirection();
+				}
+			} while (!connections.contains(outputDirection));
+		}
 	}
 
 	/**
@@ -75,35 +117,112 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 		return item;
 	}
 
+	private void removeProcessItems(Map<ItemData, Integer> removedItems) {
+		for (int i = 0; i < 9; i++) {
+			ItemData slotId = processItems[i] == null ? null : new ItemData(processItems[i]);
+			int slotCount = processItems[i] == null ? 0 : processItems[i].getAmount();
+			if (removedItems.containsKey(slotId)) {
+				int removeCount = removedItems.get(slotId);
+				if (slotCount - removeCount > 0) {
+					processItems[i].setAmount(slotCount - removeCount);
+					removedItems.remove(slotId);
+				} else if (slotCount - removeCount == 0) {
+					processItems[i] = null;
+					removedItems.remove(slotId);
+				} else if (slotCount - removeCount < 0) {
+					processItems[i] = null;
+					removedItems.put(slotId, removeCount - slotCount);
+				}
+			}
+		}
+		updateProcessInv();
+	}
+
 	private void updateProcessInv() {
 		for (int i = 0; i < processItems.length; i++) {
 			if (processItems[i] != null) {
-				processInventory.getInventory().setItem(i, processItems[i]);
+				processInventory.getSharedInventory().setItem(9 + i, processItems[i]);
 			} else {
-				processInventory.getInventory().setItem(i, null);
+				processInventory.getSharedInventory().setItem(9 + i, null);
 			}
 		}
 	}
-	
+
 	@Override
 	public void tick(TickData tickData) {
 		super.tick(tickData);
-//		Iterator<Recipe> recipeIterator = Bukkit.recipeIterator();
-//		while(recipeIterator.hasNext()) {
-//			Recipe recipe = recipeIterator.next();
-//		}
+
+		Map<ItemData, Integer> neededItems = new HashMap<>();
+		for (int i = 0; i < 9; i++) {
+			ItemData id = recipeItems[i];
+			if (id != null) {
+				int count = neededItems.get(id) == null ? 0 : neededItems.get(id);
+				neededItems.put(id, count + 1);
+			}
+		}
+		Map<ItemData, Integer> givenItems = new HashMap<>();
+		for (int i = 0; i < 9; i++) {
+			ItemData id = processItems[i] == null ? null : new ItemData(processItems[i]);
+			if (id != null) {
+				int count = givenItems.get(id) == null ? 0 : givenItems.get(id);
+				givenItems.put(id, count + processItems[i].getAmount());
+			}
+		}
+
+		// only craft if there is space for the result and a valid recipe is given
+		boolean craft = resultCache == null && recipeResult != null;
+		for (ItemData neededId : neededItems.keySet()) {
+			if (givenItems.containsKey(neededId)) {
+				int neededCount = neededItems.get(neededId);
+				int givenCount = givenItems.get(neededId);
+				if (givenCount < neededCount) {
+					craft = false;
+					break;
+				}
+			} else {
+				craft = false;
+				break;
+			}
+		}
+		if (craft) {
+			resultCache = recipeResult.clone();
+			removeProcessItems(neededItems);
+		}
+
+		if (resultCache != null && outputDirection != null) {
+			PipeItem pipeItem = new PipeItem(resultCache.clone(), getBlockLoc(), outputDirection);
+			// let the item spawn in the center of the pipe
+			pipeItem.relLoc().set(0.5f, 0.5f, 0.5f);
+			tempPipeItemsWithSpawn.put(pipeItem, outputDirection);
+			pipeItemsJustCrafted.add(pipeItem);
+			resultCache = null;
+		}
 	}
-	
-	public ItemStack[] getRecipeItems() {
+
+	public ItemData[] getRecipeItems() {
 		return recipeItems;
+	}
+
+	public ItemStack getRecipeResult() {
+		return recipeResult;
+	}
+
+	public void setRecipeResult(ItemStack result) {
+		this.recipeResult = result;
 	}
 
 	@Override
 	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(final PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
+		if (pipeItemsJustCrafted.contains(item)) {
+			Map<WrappedDirection, Integer> outputMap = new HashMap<>();
+			outputMap.put(outputDirection, item.getItem().getAmount());
+			pipeItemsJustCrafted.remove(item);
+			return outputMap;
+		}
 		final ItemStack overflow = addProcessItem(item.getItem());
-		if(overflow != null) {
+		if (overflow != null) {
 			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
-				
+
 				@Override
 				public void run() {
 					item.getBlockLoc().getWorld().dropItem(item.getBlockLoc().clone().add(0.5, 0.5, 0.5), overflow);
@@ -141,12 +260,30 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 	public List<ItemStack> getDroppedItems() {
 		List<ItemStack> is = new ArrayList<>();
 		is.add(DuctItemUtils.getClonedDuctItem(new PipeDetails(getPipeType())));
+		for (int i = 0; i < 9; i++) {
+			ItemData recipeItem = recipeItems[i];
+			if (recipeItem != null) {
+				is.add(recipeItem.toItemStack());
+			}
+		}
+		for (int i = 0; i < 9; i++) {
+			ItemStack processItem = processItems[i];
+			if (processItem != null) {
+				is.add(processItem.clone());
+			}
+		}
 		return is;
 	}
 
 	@Override
 	public DuctDetails getDuctDetails() {
 		return new PipeDetails(getPipeType());
+	}
+
+	@Override
+	public void notifyConnectionsChange() {
+		super.notifyConnectionsChange();
+		checkAndUpdateOutputDirection(false);
 	}
 
 }

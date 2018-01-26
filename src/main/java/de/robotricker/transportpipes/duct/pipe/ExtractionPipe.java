@@ -21,7 +21,7 @@ import com.flowpowered.nbt.Tag;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.ClickableDuct;
-import de.robotricker.transportpipes.duct.DuctInv;
+import de.robotricker.transportpipes.duct.DuctSharedInv;
 import de.robotricker.transportpipes.duct.InventoryDuct;
 import de.robotricker.transportpipes.duct.pipe.extractionpipe.ExtractionPipeInv;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
@@ -173,7 +173,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 	}
 	
 	@Override
-	public DuctInv getDuctInventory(Player p) {
+	public DuctSharedInv getDuctInventory(Player p) {
 		return inventory;
 	}
 

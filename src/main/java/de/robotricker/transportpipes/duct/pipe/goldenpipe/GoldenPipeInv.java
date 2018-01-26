@@ -16,7 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.duct.Duct;
-import de.robotricker.transportpipes.duct.DuctInv;
+import de.robotricker.transportpipes.duct.DuctSharedInv;
 import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.pipeitems.ItemData;
@@ -24,7 +24,7 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
-public class GoldenPipeInv extends DuctInv {
+public class GoldenPipeInv extends DuctSharedInv {
 
 	private Map<Integer, Integer> scrollValues;
 
@@ -34,7 +34,7 @@ public class GoldenPipeInv extends DuctInv {
 	}
 
 	@Override
-	protected void populateInventory(Player p) {
+	protected void populateInventory(Player p, Inventory inventory) {
 
 		GoldenPipe gp = (GoldenPipe) duct;
 
@@ -82,7 +82,7 @@ public class GoldenPipeInv extends DuctInv {
 	}
 
 	@Override
-	protected boolean notifyInvClick(Player p, int rawSlot) {
+	protected boolean notifyInvClick(Player p, int rawSlot, Inventory inventory) {
 		GoldenPipe gp = (GoldenPipe) duct;
 		boolean cancelled = false;
 
@@ -94,7 +94,7 @@ public class GoldenPipeInv extends DuctInv {
 			gp.setFilteringMode(line, gp.getFilteringMode(line).getNextMode());
 
 			// Save and update inv
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 			openOrUpdateInventory(p);
 			return cancelled;
 		}
@@ -102,7 +102,7 @@ public class GoldenPipeInv extends DuctInv {
 		if (rawSlot >= 0 && rawSlot <= inventory.getSize() && rawSlot % 9 == 1) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			int line = (int) (rawSlot / 9);
 			int scrollValue = scrollValues.containsKey(line) ? scrollValues.get(line) : 0;
@@ -119,7 +119,7 @@ public class GoldenPipeInv extends DuctInv {
 		if (rawSlot >= 0 && rawSlot <= inventory.getSize() && rawSlot % 9 == 8) {
 			cancelled = true;
 
-			notifyInvSave(p);
+			notifyInvSave(p, inventory);
 
 			int line = (int) (rawSlot / 9);
 			int scrollValue = scrollValues.containsKey(line) ? scrollValues.get(line) : 0;
@@ -137,7 +137,7 @@ public class GoldenPipeInv extends DuctInv {
 	}
 
 	@Override
-	protected void notifyInvSave(Player p) {
+	protected void notifyInvSave(Player p, Inventory inventory) {
 		GoldenPipe gp = (GoldenPipe) duct;
 
 		// cache new items in golden pipe

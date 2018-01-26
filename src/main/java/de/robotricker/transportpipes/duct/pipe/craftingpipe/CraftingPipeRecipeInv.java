@@ -3,40 +3,52 @@ package de.robotricker.transportpipes.duct.pipe.craftingpipe;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.Duct;
-import de.robotricker.transportpipes.duct.DuctInv;
+import de.robotricker.transportpipes.duct.DuctPlayerInv;
+import de.robotricker.transportpipes.duct.DuctSharedInv;
 import de.robotricker.transportpipes.duct.pipe.CraftingPipe;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.utils.config.LocConf;
 
-public class CraftingPipeRecipeInv extends DuctInv {
+public class CraftingPipeRecipeInv extends DuctPlayerInv {
 
 	public CraftingPipeRecipeInv(Duct duct) {
-		super(duct, LocConf.load(LocConf.CRAFTINGPIPE_TITLE), InventoryType.DISPENSER);
+		super(duct);
+	}
+
+	protected Inventory openCustomInventory(Player p) {
+		return p.openWorkbench(null, true).getTopInventory();
 	}
 
 	@Override
-	protected void populateInventory(Player p) {
-
-	}
-
-	@Override
-	protected boolean notifyInvClick(Player p, int rawSlot) {
-		return false;
-	}
-
-	@Override
-	protected void notifyInvSave(Player p) {
+	public void populateInventory(Player p, Inventory inventory) {
 		CraftingPipe cp = (CraftingPipe) duct;
 		for (int i = 0; i < 9; i++) {
-			if (inventory.getItem(i) != null) {
-				int oldAmount = inventory.getItem(i).getAmount();
-				cp.getRecipeItems()[i] = inventory.getItem(i);
-				cp.getRecipeItems()[i].setAmount(1);
+			inventory.setItem(i + 1, cp.getRecipeItems()[i] == null ? null : cp.getRecipeItems()[i].toItemStack());
+		}
+	}
+
+	@Override
+	protected boolean notifyInvClick(Player p, int rawSlot, Inventory inventory) {
+		return rawSlot == 0;
+	}
+
+	@Override
+	protected void notifyInvSave(Player p, Inventory inventory) {
+		super.notifyInvSave(p, inventory);
+
+		CraftingPipe cp = (CraftingPipe) duct;
+		for (int i = 0; i < 9; i++) {
+			if (inventory.getItem(i + 1) != null) {
+				int oldAmount = inventory.getItem(i + 1).getAmount();
+				cp.getRecipeItems()[i] = new ItemData(inventory.getItem(i + 1));
 				if (oldAmount > 1) {
-					final ItemStack dropItem = inventory.getItem(i).clone();
+					final ItemStack dropItem = inventory.getItem(i + 1).clone();
 					dropItem.setAmount(oldAmount - 1);
 					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
 
@@ -49,6 +61,11 @@ public class CraftingPipeRecipeInv extends DuctInv {
 			} else {
 				cp.getRecipeItems()[i] = null;
 			}
+		}
+		if (inventory.getItem(0) != null) {
+			cp.setRecipeResult(inventory.getItem(0).clone());
+		} else {
+			cp.setRecipeResult(null);
 		}
 	}
 

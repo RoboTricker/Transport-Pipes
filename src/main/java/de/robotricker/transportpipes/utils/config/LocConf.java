@@ -46,6 +46,9 @@ public class LocConf extends Conf {
 	public static final String EXTRACTIONPIPE_AMOUNT_EXTRACT16 = "extractionpipe.amount.extract16";
 	public static final String EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE = "extractionpipe.amount.clicktochange";
 	public static final String CRAFTINGPIPE_TITLE = "craftingpipe.title";
+	public static final String CRAFTINGPIPE_DIRECTION_TEXT = "craftingpipe.direction.text";
+	public static final String CRAFTINGPIPE_DIRECTION_DONTOUTPUT = "craftingpipe.direction.dontoutput";
+	public static final String CRAFTINGPIPE_DIRECTION_CLICKTOCHANGE = "craftingpipe.direction.clicktochange";
 	public static final String SETTINGS_TITLE = "settings.title";
 	public static final String SETTINGS_RENDERDISTANCE_TITLE = "settings.renderdistance.title";
 	public static final String SETTINGS_RENDERDISTANCE_DECREASE = "settings.renderdistance.decrease";
@@ -110,6 +113,9 @@ public class LocConf extends Conf {
 		saveAsDefault(EXTRACTIONPIPE_AMOUNT_EXTRACT16, "&7Extract Amount: &a16");
 		saveAsDefault(EXTRACTIONPIPE_AMOUNT_CLICKTOCHANGE, "&7Click to change extract amount");
 		saveAsDefault(CRAFTINGPIPE_TITLE, "Crafting-Pipe");
+		saveAsDefault(CRAFTINGPIPE_DIRECTION_TEXT, "&7Output Direction: &c%s");
+		saveAsDefault(CRAFTINGPIPE_DIRECTION_DONTOUTPUT, "&7Output Direction: &cDONT OUTPUT");
+		saveAsDefault(CRAFTINGPIPE_DIRECTION_CLICKTOCHANGE, "&7Click to change output direction");
 		saveAsDefault(SETTINGS_TITLE, "Player Settings");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_TITLE, "&6Render Distance: &e%d");
 		saveAsDefault(SETTINGS_RENDERDISTANCE_DECREASE, "&6Decrease");
