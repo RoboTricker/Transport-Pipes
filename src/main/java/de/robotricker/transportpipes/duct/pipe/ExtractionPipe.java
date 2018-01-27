@@ -35,6 +35,7 @@ import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
 public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct {
@@ -134,7 +135,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 			if (itemData != null) {
 				lineList.add(itemData.toNBTTag());
 			} else {
-				lineList.add(ItemData.createNullItemNBTTag());
+				lineList.add(InventoryUtils.createNullItemNBTTag());
 			}
 		}
 		NBTUtils.saveListValue(tags, "Items", CompoundTag.class, lineList);

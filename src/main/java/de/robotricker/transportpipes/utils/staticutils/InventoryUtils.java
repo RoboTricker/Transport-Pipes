@@ -18,7 +18,10 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
 
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
 
 public class InventoryUtils {
@@ -132,4 +135,25 @@ public class InventoryUtils {
 		return InventoryUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET));
 	}
 
+	public static CompoundTag toNBTTag(ItemStack is) {
+		if(is == null) {
+			return createNullItemNBTTag();
+		}
+		CompoundMap map = new CompoundMap();
+		NBTUtils.saveStringValue(map, "Item", ItemStackToString(is));
+		return new CompoundTag("Item", map);
+	}
+
+	public static ItemStack fromNBTTag(CompoundTag tag) {
+		CompoundMap map = tag.getValue();
+		String rawItem = NBTUtils.readStringTag(map.get("Item"), null);
+		ItemStack item = StringToItemStack(rawItem);
+		return item;
+	}
+	
+	public static CompoundTag createNullItemNBTTag() {
+		CompoundMap map = new CompoundMap();
+		return new CompoundTag("Item", map);
+	}
+	
 }

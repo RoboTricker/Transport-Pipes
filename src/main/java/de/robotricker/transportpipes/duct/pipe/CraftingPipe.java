@@ -9,13 +9,21 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import com.flowpowered.nbt.CompoundMap;
+import com.flowpowered.nbt.CompoundTag;
+import com.flowpowered.nbt.StringTag;
+import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.ClickableDuct;
 import de.robotricker.transportpipes.duct.DuctInv;
 import de.robotricker.transportpipes.duct.InventoryDuct;
+import de.robotricker.transportpipes.duct.pipe.ExtractionPipe.ExtractAmount;
+import de.robotricker.transportpipes.duct.pipe.ExtractionPipe.ExtractCondition;
 import de.robotricker.transportpipes.duct.pipe.craftingpipe.CraftingPipeProcessInv;
 import de.robotricker.transportpipes.duct.pipe.craftingpipe.CraftingPipeRecipeInv;
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
@@ -26,6 +34,8 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
+import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 import de.robotricker.transportpipes.utils.tick.TickData;
 
 public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
@@ -284,6 +294,63 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 	public void notifyConnectionsChange() {
 		super.notifyConnectionsChange();
 		checkAndUpdateOutputDirection(false);
+	}
+
+	@Override
+	public void saveToNBTTag(CompoundMap tags) {
+		super.saveToNBTTag(tags);
+		NBTUtils.saveIntValue(tags, "OutputDirection", outputDirection == null ? -1 : outputDirection.getId());
+
+		List<Tag<?>> processItemsList = new ArrayList<>();
+		for (int i = 0; i < processItems.length; i++) {
+			ItemStack is = processItems[i];
+			processItemsList.add(InventoryUtils.toNBTTag(is));
+		}
+		NBTUtils.saveListValue(tags, "ProcessItems", CompoundTag.class, processItemsList);
+
+		List<Tag<?>> recipeItemsList = new ArrayList<>();
+		for (int i = 0; i < recipeItems.length; i++) {
+			ItemData id = recipeItems[i];
+			if (id != null) {
+				recipeItemsList.add(id.toNBTTag());
+			} else {
+				recipeItemsList.add(InventoryUtils.createNullItemNBTTag());
+			}
+		}
+		NBTUtils.saveListValue(tags, "RecipeItems", CompoundTag.class, recipeItemsList);
+
+	}
+
+	@Override
+	public void loadFromNBTTag(CompoundTag tag, long datFileVersion) {
+		super.loadFromNBTTag(tag, datFileVersion);
+
+		int outputDirectionId = NBTUtils.readIntTag(tag.getValue().get("OutputDirection"), -1);
+		if (outputDirectionId == -1) {
+			setOutputDirection(null);
+		} else {
+			setOutputDirection(WrappedDirection.fromID(outputDirectionId));
+		}
+
+		List<Tag<?>> processItemsList = NBTUtils.readListTag(tag.getValue().get("ProcessItems"));
+		int i = 0;
+		for (Tag<?> itemTag : processItemsList) {
+			if (processItemsList.size() > i) {
+				processItems[i] = InventoryUtils.fromNBTTag((CompoundTag) itemTag);
+			}
+			i++;
+		}
+		
+		List<Tag<?>> recipeItemsList = NBTUtils.readListTag(tag.getValue().get("RecipeItems"));
+		i = 0;
+		for (Tag<?> itemTag : recipeItemsList) {
+			if (recipeItemsList.size() > i) {
+				recipeItems[i] = ItemData.fromNBTTag((CompoundTag) itemTag);
+			}
+			i++;
+		}
+		
+		updateProcessInv();
 	}
 
 }

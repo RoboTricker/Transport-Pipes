@@ -25,7 +25,7 @@ import de.robotricker.transportpipes.utils.config.LocConf;
 public class CraftingPipeRecipeInv extends DuctPlayerInv {
 
 	public CraftingPipeRecipeInv(Duct duct) {
-		super(duct);
+		super(duct, true);
 	}
 
 	protected Inventory openCustomInventory(Player p) {
@@ -79,7 +79,6 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 	@Override
 	@EventHandler
 	public void onClose(InventoryCloseEvent e) {
-
 		if (e.getInventory() != null && containsInventory(e.getInventory()) && e.getPlayer() instanceof Player) {
 			final Player p = (Player) e.getPlayer();
 			final List<ItemStack> removeItems = new ArrayList<>();
@@ -101,7 +100,5 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 			});
 		}
 	}
-	
-	
 
 }

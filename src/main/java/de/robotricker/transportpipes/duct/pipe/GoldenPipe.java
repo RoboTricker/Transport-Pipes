@@ -30,6 +30,7 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 
 public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
@@ -168,7 +169,7 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 				if (itemData != null) {
 					lineList.add(itemData.toNBTTag());
 				} else {
-					lineList.add(ItemData.createNullItemNBTTag());
+					lineList.add(InventoryUtils.createNullItemNBTTag());
 				}
 			}
 			NBTUtils.saveListValue(lineCompound.getValue(), "Items", CompoundTag.class, lineList);

@@ -102,9 +102,4 @@ public class ItemData {
 		return item != null ? new ItemData(item) : null;
 	}
 
-	public static CompoundTag createNullItemNBTTag() {
-		CompoundMap map = new CompoundMap();
-		return new CompoundTag("Item", map);
-	}
-
 }
