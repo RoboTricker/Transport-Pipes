@@ -1,8 +1,15 @@
 package de.robotricker.transportpipes.duct.pipe.craftingpipe;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -68,5 +75,33 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 			cp.setRecipeResult(null);
 		}
 	}
+	
+	@Override
+	@EventHandler
+	public void onClose(InventoryCloseEvent e) {
+
+		if (e.getInventory() != null && containsInventory(e.getInventory()) && e.getPlayer() instanceof Player) {
+			final Player p = (Player) e.getPlayer();
+			final List<ItemStack> removeItems = new ArrayList<>();
+			for (int i = 1; i < 10; i++) {
+				if (e.getInventory().getItem(i) != null) {
+					removeItems.add(e.getInventory().getItem(i).clone());
+				}
+			}
+			
+			super.onClose(e);
+
+			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+				
+				@Override
+				public void run() {
+					p.getInventory().removeItem(removeItems.toArray(new ItemStack[0]));
+					p.updateInventory();
+				}
+			});
+		}
+	}
+	
+	
 
 }
