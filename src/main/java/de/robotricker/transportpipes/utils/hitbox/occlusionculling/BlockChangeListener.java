@@ -24,6 +24,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 import de.robotricker.transportpipes.TransportPipes;
+import io.sentry.Sentry;
 
 public class BlockChangeListener implements Listener {
 
@@ -94,10 +95,16 @@ public class BlockChangeListener implements Listener {
 	}
 
 	public boolean isInLoadedChunk(Location loc) {
-		int chunkX = (int) Math.floor(loc.getBlockX() / 16d);
-		int chunkZ = (int) Math.floor(loc.getBlockZ() / 16d);
-		ChunkCoords cc = new ChunkCoords(loc.getWorld().getName(), chunkX, chunkZ);
-		return cachedChunkSnapshots.containsKey(cc);
+		try {
+			int chunkX = (int) Math.floor(loc.getBlockX() / 16d);
+			int chunkZ = (int) Math.floor(loc.getBlockZ() / 16d);
+			ChunkCoords cc = new ChunkCoords(loc.getWorld().getName(), chunkX, chunkZ);
+			return cachedChunkSnapshots.containsKey(cc);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			Sentry.capture(exception);
+		}
+		return false;
 	}
 
 	public static class ChunkCoords {

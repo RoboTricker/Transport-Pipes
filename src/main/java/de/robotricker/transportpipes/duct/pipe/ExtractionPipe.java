@@ -37,6 +37,7 @@ import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
+import io.sentry.Sentry;
 
 public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
@@ -47,7 +48,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 	private ExtractAmount extractAmount;
 	private FilteringMode filteringMode;
 	private ItemData[] filteringItems;
-	
+
 	private ExtractionPipeInv inventory;
 
 	public ExtractionPipe(Location blockLoc) {
@@ -57,7 +58,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 		extractAmount = ExtractAmount.EXTRACT_1;
 		filteringMode = FilteringMode.FILTERBY_TYPE_DAMAGE_NBT;
 		filteringItems = new ItemData[GoldenPipe.ITEMS_PER_ROW];
-		
+
 		this.inventory = new ExtractionPipeInv(this);
 	}
 
@@ -146,7 +147,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 	@Override
 	public void loadFromNBTTag(CompoundTag tag, long datFileVersion) {
 		super.loadFromNBTTag(tag, datFileVersion);
-		
+
 		int extractDirectionId = NBTUtils.readIntTag(tag.getValue().get("ExtractDirection"), -1);
 		if (extractDirectionId == -1) {
 			setExtractDirection(null);
@@ -172,7 +173,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 	public void click(Player p, WrappedDirection side) {
 		getDuctInventory(p).openOrUpdateInventory(p);
 	}
-	
+
 	@Override
 	public DuctSharedInv getDuctInventory(Player p) {
 		return inventory;

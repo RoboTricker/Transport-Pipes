@@ -23,6 +23,7 @@ import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
+import io.sentry.Sentry;
 
 /**
  * 
@@ -105,7 +106,7 @@ public class PipeAPI {
 	 */
 	public static boolean isDuct(Location blockLoc, DuctType dt) {
 		Duct duct = DuctUtils.getDuctAtLocation(blockLoc);
-		if(dt == null) {
+		if (dt == null) {
 			return duct != null;
 		}
 		return duct != null && duct.getDuctType() == dt;
@@ -173,23 +174,28 @@ public class PipeAPI {
 		}
 		containerMap.put(bl, tpc);
 
-		Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(blockLoc.getWorld());
-		if (ductMap != null) {
-			for (WrappedDirection pd : WrappedDirection.values()) {
-				bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
-				if (ductMap.containsKey(bl)) {
-					final Duct duct = ductMap.get(bl);
-					if (duct.getDuctType() == DuctType.PIPE) {
-						TransportPipes.instance.pipeThread.runTask(new Runnable() {
+		try {
+			Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(blockLoc.getWorld());
+			if (ductMap != null) {
+				for (WrappedDirection pd : WrappedDirection.values()) {
+					bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+					if (ductMap.containsKey(bl)) {
+						final Duct duct = ductMap.get(bl);
+						if (duct.getDuctType() == DuctType.PIPE) {
+							TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
-							@Override
-							public void run() {
-								TransportPipes.instance.ductManager.updateDuct((Pipe) duct);
-							}
-						}, 0);
+								@Override
+								public void run() {
+									TransportPipes.instance.ductManager.updateDuct((Pipe) duct);
+								}
+							}, 0);
+						}
 					}
 				}
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			Sentry.capture(ex);
 		}
 
 	}
@@ -199,32 +205,37 @@ public class PipeAPI {
 	 * {@link PipeAPI#registerTransportPipesContainer(Location, TransportPipesContainer)}
 	 */
 	public static void unregisterTransportPipesContainer(Location blockLoc) {
-		BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
+		try {
+			BlockLoc bl = BlockLoc.convertBlockLoc(blockLoc);
 
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
-		if (containerMap != null) {
-			if (containerMap.containsKey(bl)) {
-				containerMap.remove(bl);
+			Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(blockLoc.getWorld());
+			if (containerMap != null) {
+				if (containerMap.containsKey(bl)) {
+					containerMap.remove(bl);
 
-				Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(blockLoc.getWorld());
-				if (ductMap != null) {
-					for (WrappedDirection pd : WrappedDirection.values()) {
-						bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
-						if (ductMap.containsKey(bl)) {
-							final Duct duct = ductMap.get(bl);
-							if (duct.getDuctType() == DuctType.PIPE) {
-								TransportPipes.instance.pipeThread.runTask(new Runnable() {
+					Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(blockLoc.getWorld());
+					if (ductMap != null) {
+						for (WrappedDirection pd : WrappedDirection.values()) {
+							bl = BlockLoc.convertBlockLoc(blockLoc.clone().add(pd.getX(), pd.getY(), pd.getZ()));
+							if (ductMap.containsKey(bl)) {
+								final Duct duct = ductMap.get(bl);
+								if (duct.getDuctType() == DuctType.PIPE) {
+									TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
-									@Override
-									public void run() {
-										TransportPipes.instance.ductManager.updateDuct((Pipe) duct);
-									}
-								}, 0);
+										@Override
+										public void run() {
+											TransportPipes.instance.ductManager.updateDuct((Pipe) duct);
+										}
+									}, 0);
+								}
 							}
 						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 		}
 
 	}

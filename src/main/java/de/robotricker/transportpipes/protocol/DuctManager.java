@@ -56,15 +56,19 @@ public class DuctManager implements Listener {
 
 	public List<Player> getAllPlayersWithRenderSystem(RenderSystem renderSystem) {
 		List<Player> players = new ArrayList<>();
-		players.addAll(Bukkit.getOnlinePlayers());
-
-		Iterator<Player> it = players.iterator();
-		while (it.hasNext()) {
-			Player p = it.next();
-			// remove all players which don't use the given renderSystem
-			if (!getPlayerRenderSystem(p, renderSystem.getDuctType()).equals(renderSystem)) {
-				it.remove();
+		try {
+			players.addAll(Bukkit.getOnlinePlayers());
+			Iterator<Player> it = players.iterator();
+			while (it.hasNext()) {
+				Player p = it.next();
+				// remove all players which don't use the given renderSystem
+				if (!getPlayerRenderSystem(p, renderSystem.getDuctType()).equals(renderSystem)) {
+					it.remove();
+				}
 			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			Sentry.capture(exception);
 		}
 		return players;
 	}

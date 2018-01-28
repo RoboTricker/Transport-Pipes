@@ -99,8 +99,17 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
+		
+		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970?stacktrace.app.packages=de.robotricker");
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				Sentry.capture(e);
+			}
+		});
 		initSentryOnCurrentThread();
+		
 		DuctType.PIPE.setDuctDetailsClass(PipeDetails.class);
 		DuctType.PIPE.setTickRunnable(new TickRunnable() {
 
@@ -365,40 +374,44 @@ public class TransportPipes extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		pipeThread.setRunning(false);
 		try {
-			pipeThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		savingManager.saveDuctsSync(true);
+			pipeThread.setRunning(false);
+			try {
+				pipeThread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			savingManager.saveDuctsSync(true);
+			// despawn all pipes and items
+			Map<World, Map<BlockLoc, Duct>> fullDuctMap = getFullDuctMap();
+			synchronized (fullDuctMap) {
+				for (Map<BlockLoc, Duct> ductMap : fullDuctMap.values()) {
+					for (Duct duct : ductMap.values()) {
 
-		// despawn all pipes and items
-		Map<World, Map<BlockLoc, Duct>> fullDuctMap = getFullDuctMap();
-		synchronized (fullDuctMap) {
-			for (Map<BlockLoc, Duct> ductMap : fullDuctMap.values()) {
-				for (Duct duct : ductMap.values()) {
+						ductManager.destroyDuct(duct);
 
-					ductManager.destroyDuct(duct);
-
-					if (duct instanceof Pipe) {
-						Pipe pipe = (Pipe) duct;
-						Collection<PipeItem> allItems = new ArrayList<>();
-						synchronized (pipe.pipeItems) {
-							allItems.addAll(pipe.pipeItems.keySet());
-						}
-						synchronized (pipe.tempPipeItems) {
-							allItems.addAll(pipe.tempPipeItems.keySet());
-						}
-						synchronized (pipe.tempPipeItemsWithSpawn) {
-							allItems.addAll(pipe.tempPipeItemsWithSpawn.keySet());
-						}
-						for (PipeItem pi : allItems) {
-							ductManager.destroyPipeItem(pi);
+						if (duct instanceof Pipe) {
+							Pipe pipe = (Pipe) duct;
+							Collection<PipeItem> allItems = new ArrayList<>();
+							synchronized (pipe.pipeItems) {
+								allItems.addAll(pipe.pipeItems.keySet());
+							}
+							synchronized (pipe.tempPipeItems) {
+								allItems.addAll(pipe.tempPipeItems.keySet());
+							}
+							synchronized (pipe.tempPipeItemsWithSpawn) {
+								allItems.addAll(pipe.tempPipeItemsWithSpawn.keySet());
+							}
+							for (PipeItem pi : allItems) {
+								ductManager.destroyPipeItem(pi);
+							}
 						}
 					}
 				}
 			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			Sentry.capture(exception);
 		}
 
 	}
@@ -438,20 +451,8 @@ public class TransportPipes extends JavaPlugin {
 	}
 
 	public static void initSentryOnCurrentThread() {
-
-		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970");
-		Sentry.getContext().setUser(new UserBuilder().setUsername("RoboTricker").build());
 		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
 		Sentry.getContext().addTag("version", TransportPipes.instance.getDescription().getVersion());
-
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				Sentry.capture(e);
-			}
-		});
-
 	}
 
 }

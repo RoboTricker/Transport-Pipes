@@ -38,6 +38,7 @@ import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
 import de.robotricker.transportpipes.utils.staticutils.UpdateUtils;
 import de.robotricker.transportpipes.utils.tick.PipeTickData;
 import de.robotricker.transportpipes.utils.tick.TickData;
+import io.sentry.Sentry;
 
 public abstract class Pipe extends Duct {
 
@@ -89,49 +90,51 @@ public abstract class Pipe extends Duct {
 	@Override
 	public void tick(TickData tickData) {
 
-		PipeTickData pipeTickData = (PipeTickData) tickData;
+		try {
+			
+			PipeTickData pipeTickData = (PipeTickData) tickData;
+			// insert items from "tempPipeItemsWithSpawn"
+			synchronized (tempPipeItemsWithSpawn) {
+				Iterator<PipeItem> itemIterator = tempPipeItemsWithSpawn.keySet().iterator();
+				while (itemIterator.hasNext()) {
+					PipeItem pipeItem = itemIterator.next();
 
-		// insert items from "tempPipeItemsWithSpawn"
-		synchronized (tempPipeItemsWithSpawn) {
-			Iterator<PipeItem> itemIterator = tempPipeItemsWithSpawn.keySet().iterator();
-			while (itemIterator.hasNext()) {
-				PipeItem pipeItem = itemIterator.next();
-
-				WrappedDirection dir = tempPipeItemsWithSpawn.get(pipeItem);
-				putPipeItem(pipeItem, dir);
-
-				TransportPipes.instance.ductManager.createPipeItem(pipeItem);
-
-				itemIterator.remove();
-			}
-		}
-
-		// put the "tempPipeItems" which had been put there by the tick method in the
-		// pipe before, into the "pipeItems" where they got affected by the tick method
-		synchronized (tempPipeItems) {
-			Iterator<PipeItem> itemIterator = tempPipeItems.keySet().iterator();
-			while (itemIterator.hasNext()) {
-				PipeItem pipeItem = itemIterator.next();
-
-				// only put them there if they got into "tempPipeItems" last tick
-				if (!pipeTickData.itemsTicked.contains(pipeItem)) {
-					WrappedDirection dir = tempPipeItems.get(pipeItem);
+					WrappedDirection dir = tempPipeItemsWithSpawn.get(pipeItem);
 					putPipeItem(pipeItem, dir);
+
+					TransportPipes.instance.ductManager.createPipeItem(pipeItem);
+
 					itemIterator.remove();
 				}
 			}
+			// put the "tempPipeItems" which had been put there by the tick method in the
+			// pipe before, into the "pipeItems" where they got affected by the tick method
+			synchronized (tempPipeItems) {
+				Iterator<PipeItem> itemIterator = tempPipeItems.keySet().iterator();
+				while (itemIterator.hasNext()) {
+					PipeItem pipeItem = itemIterator.next();
+
+					// only put them there if they got into "tempPipeItems" last tick
+					if (!pipeTickData.itemsTicked.contains(pipeItem)) {
+						WrappedDirection dir = tempPipeItems.get(pipeItem);
+						putPipeItem(pipeItem, dir);
+						itemIterator.remove();
+					}
+				}
+			}
+			List<WrappedDirection> pipeConnections = getOnlyConnectableDuctConnections();
+			List<WrappedDirection> blockConnections = getOnlyBlockConnections();
+			if (pipeTickData.extractItems && this instanceof ExtractionPipe) {
+				// extract items from inventories
+				((ExtractionPipe) this).extractItems(blockConnections);
+			}
+			// handle item transport through pipe
+			transportItems(pipeConnections, blockConnections, pipeTickData.itemsTicked);
+			
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			Sentry.capture(exception);
 		}
-
-		List<WrappedDirection> pipeConnections = getOnlyConnectableDuctConnections();
-		List<WrappedDirection> blockConnections = getOnlyBlockConnections();
-
-		if (pipeTickData.extractItems && this instanceof ExtractionPipe) {
-			// extract items from inventories
-			((ExtractionPipe) this).extractItems(blockConnections);
-		}
-
-		// handle item transport through pipe
-		transportItems(pipeConnections, blockConnections, pipeTickData.itemsTicked);
 
 	}
 

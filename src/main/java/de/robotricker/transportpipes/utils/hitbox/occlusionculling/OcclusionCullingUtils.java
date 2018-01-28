@@ -24,73 +24,75 @@ public class OcclusionCullingUtils {
 	public static boolean isPipeItemVisibleForPlayer(Player p, PipeItem item) {
 		return isAABBVisible(item.getBlockLoc(), blockAABB, p.getEyeLocation());
 	}
-	
+
 	private static boolean isAABBVisible(Location aabbBlock, AxisAlignedBB aabb, Location playerLoc) {
+		try {
+			double width = aabb.getWidth();
+			double height = aabb.getHeight();
+			double depth = aabb.getDepth();
+			Location center = aabb.getAABBMiddle(aabbBlock).toLocation(aabbBlock.getWorld());
+			Location centerXMin = center.clone().add(-width / 2, 0, 0);
+			Location centerXMax = center.clone().add(width / 2, 0, 0);
+			Location centerYMin = center.clone().add(0, -height / 2, 0);
+			Location centerYMax = center.clone().add(0, height / 2, 0);
+			Location centerZMin = center.clone().add(0, 0, -depth / 2);
+			Location centerZMax = center.clone().add(0, 0, depth / 2);
+			boolean centerXMinBlocked = false;
+			Vector[] locs = gridRaytrace(playerLoc, centerXMin.subtract(playerLoc).toVector());
+			for (Vector v : locs) {
+				if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
+					centerXMinBlocked = true;
+					break;
+				}
+			}
+			boolean centerXMaxBlocked = false;
+			locs = gridRaytrace(playerLoc, centerXMax.subtract(playerLoc).toVector());
+			for (Vector v : locs) {
+				if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
+					centerXMaxBlocked = true;
+					break;
+				}
+			}
+			boolean centerYMinBlocked = false;
+			locs = gridRaytrace(playerLoc, centerYMin.subtract(playerLoc).toVector());
+			for (Vector v : locs) {
+				if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
+					centerYMinBlocked = true;
+					break;
+				}
+			}
+			boolean centerYMaxBlocked = false;
+			locs = gridRaytrace(playerLoc, centerYMax.subtract(playerLoc).toVector());
+			for (Vector v : locs) {
+				if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
+					centerYMaxBlocked = true;
+					break;
+				}
+			}
+			boolean centerZMinBlocked = false;
+			locs = gridRaytrace(playerLoc, centerZMin.subtract(playerLoc).toVector());
+			for (Vector v : locs) {
+				if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
+					centerZMinBlocked = true;
+					break;
+				}
+			}
+			boolean centerZMaxBlocked = false;
+			locs = gridRaytrace(playerLoc, centerZMax.subtract(playerLoc).toVector());
+			for (Vector v : locs) {
+				if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
+					centerZMaxBlocked = true;
+					break;
+				}
+			}
+			boolean visible = !centerXMinBlocked || !centerXMaxBlocked || !centerYMinBlocked || !centerYMaxBlocked || !centerZMinBlocked || !centerZMaxBlocked;
+			return visible;
 
-		double width = aabb.getWidth();
-		double height = aabb.getHeight();
-		double depth = aabb.getDepth();
-
-		Location center = aabb.getAABBMiddle(aabbBlock).toLocation(aabbBlock.getWorld());
-
-		Location centerXMin = center.clone().add(-width / 2, 0, 0);
-		Location centerXMax = center.clone().add(width / 2, 0, 0);
-		Location centerYMin = center.clone().add(0, -height / 2, 0);
-		Location centerYMax = center.clone().add(0, height / 2, 0);
-		Location centerZMin = center.clone().add(0, 0, -depth / 2);
-		Location centerZMax = center.clone().add(0, 0, depth / 2);
-
-		boolean centerXMinBlocked = false;
-		Vector[] locs = gridRaytrace(playerLoc, centerXMin.subtract(playerLoc).toVector());
-		for (Vector v : locs) {
-			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
-				centerXMinBlocked = true;
-				break;
-			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			Sentry.capture(exception);
 		}
-		boolean centerXMaxBlocked = false;
-		locs = gridRaytrace(playerLoc, centerXMax.subtract(playerLoc).toVector());
-		for (Vector v : locs) {
-			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
-				centerXMaxBlocked = true;
-				break;
-			}
-		}
-		boolean centerYMinBlocked = false;
-		locs = gridRaytrace(playerLoc, centerYMin.subtract(playerLoc).toVector());
-		for (Vector v : locs) {
-			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
-				centerYMinBlocked = true;
-				break;
-			}
-		}
-		boolean centerYMaxBlocked = false;
-		locs = gridRaytrace(playerLoc, centerYMax.subtract(playerLoc).toVector());
-		for (Vector v : locs) {
-			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
-				centerYMaxBlocked = true;
-				break;
-			}
-		}
-		boolean centerZMinBlocked = false;
-		locs = gridRaytrace(playerLoc, centerZMin.subtract(playerLoc).toVector());
-		for (Vector v : locs) {
-			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
-				centerZMinBlocked = true;
-				break;
-			}
-		}
-		boolean centerZMaxBlocked = false;
-		locs = gridRaytrace(playerLoc, centerZMax.subtract(playerLoc).toVector());
-		for (Vector v : locs) {
-			if (isBlockAtLocationOccluding(v.toLocation(playerLoc.getWorld()))) {
-				centerZMaxBlocked = true;
-				break;
-			}
-		}
-
-		boolean visible = !centerXMinBlocked || !centerXMaxBlocked || !centerYMinBlocked || !centerYMaxBlocked || !centerZMinBlocked || !centerZMaxBlocked;
-		return visible;
+		return true;
 	}
 
 	@SuppressWarnings("deprecation")

@@ -5,6 +5,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.api.TransportPipesContainer;
+import io.sentry.Sentry;
 
 public abstract class BlockContainer implements TransportPipesContainer {
 
@@ -31,50 +32,66 @@ public abstract class BlockContainer implements TransportPipesContainer {
 	 * if the item couldn't be inserted, the result item is equal to {@link before}.
 	 */
 	protected ItemStack putItemInSlot(ItemStack toPut, ItemStack before) {
-		if (toPut == null) {
-			return before;
+		try {
+			if (toPut == null) {
+				return before;
+			}
+			if (before == null) {
+				ItemStack returnCopy = toPut.clone();
+				toPut.setAmount(0);
+				return returnCopy;
+			}
+			ItemStack beforeItemStack = before.clone();
+			if (beforeItemStack.isSimilar(toPut)) {
+				int beforeAmount = beforeItemStack.getAmount();
+				beforeItemStack.setAmount(Math.min(before.getMaxStackSize(), beforeAmount + toPut.getAmount()));
+				toPut.setAmount(Math.max(0, toPut.getAmount() - (before.getMaxStackSize() - beforeAmount)));
+			}
+			return beforeItemStack;
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 		}
-		if (before == null) {
-			ItemStack returnCopy = toPut.clone();
-			toPut.setAmount(0);
-			return returnCopy;
-		}
-		ItemStack beforeItemStack = before.clone();
-		if (beforeItemStack.isSimilar(toPut)) {
-			int beforeAmount = beforeItemStack.getAmount();
-			beforeItemStack.setAmount(Math.min(before.getMaxStackSize(), beforeAmount + toPut.getAmount()));
-			toPut.setAmount(Math.max(0, toPut.getAmount() - (before.getMaxStackSize() - beforeAmount)));
-		}
-		return beforeItemStack;
+		return null;
 	}
 
 	protected int howManyItemsFit(ItemStack toPut, ItemStack before) {
-		if (toPut == null) {
-			return 0;
-		}
-		if (before == null) {
-			return toPut.getMaxStackSize();
-		}
-		if (before.isSimilar(toPut)) {
-			if (before.getAmount() < before.getMaxStackSize()) {
-				return before.getMaxStackSize() - before.getAmount();
+		try {
+			if (toPut == null) {
+				return 0;
+			}
+			if (before == null) {
+				return toPut.getMaxStackSize();
+			}
+			if (before.isSimilar(toPut)) {
+				if (before.getAmount() < before.getMaxStackSize()) {
+					return before.getMaxStackSize() - before.getAmount();
+				} else {
+					return 0;
+				}
 			} else {
 				return 0;
 			}
-		} else {
-			return 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 		}
+		return 0;
 	}
 
 	protected boolean isInvLocked(InventoryHolder ih) {
-		// check vanilla lock
-		if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
-			if (((org.bukkit.block.Lockable) ih).isLocked()) {
-				return true;
+		try {
+			// check vanilla lock
+			if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
+				if (((org.bukkit.block.Lockable) ih).isLocked()) {
+					return true;
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Sentry.capture(e);
 		}
 		return false;
-
 	}
 
 	public abstract void updateBlock();
