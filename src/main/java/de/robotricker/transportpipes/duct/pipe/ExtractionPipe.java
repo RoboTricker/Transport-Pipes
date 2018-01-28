@@ -282,7 +282,7 @@ public class ExtractionPipe extends Pipe implements ClickableDuct, InventoryDuct
 			final Location containerLoc = getBlockLoc().clone().add(extractDirection.getX(), extractDirection.getY(), extractDirection.getZ());
 
 			// input items
-			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+			TransportPipes.runTask(new Runnable() {
 
 				@Override
 				public void run() {

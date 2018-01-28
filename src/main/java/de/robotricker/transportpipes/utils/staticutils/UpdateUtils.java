@@ -74,7 +74,7 @@ public class UpdateUtils implements Listener {
 	@EventHandler
 	public void onJoin(final PlayerJoinEvent e) {
 		if (e.getPlayer().hasPermission(TransportPipes.instance.getConfig().getString("permissions.update", "tp.update")) && TransportPipes.instance.generalConf.isCheckUpdates()) {
-			Bukkit.getScheduler().runTaskLater(TransportPipes.instance, new Runnable() {
+			TransportPipes.runTaskLater(new Runnable() {
 
 				@Override
 				public void run() {

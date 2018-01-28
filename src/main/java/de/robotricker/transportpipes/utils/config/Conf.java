@@ -67,7 +67,7 @@ public abstract class Conf {
 	public void overrideAsync(String key, Object value) {
 		cachedValues.put(key, value);
 		yamlConf.set(key, value);
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+		TransportPipes.runTaskAsynchronously(new Runnable() {
 
 			@Override
 			public void run() {

@@ -242,7 +242,7 @@ public class DuctUtils {
 						itemsToDrop.addAll(pipeToDestroy.tempPipeItems.keySet());
 						itemsToDrop.addAll(pipeToDestroy.tempPipeItemsWithSpawn.keySet());
 						for (final PipeItem item : itemsToDrop) {
-							Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+							TransportPipes.runTask(new Runnable() {
 
 								@Override
 								public void run() {
@@ -262,7 +262,7 @@ public class DuctUtils {
 				updateNeighborDucts(ductToDestroy.getBlockLoc());
 
 				final List<ItemStack> droppedItems = ductToDestroy.getDroppedItems();
-				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+				TransportPipes.runTask(new Runnable() {
 
 					@Override
 					public void run() {

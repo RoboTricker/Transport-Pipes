@@ -232,7 +232,7 @@ public abstract class Pipe extends Duct {
 
 						final ItemStack itemStack = item.getItem();
 						final WrappedDirection finalDir = itemDir;
-						Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+						TransportPipes.runTask(new Runnable() {
 
 							@Override
 							public void run() {
@@ -372,7 +372,7 @@ public abstract class Pipe extends Duct {
 
 		if (dropItem) {
 			final ItemStack itemStack = item.getItem();
-			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+			TransportPipes.runTask(new Runnable() {
 
 				@Override
 				public void run() {

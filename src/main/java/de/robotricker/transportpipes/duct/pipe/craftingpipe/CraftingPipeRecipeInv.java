@@ -57,7 +57,7 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 				if (oldAmount > 1) {
 					final ItemStack dropItem = inventory.getItem(i + 1).clone();
 					dropItem.setAmount(oldAmount - 1);
-					Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+					TransportPipes.runTask(new Runnable() {
 
 						@Override
 						public void run() {
@@ -90,7 +90,7 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 			
 			super.onClose(e);
 
-			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+			TransportPipes.runTask(new Runnable() {
 				
 				@Override
 				public void run() {

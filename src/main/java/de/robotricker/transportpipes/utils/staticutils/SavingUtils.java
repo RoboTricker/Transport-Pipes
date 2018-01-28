@@ -49,7 +49,7 @@ public class SavingUtils implements Listener {
 	}
 
 	public void saveDuctsAsync(final boolean message) {
-		Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, new Runnable() {
+		TransportPipes.runTaskAsynchronously(new Runnable() {
 
 			@Override
 			public void run() {

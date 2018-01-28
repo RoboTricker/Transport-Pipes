@@ -85,7 +85,7 @@ public class BlockChangeListener implements Listener {
 			cachedChunkSnapshots.remove(cc);
 			return;
 		}
-		Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+		TransportPipes.runTask(new Runnable() {
 
 			@Override
 			public void run() {

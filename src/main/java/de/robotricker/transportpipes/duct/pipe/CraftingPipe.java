@@ -231,7 +231,7 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 		}
 		final ItemStack overflow = addProcessItem(item.getItem());
 		if (overflow != null) {
-			Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+			TransportPipes.runTask(new Runnable() {
 
 				@Override
 				public void run() {

@@ -377,7 +377,7 @@ public class DuctManager implements Listener {
 
 	@EventHandler
 	public void onJoin(final PlayerJoinEvent e) {
-		Bukkit.getScheduler().runTaskLater(TransportPipes.instance, new Runnable() {
+		TransportPipes.runTaskLater(new Runnable() {
 
 			@Override
 			public void run() {

@@ -99,7 +99,7 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970?stacktrace.app.packages=de.robotricker");
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
@@ -109,7 +109,7 @@ public class TransportPipes extends JavaPlugin {
 			}
 		});
 		initSentryOnCurrentThread();
-		
+
 		DuctType.PIPE.setDuctDetailsClass(PipeDetails.class);
 		DuctType.PIPE.setTickRunnable(new TickRunnable() {
 
@@ -319,7 +319,7 @@ public class TransportPipes extends JavaPlugin {
 
 		CraftUtils.initRecipes();
 
-		Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+		TransportPipes.runTask(new Runnable() {
 
 			@Override
 			public void run() {
@@ -453,6 +453,24 @@ public class TransportPipes extends JavaPlugin {
 	public static void initSentryOnCurrentThread() {
 		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
 		Sentry.getContext().addTag("version", TransportPipes.instance.getDescription().getVersion());
+	}
+
+	public static void runTask(Runnable task) {
+		if (TransportPipes.instance.isEnabled()) {
+			Bukkit.getScheduler().runTask(TransportPipes.instance, task);
+		}
+	}
+
+	public static void runTaskLater(Runnable task, long delay) {
+		if (TransportPipes.instance.isEnabled()) {
+			Bukkit.getScheduler().runTaskLater(TransportPipes.instance, task, delay);
+		}
+	}
+	
+	public static void runTaskAsynchronously(Runnable task) {
+		if (TransportPipes.instance.isEnabled()) {
+			Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, task);
+		}
 	}
 
 }
