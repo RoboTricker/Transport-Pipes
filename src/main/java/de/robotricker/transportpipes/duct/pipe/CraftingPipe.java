@@ -223,10 +223,10 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 	@Override
 	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(final PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
-		if (pipeItemsJustCrafted.contains(item)) {
+		//let just crafted item out
+		if(recipeResult != null && item.getItem().isSimilar(recipeResult)) {
 			Map<WrappedDirection, Integer> outputMap = new HashMap<>();
 			outputMap.put(outputDirection, item.getItem().getAmount());
-			pipeItemsJustCrafted.remove(item);
 			return outputMap;
 		}
 		final ItemStack overflow = addProcessItem(item.getItem());
@@ -318,6 +318,7 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 			}
 		}
 		NBTUtils.saveListValue(tags, "RecipeItems", CompoundTag.class, recipeItemsList);
+		NBTUtils.saveStringValue(tags, "RecipeItemResult", InventoryUtils.ItemStackToString(recipeResult));
 
 	}
 
@@ -349,6 +350,7 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 			}
 			i++;
 		}
+		recipeResult = InventoryUtils.StringToItemStack(NBTUtils.readStringTag(tag.getValue().get("RecipeItemResult"), null));
 		
 		updateProcessInv();
 	}
