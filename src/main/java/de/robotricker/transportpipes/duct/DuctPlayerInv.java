@@ -1,23 +1,29 @@
 package de.robotricker.transportpipes.duct;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.utils.config.LocConf;
 
 public abstract class DuctPlayerInv extends DuctInv {
 
+	protected Map<Player, List<ItemStack>> lastPreventedDrops;
+	protected Map<Player, Inventory> lastPlayerInvs;
 	protected Map<Player, Inventory> playerInvs;
 	protected boolean onlyOnePlayerAtATime;
 
 	public DuctPlayerInv(Duct duct, boolean onlyOnePlayerAtATime) {
 		super(duct);
 		this.playerInvs = new HashMap<>();
+		this.lastPlayerInvs = new HashMap<>();
+		this.lastPreventedDrops = new HashMap<>();
 		this.onlyOnePlayerAtATime = onlyOnePlayerAtATime;
 	}
 
@@ -31,6 +37,7 @@ public abstract class DuctPlayerInv extends DuctInv {
 				return;
 			}
 			playerInvs.put(p, openCustomInventory(p));
+			lastPlayerInvs.put(p, playerInvs.get(p));
 		}
 		populateInventory(p, playerInvs.get(p));
 	}
@@ -45,6 +52,13 @@ public abstract class DuctPlayerInv extends DuctInv {
 	@Override
 	protected boolean containsInventory(Inventory inventory) {
 		return playerInvs.containsValue(inventory);
+	}
+
+	protected Inventory getLastPlayerInventory(Player p) {
+		if (lastPlayerInvs.containsKey(p)) {
+			return lastPlayerInvs.get(p);
+		}
+		return null;
 	}
 
 }

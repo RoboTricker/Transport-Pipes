@@ -2,13 +2,16 @@ package de.robotricker.transportpipes.duct.pipe.craftingpipe;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -75,29 +78,79 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 			cp.setRecipeResult(null);
 		}
 	}
-	
+
 	@Override
 	@EventHandler
 	public void onClose(InventoryCloseEvent e) {
 		if (e.getInventory() != null && containsInventory(e.getInventory()) && e.getPlayer() instanceof Player) {
 			final Player p = (Player) e.getPlayer();
-			final List<ItemStack> removeItems = new ArrayList<>();
+			final Map<ItemData, Integer> removeItemDatas = new HashMap<>();
 			for (int i = 1; i < 10; i++) {
 				if (e.getInventory().getItem(i) != null) {
-					removeItems.add(e.getInventory().getItem(i).clone());
+					ItemStack toRemove = e.getInventory().getItem(i);
+					ItemData toRemoveId = new ItemData(toRemove);
+					if (!removeItemDatas.containsKey(toRemoveId)) {
+						removeItemDatas.put(toRemoveId, toRemove.getAmount());
+					} else {
+						removeItemDatas.put(toRemoveId, removeItemDatas.get(toRemoveId) + toRemove.getAmount());
+					}
 				}
 			}
-			
+
 			super.onClose(e);
 
 			TransportPipes.runTask(new Runnable() {
-				
+
 				@Override
 				public void run() {
-					p.getInventory().removeItem(removeItems.toArray(new ItemStack[0]));
+					List<ItemStack> preventedDrops = lastPreventedDrops.remove(p);
+					if (preventedDrops == null) {
+						preventedDrops = new ArrayList<>();
+					}
+					for (ItemData id : removeItemDatas.keySet()) {
+						for (ItemStack preventedIs : preventedDrops) {
+							if (preventedIs.isSimilar(id.toItemStack())) {
+								removeItemDatas.put(id, removeItemDatas.get(id) - preventedIs.getAmount());
+							}
+						}
+					}
+					
+					//remove items from inv
+					for(ItemData id : removeItemDatas.keySet()) {
+						
+						int totalSubtract = removeItemDatas.get(id);
+						int totalSubtracted = 0;
+						int subtractAmount;
+						do {
+							subtractAmount = Math.min(id.toItemStack().getMaxStackSize(), totalSubtract - totalSubtracted);
+
+							ItemStack subtractItemStack = id.toItemStack();
+							subtractItemStack.setAmount(subtractAmount);
+							p.getInventory().removeItem(subtractItemStack);
+							
+							totalSubtracted += subtractAmount;
+						} while(totalSubtracted < totalSubtract);
+						
+					}
+					
 					p.updateInventory();
 				}
 			});
+		}
+	}
+
+	@EventHandler
+	public void onPlayerDropItem(PlayerDropItemEvent e) {
+		if (e.getPlayer().getOpenInventory() != null && e.getPlayer().getOpenInventory().getTopInventory() != null) {
+			if (getLastPlayerInventory(e.getPlayer()) != null && getLastPlayerInventory(e.getPlayer()).equals(e.getPlayer().getOpenInventory().getTopInventory())) {
+				List<ItemStack> drops = lastPreventedDrops.get(e.getPlayer());
+				if (drops == null) {
+					drops = new ArrayList<ItemStack>();
+					lastPreventedDrops.put(e.getPlayer(), drops);
+				}
+				drops.add(e.getItemDrop().getItemStack());
+				e.setCancelled(true);
+			}
 		}
 	}
 
