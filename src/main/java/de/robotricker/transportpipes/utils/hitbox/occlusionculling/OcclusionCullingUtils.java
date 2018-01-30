@@ -116,6 +116,15 @@ public class OcclusionCullingUtils {
 			if (relativeZ < 0) {
 				relativeZ = 16 + relativeZ;
 			}
+			if (relativeX < 0 || relativeX > 15) {
+				return false;
+			}
+			if (relativeZ < 0 || relativeZ > 15) {
+				return false;
+			}
+			if (loc.getBlockY() < 0 || loc.getBlockY() > 255) {
+				return false;
+			}
 			Material material = Material.getMaterial(snapshot.getBlockTypeId(relativeX, loc.getBlockY(), relativeZ));
 			return material.isOccluding();
 		} catch (Exception e) {

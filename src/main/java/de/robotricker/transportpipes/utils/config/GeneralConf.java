@@ -11,7 +11,7 @@ public class GeneralConf extends Conf {
 
 	public GeneralConf() {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "config.yml"), TransportPipes.instance);
-		saveAsDefault("max_items_per_pipe", 10);
+		saveAsDefault("max_items_per_pipe", 20);
 		saveAsDefault("crafting_enabled", true);
 		saveAsDefault("check_updates", true);
 		saveAsDefault("destroy_pipe_on_explosion", true);

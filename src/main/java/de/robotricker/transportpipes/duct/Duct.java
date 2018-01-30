@@ -113,12 +113,12 @@ public abstract class Duct {
 
 	public abstract DuctDetails getDuctDetails();
 	
-	public void explode(final boolean withSound) {
+	public void explode(final boolean withSound, final boolean dropItems) {
 		TransportPipes.instance.pipeThread.runTask(new Runnable() {
 
 			@Override
 			public void run() {
-				DuctUtils.destroyDuct(null, Duct.this, false);
+				DuctUtils.destroyDuct(null, Duct.this, dropItems);
 				if (withSound) {
 					blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
 				}

@@ -131,6 +131,10 @@ public abstract class Pipe extends Duct {
 			// handle item transport through pipe
 			transportItems(pipeConnections, blockConnections, pipeTickData.itemsTicked);
 			
+			if(pipeItems.size() > TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
+				explode(true, true);
+			}
+			
 		} catch (Exception exception) {
 			exception.printStackTrace();
 			Sentry.capture(exception);

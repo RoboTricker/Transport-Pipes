@@ -111,7 +111,7 @@ public class ContainerBlockUtils implements Listener {
 
 						@Override
 						public void run() {
-							duct.explode(false);
+							duct.explode(false, true);
 						}
 					}, 0);
 				}
