@@ -114,10 +114,10 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 							}
 						}
 					}
-					
-					//remove items from inv
-					for(ItemData id : removeItemDatas.keySet()) {
-						
+
+					// remove items from inv
+					for (ItemData id : removeItemDatas.keySet()) {
+
 						int totalSubtract = removeItemDatas.get(id);
 						int totalSubtracted = 0;
 						int subtractAmount;
@@ -127,12 +127,12 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 							ItemStack subtractItemStack = id.toItemStack();
 							subtractItemStack.setAmount(subtractAmount);
 							p.getInventory().removeItem(subtractItemStack);
-							
+
 							totalSubtracted += subtractAmount;
-						} while(totalSubtracted < totalSubtract);
-						
+						} while (totalSubtracted < totalSubtract);
+
 					}
-					
+
 					p.updateInventory();
 				}
 			});
@@ -141,15 +141,21 @@ public class CraftingPipeRecipeInv extends DuctPlayerInv {
 
 	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent e) {
+		// player has an inventory opened
 		if (e.getPlayer().getOpenInventory() != null && e.getPlayer().getOpenInventory().getTopInventory() != null) {
+			// player has this crafting pipe inventory opened
 			if (getLastPlayerInventory(e.getPlayer()) != null && getLastPlayerInventory(e.getPlayer()).equals(e.getPlayer().getOpenInventory().getTopInventory())) {
-				List<ItemStack> drops = lastPreventedDrops.get(e.getPlayer());
-				if (drops == null) {
-					drops = new ArrayList<ItemStack>();
-					lastPreventedDrops.put(e.getPlayer(), drops);
+				// crafting pipe inventory is already unregistered -> the pipe is going to be
+				// closed
+				if (!containsInventory(e.getPlayer().getOpenInventory().getTopInventory())) {
+					List<ItemStack> drops = lastPreventedDrops.get(e.getPlayer());
+					if (drops == null) {
+						drops = new ArrayList<ItemStack>();
+						lastPreventedDrops.put(e.getPlayer(), drops);
+					}
+					drops.add(e.getItemDrop().getItemStack());
+					e.setCancelled(true);
 				}
-				drops.add(e.getItemDrop().getItemStack());
-				e.setCancelled(true);
 			}
 		}
 	}
