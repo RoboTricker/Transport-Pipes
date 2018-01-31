@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes.duct.pipe;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,17 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
-import com.comphenix.protocol.wrappers.WrappedIntHashMap;
 import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
-import com.flowpowered.nbt.IntTag;
 import com.flowpowered.nbt.Tag;
 
 import de.robotricker.transportpipes.TransportPipes;
@@ -30,16 +23,13 @@ import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.utils.ItemDistribution;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
-import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.hitbox.TimingCloseable;
-import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
-import de.robotricker.transportpipes.utils.staticutils.UpdateUtils;
 import de.robotricker.transportpipes.utils.tick.PipeTickData;
 import de.robotricker.transportpipes.utils.tick.TickData;
 import io.sentry.Sentry;

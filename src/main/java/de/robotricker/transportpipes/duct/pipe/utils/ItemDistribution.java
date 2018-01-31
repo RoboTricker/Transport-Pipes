@@ -77,6 +77,17 @@ public class ItemDistribution {
 		return freeSpaceMap;
 	}
 
+	/**
+	 * 
+	 * splits the given "item" based on the given "absWeights" into the
+	 * "possibleDirections".
+	 * 
+	 * @param item
+	 * @param possibleDirections
+	 * @param absWeights
+	 * @return map which maps each possible direction to the item amount so that the
+	 *         total amount is equal to item.getAmount()
+	 */
 	public Map<WrappedDirection, Integer> splitPipeItem(ItemStack item, Collection<WrappedDirection> possibleDirections, Map<WrappedDirection, Integer> absWeights) {
 		Map<WrappedDirection, Integer> splitMap = new HashMap<>();
 		Map<WrappedDirection, Integer> freeSpaceMap = calculateFreeSpaceForAllDirections(item, possibleDirections);
