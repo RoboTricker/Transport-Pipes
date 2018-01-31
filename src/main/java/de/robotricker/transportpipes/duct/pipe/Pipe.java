@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.duct.pipe;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
+import com.comphenix.protocol.wrappers.WrappedIntHashMap;
 import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
 import com.flowpowered.nbt.IntTag;
@@ -26,7 +28,9 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.duct.pipe.utils.ItemDistribution;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
+import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
 import de.robotricker.transportpipes.utils.BlockLoc;
@@ -60,8 +64,15 @@ public abstract class Pipe extends Duct {
 	// remember to synchronize while iterating
 	public final Map<PipeItem, WrappedDirection> tempPipeItemsWithSpawn = Collections.synchronizedMap(new HashMap<PipeItem, WrappedDirection>());
 
+	protected ItemDistribution itemDistribution;
+
 	public Pipe(Location blockLoc) {
 		super(blockLoc);
+		this.itemDistribution = new ItemDistribution(this);
+	}
+
+	public ItemDistribution getItemDistribution() {
+		return itemDistribution;
 	}
 
 	/**
@@ -91,7 +102,7 @@ public abstract class Pipe extends Duct {
 	public void tick(TickData tickData) {
 
 		try {
-			
+
 			PipeTickData pipeTickData = (PipeTickData) tickData;
 			// insert items from "tempPipeItemsWithSpawn"
 			synchronized (tempPipeItemsWithSpawn) {
@@ -130,11 +141,11 @@ public abstract class Pipe extends Duct {
 			}
 			// handle item transport through pipe
 			transportItems(pipeConnections, blockConnections, pipeTickData.itemsTicked);
-			
-			if(pipeItems.size() > TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
+
+			if (pipeItems.size() > TransportPipes.instance.generalConf.getMaxItemsPerPipe()) {
 				explode(true, true);
 			}
-			
+
 		} catch (Exception exception) {
 			exception.printStackTrace();
 			Sentry.capture(exception);
@@ -143,8 +154,13 @@ public abstract class Pipe extends Duct {
 	}
 
 	/**
-	 * returns whether the item is still in "pipeItems" and therefore should still
-	 * get processed or not.
+	 * there are three return states:
+	 * <ol>
+	 * <li>the map is <b>null</b>: the item will silently disappear</li>
+	 * <li>the map is <b>empty</b>: the item will drop</li>
+	 * <li>the map has <b>at least one entry</b>: the item will split to the given
+	 * directions</li>
+	 * </ol>
 	 */
 	public abstract Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs);
 

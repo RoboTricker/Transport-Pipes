@@ -69,4 +69,8 @@ public class BlockLoc implements Comparable<BlockLoc> {
 		return new BlockLoc(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
 	}
 	
+	public static BlockLoc convertBlockLoc(Location blockLoc, WrappedDirection neighborDirection) {
+		return convertBlockLoc(blockLoc.clone().add(neighborDirection.getX(), neighborDirection.getY(), neighborDirection.getZ()));
+	}
+	
 }

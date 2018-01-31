@@ -221,10 +221,35 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 		this.recipeResult = result;
 	}
 
+	public int freeSpaceForItem(ItemData itemData) {
+		boolean itemNeededForRecipe = false;
+		for (int i = 0; i < recipeItems.length; i++) {
+			ItemData recipeItemData = recipeItems[i];
+			if (recipeItemData != null && recipeItemData.equals(itemData)) {
+				itemNeededForRecipe = true;
+				break;
+			}
+		}
+		
+		int freeSpace = 0;
+		if (itemNeededForRecipe) {
+			for (int i = 0; i < processItems.length; i++) {
+				ItemStack processItem = processItems[i];
+				ItemStack itemStack = itemData.toItemStack();
+				if (processItem == null) {
+					freeSpace += itemStack.getMaxStackSize();
+				} else if (processItem.isSimilar(itemStack)) {
+					freeSpace += processItem.getMaxStackSize() - processItem.getAmount();
+				}
+			}
+		}
+		return freeSpace;
+	}
+
 	@Override
 	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(final PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
-		//let just crafted item out
-		if(recipeResult != null && item.getItem().isSimilar(recipeResult)) {
+		// let just crafted item out
+		if (recipeResult != null && item.getItem().isSimilar(recipeResult)) {
 			Map<WrappedDirection, Integer> outputMap = new HashMap<>();
 			outputMap.put(outputDirection, item.getItem().getAmount());
 			return outputMap;
@@ -341,7 +366,7 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 			}
 			i++;
 		}
-		
+
 		List<Tag<?>> recipeItemsList = NBTUtils.readListTag(tag.getValue().get("RecipeItems"));
 		i = 0;
 		for (Tag<?> itemTag : recipeItemsList) {
@@ -351,7 +376,7 @@ public class CraftingPipe extends Pipe implements ClickableDuct, InventoryDuct {
 			i++;
 		}
 		recipeResult = InventoryUtils.StringToItemStack(NBTUtils.readStringTag(tag.getValue().get("RecipeItemResult"), null));
-		
+
 		updateProcessInv();
 	}
 

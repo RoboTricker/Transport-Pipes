@@ -62,7 +62,7 @@ public class LogisticsAPIUtils implements Listener {
 
 		@Override
 		public boolean matchesFilter(ItemStack item) {
-			return new ItemData(item).checkFilter(filterItems, filteringMode);
+			return new ItemData(item).applyFilter(filterItems, filteringMode) > 0;
 		}
 
 	}

@@ -3,9 +3,11 @@ package de.robotricker.transportpipes.duct.pipe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -37,10 +39,11 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 	public static final int ITEMS_PER_ROW = 32;
 
-	//1st dimension: output dirs in order of PipeDirection.values() | 2nd dimension: output items in this direction
+	// 1st dimension: output dirs in order of PipeDirection.values() | 2nd
+	// dimension: output items in this direction
 	private ItemData[][] filteringItems;
 	private FilteringMode[] filteringModes;
-	
+
 	private GoldenPipeInv inventory;
 
 	public GoldenPipe(Location blockLoc) {
@@ -55,62 +58,27 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 	@Override
 	public Map<WrappedDirection, Integer> handleArrivalAtMiddle(PipeItem item, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
-		Random random = new Random();
-		Map<BlockLoc, TransportPipesContainer> containerMap = TransportPipes.instance.getContainerMap(getBlockLoc().getWorld());
+		Map<WrappedDirection, Integer> absWeights = calculateAbsWeights(new ItemData(item.getItem()), before, possibleDirs);
 
-		Map<WrappedDirection, Integer> maxSpaceMap = new HashMap<WrappedDirection, Integer>();
-		Map<WrappedDirection, Integer> directionMap = new HashMap<WrappedDirection, Integer>();
-
-		//update maxSpaceMap
-		for (WrappedDirection pd : WrappedDirection.values()) {
-			maxSpaceMap.put(pd, Integer.MAX_VALUE);
-			if (containerMap != null) {
-				BlockLoc bl = BlockLoc.convertBlockLoc(getBlockLoc().clone().add(pd.getX(), pd.getY(), pd.getZ()));
-				if (containerMap.containsKey(bl)) {
-					TransportPipesContainer tpc = containerMap.get(bl);
-					int freeSpace = tpc.howMuchSpaceForItemAsync(pd.getOpposite(), item.getItem());
-					maxSpaceMap.put(pd, freeSpace);
-				}
-			}
-		}
-
-		for (int i = 0; i < item.getItem().getAmount(); i++) {
-			List<WrappedDirection> blockedDirections = new ArrayList<>();
-			for (WrappedDirection pd : WrappedDirection.values()) {
-				int currentAmount = directionMap.containsKey(pd) ? directionMap.get(pd) : 0;
-				currentAmount += getSimilarItemAmountOnDirectionWay(item, pd);
-				int maxFreeSpace = maxSpaceMap.get(pd);
-				if (currentAmount >= maxFreeSpace) {
-					blockedDirections.add(pd);
-				}
-			}
-			List<WrappedDirection> possibleDirsDueToSorting = getPossibleDirectionsForItem(new ItemData(item.getItem()), before, blockedDirections);
-			if (possibleDirsDueToSorting.isEmpty()) {
-				continue;
-			}
-
-			WrappedDirection randomDir = possibleDirsDueToSorting.get(random.nextInt(possibleDirsDueToSorting.size()));
-			if (directionMap.containsKey(randomDir)) {
-				directionMap.put(randomDir, directionMap.get(randomDir) + 1);
-			} else {
-				directionMap.put(randomDir, 1);
-			}
-		}
-
-		return directionMap;
+		return getItemDistribution().splitPipeItem(item.getItem(), possibleDirs, absWeights);
 	}
 
-	public List<WrappedDirection> getPossibleDirectionsForItem(ItemData itemData, WrappedDirection before, List<WrappedDirection> blockedDirections) {
-		//all directions in which is an other pipe or inventory-block
-		List<WrappedDirection> blockConnections = getOnlyBlockConnections();
-		List<WrappedDirection> pipeConnections = getOnlyConnectableDuctConnections();
-
-		//the possible directions in which the item could go
-		List<WrappedDirection> possibleDirections = new ArrayList<>();
-		List<WrappedDirection> emptyPossibleDirections = new ArrayList<>();
+	private Map<WrappedDirection, Integer> calculateAbsWeights(ItemData itemData, WrappedDirection before, Collection<WrappedDirection> possibleDirs) {
+		Map<WrappedDirection, Integer> absWeights = new HashMap<>();
+		Set<WrappedDirection> emptyDirections = new HashSet<>();
 
 		for (int line = 0; line < 6; line++) {
 			WrappedDirection dir = WrappedDirection.fromID(line);
+
+			// item shouldn't go directly back
+			if (dir.getOpposite() == before) {
+				continue;
+			}
+			// ignore direction if there isn't any pipe or container
+			if (!possibleDirs.contains(dir)) {
+				continue;
+			}
+
 			FilteringMode filteringMode = getFilteringMode(line);
 
 			List<ItemData> filterItems = new ArrayList<ItemData>();
@@ -120,36 +88,22 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 				}
 			}
 
-			if (dir.getOpposite() == before) {
-				continue;
-			}
-			//ignore the direction in which is no pipe or inv-block
-			if (!blockConnections.contains(dir) && !pipeConnections.contains(dir)) {
-				continue;
-			} else if (filteringMode == FilteringMode.BLOCK_ALL) {
-				continue;
-			} else if (blockedDirections.contains(dir)) {
-				continue;
+			int weight = itemData.applyFilter(filterItems, filteringMode, true);
+			if (weight > 0) {
+				absWeights.put(dir, weight);
+			} else if (itemData.applyFilter(filterItems, filteringMode, false) > 0) {
+				emptyDirections.add(dir);
 			}
 
-			if (itemData.checkFilter(filterItems, filteringMode, true)) {
-				possibleDirections.add(dir);
-			} else if (filterItems.isEmpty()) {
-				emptyPossibleDirections.add(dir);
+		}
+
+		if (absWeights.isEmpty()) {
+			for (WrappedDirection wd : emptyDirections) {
+				absWeights.put(wd, 1);
 			}
 		}
 
-		//drop the item if it can't go anywhere
-		if (possibleDirections.isEmpty() && emptyPossibleDirections.isEmpty()) {
-			return new ArrayList<>();
-		}
-
-		//if this item isn't in the list, it will take a random direction from the empty dirs
-		if (possibleDirections.isEmpty()) {
-			possibleDirections.addAll(emptyPossibleDirections);
-		}
-
-		return possibleDirections;
+		return absWeights;
 	}
 
 	@Override
@@ -188,7 +142,7 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 		CompoundMap map = tag.getValue();
 		if (NBTUtils.readListTag(map.get("Lines")).isEmpty()) {
-			//old lines version
+			// old lines version
 			for (int line = 0; line < 6; line++) {
 
 				List<Tag<?>> lineList = NBTUtils.readListTag(map.get("Line" + line));
@@ -204,7 +158,7 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 
 			}
 		} else {
-			//new list version
+			// new list version
 			List<Tag<?>> linesList = NBTUtils.readListTag(map.get("Lines"));
 			for (Tag<?> lineTag : linesList) {
 				CompoundTag lineCompound = (CompoundTag) lineTag;
@@ -237,7 +191,7 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 	public void click(Player p, WrappedDirection side) {
 		getDuctInventory(p).openOrUpdateInventory(p);
 	}
-	
+
 	@Override
 	public DuctSharedInv getDuctInventory(Player p) {
 		return inventory;
@@ -288,5 +242,5 @@ public class GoldenPipe extends Pipe implements ClickableDuct, InventoryDuct {
 	public DuctDetails getDuctDetails() {
 		return new PipeDetails(getPipeType());
 	}
-	
+
 }

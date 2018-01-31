@@ -40,8 +40,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 	}
 
 	@Override
-	public ItemStack extractItem(WrappedDirection extractDirection, int extractAmount, List<ItemData> filterItems,
-			FilteringMode filteringMode) {
+	public ItemStack extractItem(WrappedDirection extractDirection, int extractAmount, List<ItemData> filterItems, FilteringMode filteringMode) {
 		ItemStack takenIs;
 		try {
 			if (!cachedChunk.isLoaded()) {
@@ -55,7 +54,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 				if (cachedInv.getItem(i) != null) {
 					int amountBefore = takenIs != null ? takenIs.getAmount() : 0;
 					if (takenIs == null) {
-						if (new ItemData(cachedInv.getItem(i)).checkFilter(filterItems, filteringMode)) {
+						if (new ItemData(cachedInv.getItem(i)).applyFilter(filterItems, filteringMode) > 0) {
 							takenIs = cachedInv.getItem(i).clone();
 							takenIs.setAmount(Math.min(extractAmount, takenIs.getAmount()));
 						} else {

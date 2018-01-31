@@ -37,7 +37,7 @@ public class FurnaceContainer extends BlockContainer {
 			if (isInvLocked(cachedFurnace)) {
 				return null;
 			}
-			if (cachedInv.getResult() != null && new ItemData(cachedInv.getResult()).checkFilter(filterItems, filteringMode)) {
+			if (cachedInv.getResult() != null && new ItemData(cachedInv.getResult()).applyFilter(filterItems, filteringMode) > 0) {
 				ItemStack taken = InventoryUtils.createOneAmountItemStack(cachedInv.getResult());
 				cachedInv.setResult(InventoryUtils.changeAmount(cachedInv.getResult(), -extractAmount));
 				ItemStack clonedTaken = taken.clone();

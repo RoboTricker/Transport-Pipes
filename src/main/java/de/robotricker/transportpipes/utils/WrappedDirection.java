@@ -105,5 +105,5 @@ public enum WrappedDirection {
 		}
 		return fromID(getId() + 1);
 	}
-
+	
 }

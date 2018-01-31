@@ -1,15 +1,10 @@
 package de.robotricker.transportpipes.pipeitems;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.bukkit.inventory.ItemStack;
 
 import com.flowpowered.nbt.CompoundMap;
 import com.flowpowered.nbt.CompoundTag;
-import com.flowpowered.nbt.Tag;
-
 import de.robotricker.transportpipes.duct.pipe.utils.FilteringMode;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.NBTUtils;
@@ -27,40 +22,41 @@ public class ItemData {
 		return item.clone();
 	}
 
-	public boolean checkFilter(List<ItemData> filterItems, FilteringMode filteringMode) {
-		return checkFilter(filterItems, filteringMode, false);
+	public int applyFilter(List<ItemData> filterItems, FilteringMode filteringMode) {
+		return applyFilter(filterItems, filteringMode, false);
 	}
 
 	/**
-	 * returns whether the given filter accepts this item object
+	 * returns the weight of how many of this itemData objects should pass this
+	 * filter
 	 */
-	public boolean checkFilter(List<ItemData> filterItems, FilteringMode filteringMode, boolean ignoreEmpty) {
+	public int applyFilter(List<ItemData> filterItems, FilteringMode filteringMode, boolean ignoreEmpty) {
 		if (filteringMode == FilteringMode.BLOCK_ALL) {
-			return false;
+			return 0;
 		}
 		if (!ignoreEmpty && filterItems.isEmpty()) {
-			return true;
+			return 1;
 		}
 		if (filteringMode == FilteringMode.INVERT) {
 			boolean equals = false;
 			for (ItemData filterItem : filterItems) {
 				equals |= filterItem.item.isSimilar(item);
 			}
-			return !equals;
+			return !equals ? 1 : 0;
 		} else {
-			boolean equals = false;
+			int weight = 0;
 			for (ItemData filterItem : filterItems) {
 				if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE_NBT) {
-					equals |= filterItem.item.isSimilar(item);
+					weight += filterItem.item.isSimilar(item) ? 1 : 0;
 				} else if (filteringMode == FilteringMode.FILTERBY_TYPE_DAMAGE) {
-					equals |= filterItem.item.getType() == item.getType() && filterItem.item.getDurability() == item.getDurability();
+					weight += (filterItem.item.getType() == item.getType() && filterItem.item.getDurability() == item.getDurability()) ? 1 : 0;
 				} else if (filteringMode == FilteringMode.FILTERBY_TYPE_NBT) {
-					equals |= filterItem.item.getType() == item.getType() && filterItem.item.getItemMeta().equals(item.getItemMeta());
+					weight += (filterItem.item.getType() == item.getType() && filterItem.item.getItemMeta().equals(item.getItemMeta())) ? 1 : 0;
 				} else if (filteringMode == FilteringMode.FILTERBY_TYPE) {
-					equals |= filterItem.item.getType() == item.getType();
+					weight += filterItem.item.getType() == item.getType() ? 1 : 0;
 				}
 			}
-			return equals;
+			return weight;
 		}
 	}
 
