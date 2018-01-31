@@ -12,7 +12,6 @@ permissions:
     children:
       transportpipes.tps: true
       transportpipes.reload: true
-      transportpipes.update: true
       transportpipes.creative: true
       transportpipes.save: true
       transportpipes.delete: true

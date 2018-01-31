@@ -51,7 +51,6 @@ import de.robotricker.transportpipes.utils.commands.ReloadPipesCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.SaveCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.SettingsCommandExecutor;
 import de.robotricker.transportpipes.utils.commands.TPSCommandExecutor;
-import de.robotricker.transportpipes.utils.commands.UpdateCommandExecutor;
 import de.robotricker.transportpipes.utils.config.GeneralConf;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.config.RecipesConf;
@@ -63,7 +62,6 @@ import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
-import de.robotricker.transportpipes.utils.staticutils.ProtocolUtils;
 import de.robotricker.transportpipes.utils.staticutils.SavingUtils;
 import de.robotricker.transportpipes.utils.staticutils.SettingsUtils;
 import de.robotricker.transportpipes.utils.staticutils.SkyblockAPIUtils;
@@ -71,7 +69,6 @@ import de.robotricker.transportpipes.utils.staticutils.UpdateUtils;
 import de.robotricker.transportpipes.utils.tick.PipeTickData;
 import de.robotricker.transportpipes.utils.tick.TickRunnable;
 import io.sentry.Sentry;
-import io.sentry.event.UserBuilder;
 
 public class TransportPipes extends JavaPlugin {
 
@@ -205,7 +202,6 @@ public class TransportPipes extends JavaPlugin {
 		final TPSCommandExecutor tpsCmdExec = new TPSCommandExecutor();
 		final CreativeCommandExecutor creativeCmdExec = new CreativeCommandExecutor();
 		final ReloadPipesCommandExecutor reloadPipesCmdExec = new ReloadPipesCommandExecutor();
-		final UpdateCommandExecutor updateCmdExec = new UpdateCommandExecutor();
 		final SaveCommandExecutor saveCmdExec = new SaveCommandExecutor();
 		final DeletePipesCommandExecutor deletePipesCmdExec = new DeletePipesCommandExecutor();
 
@@ -226,10 +222,6 @@ public class TransportPipes extends JavaPlugin {
 					}
 				} else if (args.length >= 1 && args[0].equalsIgnoreCase("creative")) {
 					if (!creativeCmdExec.onCommand(cs, Arrays.copyOfRange(args, 1, args.length))) {
-						noPerm = true;
-					}
-				} else if (args.length >= 1 && args[0].equalsIgnoreCase("update")) {
-					if (!updateCmdExec.onCommand(cs, Arrays.copyOfRange(args, 1, args.length))) {
 						noPerm = true;
 					}
 				} else if (args.length >= 2 && args[0].equalsIgnoreCase("reload") && args[1].equalsIgnoreCase("pipes")) {
@@ -253,8 +245,6 @@ public class TransportPipes extends JavaPlugin {
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes creative &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_CREATIVE)));
 					if (cs.hasPermission("transportpipes.reload"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes reload pipes &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_RELOAD)));
-					if (cs.hasPermission("transportpipes.update"))
-						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes update &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_UPDATE)));
 					if (cs.hasPermission("transportpipes.save"))
 						cs.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6/tpipes save &7- " + LocConf.load(LocConf.COMMANDS_DESCRIPTION_SAVE)));
 					if (cs.hasPermission("transportpipes.delete"))
