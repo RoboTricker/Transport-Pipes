@@ -76,7 +76,7 @@ public class RecipesConf extends Conf {
 
 	public Recipe createPipeRecipe(PipeType pt, PipeColor pc) {
 		NamespacedKey nk = createRecipeKey("pipe-" + pt + "-" + pc);
-		
+
 		String basePath = "recipe." + pt.name().toLowerCase(Locale.ENGLISH);
 		if (pc != null) {
 			basePath += "." + pc.name().toLowerCase(Locale.ENGLISH);
@@ -84,7 +84,8 @@ public class RecipesConf extends Conf {
 		ItemStack resultItem;
 		if (pt == PipeType.COLORED) {
 			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pc == null ? PipeColor.WHITE : pc));
-			System.out.println(pc.name() + "_" + pc.toString() + ":" + pc.name().toLowerCase(Locale.ENGLISH) + ":" + pc.name().toLowerCase());
+			if (pc != null)
+				System.out.println(pc.name() + "_" + pc.toString() + ":" + pc.name().toLowerCase(Locale.ENGLISH) + ":" + pc.name().toLowerCase());
 		} else {
 			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
 		}
@@ -141,7 +142,7 @@ public class RecipesConf extends Conf {
 
 	public Recipe createWrenchRecipe() {
 		NamespacedKey nk = createRecipeKey("wrench");
-		
+
 		String basePath = "recipe.wrench";
 		ItemStack resultItem = DuctItemUtils.getWrenchItem().clone();
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
@@ -197,5 +198,5 @@ public class RecipesConf extends Conf {
 	private NamespacedKey createRecipeKey(String key) {
 		return new NamespacedKey(TransportPipes.instance, key);
 	}
-	
+
 }
