@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -76,9 +77,9 @@ public class RecipesConf extends Conf {
 	public Recipe createPipeRecipe(PipeType pt, PipeColor pc) {
 		NamespacedKey nk = createRecipeKey("pipe-" + pt + "-" + pc);
 		
-		String basePath = "recipe." + pt.name().toLowerCase();
+		String basePath = "recipe." + pt.name().toLowerCase(Locale.ENGLISH);
 		if (pc != null) {
-			basePath += "." + pc.name().toLowerCase();
+			basePath += "." + pc.name().toLowerCase(Locale.ENGLISH);
 		}
 		ItemStack resultItem;
 		if (pt == PipeType.COLORED) {
@@ -86,8 +87,7 @@ public class RecipesConf extends Conf {
 		} else {
 			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
 		}
-		System.out.println(pc + ":" + resultItem + ":" + basePath + ":");
-		System.out.println(":" + read(basePath + ".amount"));
+		System.out.println(pc.name() + "_" + pc.toString() + ":" + pc.name().toLowerCase(Locale.ENGLISH) + ":" + pc.name().toLowerCase());
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
 			ShapedRecipe recipe = new ShapedRecipe(nk, resultItem);
