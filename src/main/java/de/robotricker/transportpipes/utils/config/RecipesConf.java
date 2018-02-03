@@ -86,6 +86,8 @@ public class RecipesConf extends Conf {
 		} else {
 			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
 		}
+		System.out.println(pc + ":" + resultItem + ":" + basePath + ":");
+		System.out.println(":" + read(basePath + ".amount"));
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
 			ShapedRecipe recipe = new ShapedRecipe(nk, resultItem);
