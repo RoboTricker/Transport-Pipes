@@ -84,8 +84,6 @@ public class RecipesConf extends Conf {
 		ItemStack resultItem;
 		if (pt == PipeType.COLORED) {
 			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pc == null ? PipeColor.WHITE : pc));
-			if (pc != null)
-				System.out.println(pc.name() + "_" + pc.toString() + ":" + pc.name().toLowerCase(Locale.ENGLISH) + ":" + pc.name().toLowerCase());
 		} else {
 			resultItem = DuctItemUtils.getClonedDuctItem(new PipeDetails(pt));
 		}
