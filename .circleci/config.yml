@@ -25,3 +25,5 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
       - run: mvn clean install
+      - store_artifacts:
+          path: /target
