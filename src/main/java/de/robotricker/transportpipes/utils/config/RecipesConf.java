@@ -75,6 +75,7 @@ public class RecipesConf extends Conf {
 		saveToFile();
 	}
 
+	@SuppressWarnings("deprecation")
 	public Recipe createPipeRecipe(PipeType pt, PipeColor pc) {
 		NamespacedKey nk = createRecipeKey("pipe-" + pt + "-" + pc);
 
@@ -96,7 +97,11 @@ public class RecipesConf extends Conf {
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
 				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				recipe.setIngredient(key.charAt(0), item.getData());
+				if (item.getData().getData() == 0) {
+					recipe.setIngredient(key.charAt(0), item.getType(), -1);
+				} else {
+					recipe.setIngredient(key.charAt(0), item.getData());
+				}
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
@@ -104,7 +109,11 @@ public class RecipesConf extends Conf {
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
 				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				recipe.addIngredient(item.getData());
+				if (item.getData().getData() == 0) {
+					recipe.addIngredient(item.getType(), -1);
+				} else {
+					recipe.addIngredient(item.getData());
+				}
 			}
 			return recipe;
 		}
@@ -123,7 +132,11 @@ public class RecipesConf extends Conf {
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
 				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				recipe.setIngredient(key.charAt(0), item.getData());
+				if (item.getData().getData() == 0) {
+					recipe.setIngredient(key.charAt(0), item.getType(), -1);
+				} else {
+					recipe.setIngredient(key.charAt(0), item.getData());
+				}
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
@@ -131,7 +144,11 @@ public class RecipesConf extends Conf {
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
 				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				recipe.addIngredient(item.getData());
+				if (item.getData().getData() == 0) {
+					recipe.addIngredient(item.getType(), -1);
+				} else {
+					recipe.addIngredient(item.getData());
+				}
 			}
 			return recipe;
 		}
