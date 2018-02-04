@@ -27,4 +27,4 @@ jobs:
       - run: mvn clean install
       - store_artifacts:
           path: /target
-          destination: transportpipes-**.jar
+          destination: transportpipes-4.3.2-SNAPSHOT.jar
