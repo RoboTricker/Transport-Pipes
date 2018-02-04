@@ -4,6 +4,8 @@ jobs:
     docker:
       - image: circleci/openjdk:8-jdk
 
+    working_directory: /project
+
     environment:
       MAVEN_OPTS: -Xmx3200m
 
@@ -26,4 +28,4 @@ jobs:
 
       - run: mvn clean install
       - store_artifacts:
-          path: /target/transportpipes-4.3.2-SNAPSHOT.jar
+          path: project/target/transportpipes-**.jar
