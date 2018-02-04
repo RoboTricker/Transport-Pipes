@@ -26,6 +26,6 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-      - run: mvn clean install
+      - run: mvn clean package
       - store_artifacts:
-          path: ~/project/target/transportpipes-*.jar
+          path: ~/project/target/transportpipes-4.3.2-SNAPSHOT.jar
