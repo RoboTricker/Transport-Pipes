@@ -28,4 +28,4 @@ jobs:
 
       - run: mvn clean install
       - store_artifacts:
-          path: ~/project/target/transportpipes-**.jar
+          path: ~/project/target/transportpipes-*.jar
