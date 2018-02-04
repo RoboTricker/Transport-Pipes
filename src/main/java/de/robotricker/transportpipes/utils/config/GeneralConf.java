@@ -22,6 +22,8 @@ public class GeneralConf extends Conf {
 		saveAsDefault("default_showitems", true);
 		saveAsDefault("resourcepack", "default"); // default, server, none, [URL]
 		saveAsDefault("disabled_worlds", Arrays.asList());
+		saveAsDefault("wrench.item", "280:0");
+		saveAsDefault("wrench.enchanted", true);
 		finishDefault();
 	}
 
@@ -81,6 +83,14 @@ public class GeneralConf extends Conf {
 	@SuppressWarnings("unchecked")
 	public List<String> getDisabledWorlds(){
 		return (List<String>) read("disabled_worlds");
+	}
+	
+	public String getWrenchItem() {
+		return (String) read("wrench.item");
+	}
+	
+	public boolean getWrenchEnchanted() {
+		return (boolean) read("wrench.enchanted");
 	}
 
 }

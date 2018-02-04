@@ -18,7 +18,10 @@ public class DuctItemUtils {
 	private static ItemStack wrenchItem;
 
 	static {
-		wrenchItem = InventoryUtils.createGlowingItemStack(Material.STICK, (short) 0);
+		wrenchItem = InventoryUtils.createItemFromIdAndDataString(TransportPipes.instance.generalConf.getWrenchItem());
+		if (TransportPipes.instance.generalConf.getWrenchEnchanted()) {
+			wrenchItem = InventoryUtils.createGlowingItemStack(wrenchItem);
+		}
 		InventoryUtils.changeDisplayName(wrenchItem, "§c" + LocConf.load(LocConf.PIPES_WRENCH));
 	}
 
@@ -42,14 +45,14 @@ public class DuctItemUtils {
 		return wrenchItem.clone();
 	}
 
-	public static List<ItemStack> getAllDuctItems(){
+	public static List<ItemStack> getAllDuctItems() {
 		List<ItemStack> list = new ArrayList<ItemStack>();
 		list.addAll(ductItems.values());
 		return list;
 	}
-	
+
 	public static DuctDetails getDuctDetailsOfItem(ItemStack item) {
-		if(item == null) {
+		if (item == null) {
 			return null;
 		}
 		for (DuctDetails dd : ductItems.keySet()) {

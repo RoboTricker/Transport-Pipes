@@ -20,6 +20,7 @@ import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
+import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 
 public class RecipesConf extends Conf {
 
@@ -94,44 +95,16 @@ public class RecipesConf extends Conf {
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
-				int typeId = -1;
-				byte typeData = -1;
-				if (itemString.equalsIgnoreCase("pipe")) {
-					typeId = Material.SKULL_ITEM.getId();
-					typeData = (byte) SkullType.PLAYER.ordinal();
-				} else if (itemString.contains(":")) {
-					typeId = Integer.parseInt(itemString.split(":")[0]);
-					typeData = Byte.parseByte(itemString.split(":")[1]);
-				} else {
-					typeId = Integer.parseInt(itemString);
-				}
-				if (typeId != -1 && typeData != -1) {
-					recipe.setIngredient(key.charAt(0), new MaterialData(typeId, typeData));
-				} else if (typeId != -1) {
-					recipe.setIngredient(key.charAt(0), Material.getMaterial(typeId), -1);
-				}
+				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
+				recipe.setIngredient(key.charAt(0), item.getData());
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
 			ShapelessRecipe recipe = new ShapelessRecipe(nk, resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
-				int typeId = -1;
-				byte typeData = -1;
-				if (itemString.equalsIgnoreCase("pipe")) {
-					typeId = Material.SKULL_ITEM.getId();
-					typeData = (byte) SkullType.PLAYER.ordinal();
-				} else if (itemString.contains(":")) {
-					typeId = Integer.parseInt(itemString.split(":")[0]);
-					typeData = Byte.parseByte(itemString.split(":")[1]);
-				} else {
-					typeId = Integer.parseInt(itemString);
-				}
-				if (typeId != -1 && typeData != -1) {
-					recipe.addIngredient(new MaterialData(typeId, typeData));
-				} else if (typeId != -1) {
-					recipe.addIngredient(Material.getMaterial(typeId), -1);
-				}
+				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
+				recipe.addIngredient(item.getData());
 			}
 			return recipe;
 		}
@@ -149,44 +122,16 @@ public class RecipesConf extends Conf {
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
-				int typeId = -1;
-				byte typeData = -1;
-				if (itemString.equalsIgnoreCase("pipe")) {
-					typeId = Material.SKULL_ITEM.getId();
-					typeData = (byte) SkullType.PLAYER.ordinal();
-				} else if (itemString.contains(":")) {
-					typeId = Integer.parseInt(itemString.split(":")[0]);
-					typeData = Byte.parseByte(itemString.split(":")[1]);
-				} else {
-					typeId = Integer.parseInt(itemString);
-				}
-				if (typeId != -1 && typeData != -1) {
-					recipe.setIngredient(key.charAt(0), new MaterialData(typeId, typeData));
-				} else if (typeId != -1) {
-					recipe.setIngredient(key.charAt(0), Material.getMaterial(typeId), -1);
-				}
+				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
+				recipe.setIngredient(key.charAt(0), item.getData());
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
 			ShapelessRecipe recipe = new ShapelessRecipe(nk, resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
-				int typeId = -1;
-				byte typeData = -1;
-				if (itemString.equalsIgnoreCase("pipe")) {
-					typeId = Material.SKULL_ITEM.getId();
-					typeData = (byte) SkullType.PLAYER.ordinal();
-				} else if (itemString.contains(":")) {
-					typeId = Integer.parseInt(itemString.split(":")[0]);
-					typeData = Byte.parseByte(itemString.split(":")[1]);
-				} else {
-					typeId = Integer.parseInt(itemString);
-				}
-				if (typeId != -1 && typeData != -1) {
-					recipe.addIngredient(new MaterialData(typeId, typeData));
-				} else if (typeId != -1) {
-					recipe.addIngredient(Material.getMaterial(typeId), -1);
-				}
+				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
+				recipe.addIngredient(item.getData());
 			}
 			return recipe;
 		}

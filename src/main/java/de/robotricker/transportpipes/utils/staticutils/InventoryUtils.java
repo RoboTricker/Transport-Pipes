@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.material.MaterialData;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
@@ -101,6 +102,14 @@ public class InventoryUtils {
 		return is;
 	}
 
+	public static ItemStack createGlowingItemStack(ItemStack item) {
+		ItemMeta im = item.getItemMeta();
+		im.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+		im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		item.setItemMeta(im);
+		return item;
+	}
+	
 	public static ItemStack createGlowingItemStack(Material material, short data) {
 		ItemStack is = new ItemStack(material, 1, data);
 		ItemMeta im = is.getItemMeta();
@@ -154,6 +163,22 @@ public class InventoryUtils {
 	public static CompoundTag createNullItemNBTTag() {
 		CompoundMap map = new CompoundMap();
 		return new CompoundTag("Item", map);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static ItemStack createItemFromIdAndDataString(String idAndData) {
+		int typeId = 0;
+		byte typeData = 0;
+		if (idAndData.equalsIgnoreCase("pipe")) {
+			typeId = Material.SKULL_ITEM.getId();
+			typeData = (byte) SkullType.PLAYER.ordinal();
+		} else if (idAndData.contains(":")) {
+			typeId = Integer.parseInt(idAndData.split(":")[0]);
+			typeData = Byte.parseByte(idAndData.split(":")[1]);
+		} else {
+			typeId = Integer.parseInt(idAndData);
+		}
+		return new ItemStack(typeId, 1, typeData);
 	}
 	
 }
