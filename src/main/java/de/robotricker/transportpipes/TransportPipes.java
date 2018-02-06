@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -33,8 +34,6 @@ import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
-import de.robotricker.transportpipes.duct.pipe.extractionpipe.ExtractionPipeInv;
-import de.robotricker.transportpipes.duct.pipe.goldenpipe.GoldenPipeInv;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.pipeitems.PipeItem;
@@ -96,6 +95,8 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
+		
+		new Metrics(this);
 
 		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970?stacktrace.app.packages=de.robotricker");
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -431,7 +432,8 @@ public class TransportPipes extends JavaPlugin {
 	public static boolean isBlockProtectedByLWC(Block b) {
 		if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
 			try {
-				return com.griefcraft.lwc.LWC.getInstance().findProtection(b) != null;
+				com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().findProtection(b);
+				return protection != null && protection.getType() != com.griefcraft.model.Protection.Type.PUBLIC;
 			} catch (Exception e) {
 				e.printStackTrace();
 				Sentry.capture(e);

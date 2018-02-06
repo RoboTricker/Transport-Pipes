@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.bukkit.Location;
 
+import com.griefcraft.model.Protection;
 import com.griefcraft.scripting.JavaModule;
 
 import de.robotricker.transportpipes.TransportPipes;
@@ -17,6 +18,10 @@ import de.robotricker.transportpipes.utils.config.LocConf;
 public class LWCApiUtils extends JavaModule {
 	@Override
 	public void onPostRegistration(com.griefcraft.scripting.event.LWCProtectionRegistrationPostEvent e) {
+		//make sure public chests aren't locked from pipes
+		if(e.getProtection().getType() == Protection.Type.PUBLIC) {
+			return;
+		}
 		boolean destroyedAtLeastOneDuct = false;
 
 		Location protectionLoc = e.getProtection().getBlock().getLocation();
