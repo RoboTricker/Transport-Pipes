@@ -21,6 +21,7 @@ permissions:
     children:
       transportpipes.craft.coloredpipe: true
       transportpipes.craft.extractionpipe: true
+      transportpipes.craft.craftingpipe: true
       transportpipes.craft.goldenpipe: true
       transportpipes.craft.icepipe: true
       transportpipes.craft.ironpipe: true
