@@ -6,14 +6,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.material.MaterialData;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
@@ -77,7 +73,7 @@ public class RecipesConf extends Conf {
 
 	@SuppressWarnings("deprecation")
 	public Recipe createPipeRecipe(PipeType pt, PipeColor pc) {
-		NamespacedKey nk = createRecipeKey("pipe-" + pt + "-" + pc);
+		Object nk = createRecipeKey("pipe-" + pt + "-" + pc);
 
 		String basePath = "recipe." + pt.name().toLowerCase(Locale.ENGLISH);
 		if (pc != null) {
@@ -91,7 +87,7 @@ public class RecipesConf extends Conf {
 		}
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
-			ShapedRecipe recipe = new ShapedRecipe(nk, resultItem);
+			ShapedRecipe recipe = nk != null ? new ShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapedRecipe(resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
@@ -105,7 +101,7 @@ public class RecipesConf extends Conf {
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
-			ShapelessRecipe recipe = new ShapelessRecipe(nk, resultItem);
+			ShapelessRecipe recipe = nk != null ? new ShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapelessRecipe(resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
 				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
@@ -121,12 +117,12 @@ public class RecipesConf extends Conf {
 	}
 
 	public Recipe createWrenchRecipe() {
-		NamespacedKey nk = createRecipeKey("wrench");
+		Object nk = createRecipeKey("wrench");
 
 		String basePath = "recipe.wrench";
 		ItemStack resultItem = DuctItemUtils.getWrenchItem().clone();
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
-			ShapedRecipe recipe = new ShapedRecipe(nk, resultItem);
+			ShapedRecipe recipe = nk != null ? new ShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapedRecipe(resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
@@ -140,7 +136,7 @@ public class RecipesConf extends Conf {
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
-			ShapelessRecipe recipe = new ShapelessRecipe(nk, resultItem);
+			ShapelessRecipe recipe = nk != null ? new ShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapelessRecipe(resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
 				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
@@ -155,8 +151,13 @@ public class RecipesConf extends Conf {
 		return null;
 	}
 
-	private NamespacedKey createRecipeKey(String key) {
-		return new NamespacedKey(TransportPipes.instance, key);
+	private Object createRecipeKey(String key) {
+		try {
+			Class.forName("org.bukkit.NamespacedKey");
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
+		return new org.bukkit.NamespacedKey(TransportPipes.instance, key);
 	}
 
 }
