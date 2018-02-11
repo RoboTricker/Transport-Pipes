@@ -141,7 +141,7 @@ public class HitboxListener implements Listener {
 				if (ductBlock != null) {
 					Duct ductClickedAt = DuctUtils.getDuctAtLocation(ductBlock.getLocation());
 					if (ductClickedAt instanceof ClickableDuct) {
-						if (DuctItemUtils.getWrenchItem().isSimilar(clickedItem)) {
+						if (DuctItemUtils.isWrenchItem(clickedItem)) {
 							if (DuctUtils.canBuild(p, ductClickedAt.getBlockLoc().getBlock(), ductClickedAt.getBlockLoc().getBlock(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
 								((ClickableDuct) ductClickedAt).click(p, HitboxUtils.getFaceOfDuctLookingTo(p, ductClickedAt));
 								e.setCancelled(true);

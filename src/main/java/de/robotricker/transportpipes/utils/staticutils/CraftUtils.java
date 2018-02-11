@@ -52,7 +52,7 @@ public class CraftUtils implements Listener {
 					e.getInventory().setResult(null);
 					return;
 				}
-			} else if (DuctItemUtils.getWrenchItem().isSimilar(r.getResult())) {
+			} else if (DuctItemUtils.isWrenchItem(r.getResult())) {
 				if (!viewer.hasPermission("transportpipes.craft.wrench")) {
 					e.getInventory().setResult(null);
 					return;

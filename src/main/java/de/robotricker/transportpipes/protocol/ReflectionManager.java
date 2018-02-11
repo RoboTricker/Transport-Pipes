@@ -142,30 +142,82 @@ public class ReflectionManager {
 		return -1;
 	}
 
-	public static ItemStack setItemStackUnbreakable(ItemStack is) {
+	public static ItemStack manipulateItemStackNBT(ItemStack is, String tagName, Object tagValue, Class<?> tagType, String tagTypeName) {
 		try {
 			Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
 			Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
 			Class<?> nbtCompoundClass = Class.forName("net.minecraft.server." + version + ".NBTTagCompound");
 
 			Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
-			Method asCraftMirror = craftItemStackClass.getDeclaredMethod("asCraftMirror", nmsItemStackClass);
-			Method nbtSetBoolean = nbtCompoundClass.getDeclaredMethod("setBoolean", String.class, boolean.class);
+			Method asBukkitCopy = craftItemStackClass.getDeclaredMethod("asBukkitCopy", nmsItemStackClass);
+			Method nmsItemHasTag = nmsItemStackClass.getDeclaredMethod("hasTag");
+			Method nmsItemGetTag = nmsItemStackClass.getDeclaredMethod("getTag");
 			Method nmsItemSetTag = nmsItemStackClass.getDeclaredMethod("setTag", nbtCompoundClass);
-
-			Object compound = nbtCompoundClass.newInstance();
-			nbtSetBoolean.setAccessible(true);
-			nbtSetBoolean.invoke(compound, "Unbreakable", true);
+			Method nbtSetValue = nbtCompoundClass.getDeclaredMethod("set" + tagTypeName, String.class, tagType);
 
 			Object nmsItemStackObj = asNMSCopy.invoke(null, is);
+
+			nmsItemHasTag.setAccessible(true);
+			boolean hasTag = (boolean) nmsItemHasTag.invoke(nmsItemStackObj);
+
+			Object compound = null;
+			if (hasTag) {
+				nmsItemGetTag.setAccessible(true);
+				compound = nmsItemGetTag.invoke(nmsItemStackObj);
+			} else {
+				compound = nbtCompoundClass.newInstance();
+			}
+
+			nbtSetValue.setAccessible(true);
+			nbtSetValue.invoke(compound, tagName, tagValue);
+
 			nmsItemSetTag.setAccessible(true);
 			nmsItemSetTag.invoke(nmsItemStackObj, compound);
 
-			is = (ItemStack) asCraftMirror.invoke(null, nmsItemStackObj);
+			is = (ItemStack) asBukkitCopy.invoke(null, nmsItemStackObj);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return is;
+	}
+
+	public static Object readItemStackNBT(ItemStack is, String tagName, String tagTypeName) {
+		try {
+			Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
+			Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
+			Class<?> nbtCompoundClass = Class.forName("net.minecraft.server." + version + ".NBTTagCompound");
+
+			Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
+			Method nmsItemHasTag = nmsItemStackClass.getDeclaredMethod("hasTag");
+			Method nmsItemGetTag = nmsItemStackClass.getDeclaredMethod("getTag");
+			Method nbtGetValue = nbtCompoundClass.getDeclaredMethod("get" + tagTypeName, String.class);
+
+			Object nmsItemStackObj = asNMSCopy.invoke(null, is);
+
+			nmsItemHasTag.setAccessible(true);
+			boolean hasTag = (boolean) nmsItemHasTag.invoke(nmsItemStackObj);
+
+			Object compound = null;
+			if (hasTag) {
+				nmsItemGetTag.setAccessible(true);
+				compound = nmsItemGetTag.invoke(nmsItemStackObj);
+			} else {
+				compound = nbtCompoundClass.newInstance();
+			}
+
+			nbtGetValue.setAccessible(true);
+			Object value = nbtGetValue.invoke(compound, tagName);
+
+			return value;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static ItemStack setItemStackUnbreakable(ItemStack is) {
+		return manipulateItemStackNBT(is, "Unbreakable", true, boolean.class, "Boolean");
 	}
 
 }

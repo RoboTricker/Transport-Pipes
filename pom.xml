@@ -23,7 +23,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.buildNumber>CUSTOM</project.buildNumber>
 		<project.versionCode>${project.version}-b${project.buildNumber}</project.versionCode>
-		<testServerDir>C:/Users/Simon Rost/Server/TransportPipes-1.12.2</testServerDir>
+		<testServerDir>C:/Users/Simon Rost/Server/TransportPipes</testServerDir>
 	</properties>
 
 	<build>

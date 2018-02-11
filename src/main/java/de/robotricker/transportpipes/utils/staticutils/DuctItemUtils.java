@@ -9,6 +9,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.protocol.ReflectionManager;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 
@@ -19,6 +21,7 @@ public class DuctItemUtils {
 
 	static {
 		wrenchItem = InventoryUtils.createItemFromIdAndDataString(TransportPipes.instance.generalConf.getWrenchItem());
+		wrenchItem = addWrenchNBTTag(wrenchItem);
 		if (TransportPipes.instance.generalConf.getWrenchEnchanted()) {
 			wrenchItem = InventoryUtils.createGlowingItemStack(wrenchItem);
 		}
@@ -34,7 +37,7 @@ public class DuctItemUtils {
 	}
 
 	public static void registerDuctItem(DuctDetails ductDetails, ItemStack ductItem) {
-		ductItems.put(ductDetails, ductItem);
+		ductItems.put(ductDetails, addDuctNBTTag(ductDetails, ductItem));
 	}
 
 	public static ItemStack getWrenchItem() {
@@ -55,12 +58,39 @@ public class DuctItemUtils {
 		if (item == null) {
 			return null;
 		}
-		for (DuctDetails dd : ductItems.keySet()) {
-			if (getDuctItem(dd).isSimilar(item)) {
-				return dd;
-			}
+		return readDuctNBTTag(item);
+	}
+
+	public static boolean isWrenchItem(ItemStack item) {
+		if (item == null) {
+			return false;
+		}
+		return readWrenchNBTTag(item);
+	}
+
+	private static ItemStack addDuctNBTTag(DuctDetails ductDetails, ItemStack item) {
+		return ReflectionManager.manipulateItemStackNBT(item, "ductDetails", ductDetails.toString(), String.class, "String");
+	}
+
+	private static DuctDetails readDuctNBTTag(ItemStack item) {
+		String ductDetailsSerialized = (String) ReflectionManager.readItemStackNBT(item, "ductDetails", "String");
+		if (ductDetailsSerialized != null && !ductDetailsSerialized.isEmpty()) {
+			DuctDetails dd = DuctType.createDuctDetailsStatic(ductDetailsSerialized);
+			return dd;
 		}
 		return null;
+	}
+
+	private static ItemStack addWrenchNBTTag(ItemStack item) {
+		return ReflectionManager.manipulateItemStackNBT(item, "wrench", true, boolean.class, "Boolean");
+	}
+
+	private static boolean readWrenchNBTTag(ItemStack item) {
+		Object wrench = ReflectionManager.readItemStackNBT(item, "wrench", "Boolean");
+		if (wrench != null) {
+			return ((boolean) wrench);
+		}
+		return false;
 	}
 
 }

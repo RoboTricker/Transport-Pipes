@@ -39,7 +39,7 @@ public enum DuctType {
 	public void setDuctDetailsClass(Class<? extends DuctDetails> ductDetailsClass) {
 		this.ductDetailsClass = ductDetailsClass;
 	}
-	
+
 	public void setTickRunnable(TickRunnable tickRunnable) {
 		this.tickRunnable = tickRunnable;
 	}
@@ -51,7 +51,7 @@ public enum DuctType {
 	public void runTickRunnable(long numberOfTicksSinceStart) {
 		this.tickRunnable.run(numberOfTicksSinceStart);
 	}
-	
+
 	public DuctDetails createDuctDetails(String serialization) {
 		try {
 			DuctDetails ductDetails = ductDetailsClass.newInstance();
@@ -62,6 +62,10 @@ public enum DuctType {
 			Sentry.capture(e);
 		}
 		return null;
+	}
+
+	public static DuctDetails createDuctDetailsStatic(String serialization) {
+		return DuctType.valueOf(serialization.split(";")[0].substring(9)).createDuctDetails(serialization);
 	}
 
 	public static void checkEnabledPlugins() {
