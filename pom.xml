@@ -261,6 +261,12 @@
 			<artifactId>paper-api</artifactId>
 			<version>1.10.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.wasteofplastic</groupId>
@@ -280,10 +286,5 @@
 			<version>1.2</version>
 			<scope>compile</scope>
 		</dependency>
-		<!--<dependency> <groupId>org.bstats</groupId> <artifactId>bstats-bukkit</artifactId> 
-			<version>1.2</version> </dependency> CraftBukkit (installed in local repo 
-			- only uncomment when compiling) <dependency> <groupId>org.bukkit</groupId> 
-			<artifactId>craftbukkit</artifactId> <version>1.12</version> <scope>provided</scope> 
-			</dependency> -->
 	</dependencies>
 </project>

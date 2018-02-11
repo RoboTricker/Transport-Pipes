@@ -87,7 +87,7 @@ public class GoldenPipeInv extends DuctSharedInv {
 		boolean cancelled = false;
 
 		// clicked filtering mode wool
-		if (rawSlot >= 0 && rawSlot <= inventory.getSize() && rawSlot % 9 == 0) {
+		if (rawSlot >= 0 && rawSlot < inventory.getSize() && rawSlot % 9 == 0) {
 			cancelled = true;
 
 			int line = (int) (rawSlot / 9);
@@ -99,7 +99,7 @@ public class GoldenPipeInv extends DuctSharedInv {
 			return cancelled;
 		}
 		// clicked scroll left
-		if (rawSlot >= 0 && rawSlot <= inventory.getSize() && rawSlot % 9 == 1) {
+		if (rawSlot >= 0 && rawSlot < inventory.getSize() && rawSlot % 9 == 1) {
 			cancelled = true;
 
 			notifyInvSave(p, inventory);
@@ -116,7 +116,7 @@ public class GoldenPipeInv extends DuctSharedInv {
 			return cancelled;
 		}
 		// clicked scroll right
-		if (rawSlot >= 0 && rawSlot <= inventory.getSize() && rawSlot % 9 == 8) {
+		if (rawSlot >= 0 && rawSlot < inventory.getSize() && rawSlot % 9 == 8) {
 			cancelled = true;
 
 			notifyInvSave(p, inventory);
