@@ -3,19 +3,27 @@ package de.robotricker.transportpipes.utils;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
+import de.robotricker.transportpipes.utils.config.LocConf;
+
 public enum WrappedDirection {
 
-	EAST(1, 0, 0),
-	WEST(-1, 0, 0),
-	SOUTH(0, 0, 1),
-	NORTH(0, 0, -1),
-	UP(0, 1, 0),
-	DOWN(0, -1, 0);
+	EAST(1, 0, 0, LocConf.UTILS_DIRECTION_EAST),
+	WEST(-1, 0, 0, LocConf.UTILS_DIRECTION_WEST),
+	SOUTH(0, 0, 1, LocConf.UTILS_DIRECTION_SOUTH),
+	NORTH(0, 0, -1, LocConf.UTILS_DIRECTION_NORTH),
+	UP(0, 1, 0, LocConf.UTILS_DIRECTION_UP),
+	DOWN(0, -1, 0, LocConf.UTILS_DIRECTION_DOWN);
 
 	private Vector v;
+	private String localization_key;
 
-	WrappedDirection(int x, int y, int z) {
+	WrappedDirection(int x, int y, int z, String localization_key) {
 		this.v = new Vector(x, y, z);
+		this.localization_key = localization_key;
+	}
+
+	public String getDisplayName() {
+		return LocConf.load(localization_key);
 	}
 
 	public Vector getVector() {
@@ -105,5 +113,5 @@ public enum WrappedDirection {
 		}
 		return fromID(getId() + 1);
 	}
-	
+
 }

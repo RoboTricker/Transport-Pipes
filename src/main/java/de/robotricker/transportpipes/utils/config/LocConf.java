@@ -75,6 +75,13 @@ public class LocConf extends Conf {
 	public static final String CREATIVE_TITLE = "creative.title";
 	public static final String LWC_ERROR = "lwc.pipe_next_to_locked_chest";
 	public static final String MESSAGE_ALREADYOPENED = "message.alreadyopened";
+	public static final String UTILS_DIRECTION_NORTH = "utils.direction.north";
+	public static final String UTILS_DIRECTION_EAST = "utils.direction.east";
+	public static final String UTILS_DIRECTION_SOUTH = "utils.direction.south";
+	public static final String UTILS_DIRECTION_WEST = "utils.direction.west";
+	public static final String UTILS_DIRECTION_UP = "utils.direction.up";
+	public static final String UTILS_DIRECTION_DOWN = "utils.direction.down";
+	public static final String UTILS_DIRECTION_NONE = "utils.direction.none";
 
 	public LocConf() {
 		super(new File(TransportPipes.instance.getDataFolder().getAbsolutePath() + File.separator + "localization.yml"), TransportPipes.instance);
@@ -143,6 +150,13 @@ public class LocConf extends Conf {
 		saveAsDefault(CREATIVE_TITLE, "Pipe Overview");
 		saveAsDefault(LWC_ERROR, "&cYou can't use pipes with a locked block.");
 		saveAsDefault(MESSAGE_ALREADYOPENED, "&cAnother player is editing this inventory, therefore you can't open it right now.");
+		saveAsDefault(UTILS_DIRECTION_NORTH, "NORTH");
+		saveAsDefault(UTILS_DIRECTION_EAST, "EAST");
+		saveAsDefault(UTILS_DIRECTION_SOUTH, "SOUTH");
+		saveAsDefault(UTILS_DIRECTION_WEST, "WEST");
+		saveAsDefault(UTILS_DIRECTION_UP, "UP");
+		saveAsDefault(UTILS_DIRECTION_DOWN, "DOWN");
+		saveAsDefault(UTILS_DIRECTION_NONE, "NONE");
 		finishDefault();
 	}
 

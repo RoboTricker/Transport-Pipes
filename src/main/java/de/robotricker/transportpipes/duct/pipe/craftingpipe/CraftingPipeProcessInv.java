@@ -28,7 +28,7 @@ public class CraftingPipeProcessInv extends DuctSharedInv {
 		if (cp.getOutputDirection() == null) {
 			outputDirectionDisplayName = LocConf.load(LocConf.CRAFTINGPIPE_DIRECTION_DONTOUTPUT);
 		} else {
-			outputDirectionDisplayName = String.format(LocConf.load(LocConf.CRAFTINGPIPE_DIRECTION_TEXT), cp.getOutputDirection().name());
+			outputDirectionDisplayName = String.format(LocConf.load(LocConf.CRAFTINGPIPE_DIRECTION_TEXT), cp.getOutputDirection().getDisplayName());
 		}
 		ItemStack outputDirection = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), outputDirectionDisplayName, LocConf.load(LocConf.CRAFTINGPIPE_DIRECTION_CLICKTOCHANGE));
 		ItemStack glassPane = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15), String.valueOf(ChatColor.RESET));

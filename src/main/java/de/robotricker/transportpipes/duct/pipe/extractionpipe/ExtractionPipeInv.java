@@ -39,7 +39,7 @@ public class ExtractionPipeInv extends DuctSharedInv {
 		if (ep.getExtractDirection() == null) {
 			extractDirectionDisplayName = LocConf.load(LocConf.EXTRACTIONPIPE_DIRECTION_DONTEXTRACT);
 		} else {
-			extractDirectionDisplayName = String.format(LocConf.load(LocConf.EXTRACTIONPIPE_DIRECTION_TEXT), ep.getExtractDirection().name());
+			extractDirectionDisplayName = String.format(LocConf.load(LocConf.EXTRACTIONPIPE_DIRECTION_TEXT), ep.getExtractDirection().getDisplayName());
 		}
 		ItemStack extractDirection = InventoryUtils.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), extractDirectionDisplayName, LocConf.load(LocConf.EXTRACTIONPIPE_DIRECTION_CLICKTOCHANGE));
 		ItemStack extractCondition = InventoryUtils.changeDisplayNameAndLore(ep.getExtractCondition().getDisplayItem(), LocConf.load(ep.getExtractCondition().getLocConfKey()), LocConf.load(LocConf.EXTRACTIONPIPE_CONDITION_CLICKTOCHANGE));
