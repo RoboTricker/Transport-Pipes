@@ -126,7 +126,7 @@ public class OcclusionCullingUtils {
 				return false;
 			}
 			Material material = Material.getMaterial(snapshot.getBlockTypeId(relativeX, loc.getBlockY(), relativeZ));
-			return material.isOccluding();
+			return material.isOccluding() && material != Material.MOB_SPAWNER;
 		} catch (Exception e) {
 			e.printStackTrace();
 			Sentry.capture(e);
