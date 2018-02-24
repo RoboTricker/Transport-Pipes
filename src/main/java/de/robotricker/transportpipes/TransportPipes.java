@@ -95,7 +95,7 @@ public class TransportPipes extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		new Metrics(this);
 
 		Sentry.init("https://2eb0fc30f86a4871a85755ecdde11679:26f44195e9ef47f38e99051f7d15594f@sentry.io/252970?stacktrace.app.packages=de.robotricker");
@@ -265,7 +265,9 @@ public class TransportPipes extends JavaPlugin {
 		updateManager = new UpdateUtils(this);
 
 		// register listeners
-		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
+		if (generalConf.isCraftingEnabled()) {
+			Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
+		}
 		Bukkit.getPluginManager().registerEvents(savingManager = new SavingUtils(), this);
 		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
@@ -458,7 +460,7 @@ public class TransportPipes extends JavaPlugin {
 			Bukkit.getScheduler().runTaskLater(TransportPipes.instance, task, delay);
 		}
 	}
-	
+
 	public static void runTaskAsynchronously(Runnable task) {
 		if (TransportPipes.instance.isEnabled()) {
 			Bukkit.getScheduler().runTaskAsynchronously(TransportPipes.instance, task);
