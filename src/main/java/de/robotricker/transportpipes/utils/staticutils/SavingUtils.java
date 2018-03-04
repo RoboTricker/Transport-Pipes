@@ -271,9 +271,8 @@ public class SavingUtils implements Listener {
 				for (Tag<?> tag : ductList) {
 					CompoundTag ductTag = (CompoundTag) tag;
 
-					DuctType ductType = DuctType.valueOf(NBTUtils.readStringTag(ductTag.getValue().get("DuctType"), null));
 					String serializedDuctDetails = NBTUtils.readStringTag(ductTag.getValue().get("DuctDetails"), null);
-					DuctDetails ductDetails = ductType.createDuctDetails(serializedDuctDetails);
+					DuctDetails ductDetails = DuctDetails.decodeString(serializedDuctDetails);
 					Location ductLoc = LocationUtils.StringToLoc(NBTUtils.readStringTag(ductTag.getValue().get("DuctLocation"), null));
 
 					List<WrappedDirection> neighborDucts = new ArrayList<WrappedDirection>();

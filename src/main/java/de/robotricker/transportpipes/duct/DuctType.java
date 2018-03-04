@@ -2,6 +2,7 @@ package de.robotricker.transportpipes.duct;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
@@ -39,6 +40,10 @@ public enum DuctType {
 	public void setDuctDetailsClass(Class<? extends DuctDetails> ductDetailsClass) {
 		this.ductDetailsClass = ductDetailsClass;
 	}
+	
+	public Class<? extends DuctDetails> getDuctDetailsClass(){
+		return ductDetailsClass;
+	}
 
 	public void setTickRunnable(TickRunnable tickRunnable) {
 		this.tickRunnable = tickRunnable;
@@ -50,22 +55,6 @@ public enum DuctType {
 
 	public void runTickRunnable(long numberOfTicksSinceStart) {
 		this.tickRunnable.run(numberOfTicksSinceStart);
-	}
-
-	public DuctDetails createDuctDetails(String serialization) {
-		try {
-			DuctDetails ductDetails = ductDetailsClass.newInstance();
-			ductDetails.fromString(serialization);
-			return ductDetails;
-		} catch (Exception e) {
-			e.printStackTrace();
-			Sentry.capture(e);
-		}
-		return null;
-	}
-
-	public static DuctDetails createDuctDetailsStatic(String serialization) {
-		return DuctType.valueOf(serialization.split(";")[0].substring(9)).createDuctDetails(serialization);
 	}
 
 	public static void checkEnabledPlugins() {

@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.utils.staticutils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class DuctItemUtils {
 	private static ItemStack wrenchItem;
 
 	static {
-		wrenchItem = InventoryUtils.createItemFromIdAndDataString(TransportPipes.instance.generalConf.getWrenchItem());
+		wrenchItem = InventoryUtils.decodeConfigItemString(TransportPipes.instance.generalConf.getWrenchItem());
 		wrenchItem = addWrenchNBTTag(wrenchItem);
 		if (TransportPipes.instance.generalConf.getWrenchEnchanted()) {
 			wrenchItem = InventoryUtils.createGlowingItemStack(wrenchItem);
@@ -29,7 +30,12 @@ public class DuctItemUtils {
 	}
 
 	public static ItemStack getDuctItem(DuctDetails ductDetails) {
-		return ductItems.get(ductDetails);
+		for(DuctDetails dd : ductItems.keySet()) {
+			if(dd.equals(ductDetails)) {
+				return ductItems.get(dd);
+			}
+		}
+		return null;
 	}
 
 	public static ItemStack getClonedDuctItem(DuctDetails ductDetails) {
@@ -75,7 +81,7 @@ public class DuctItemUtils {
 	private static DuctDetails readDuctNBTTag(ItemStack item) {
 		String ductDetailsSerialized = (String) ReflectionManager.readItemStackNBT(item, "ductDetails", "String");
 		if (ductDetailsSerialized != null && !ductDetailsSerialized.isEmpty()) {
-			DuctDetails dd = DuctType.createDuctDetailsStatic(ductDetailsSerialized);
+			DuctDetails dd = DuctDetails.decodeString(ductDetailsSerialized);
 			return dd;
 		}
 		return null;

@@ -1,10 +1,12 @@
 package de.robotricker.transportpipes.utils.config;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -14,6 +16,8 @@ import org.bukkit.inventory.ShapelessRecipe;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
+import de.robotricker.transportpipes.utils.crafting.TPShapedRecipe;
+import de.robotricker.transportpipes.utils.crafting.TPShapelessRecipe;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
@@ -30,12 +34,12 @@ public class RecipesConf extends Conf {
 		saveShapedRecipeAsDefault("void", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "49:0");
 		saveShapedRecipeAsDefault("extraction", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "5");
 		saveShapedRecipeAsDefault("crafting", 1, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "58:0");
-		saveShapelessRecipeAsDefault("colored.white", 1, "pipe", "351:15");
-		saveShapelessRecipeAsDefault("colored.blue", 1, "pipe", "351:4");
-		saveShapelessRecipeAsDefault("colored.red", 1, "pipe", "351:1");
-		saveShapelessRecipeAsDefault("colored.yellow", 1, "pipe", "351:11");
-		saveShapelessRecipeAsDefault("colored.green", 1, "pipe", "351:2");
-		saveShapelessRecipeAsDefault("colored.black", 1, "pipe", "351:0");
+		saveShapelessRecipeAsDefault("colored.white", 1, "pipe:colored", "351:15");
+		saveShapelessRecipeAsDefault("colored.blue", 1, "pipe:colored", "351:4");
+		saveShapelessRecipeAsDefault("colored.red", 1, "pipe:colored", "351:1");
+		saveShapelessRecipeAsDefault("colored.yellow", 1, "pipe:colored", "351:11");
+		saveShapelessRecipeAsDefault("colored.green", 1, "pipe:colored", "351:2");
+		saveShapelessRecipeAsDefault("colored.black", 1, "pipe:colored", "351:0");
 		saveShapedRecipeAsDefault("wrench", 1, Arrays.asList("xrx", "rsr", "xrx"), "r", "331:0", "s", "280:0");
 		finishDefault();
 	}
@@ -71,9 +75,8 @@ public class RecipesConf extends Conf {
 		saveToFile();
 	}
 
-	@SuppressWarnings("deprecation")
 	public Recipe createPipeRecipe(PipeType pt, PipeColor pc) {
-		Object nk = createRecipeKey("pipe-" + pt + "-" + pc);
+		Object nk = createRecipeKey("pipe-" + pt + (pc != null ? "-" + pc : ""));
 
 		String basePath = "recipe." + pt.name().toLowerCase(Locale.ENGLISH);
 		if (pc != null) {
@@ -87,30 +90,32 @@ public class RecipesConf extends Conf {
 		}
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
-			ShapedRecipe recipe = nk != null ? new ShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapedRecipe(resultItem);
+			TPShapedRecipe recipe = nk != null ? new TPShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new TPShapedRecipe(resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
-				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				if (item.getData().getData() == 0) {
-					recipe.setIngredient(key.charAt(0), item.getType(), -1);
-				} else {
-					recipe.setIngredient(key.charAt(0), item.getData());
-				}
+				recipe.setIngredient(key.charAt(0), itemString);
+				// if (item.getData().getData() == 0) {
+				// recipe.setIngredient(key.charAt(0), item.getType(), -1);
+				// } else {
+				// recipe.setIngredient(key.charAt(0), item.getData());
+				// }
 			}
+			recipe.register();
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
-			ShapelessRecipe recipe = nk != null ? new ShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapelessRecipe(resultItem);
+			TPShapelessRecipe recipe = nk != null ? new TPShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new TPShapelessRecipe(resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
-				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				if (item.getData().getData() == 0) {
-					recipe.addIngredient(item.getType(), -1);
-				} else {
-					recipe.addIngredient(item.getData());
-				}
+				recipe.addIngredient(itemString);
+				// if (item.getData().getData() == 0) {
+				// recipe.addIngredient(item.getType(), -1);
+				// } else {
+				// recipe.addIngredient(item.getData());
+				// }
 			}
+			recipe.register();
 			return recipe;
 		}
 		return null;
@@ -122,30 +127,32 @@ public class RecipesConf extends Conf {
 		String basePath = "recipe.wrench";
 		ItemStack resultItem = DuctItemUtils.getWrenchItem().clone();
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
-			ShapedRecipe recipe = nk != null ? new ShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapedRecipe(resultItem);
+			TPShapedRecipe recipe = nk != null ? new TPShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new TPShapedRecipe(resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
-				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				if (item.getData().getData() == 0) {
-					recipe.setIngredient(key.charAt(0), item.getType(), -1);
-				} else {
-					recipe.setIngredient(key.charAt(0), item.getData());
-				}
+				recipe.setIngredient(key.charAt(0), itemString);
+				// if (item.getData().getData() == 0) {
+				// recipe.setIngredient(key.charAt(0), item.getType(), -1);
+				// } else {
+				// recipe.setIngredient(key.charAt(0), item.getData());
+				// }
 			}
+			recipe.register();
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
-			ShapelessRecipe recipe = nk != null ? new ShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new ShapelessRecipe(resultItem);
+			TPShapelessRecipe recipe = nk != null ? new TPShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new TPShapelessRecipe(resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
-				ItemStack item = InventoryUtils.createItemFromIdAndDataString(itemString);
-				if (item.getData().getData() == 0) {
-					recipe.addIngredient(item.getType(), -1);
-				} else {
-					recipe.addIngredient(item.getData());
-				}
+				recipe.addIngredient(itemString);
+				// if (item.getData().getData() == 0) {
+				// recipe.addIngredient(item.getType(), -1);
+				// } else {
+				// recipe.addIngredient(item.getData());
+				// }
 			}
+			recipe.register();
 			return recipe;
 		}
 		return null;

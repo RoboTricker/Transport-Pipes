@@ -53,11 +53,11 @@ import de.robotricker.transportpipes.utils.commands.TPSCommandExecutor;
 import de.robotricker.transportpipes.utils.config.GeneralConf;
 import de.robotricker.transportpipes.utils.config.LocConf;
 import de.robotricker.transportpipes.utils.config.RecipesConf;
+import de.robotricker.transportpipes.utils.crafting.CraftUtils;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.hitbox.HitboxListener;
 import de.robotricker.transportpipes.utils.hitbox.occlusionculling.BlockChangeListener;
 import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
-import de.robotricker.transportpipes.utils.staticutils.CraftUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import de.robotricker.transportpipes.utils.staticutils.InventoryUtils;
 import de.robotricker.transportpipes.utils.staticutils.LogisticsAPIUtils;
@@ -147,10 +147,9 @@ public class TransportPipes extends JavaPlugin {
 		// Prepare managers
 		ductManager = new DuctManager();
 		settingsUtils = new SettingsUtils();
-
+		
 		locConf = new LocConf();
 		generalConf = new GeneralConf();
-		recipesConf = new RecipesConf();
 
 		// register duct items
 		ItemStack ITEM_PIPE_WHITE = InventoryUtils.createSkullItemStack("9f38586a-2ec7-33be-a472-13939b855430", "eyJ0aW1lc3RhbXAiOjE1MDAwMzc4NDM1MTgsInByb2ZpbGVJZCI6ImE5MGI4MmIwNzE4NTQ0ZjU5YmE1MTZkMGY2Nzk2NDkwIiwicHJvZmlsZU5hbWUiOiJJbUZhdFRCSCIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmViYjZmNmU1NjRjM2E2MDdkZjk3OGE2ZjZmY2VkZGJkZmViOTdiOWU1YmMzZGQ4MzZkMDJiZTdjOTFlNiJ9fX0=", "blgkeU5W6OAuF3A8BSJVXaR8X2OK/YjGITjx3UTDr+Ij0qsFbXnV7AuskN2lw/KnCgqOW7xWWDaeRpRIwkXwg6IkTl2w8ZFLxvoje/GlWxuG5X2hA6/hTdfEV9rU+4hwliSnU4zABVfA0hm9uxmVjYYH0GKshPPyQnbG1DI6vBaY+qUMwvZao26qhCQeDi/HLx3X+xIxLXjmlOtAFV+pce7WJWL1VjSpRejtpyreCqc/TVanCGTTqDknJOmTKiBrUBFk6NGfPPq2sr0fwR0Aj+jdysaCujeCuSvsXoKwMEHWwTDU+GYl+Ez7bj+fPOabW1wuYzLWk7E5HlBnL74zNFBzH2GVvQFDAhpgSyMxOh4d65S1gbWgi9D03FZ+tEWdRQgGTNNnX5IVK6OCZLhwQW4YF4GbiFhst6M2YfVrJLu6j3WVWvHmBhD5OE3ytJTqTmNXWFJ46U9WOjtZFYqBqWdXBdF6Xc/Z+sRgGgUDCyN4QGchVkFp1DUt6Fq07eMvsQ6rxWeGzGq0dw7m9u56mcVyMR+JlGHNQzR76C8FEMMF/+pZG0qy1XKlNWsCLR9ePe7kURdYISbUYljSkWVhfJ5iFWfhpaquvmXW7erN6FXIc7XuhW6ZxvczQ546l5Q5Ncqzl8qnU61bdd87uxUrQHoD8G5i3iE1NmLw8FWmAaM=");
@@ -194,6 +193,8 @@ public class TransportPipes extends JavaPlugin {
 		DuctType.PIPE.addRenderSystem(new VanillaPipeRenderSystem(ductManager));
 		DuctType.PIPE.addRenderSystem(new ModelledPipeRenderSystem(ductManager));
 
+		recipesConf = new RecipesConf();
+		
 		pipeThread = new PipeThread();
 		pipeThread.setDaemon(true);
 		pipeThread.setPriority(Thread.MIN_PRIORITY);
@@ -265,9 +266,6 @@ public class TransportPipes extends JavaPlugin {
 		updateManager = new UpdateUtils(this);
 
 		// register listeners
-		if (generalConf.isCraftingEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
-		}
 		Bukkit.getPluginManager().registerEvents(savingManager = new SavingUtils(), this);
 		Bukkit.getPluginManager().registerEvents(containerBlockUtils = new ContainerBlockUtils(), this);
 		Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);

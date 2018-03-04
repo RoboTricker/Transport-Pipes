@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.utils.staticutils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import com.flowpowered.nbt.CompoundTag;
 
 import de.robotricker.transportpipes.pipeitems.ItemData;
 import de.robotricker.transportpipes.protocol.ReflectionManager;
+import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 
 public class InventoryUtils {
 
@@ -109,7 +111,7 @@ public class InventoryUtils {
 		item.setItemMeta(im);
 		return item;
 	}
-	
+
 	public static ItemStack createGlowingItemStack(Material material, short data) {
 		ItemStack is = new ItemStack(material, 1, data);
 		ItemMeta im = is.getItemMeta();
@@ -139,13 +141,13 @@ public class InventoryUtils {
 		skull.setItemMeta(sm);
 		return skull;
 	}
-	
+
 	public static boolean isGlassItemOrBarrier(ItemStack is) {
 		return InventoryUtils.hasDisplayName(is, String.valueOf(ChatColor.RESET));
 	}
 
 	public static CompoundTag toNBTTag(ItemStack is) {
-		if(is == null) {
+		if (is == null) {
 			return createNullItemNBTTag();
 		}
 		CompoundMap map = new CompoundMap();
@@ -159,26 +161,68 @@ public class InventoryUtils {
 		ItemStack item = StringToItemStack(rawItem);
 		return item;
 	}
-	
+
 	public static CompoundTag createNullItemNBTTag() {
 		CompoundMap map = new CompoundMap();
 		return new CompoundTag("Item", map);
 	}
-	
+
 	@SuppressWarnings("deprecation")
-	public static ItemStack createItemFromIdAndDataString(String idAndData) {
-		int typeId = 0;
-		byte typeData = 0;
-		if (idAndData.equalsIgnoreCase("pipe")) {
-			typeId = Material.SKULL_ITEM.getId();
-			typeData = (byte) SkullType.PLAYER.ordinal();
-		} else if (idAndData.contains(":")) {
-			typeId = Integer.parseInt(idAndData.split(":")[0]);
-			typeData = Byte.parseByte(idAndData.split(":")[1]);
+	public static ItemStack decodeConfigItemString(String itemString) {
+		if (DuctDetails.hasStringRightFormat(itemString)) {
+			return DuctItemUtils.getClonedDuctItem(DuctDetails.decodeString(itemString));
+		} else if (itemString.equalsIgnoreCase("wrench")) {
+			return DuctItemUtils.getClonedWrenchItem();
 		} else {
-			typeId = Integer.parseInt(idAndData);
+			if (itemString.contains(":")) {
+				return new ItemStack(Integer.parseInt(itemString.split(":")[0]), 1, Byte.parseByte(itemString.split(":")[1]));
+			} else {
+				return new ItemStack(Integer.parseInt(itemString));
+			}
 		}
-		return new ItemStack(typeId, 1, typeData);
 	}
-	
+
+	public static MaterialData decodeConfigItemStringToMaterialData(String itemString) {
+		if (DuctDetails.hasStringRightFormat(itemString)) {
+			return DuctItemUtils.getClonedDuctItem(DuctDetails.decodeString(itemString)).getData();
+		} else if (itemString.equalsIgnoreCase("wrench")) {
+			return DuctItemUtils.getClonedWrenchItem().getData();
+		} else {
+			if (itemString.contains(":")) {
+				return new MaterialData(Integer.parseInt(itemString.split(":")[0]), Byte.parseByte(itemString.split(":")[1]));
+			} else {
+				return new MaterialData(Integer.parseInt(itemString), (byte) -1);
+			}
+		}
+	}
+
+	public static boolean shouldItemDataBeIgnored(String configItemString) {
+		if (DuctDetails.hasStringRightFormat(configItemString)) {
+			return false;
+		} else if (configItemString.equalsIgnoreCase("wrench")) {
+			return false;
+		} else {
+			if (configItemString.contains(":")) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	public static boolean doesItemStackMatchesConfigItemString(ItemStack itemStack, String configItemString) {
+		if (DuctDetails.hasStringRightFormat(configItemString)) {
+			DuctDetails configItemDD = DuctDetails.decodeString(configItemString);
+			return configItemDD.doesItemStackMatchesDuctDetails(itemStack);
+		} else if (configItemString.equalsIgnoreCase("wrench")) {
+			return DuctItemUtils.getClonedWrenchItem().isSimilar(itemStack);
+		} else {
+			if (configItemString.contains(":")) {
+				return Integer.parseInt(configItemString.split(":")[0]) == itemStack.getTypeId() && Byte.parseByte(configItemString.split(":")[1]) == itemStack.getData().getData();
+			} else {
+				return Integer.parseInt(configItemString) == itemStack.getTypeId();
+			}
+		}
+	}
+
 }

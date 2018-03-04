@@ -128,7 +128,6 @@ public abstract class Duct {
 	}
 
 	public void saveToNBTTag(CompoundMap tags) {
-		NBTUtils.saveStringValue(tags, "DuctType", getDuctType().name());
 		NBTUtils.saveStringValue(tags, "DuctLocation", LocationUtils.LocToString(blockLoc));
 		NBTUtils.saveStringValue(tags, "DuctDetails", getDuctDetails().toString());
 

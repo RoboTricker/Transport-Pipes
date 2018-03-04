@@ -1,6 +1,9 @@
 package de.robotricker.transportpipes.utils.ductdetails;
 
+import java.util.Locale;
+
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
@@ -14,6 +17,7 @@ import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.VoidPipe;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import io.sentry.Sentry;
 
 public class PipeDetails extends DuctDetails {
@@ -24,12 +28,15 @@ public class PipeDetails extends DuctDetails {
 	/**
 	 * creates new PipeDetails with PipeType pipeType (use other constructor for
 	 * COLORED pipeType)
+	 * 
+	 * if pipeType == null then this pipeDetails object refers to all pipeTypes.
+	 * Same concept with pipeColor.
 	 */
 	public PipeDetails(PipeType pipeType) {
 		super(DuctType.PIPE, pipeType.getCraftPermission());
 		this.pipeType = pipeType;
 	}
-	
+
 	public PipeDetails() {
 		super(DuctType.PIPE, null);
 	}
@@ -53,7 +60,9 @@ public class PipeDetails extends DuctDetails {
 
 	public void setPipeType(PipeType pipeType) {
 		this.pipeType = pipeType;
-		setCraftPermission(pipeType.getCraftPermission());
+		if (pipeType != null) {
+			setCraftPermission(pipeType.getCraftPermission());
+		}
 	}
 
 	public void setPipeColor(PipeColor pipeColor) {
@@ -99,34 +108,60 @@ public class PipeDetails extends DuctDetails {
 		if (getClass() != obj.getClass())
 			return false;
 		PipeDetails other = (PipeDetails) obj;
+		if (pipeType == null || other.pipeType == null)
+			return true;
 		if (pipeType != other.pipeType)
 			return false;
-		if (pipeType == PipeType.COLORED && pipeColor != other.pipeColor)
+		if (pipeType == PipeType.COLORED && pipeColor != null && other.pipeColor != null && pipeColor != other.pipeColor)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		String pipeTypeString = "PipeType:" + pipeType.name() + ";";
-		String pipeColorString = pipeColor != null ? "PipeColor:" + pipeColor.name() + ";" : "";
+		String pipeTypeString = pipeType != null ? ":" + pipeType.name().toLowerCase(Locale.ENGLISH) : "";
+		String pipeColorString = pipeColor != null ? ":" + pipeColor.name().toLowerCase(Locale.ENGLISH) : "";
 		return super.toString() + pipeTypeString + pipeColorString;
 	}
 
 	@Override
-	public void fromString(String serialization) {
+	public void deserialize(String serialization) throws IllegalArgumentException {
 		try {
-			for (String element : serialization.split(";")) {
-				if (element.startsWith("PipeType:")) {
-					setPipeType(PipeType.valueOf(element.substring(9)));
-				} else if (element.startsWith("PipeColor:")) {
-					setPipeColor(PipeColor.valueOf(element.substring(10)));
+			String pipeTypeName = null;
+			if (serialization.contains("PipeType:")) {
+				pipeTypeName = serialization.split(";")[1].split(":")[1];
+			} else if (serialization.split(":").length >= 2) {
+				pipeTypeName = serialization.split(":")[1];
+			}
+			setPipeType(pipeTypeName != null ? PipeType.valueOf(pipeTypeName.toUpperCase(Locale.ENGLISH)) : null);
+			if (getPipeType() == PipeType.COLORED) {
+				String pipeColorName = null;
+				if (serialization.contains("PipeColor:")) {
+					pipeColorName = serialization.split(";")[2].split(":")[1];
+				} else if (serialization.split(":").length >= 3) {
+					pipeColorName = serialization.split(":")[2];
 				}
+				setPipeColor(pipeColorName != null ? PipeColor.valueOf(pipeColorName.toUpperCase(Locale.ENGLISH)) : null);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			Sentry.capture(e);
+			throw new IllegalArgumentException(serialization + " does not fit the serialization format");
 		}
+	}
+
+	@Override
+	public boolean doesItemStackMatchesDuctDetails(ItemStack itemStack) {
+		DuctDetails dd = DuctItemUtils.getDuctDetailsOfItem(itemStack);
+		if (dd != null && ductType == dd.ductType) {
+			PipeDetails pd = (PipeDetails) dd;
+			if (pipeType == null) {
+				return true;
+			} else if (pipeColor == null) {
+				return pipeType == pd.pipeType;
+			} else {
+				return pipeType == pd.pipeType && pipeColor == pd.pipeColor;
+			}
+		}
+		return false;
 	}
 
 }
