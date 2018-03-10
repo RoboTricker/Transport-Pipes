@@ -12,8 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import co.aikar.timings.Timing;
-import co.aikar.timings.Timings;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.ClickableDuct;
 import de.robotricker.transportpipes.duct.Duct;
@@ -29,13 +27,13 @@ public class HitboxListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onInteract(PlayerInteractEvent e) {
-		try (Timing timed = Timings.ofStart(TransportPipes.instance, "hitbox listener")) {
+//		try (Timing timed = Timings.ofStart(TransportPipes.instance, "hitbox listener")) {
 			Player p = e.getPlayer();
 			Block clickedBlock = e.getClickedBlock();
 			ItemStack clickedItem;
 			boolean mainHand;
 
-			try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "calculating the clicked item")) {
+//			try (Timing timed2 = Timings.ofStart(TransportPipes.instance, "calculating the clicked item")) {
 				if (e.getHand() == EquipmentSlot.HAND) {
 					clickedItem = e.getPlayer().getEquipment().getItemInMainHand();
 					mainHand = true;
@@ -58,14 +56,14 @@ public class HitboxListener implements Listener {
 				} else {
 					return;
 				}
-			}
+//			}
 
-			try (Timing timed4 = Timings.ofStart(TransportPipes.instance, "checking clicks")) {
+//			try (Timing timed4 = Timings.ofStart(TransportPipes.instance, "checking clicks")) {
 				DuctDetails ductDetails = DuctItemUtils.getDuctDetailsOfItem(clickedItem);
 				// left click on duct (its irrelevant if you are looking on a block below the
 				// duct or not)
 				if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-					try (Timing timed5 = Timings.ofStart(TransportPipes.instance, "left click air or block")) {
+//					try (Timing timed5 = Timings.ofStart(TransportPipes.instance, "left click air or block")) {
 						final Block ductBlock = HitboxUtils.getDuctBlockLookingTo(p, clickedBlock);
 						// ****************************** LEFT CLICKED ON DUCT
 						// *******************************************
@@ -75,16 +73,16 @@ public class HitboxListener implements Listener {
 								DuctUtils.destroyDuct(p, DuctUtils.getDuctAtLocation(ductBlock.getLocation()), true);
 							}
 						}
-					}
+//					}
 					// right click on duct or a block (its irrelevant if you are looking on a block
 					// below the duct or not)
 				} else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-					try (Timing timed6 = Timings.ofStart(TransportPipes.instance, "right click air or block")) {
+//					try (Timing timed6 = Timings.ofStart(TransportPipes.instance, "right click air or block")) {
 						Block ductBlock = null;
-						try (Timing timed7 = Timings.ofStart(TransportPipes.instance, "getDuctBlockLookingTo")) {
+//						try (Timing timed7 = Timings.ofStart(TransportPipes.instance, "getDuctBlockLookingTo")) {
 							ductBlock = HitboxUtils.getDuctBlockLookingTo(p, clickedBlock);
-						}
-						try (Timing timed8 = Timings.ofStart(TransportPipes.instance, "clickedItem is block")) {
+//						}
+//						try (Timing timed8 = Timings.ofStart(TransportPipes.instance, "clickedItem is block")) {
 							if (clickedItem.getType().isBlock() && clickedItem.getType() != Material.AIR) {
 								// ****************************** PLACE BLOCK ON SIDE OF DUCT
 								// *******************************************
@@ -113,8 +111,8 @@ public class HitboxListener implements Listener {
 									}
 								}
 							}
-						}
-						try (Timing timed8 = Timings.ofStart(TransportPipes.instance, "ductDetails is not null")) {
+//						}
+//						try (Timing timed8 = Timings.ofStart(TransportPipes.instance, "ductDetails is not null")) {
 							// place duct
 							if (ductDetails != null) {
 								// clicked on duct
@@ -150,8 +148,8 @@ public class HitboxListener implements Listener {
 									}
 								}
 							}
-						}
-						try (Timing timed8 = Timings.ofStart(TransportPipes.instance, "clicked on pipe with wrench")) {
+//						}
+//						try (Timing timed8 = Timings.ofStart(TransportPipes.instance, "clicked on pipe with wrench")) {
 							if (ductBlock != null) {
 								Duct ductClickedAt = DuctUtils.getDuctAtLocation(ductBlock.getLocation());
 								if (ductClickedAt instanceof ClickableDuct) {
@@ -163,15 +161,15 @@ public class HitboxListener implements Listener {
 									}
 								}
 							}
-						}
-					}
+//						}
+//					}
 				}
-			}
+//			}
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			Sentry.capture(ex);
-		}
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//			Sentry.capture(ex);
+//		}
 	}
 
 }
