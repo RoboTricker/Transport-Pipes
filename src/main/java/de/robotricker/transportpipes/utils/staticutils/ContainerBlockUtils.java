@@ -48,6 +48,7 @@ public class ContainerBlockUtils implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent e) {
+		System.out.println("block place event");
 		if (isIdContainerBlock(e.getBlockPlaced().getTypeId())) {
 			updateDuctNeighborBlockSync(e.getBlock(), true);
 		}
@@ -137,13 +138,16 @@ public class ContainerBlockUtils implements Listener {
 	 *            true: block added | false: block removed
 	 */
 	public void updateDuctNeighborBlockSync(Block toUpdate, boolean add) {
+		System.out.println("updating vanilla block (" + add + ")");
 		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 		if (add) {
 			if (!isIdContainerBlock(toUpdate.getTypeId())) {
+				System.out.println("no container block ^^");
 				return;
 			}
 			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
+				System.out.println("container does not yet exist");
 				TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
 				PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);
 			}

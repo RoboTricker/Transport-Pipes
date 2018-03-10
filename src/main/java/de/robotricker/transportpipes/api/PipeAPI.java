@@ -25,6 +25,7 @@ import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
+import de.robotricker.transportpipes.utils.staticutils.LocationUtils;
 import io.sentry.Sentry;
 
 /**
@@ -187,6 +188,7 @@ public class PipeAPI {
 		if (containerMap.containsKey(bl)) {
 			throw new IllegalArgumentException("There is already a TransportPipesContainer object registered at this location");
 		}
+		System.out.println("successfully registered TransportPipesContainer at " + LocationUtils.LocToString(blockLoc));
 		containerMap.put(bl, tpc);
 
 		try {
