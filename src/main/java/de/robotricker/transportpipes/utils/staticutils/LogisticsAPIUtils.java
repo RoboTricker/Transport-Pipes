@@ -26,8 +26,10 @@ public class LogisticsAPIUtils implements Listener {
 
 	@EventHandler
 	public void onUnregister(com.logisticscraft.logisticsapi.event.LogisticBlockUnloadEvent e) {
-		TransportPipes.instance.getLogger().info("Item container unregistered at " + e.getLocation());
-		PipeAPI.unregisterTransportPipesContainer(e.getLocation());
+		if (e.getLogisticBlock() instanceof com.logisticscraft.logisticsapi.item.ItemStorage) {
+			TransportPipes.instance.getLogger().info("Item container unregistered at " + e.getLocation());
+			PipeAPI.unregisterTransportPipesContainer(e.getLocation());
+		}
 	}
 
 	public static TransportPipesContainer wrapLogisticsAPIItemContainer(final com.logisticscraft.logisticsapi.item.ItemStorage ic) {

@@ -140,6 +140,9 @@ public class ContainerBlockUtils implements Listener {
 		BlockLoc bl = BlockLoc.convertBlockLoc(toUpdate.getLocation());
 
 		if (add) {
+			if (!isIdContainerBlock(toUpdate.getTypeId())) {
+				return;
+			}
 			if (TransportPipes.instance.getContainerMap(toUpdate.getWorld()) == null || !TransportPipes.instance.getContainerMap(toUpdate.getWorld()).containsKey(bl)) {
 				TransportPipesContainer tpc = createContainerFromBlock(toUpdate);
 				PipeAPI.registerTransportPipesContainer(toUpdate.getLocation(), tpc);

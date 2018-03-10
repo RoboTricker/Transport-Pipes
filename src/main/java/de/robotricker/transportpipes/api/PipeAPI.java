@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.PipeThread;
@@ -22,6 +23,7 @@ import de.robotricker.transportpipes.pipeitems.PipeItem;
 import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.staticutils.ContainerBlockUtils;
 import de.robotricker.transportpipes.utils.staticutils.DuctUtils;
 import io.sentry.Sentry;
 
@@ -49,6 +51,19 @@ public class PipeAPI {
 			pd = new PipeDetails(pt);
 		}
 		DuctUtils.buildDuct(null, blockLoc.getBlock().getLocation(), pd);
+	}
+
+	/**
+	 * updates the container map by adding or removing the vanilla container block
+	 * at "block"'s location. Call this method if you place or destroy a vanilla
+	 * container block programmatically and the BlockPlaceEvent or BlockBreakEvent
+	 * doesn't get called.
+	 * 
+	 * @param placed
+	 *            wether the vanilla block was placed or destroyed.
+	 */
+	public static void updateVanillaContainerBlock(Block block, boolean placed) {
+		TransportPipes.instance.containerBlockUtils.updateDuctNeighborBlockSync(block, placed);
 	}
 
 	/**
