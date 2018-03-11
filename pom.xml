@@ -145,10 +145,13 @@
 	</build>
 
 	<distributionManagement>
+		<snapshotRepository>
+			<id>codemc-snapshots</id>
+			<url>https://repo.codemc.org/repository/maven-snapshots/</url>
+		</snapshotRepository>
 		<repository>
-			<id>maven-public</id>
-			<name>FrontFight Repository</name>
-			<url>http://repo.frontfight.net/repository/maven-public/</url>
+			<id>codemc-releases</id>
+			<url>https://repo.codemc.org/repository/maven-releases/</url>
 		</repository>
 	</distributionManagement>
 
