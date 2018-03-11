@@ -27,6 +27,7 @@
 	</properties>
 
 	<build>
+		<finalName>${project.name}-${project.version}-noshade</finalName>
 		<resources>
 			<resource>
 				<filtering>true</filtering>
@@ -34,6 +35,16 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.0.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -45,31 +56,90 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.20.1</version>
+				<configuration>
+					<!-- Force the right file encoding during unit testing -->
+					<argLine>-Dfile.encoding=${project.build.sourceEncoding} @{argLine}</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>javadoc</goal>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<finalName>${project.name}-${project.version}</finalName>
+					<show>public</show>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<finalName>${project.name}-${project.version}</finalName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.1.0</version>
-				<configuration>
-					<createDependencyReducedPom>false</createDependencyReducedPom>
-				</configuration>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
-						<configuration>
-							<relocations>
-								<relocation>
-									<pattern>io.sentry</pattern>
-									<shadedPattern>de.robotricker.io.sentry</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>org.bstats</pattern>
-									<shadedPattern>de.robotricker.org.bstats</shadedPattern>
-								</relocation>
-							</relocations>
-						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<finalName>${project.name}-${project.version}</finalName>
+					<relocations>
+						<relocation>
+							<pattern>io.sentry</pattern>
+							<shadedPattern>de.robotricker.io.sentry</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.bstats</pattern>
+							<shadedPattern>de.robotricker.org.bstats</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.5.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
 			</plugin>
 		</plugins>
 	</build>
@@ -140,20 +210,12 @@
 			<url>http://repo.dmulloy2.net/content/groups/public</url>
 		</repository>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-		<repository>
 			<id>inventive-repo</id>
 			<url>https://repo.inventivetalent.org/content/groups/public</url>
 		</repository>
 		<repository>
 			<id>codemc-repo</id>
 			<url>https://repo.codemc.org/repository/maven-public/</url>
-		</repository>
-		<repository>
-			<id>destroystokyo-repo</id>
-			<url>https://repo.destroystokyo.com/repository/maven-public/</url>
 		</repository>
 		<repository>
 			<id>frontfight-repo</id>
@@ -165,16 +227,15 @@
 		</repository>
 		<repository>
 			<id>vault-repo</id>
-			<url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
+			<url>http://nexus.hc.to/content/repositories/pub_releases</url>
 		</repository>
 	</repositories>
 
 	<dependencies>
-		<!-- Spigot API, http://www.spigotmc.org/ or http://bukkit.org/ -->
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.12-R0.1-SNAPSHOT</version>
+			<version>1.12.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -195,12 +256,10 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- JNBT -->
-		<!-- ProtocolLib -->
 		<dependency>
 			<groupId>com.comphenix.protocol</groupId>
 			<artifactId>ProtocolLib-API</artifactId>
-			<version>4.2.1</version>
+			<version>4.4.0-SNAPSHOT</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -217,20 +276,32 @@
 			<groupId>com.comphenix.packetwrapper</groupId>
 			<artifactId>PacketWrapper</artifactId>
 			<version>1.12.1-R0.1-SNAPSHOT</version>
-			<scope>compile</scope>
 		</dependency>
-		<!-- Updater -->
+		<dependency>
+			<groupId>com.flowpowered</groupId>
+			<artifactId>flow-nbt</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.sentry</groupId>
+			<artifactId>sentry</artifactId>
+			<version>1.6.6</version>
+		</dependency>
 		<dependency>
 			<groupId>org.inventivetalent.spiget-update</groupId>
 			<artifactId>bukkit</artifactId>
 			<version>1.3.0</version>
-			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.bukkit</groupId>
 					<artifactId>bukkit</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bstats</groupId>
+			<artifactId>bstats-bukkit</artifactId>
+			<version>1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>fr.xephi</groupId>
@@ -251,40 +322,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.flowpowered</groupId>
-			<artifactId>flow-nbt</artifactId>
-			<version>1.0.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.destroystokyo.paper</groupId>
-			<artifactId>paper-api</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>com.wasteofplastic</groupId>
 			<artifactId>acidisland</artifactId>
 			<version>3.0.6.9</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.sentry</groupId>
-			<artifactId>sentry</artifactId>
-			<version>1.6.6</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.bstats</groupId>
-			<artifactId>bstats-bukkit</artifactId>
-			<version>1.2</version>
-			<scope>compile</scope>
-		</dependency>
 	</dependencies>
+
 </project>
