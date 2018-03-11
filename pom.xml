@@ -27,7 +27,7 @@
 	</properties>
 
 	<build>
-		<finalName>${project.name}-${project.version}-noshade</finalName>
+		<finalName>${project.artifactId}-${project.version}-noshade</finalName>
 		<resources>
 			<resource>
 				<filtering>true</filtering>
@@ -82,7 +82,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.name}-${project.version}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 					<show>public</show>
 					<failOnError>false</failOnError>
 				</configuration>
@@ -100,7 +100,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.name}-${project.version}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -117,8 +117,7 @@
 				</executions>
 				<configuration>
 					<createDependencyReducedPom>false</createDependencyReducedPom>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<finalName>${project.name}-${project.version}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 					<relocations>
 						<relocation>
 							<pattern>io.sentry</pattern>
