@@ -86,18 +86,6 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 
-
-### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-nbactions.xml
-nb-configuration.xml
-.nb-gradle/
-
-
 ### Git ###
 # Don't exclude the .gitignore itself
 !.gitignore
