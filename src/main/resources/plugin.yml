@@ -3,7 +3,7 @@ version: ${project.versionCode}
 author: RoboTricker
 main: de.robotricker.transportpipes.TransportPipes
 depend: [ProtocolLib]
-softdepend: [LogisticsApi, AuthMe, AcidIsland, LWC]
+softdepend: [LogisticsApi]
 commands:
   transportpipes:
     aliases: [transportpipe, tpipes, tpipe, pipes, pipe]
