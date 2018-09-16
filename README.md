@@ -24,14 +24,13 @@ You can also add TransportPipes as a Maven dependency:
     <id>codemc-repo</id>
     <url>http://repo.codemc.org/repository/maven-public/</url>
   </repository>
-  ...
 </repositories>
 
 <dependencies>
   <dependency>
     <groupId>de.robotricker.transportpipes</groupId>
     <artifactId>TransportPipes</artifactId>
-    <version>[VERSION]</version>
+    <version>VERSION</version>
   </dependency>
 </dependencies>
 ```
