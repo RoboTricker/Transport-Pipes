@@ -1,4 +1,4 @@
-![Logo](https://img2.picload.org/image/riwprwgr/logo.png)
+![Logo](https://image.ibb.co/mDqyqU/Logo2.png)
 
 The Transport-Pipes plugin adds several different pipes into Minecraft. At the moment there are colored pipes, golden pipes, iron pipes, extraction pipes, void pipes and ice pipes. Similar to the BuildCraft mod, these pipes can transport any kind of item.
 
@@ -24,14 +24,13 @@ You can also add TransportPipes as a Maven dependency:
     <id>codemc-repo</id>
     <url>http://repo.codemc.org/repository/maven-public/</url>
   </repository>
-  ...
 </repositories>
 
 <dependencies>
   <dependency>
     <groupId>de.robotricker.transportpipes</groupId>
     <artifactId>TransportPipes</artifactId>
-    <version>[VERSION]</version>
+    <version>VERSION</version>
   </dependency>
 </dependencies>
 ```
