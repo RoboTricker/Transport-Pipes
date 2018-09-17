@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
+import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.RelLoc;
 import de.robotricker.transportpipes.utils.TPDirection;
 
@@ -21,8 +22,16 @@ public class AxisAlignedBB {
         max = new RelLoc(maxx, maxy, maxz);
     }
 
-    public Vector getAABBMiddle(Location blockLoc) {
-        return new Vector(min.getDoubleX() + (max.getDoubleX() - min.getDoubleX()) / 2d, min.getDoubleY() + (max.getDoubleY() - min.getDoubleY()) / 2d, min.getDoubleZ() + (max.getDoubleZ() - min.getDoubleZ()) / 2d).add(blockLoc.toVector());
+    public Vector getAABBMiddle(BlockLoc blockLoc) {
+        return new Vector(min.getDoubleX() + (max.getDoubleX() - min.getDoubleX()) / 2d, min.getDoubleY() + (max.getDoubleY() - min.getDoubleY()) / 2d, min.getDoubleZ() + (max.getDoubleZ() - min.getDoubleZ()) / 2d).add(new Vector(blockLoc.getX(), blockLoc.getY(), blockLoc.getZ()));
+    }
+
+    public RelLoc getMin() {
+        return min;
+    }
+
+    public RelLoc getMax() {
+        return max;
     }
 
     public Location getMinLocation(World world) {
@@ -45,7 +54,7 @@ public class AxisAlignedBB {
         return max.getDoubleZ() - min.getDoubleZ();
     }
 
-    public TPDirection performRayIntersection(Vector ray, Vector rayOrigin, Location aabbBlockLoc) {
+    public TPDirection performRayIntersection(Vector ray, Vector rayOrigin, BlockLoc aabbBlockLoc) {
 
         //optimization to decrease division operations
         Vector dirFrac = new Vector(1d / ray.getX(), 1d / ray.getY(), 1d / ray.getZ());
