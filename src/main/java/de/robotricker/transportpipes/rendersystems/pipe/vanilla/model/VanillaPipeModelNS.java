@@ -20,7 +20,7 @@ public class VanillaPipeModelNS extends VanillaPipeModel {
 
     @Override
     public List<ArmorStandData> createASD(VanillaPipeModelData data) {
-        return createSimplePipeASD(modelBlocks.get(data.getPipeType()));
+        return createSimplePipeASD(pipeBlocks.get(data.getPipeType()));
     }
 
     private List<ArmorStandData> createSimplePipeASD(ItemStack block) {

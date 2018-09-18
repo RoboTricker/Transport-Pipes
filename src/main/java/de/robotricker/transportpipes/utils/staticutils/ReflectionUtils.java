@@ -27,7 +27,7 @@ public class ReflectionUtils {
         return null;
     }
 
-    private static Class<?> getVector3fClass() {
+    public static Class<?> getVector3fClass() {
         try {
             return Class.forName("net.minecraft.server." + version + ".Vector3f");
         } catch (ClassNotFoundException e) {
