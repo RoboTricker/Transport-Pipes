@@ -123,7 +123,7 @@ public class DuctManager {
     }
 
     public void createDuct(Duct duct, List<TPDirection> allConnections) {
-        for (RenderSystem renderSystem : getRenderSystems(duct.getBasicDuctType())) {
+        for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             renderSystem.createDuctASD(duct, allConnections);
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
@@ -135,7 +135,7 @@ public class DuctManager {
     }
 
     public void updateDuct(Duct duct, List<TPDirection> allConnections) {
-        for (RenderSystem renderSystem : getRenderSystems(duct.getBasicDuctType())) {
+        for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             List<ArmorStandData> removeASD = new ArrayList<>();
             List<ArmorStandData> addASD = new ArrayList<>();
             renderSystem.updateDuctASD(duct, allConnections, removeASD, addASD);
@@ -149,7 +149,7 @@ public class DuctManager {
     }
 
     public void destroyDuct(Duct duct) {
-        for (RenderSystem renderSystem : getRenderSystems(duct.getBasicDuctType())) {
+        for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
                     getDuctProtocol().removeASD(p, renderSystem.getASDForDuct(duct));
