@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.DuctType;
+import de.robotricker.transportpipes.ducts.types.BasicDuctType;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
-import de.robotricker.transportpipes.ducts.pipe.PipeType;
+import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModel;
@@ -33,7 +33,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
     private Map<Pipe, List<ArmorStandData>> pipeASD = new HashMap<>();
 
     public VanillaPipeRenderSystem() {
-        super(DuctType.valueOf("Pipe"));
+        super(BasicDuctType.valueOf("Pipe"));
         VanillaPipeModel.init();
     }
 
@@ -43,7 +43,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
         if (pipeASD.containsKey(pipe)) {
             return;
         }
-        pipeASD.put(pipe, getModel(pipe.getPipeType(), connections).createASD(VanillaPipeModelData.createModelData(pipe)));
+        pipeASD.put(pipe, getModel(pipe.getDuctType(), connections).createASD(VanillaPipeModelData.createModelData(pipe)));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
         }
 
         List<ArmorStandData> oldASD = pipeASD.get(pipe);
-        List<ArmorStandData> newASD = getModel(pipe.getPipeType(), connections).createASD(VanillaPipeModelData.createModelData(pipe));
+        List<ArmorStandData> newASD = getModel(pipe.getDuctType(), connections).createASD(VanillaPipeModelData.createModelData(pipe));
 
         List<ArmorStandData> tempASD = new ArrayList<>();
 
@@ -93,7 +93,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
     @Override
     public AxisAlignedBB getOuterHitbox(Duct duct) {
         Pipe pipe = (Pipe) duct;
-        return getModel(pipe.getPipeType(), null).getAABB(); //TODO: calc all connections
+        return getModel(pipe.getDuctType(), null).getAABB(); //TODO: calc all connections
     }
 
     @Override

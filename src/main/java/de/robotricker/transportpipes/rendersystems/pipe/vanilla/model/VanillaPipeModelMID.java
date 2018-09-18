@@ -6,6 +6,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaIronPipeModelData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
@@ -24,7 +25,7 @@ public class VanillaPipeModelMID extends VanillaPipeModel {
     public List<ArmorStandData> createASD(VanillaPipeModelData data) {
         if (data.getPipeType().is("Iron")) {
             TPDirection outputDir = ((VanillaIronPipeModelData) data).getOutputDir();
-            return createComplexBlockASD(modelBlocks.get(data.getPipeType()),
+            return createComplexBlockASD(pipeBlocks.get(data.getPipeType()),
                     outputDir == TPDirection.EAST ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE,
                     outputDir == TPDirection.WEST ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE,
                     outputDir == TPDirection.NORTH ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE,
@@ -33,16 +34,16 @@ public class VanillaPipeModelMID extends VanillaPipeModel {
                     outputDir == TPDirection.DOWN ? ITEM_CARPET_YELLOW : ITEM_CARPET_WHITE
             );
         } else if (data.getPipeType().is("Golden")) {
-            return createComplexBlockASD(modelBlocks.get(data.getPipeType()),
-                    ITEM_CARPET_BLUE,
-                    ITEM_CARPET_YELLOW,
-                    ITEM_CARPET_RED,
-                    ITEM_CARPET_WHITE,
-                    ITEM_CARPET_GREEN,
-                    ITEM_CARPET_BLACK
+            return createComplexBlockASD(pipeBlocks.get(data.getPipeType()),
+                    goldenPipeColorCarpets.get(GoldenPipe.Color.getByDir(TPDirection.EAST)),
+                    goldenPipeColorCarpets.get(GoldenPipe.Color.getByDir(TPDirection.WEST)),
+                    goldenPipeColorCarpets.get(GoldenPipe.Color.getByDir(TPDirection.NORTH)),
+                    goldenPipeColorCarpets.get(GoldenPipe.Color.getByDir(TPDirection.SOUTH)),
+                    goldenPipeColorCarpets.get(GoldenPipe.Color.getByDir(TPDirection.UP)),
+                    goldenPipeColorCarpets.get(GoldenPipe.Color.getByDir(TPDirection.DOWN))
             );
         } else {
-            return createSimpleBlockASD(modelBlocks.get(data.getPipeType()));
+            return createSimpleBlockASD(pipeBlocks.get(data.getPipeType()));
         }
     }
 

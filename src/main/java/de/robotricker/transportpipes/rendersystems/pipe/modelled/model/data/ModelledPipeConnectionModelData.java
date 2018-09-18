@@ -1,7 +1,7 @@
 package de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data;
 
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
-import de.robotricker.transportpipes.ducts.pipe.PipeType;
+import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.utils.TPDirection;
 
 public class ModelledPipeConnectionModelData {
@@ -23,14 +23,12 @@ public class ModelledPipeConnectionModelData {
     }
 
     public static ModelledPipeConnectionModelData createConnectionModelData(Pipe pipe, TPDirection connectionDir) {
-        if (pipe.getPipeType().is("Iron")) {
+        if (pipe.getDuctType().is("Iron")) {
             return new ModelledIronPipeConnectionModelData(connectionDir, false);
-        } else if (pipe.getPipeType().is("Golden")) {
-            return new ModelledGoldenPipeConnectionModelData(connectionDir);
-        } else if (pipe.getPipeType().is("Extraction")) {
+        } else if (pipe.getDuctType().is("Extraction")) {
             return new ModelledExtractionPipeConnectionModelData(connectionDir, false);
         } else {
-            return new ModelledPipeConnectionModelData(pipe.getPipeType(), connectionDir);
+            return new ModelledPipeConnectionModelData(pipe.getDuctType(), connectionDir);
         }
     }
 

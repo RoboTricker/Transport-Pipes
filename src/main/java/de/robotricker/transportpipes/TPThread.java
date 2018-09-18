@@ -1,9 +1,15 @@
 package de.robotricker.transportpipes;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import io.sentry.Sentry;
 
 public class TPThread extends Thread {
 
+    private final Map<Runnable, Long> tasks = Collections.synchronizedMap(new LinkedHashMap<>());
     private boolean running = false;
     private int preferredTPS = 10;
     private int currentTPS = 0;
@@ -55,7 +61,19 @@ public class TPThread extends Thread {
     }
 
     private void tick() {
-
+        //schedule tasks
+        synchronized (tasks) {
+            Iterator<Runnable> taskIt = tasks.keySet().iterator();
+            while (taskIt.hasNext()) {
+                Runnable task = taskIt.next();
+                if (tasks.get(task) > 1) {
+                    tasks.put(task, tasks.get(task) - 1);
+                } else {
+                    taskIt.remove();
+                    task.run();
+                }
+            }
+        }
     }
 
     public int getCurrentTPS() {
@@ -78,4 +96,7 @@ public class TPThread extends Thread {
         running = false;
     }
 
+    public void runTask(Runnable runnable, long delay) {
+        tasks.put(runnable, delay);
+    }
 }

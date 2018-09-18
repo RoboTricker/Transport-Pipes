@@ -2,21 +2,26 @@ package de.robotricker.transportpipes.rendersystems;
 
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.DuctType;
+import de.robotricker.transportpipes.ducts.types.BasicDuctType;
+import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.utils.TPDirection;
 import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
 
 public abstract class RenderSystem {
 
-    private DuctType ductType;
+    private BasicDuctType basicDuctType;
+    private List<Player> currentPlayers;
 
-    public RenderSystem(DuctType ductType) {
-        this.ductType = ductType;
+    public RenderSystem(BasicDuctType basicDuctType) {
+        this.basicDuctType = basicDuctType;
+        this.currentPlayers = Collections.synchronizedList(new ArrayList<>());
     }
 
     // ***************************************************************
@@ -56,8 +61,12 @@ public abstract class RenderSystem {
     //  MISC
     // ***************************************************************
 
-    public DuctType getDuctType(){
-        return ductType;
+    public List<Player> getCurrentPlayers() {
+        return currentPlayers;
+    }
+
+    public BasicDuctType getBasicDuctType() {
+        return basicDuctType;
     }
 
 }
