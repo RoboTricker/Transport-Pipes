@@ -391,6 +391,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Included in server jar but not in API -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- ProtocolLib, spigot packet manipulation library, https://github.com/dmulloy2/ProtocolLib -->
         <dependency>

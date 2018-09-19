@@ -3,11 +3,11 @@ package de.robotricker.transportpipes.protocol;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.utils.RelLoc;
+import de.robotricker.transportpipes.location.RelativeLocation;
 
 public class ArmorStandData implements Cloneable {
 
-    private RelLoc relLoc;
+    private RelativeLocation relLoc;
     private boolean small;
     private Vector direction;
     private Vector headRotation;
@@ -16,7 +16,7 @@ public class ArmorStandData implements Cloneable {
     private ItemStack handItem;
     private int entityID = -1;
 
-    public ArmorStandData(RelLoc relLoc, boolean small, Vector direction, Vector headRotation, Vector armRotation, ItemStack headItem, ItemStack handItem) {
+    public ArmorStandData(RelativeLocation relLoc, boolean small, Vector direction, Vector headRotation, Vector armRotation, ItemStack headItem, ItemStack handItem) {
         this.relLoc = relLoc;
         this.small = small;
         this.direction = direction;
@@ -26,7 +26,7 @@ public class ArmorStandData implements Cloneable {
         this.handItem = handItem;
     }
 
-    public RelLoc getRelLoc() {
+    public RelativeLocation getRelLoc() {
         return relLoc;
     }
 

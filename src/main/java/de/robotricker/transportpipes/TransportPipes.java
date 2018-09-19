@@ -2,9 +2,10 @@ package de.robotricker.transportpipes;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import de.robotricker.transportpipes.service.LoggerService;
-import de.robotricker.transportpipes.service.ProtocolService;
-import de.robotricker.transportpipes.service.SentryService;
+import de.robotricker.transportpipes.listener.DuctListener;
+import de.robotricker.transportpipes.log.LoggerService;
+import de.robotricker.transportpipes.protocol.ProtocolService;
+import de.robotricker.transportpipes.log.SentryService;
 import io.sentry.event.Breadcrumb;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,7 +20,7 @@ public class TransportPipes extends JavaPlugin {
     // Services
     private LoggerService logger;
     private SentryService sentry;
-    private TPThread thread;
+    private PipeThread thread;
     private ProtocolService protocol;
     private DuctManager ductManager;
 
@@ -42,7 +43,7 @@ public class TransportPipes extends JavaPlugin {
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabling plugin");
 
         // Initialize thread
-        thread = injector.getSingleton(TPThread.class);
+        thread = injector.getSingleton(PipeThread.class);
         thread.start();
 
         // Initialize protocol service
@@ -53,7 +54,7 @@ public class TransportPipes extends JavaPlugin {
         ductManager.register();
 
         // Register listeners
-        getServer().getPluginManager().registerEvents(ductManager.new PlayerListener(), this);
+        getServer().getPluginManager().registerEvents(injector.getSingleton(DuctListener.class), this);
         getServer().getPluginManager().registerEvents(injector.getSingleton(DuctListener.class), this);
 
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "plugin enabled");
