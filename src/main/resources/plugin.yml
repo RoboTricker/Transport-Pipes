@@ -1,7 +1,7 @@
-name: TransportPipes
+name: ${project.name}
 version: ${project.versionCode}
 author: RoboTricker
-main: de.robotricker.transportpipes.TransportPipes
+main: ${project.groupId}.${project.artifactId}.${project.name}
 depend: [ProtocolLib]
 softdepend: [LogisticsApi]
 commands:
