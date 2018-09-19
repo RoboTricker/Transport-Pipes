@@ -1,92 +1,76 @@
 package de.robotricker.transportpipes;
 
-import org.bukkit.Bukkit;
+import ch.jalu.injector.Injector;
+import ch.jalu.injector.InjectorBuilder;
+import de.robotricker.transportpipes.service.LoggerService;
+import de.robotricker.transportpipes.service.ProtocolService;
+import de.robotricker.transportpipes.service.SentryService;
+import io.sentry.event.Breadcrumb;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import io.sentry.Sentry;
-import io.sentry.event.Breadcrumb;
-import io.sentry.event.BreadcrumbBuilder;
+import java.util.logging.Logger;
 
 public class TransportPipes extends JavaPlugin {
 
-    public static TransportPipes instance;
+    private final static String SENTRY_DSN = "https://84937d8c6bc2435d860021667341c87c@sentry.io/1281889?stacktrace=de.robotricker&release=";
 
-    private TPThread tpThread;
+    private Injector injector;
+
+    // Services
+    private LoggerService logger;
+    private SentryService sentry;
+    private TPThread thread;
+    private ProtocolService protocol;
     private DuctManager ductManager;
 
     @Override
     public void onEnable() {
-        instance = this;
+        // Initialize the dependency injector
+        injector = new InjectorBuilder().addDefaultHandlers("de.robotricker.transportpipes").create();
+        injector.register(Logger.class, getLogger());
 
-        Sentry.init("https://84937d8c6bc2435d860021667341c87c@sentry.io/1281889?stacktrace=de.robotricker&release=" + instance.getDescription().getVersion());
-        Sentry.getContext().addTag("thread", Thread.currentThread().getName());
-        Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
-            e.printStackTrace();
-            Sentry.capture(e);
-        });
-        Sentry.getContext().recordBreadcrumb(new BreadcrumbBuilder().setLevel(Breadcrumb.Level.INFO).setCategory("MAIN").setMessage("enabling plugin").build());
+        // Initialize logger
+        logger = injector.getSingleton(LoggerService.class);
 
-        ductManager = new DuctManager();
+        // Initialize sentry
+        sentry = injector.getSingleton(SentryService.class);
+        if (!sentry.initialize(SENTRY_DSN + getDescription().getVersion())) {
+            logger.warning("Unable to initialize sentry!");
+        }
+        sentry.addTag("thread", Thread.currentThread().getName());
+        sentry.injectThread(Thread.currentThread());
+        sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabling plugin");
+
+        // Initialize thread
+        thread = injector.getSingleton(TPThread.class);
+        thread.start();
+
+        // Initialize protocol service
+        protocol = injector.getSingleton(ProtocolService.class);
+
+        // Initialize duct manager
+        ductManager = injector.getSingleton(DuctManager.class);
         ductManager.register();
-        Bukkit.getPluginManager().registerEvents(ductManager.new PlayerListener(), this);
-        Bukkit.getPluginManager().registerEvents(new DuctListener(), this);
 
-        tpThread = new TPThread();
-        tpThread.start();
+        // Register listeners
+        getServer().getPluginManager().registerEvents(ductManager.new PlayerListener(), this);
+        getServer().getPluginManager().registerEvents(injector.getSingleton(DuctListener.class), this);
 
-        Sentry.getContext().recordBreadcrumb(new BreadcrumbBuilder().setLevel(Breadcrumb.Level.INFO).setCategory("MAIN").setMessage("enabled plugin").build());
+        sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "plugin enabled");
     }
 
     @Override
     public void onDisable() {
-        Sentry.getContext().recordBreadcrumb(new BreadcrumbBuilder().setLevel(Breadcrumb.Level.INFO).setCategory("MAIN").setMessage("disabling plugin").build());
+        sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabling plugin");
+
+        // Stop pipe thread gracefully
         try {
-            tpThread.stopRunning();
-            tpThread.join();
+            thread.stopRunning();
+            thread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Unable to stop the pipe thread gracefully!", e);
         }
-        Sentry.getContext().recordBreadcrumb(new BreadcrumbBuilder().setLevel(Breadcrumb.Level.INFO).setCategory("MAIN").setMessage("disabled plugin").build());
+
+        sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "plugin disabled");
     }
-
-    public DuctManager getDuctManager() {
-        return ductManager;
-    }
-
-    public TPThread getTPThread() {
-        return tpThread;
-    }
-
-    // *****************************************
-    // STATIC UTILS
-    // *****************************************
-
-    public static void logDebug(String log) {
-        instance.getLogger().fine(log);
-    }
-
-    public static void logInfo(String log) {
-        instance.getLogger().info(log);
-    }
-
-    public static void logWarn(String log) {
-        instance.getLogger().warning(log);
-    }
-
-    public static void logError(String log) {
-        instance.getLogger().severe(log);
-    }
-
-    public static void runTask(Runnable task) {
-        if (instance.isEnabled()) {
-            Bukkit.getScheduler().runTask(instance, task);
-        }
-    }
-
-    public static void runTaskLater(Runnable task, long delay) {
-        if (instance.isEnabled()) {
-            Bukkit.getScheduler().runTaskLater(instance, task, delay);
-        }
-    }
-
 }

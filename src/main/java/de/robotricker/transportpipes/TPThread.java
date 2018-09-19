@@ -1,32 +1,38 @@
 package de.robotricker.transportpipes;
 
+import de.robotricker.transportpipes.service.LoggerService;
+import de.robotricker.transportpipes.service.SentryService;
+
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import io.sentry.Sentry;
-
 public class TPThread extends Thread {
 
-    private final Map<Runnable, Long> tasks = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final LoggerService logger;
+    private final SentryService sentry;
+
+    private final Map<Runnable, Long> tasks;
     private boolean running = false;
     private int preferredTPS = 10;
     private int currentTPS = 0;
 
-    public TPThread() {
+    @Inject
+    TPThread(LoggerService logger, SentryService sentry) {
         super("TransportPipes-Thread");
+        this.logger = logger;
+        this.sentry = sentry;
+        tasks = Collections.synchronizedMap(new LinkedHashMap<>());
     }
 
     @Override
     public void run() {
-        TransportPipes.logInfo("Started TPThread");
+        logger.info("Started TPThread");
         running = true;
-        Sentry.getContext().addTag("thread", Thread.currentThread().getName());
-        setUncaughtExceptionHandler((t, e) -> {
-            e.printStackTrace();
-            Sentry.capture(e);
-        });
+        sentry.addTag("thread", getName());
+        sentry.injectThread(this);
 
         long lastTick = System.currentTimeMillis();
         long lastSec = lastTick;
@@ -45,7 +51,7 @@ public class TPThread extends Thread {
                     currentTPS = tpsCounter;
                     tpsCounter = 0;
                     lastSec = currentTick;
-                    TransportPipes.logDebug("TPS: " + currentTPS);
+                    logger.debug("TPS: " + currentTPS);
                 }
 
             } else {
@@ -53,11 +59,11 @@ public class TPThread extends Thread {
                 try {
                     sleep(waitTime);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("TPThread was terminated while sleeping!", e);
                 }
             }
         }
-        TransportPipes.logInfo("Stopped TPThread");
+        logger.info("Stopped TPThread");
     }
 
     private void tick() {

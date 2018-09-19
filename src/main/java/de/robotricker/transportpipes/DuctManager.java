@@ -26,7 +26,7 @@ import de.robotricker.transportpipes.ducts.types.BasicDuctType;
 import de.robotricker.transportpipes.ducts.types.ColoredPipeType;
 import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.protocol.DuctProtocol;
+import de.robotricker.transportpipes.service.ProtocolService;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
@@ -34,18 +34,22 @@ import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.TPDirection;
 import de.robotricker.transportpipes.utils.staticutils.ItemUtils;
 
+import javax.inject.Inject;
+
 public class DuctManager {
+
+    private final ProtocolService ductProtocol;
 
     private final Map<World, Map<BlockLoc, Duct>> ducts;
     private final List<RenderSystem> renderSystems;
     private final Map<Player, Set<Duct>> ductsForPlayers;
-    private DuctProtocol ductProtocol;
 
-    public DuctManager() {
+    @Inject
+    DuctManager(ProtocolService protocol) {
         this.ducts = Collections.synchronizedMap(new HashMap<>());
         this.renderSystems = Collections.synchronizedList(new ArrayList<>());
         this.ductsForPlayers = Collections.synchronizedMap(new HashMap<>());
-        this.ductProtocol = new DuctProtocol();
+        this.ductProtocol = protocol;
     }
 
     public void register() {
@@ -81,7 +85,7 @@ public class DuctManager {
         renderSystems.add(new VanillaPipeRenderSystem());
     }
 
-    public DuctProtocol getDuctProtocol() {
+    public ProtocolService getDuctProtocol() {
         return ductProtocol;
     }
 
@@ -186,7 +190,5 @@ public class DuctManager {
                 renderSystem.getCurrentPlayers().remove(p);
             }
         }
-
     }
-
 }

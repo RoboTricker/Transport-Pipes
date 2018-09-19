@@ -244,12 +244,20 @@
                     <!-- Relocate shaded libraries that might cause class conflicts with other plugins -->
                     <relocations>
                         <relocation>
-                            <pattern>com.comphenix</pattern>
-                            <shadedPattern>de.robotricker.transportpipes.libs.com.comphenix</shadedPattern>
+                            <pattern>javax.inject</pattern>
+                            <shadedPattern>de.robotricker.transportpipes.libs.javax.inject</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.flowpowered</pattern>
-                            <shadedPattern>de.robotricker.transportpipes.libs.com.flowpowered</shadedPattern>
+                            <pattern>ch.jalu</pattern>
+                            <shadedPattern>de.robotricker.transportpipes.libs.libs.ch.jalu</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.comphenix.packetwrapper</pattern>
+                            <shadedPattern>de.robotricker.transportpipes.libs.com.comphenix.packetwrapper</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.flowpowered.nbt</pattern>
+                            <shadedPattern>de.robotricker.transportpipes.libs.com.flowpowered.nbt</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>io.sentry</pattern>
@@ -346,6 +354,14 @@
     </repositories>
 
     <dependencies>
+        <!-- Jalu Injector -->
+        <dependency>
+            <groupId>ch.jalu</groupId>
+            <artifactId>injector</artifactId>
+            <version>1.0</version>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Spigot API, minecraft server modding API, https://www.spigotmc.org/ -->
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -397,6 +413,7 @@
             <groupId>com.comphenix.packetwrapper</groupId>
             <artifactId>PacketWrapper</artifactId>
             <version>1.12.1-R0.1-SNAPSHOT</version>
+            <optional>true</optional>
         </dependency>
 
         <!-- FlowNBT, Named Binary Tag (NBT) manipulation library, https://github.com/flow/nbt -->
