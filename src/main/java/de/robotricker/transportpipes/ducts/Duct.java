@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.ducts;
 
 import org.bukkit.Chunk;
+import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +14,13 @@ public abstract class Duct {
 
     private DuctType ductType;
     private BlockLoc blockLoc;
+    private World world;
     private Chunk chunk;
 
-    public Duct(DuctType ductType, BlockLoc blockLoc, Chunk chunk){
+    public Duct(DuctType ductType, BlockLoc blockLoc, World world, Chunk chunk){
         this.ductType = ductType;
         this.blockLoc = blockLoc;
+        this.world = world;
         this.chunk = chunk;
     }
 
@@ -27,6 +30,10 @@ public abstract class Duct {
 
     public BlockLoc getBlockLoc() {
         return blockLoc;
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     public boolean isInLoadedChunk(){

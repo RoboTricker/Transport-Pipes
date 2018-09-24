@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.ducts.types;
 
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -55,8 +56,8 @@ public final class BasicDuctType {
         ductTypeValues.add(ductType);
     }
 
-    public Duct createDuct(DuctType ductType, BlockLoc blockLoc, Chunk chunk) {
-        return factory.createDuct(ductType, blockLoc, chunk);
+    public Duct createDuct(DuctType ductType, BlockLoc blockLoc, World world, Chunk chunk) {
+        return factory.createDuct(ductType, blockLoc, world, chunk);
     }
 
     // ****************************************************

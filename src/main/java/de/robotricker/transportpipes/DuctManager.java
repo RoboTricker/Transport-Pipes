@@ -94,11 +94,7 @@ public class DuctManager {
     }
 
     public Map<BlockLoc, Duct> getDucts(World world) {
-        if (ducts.containsKey(world)) {
-            return ducts.get(world);
-        }
-        ducts.put(world, new TreeMap<>());
-        return ducts.get(world);
+        return ducts.computeIfAbsent(world, v -> Collections.synchronizedMap(new TreeMap<>()));
     }
 
     public Duct getDuctAtLoc(World world, BlockLoc blockLoc) {
@@ -132,6 +128,7 @@ public class DuctManager {
                 }
             }
         }
+        getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
     }
 
     public void updateDuct(Duct duct, List<TPDirection> allConnections) {
@@ -158,6 +155,7 @@ public class DuctManager {
             }
             renderSystem.destroyDuctASD(duct);
         }
+        getDucts(duct.getWorld()).remove(duct.getBlockLoc());
     }
 
     public class PlayerListener implements Listener {
