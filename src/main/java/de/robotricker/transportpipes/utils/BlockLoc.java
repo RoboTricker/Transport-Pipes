@@ -1,6 +1,8 @@
 package de.robotricker.transportpipes.utils;
 
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -47,6 +49,14 @@ public class BlockLoc implements Comparable<BlockLoc> {
 
     public BlockLoc getNeighbor(TPDirection direction) {
         return new BlockLoc(x + direction.getVector().getBlockX(), y + direction.getVector().getBlockY(), z + direction.getVector().getBlockZ());
+    }
+
+    public Location toLocation(World world){
+        return new Location(world, x, y, z);
+    }
+
+    public Block toBlock(World world){
+        return toLocation(world).getBlock();
     }
 
     @Override

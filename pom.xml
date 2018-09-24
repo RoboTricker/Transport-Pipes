@@ -57,7 +57,7 @@
         <!-- Versioning properties -->
         <project.buildNumber>CUSTOM</project.buildNumber>
         <project.versionCode>${project.version}-b${project.buildNumber}</project.versionCode>
-        <project.finalNameBase>${project.name}-${project.version}</project.finalNameBase>
+        <project.finalNameBase>${project.artifactId}-${project.version}</project.finalNameBase>
     </properties>
 
     <profiles>
@@ -84,7 +84,7 @@
             </activation>
             <properties>
                 <!-- Test environment properties -->
-                <testServerDir>${env.TEST_ENV_PATH}</testServerDir>
+                <testServerDir>${env.TEST_ENV_PATH}/</testServerDir>
             </properties>
             <build>
                 <plugins>
@@ -101,9 +101,9 @@
                                 <configuration>
                                     <tasks>
                                         <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                              tofile="${testServerDir}/plugins/transportpipes.jar"/>
+                                              tofile="${testServerDir}plugins/transportpipes.jar"/>
                                         <exec dir="${testServerDir}"
-                                              executable="${testServerDir}/start.bat"/>
+                                              executable="${testServerDir}start.bat"/>
                                     </tasks>
                                 </configuration>
                             </execution>
@@ -244,8 +244,8 @@
                     <!-- Relocate shaded libraries that might cause class conflicts with other plugins -->
                     <relocations>
                         <relocation>
-                            <pattern>com.comphenix</pattern>
-                            <shadedPattern>de.robotricker.transportpipes.libs.com.comphenix</shadedPattern>
+                            <pattern>com.comphenix.packetwrapper</pattern>
+                            <shadedPattern>de.robotricker.transportpipes.libs.com.comphenix.packetwrapper</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.flowpowered</pattern>
@@ -262,11 +262,6 @@
                         <relocation>
                             <pattern>org.slf4j</pattern>
                             <shadedPattern>de.robotricker.transportpipes.libs.org.slf4j</shadedPattern>
-                        </relocation>
-                        <!-- bStats metrics class -->
-                        <relocation>
-                            <pattern>org.bstats</pattern>
-                            <shadedPattern>de.robotricker.transportpipes.libs.org.bstats</shadedPattern>
                         </relocation>
                     </relocations>
 
@@ -336,12 +331,6 @@
         <repository>
             <id>inventive-repo</id>
             <url>https://repo.inventivetalent.org/content/groups/public</url>
-        </repository>
-
-        <!-- bStats Repo -->
-        <repository>
-            <id>bstats-repo</id>
-            <url>http://repo.bstats.org/content/groups/public</url>
         </repository>
     </repositories>
 

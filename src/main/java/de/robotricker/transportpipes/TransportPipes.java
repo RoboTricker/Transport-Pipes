@@ -17,8 +17,7 @@ public class TransportPipes extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
-        Sentry.init("https://84937d8c6bc2435d860021667341c87c@sentry.io/1281889?stacktrace=de.robotricker&release=" + instance.getDescription().getVersion());
+        Sentry.init("https://84937d8c6bc2435d860021667341c87c@sentry.io/1281889?stacktrace.app.packages=de.robotricker&release=" + instance.getDescription().getVersion());
         Sentry.getContext().addTag("thread", Thread.currentThread().getName());
         Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
             e.printStackTrace();
