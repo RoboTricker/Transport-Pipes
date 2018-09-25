@@ -6,6 +6,7 @@ import org.bukkit.World;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.TPDirection;
@@ -42,6 +43,12 @@ public abstract class Duct {
 
     public List<TPDirection> getDuctConnections(){
         List<TPDirection> ductConns = new ArrayList<>();
+        for (TPDirection tpDir : TPDirection.values()) {
+            Duct neighborDuct = TransportPipes.instance.getDuctManager().getDuctAtLoc(world, blockLoc.getNeighbor(tpDir));
+            if (neighborDuct != null && getDuctType().connectsTo(neighborDuct.getDuctType())) {
+                ductConns.add(tpDir);
+            }
+        }
         return ductConns;
     }
 

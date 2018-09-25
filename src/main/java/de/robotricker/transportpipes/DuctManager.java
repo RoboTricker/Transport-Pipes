@@ -24,6 +24,7 @@ import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.factory.PipeFactory;
 import de.robotricker.transportpipes.ducts.types.BasicDuctType;
 import de.robotricker.transportpipes.ducts.types.ColoredPipeType;
+import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.DuctProtocol;
@@ -76,6 +77,20 @@ public class DuctManager {
         BasicDuctType.valueOf("Pipe").registerDuctType(new PipeType("Extraction", item, "§d"));
         item = ItemUtils.createSkullItemStack("2589f15a-2e13-4af3-b21c-3b1df42c98d0", "eyJ0aW1lc3RhbXAiOjE1MTY5MDQ1MTQ0NDIsInByb2ZpbGVJZCI6IjNlMjZiMDk3MWFjZDRjNmQ5MzVjNmFkYjE1YjYyMDNhIiwicHJvZmlsZU5hbWUiOiJOYWhlbGUiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2JjOWYzMWUzNzBlZWFhODliYzRlZTNjOTUzZjZkMjFiZjQzMmYyMWNlNzIyZjM4NTdlZGVmNTEyY2M4ZTMyIn19fQ==", "Tb7OI2UPy/Z6qmrdy/gwC0qt5iYYBuvSRnx06zGjACNciinz3i1gL8Cy792UtOsF2Om4h/V5ZJ4HVe8ylHFOtjjgulhYRmAm+i/6JaK+UPuYF8oVpguCS/n4rhKgqw3lHshjRckScPIM9fFCVzP3ylfQq7hpElgs/8zmnr6towf8z2hAf2e6rIy1MgPepWlD3t1usgdu9v4vIFTwneHT8vB8LQj1nbIJQucpuaTx+EDMNnFl32rRzAyTeCjBT0vKHvTxN+rOPhheOyZ14h8LatLLab9w/suSzhqgMWRCKjrznpaRFufc1VDNEjJUa4P0rMiXa1F6EqEnf+BVBJIMsijJVWtshpIUjZ5Vzle6Y6CN5aEtDxZ3xfrvwVIHlqFYtLsRJWSowPvHzTMmkoHUeMlf0AZwFvd74L4zvSb2Ux+QPWyC0lhAg3vLMyEI/1z73x6zLPjiRCY2cDeeTVuc/s5C6nwbSBAkx/2Rg+A5QQ+S87iQjg43AOGOE/FdtmKu94c7xf6vmid1e/aHoxiKfwwdRozA2sAbc1U9PgEvdYqRne/22+ahB016BmbwI6BvQPbX0BsvBbl0kv4iux1vr1GHfEn/XDLXtC1D5YiJ5mBhpvihAGDhATWs9AotbG9cFhTEUgEJzQaaMR9FRLzzhMYKR+nNW3DNWFfyLBAVxgU=");
         BasicDuctType.valueOf("Pipe").registerDuctType(new PipeType("Crafting", item, "§e"));
+        //ducttype connectables registration
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("White").connectToAll();
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Blue").connectToAll().disconnectFromClasses(ColoredPipeType.class).connectTo("White", "Blue");
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Red").connectToAll().disconnectFromClasses(ColoredPipeType.class).connectTo("White", "Red");
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Yellow").connectToAll().disconnectFromClasses(ColoredPipeType.class).connectTo("White", "Yellow");
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Green").connectToAll().disconnectFromClasses(ColoredPipeType.class).connectTo("White", "Green");
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Black").connectToAll().disconnectFromClasses(ColoredPipeType.class).connectTo("White", "Black");
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Golden").connectToAll();
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Iron").connectToAll();
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Ice").connectToAll();
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Void").connectToAll();
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Extraction").connectToAll();
+        BasicDuctType.valueOf("Pipe").ductTypeValueOf("Crafting").connectToAll();
+
         //render system registration
         renderSystems.add(new ModelledPipeRenderSystem());
         renderSystems.add(new VanillaPipeRenderSystem());
@@ -118,9 +133,9 @@ public class DuctManager {
         }
     }
 
-    public void createDuct(Duct duct, List<TPDirection> allConnections) {
+    public void createDuct(Duct duct) {
         for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
-            renderSystem.createDuctASD(duct, allConnections);
+            renderSystem.createDuctASD(duct, duct.getAllConnections());
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
                     getDuctProtocol().sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
@@ -129,13 +144,16 @@ public class DuctManager {
             }
         }
         getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
+        for (TPDirection ductConn : duct.getDuctConnections()) {
+            updateDuct(getDuctAtLoc(duct.getWorld(), duct.getBlockLoc().getNeighbor(ductConn)));
+        }
     }
 
-    public void updateDuct(Duct duct, List<TPDirection> allConnections) {
+    public void updateDuct(Duct duct) {
         for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             List<ArmorStandData> removeASD = new ArrayList<>();
             List<ArmorStandData> addASD = new ArrayList<>();
-            renderSystem.updateDuctASD(duct, allConnections, removeASD, addASD);
+            renderSystem.updateDuctASD(duct, duct.getAllConnections(), removeASD, addASD);
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
                     getDuctProtocol().removeASD(p, removeASD);
@@ -156,6 +174,9 @@ public class DuctManager {
             renderSystem.destroyDuctASD(duct);
         }
         getDucts(duct.getWorld()).remove(duct.getBlockLoc());
+        for (TPDirection ductConn : duct.getDuctConnections()) {
+            updateDuct(getDuctAtLoc(duct.getWorld(), duct.getBlockLoc().getNeighbor(ductConn)));
+        }
     }
 
     public class PlayerListener implements Listener {
