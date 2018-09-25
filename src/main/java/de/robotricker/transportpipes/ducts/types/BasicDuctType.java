@@ -41,6 +41,7 @@ public final class BasicDuctType {
         return ductTypeValues;
     }
 
+    @NotNull
     public <T extends DuctType> T ductTypeValueOf(String displayName) {
         for (DuctType dt : ductTypeValues) {
             if (dt.getName().equalsIgnoreCase(displayName)) {

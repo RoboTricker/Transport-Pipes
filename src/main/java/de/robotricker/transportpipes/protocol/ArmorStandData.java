@@ -3,6 +3,8 @@ package de.robotricker.transportpipes.protocol;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.Objects;
+
 import de.robotricker.transportpipes.utils.RelLoc;
 
 public class ArmorStandData implements Cloneable {
@@ -71,13 +73,13 @@ public class ArmorStandData implements Cloneable {
         if (armorStandData == null) {
             return false;
         }
-        return relLoc.equals(armorStandData.relLoc) &&
+        return Objects.equals(relLoc, armorStandData.relLoc) &&
                 small == armorStandData.small &&
-                direction.equals(armorStandData.direction) &&
-                headRotation.equals(armorStandData.headRotation) &&
-                armRotation.equals(armorStandData.armRotation) &&
-                headItem.equals(armorStandData.headItem) &&
-                handItem.equals(armorStandData.handItem);
+                Objects.equals(direction, armorStandData.direction) &&
+                Objects.equals(headRotation, armorStandData.headRotation) &&
+                Objects.equals(armRotation, armorStandData.armRotation) &&
+                Objects.equals(headItem, armorStandData.headItem) &&
+                Objects.equals(handItem, armorStandData.handItem);
     }
 
 }

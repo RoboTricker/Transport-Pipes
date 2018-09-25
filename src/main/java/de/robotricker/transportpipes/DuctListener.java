@@ -169,7 +169,7 @@ public class DuctListener implements Listener {
                 if (manualPlaceable) {
                     if (itemDuctType != null) {
                         Duct itemDuct = itemDuctType.getBasicDuctType().createDuct(itemDuctType, new BlockLoc(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
-                        TransportPipes.instance.getDuctManager().createDuct(itemDuct, new ArrayList<>());
+                        TransportPipes.instance.getDuctManager().createDuct(itemDuct);
                         decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
                         interaction.successful = true;
