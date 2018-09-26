@@ -1,8 +1,16 @@
 package de.robotricker.transportpipes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
+
+import de.robotricker.transportpipes.commands.TPCommandExecutor;
+import de.robotricker.transportpipes.commands.TPSCommandExecutor;
 import io.sentry.Sentry;
 import io.sentry.event.Breadcrumb;
 import io.sentry.event.BreadcrumbBuilder;
@@ -29,6 +37,20 @@ public class TransportPipes extends JavaPlugin {
         ductManager.register();
         Bukkit.getPluginManager().registerEvents(ductManager.new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new DuctListener(), this);
+
+        TPCommandExecutor tpsCmd = new TPSCommandExecutor();
+
+        getCommand("transportpipes").setExecutor((sender, command, label, args) -> {
+            if (args.length >= 1) {
+                if (args[0].equalsIgnoreCase("tps")) {
+                    if(tpsCmd.onTPCommand(sender, Arrays.copyOfRange(args, 1, args.length))) {
+                        return true;
+                    }
+                }
+            }
+            sender.sendMessage(wrapColoredMsg("&6/tpipes tps &7- Overview of the basic TransportPipes system"));
+            return true;
+        });
 
         tpThread = new TPThread();
         tpThread.start();
@@ -74,6 +96,10 @@ public class TransportPipes extends JavaPlugin {
 
     public static void logError(String log) {
         instance.getLogger().severe(log);
+    }
+
+    public static String wrapColoredMsg(String msg) {
+        return ChatColor.translateAlternateColorCodes('&', msg);
     }
 
     public static void runTask(Runnable task) {

@@ -93,7 +93,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
     @Override
     public AxisAlignedBB getOuterHitbox(Duct duct) {
         Pipe pipe = (Pipe) duct;
-        return getModel(pipe.getDuctType(), null).getAABB(); //TODO: calc all connections
+        return getModel(pipe.getDuctType(), duct.getAllConnections()).getAABB();
     }
 
     @Override

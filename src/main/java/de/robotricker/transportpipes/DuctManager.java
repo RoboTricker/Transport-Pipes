@@ -24,7 +24,6 @@ import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.factory.PipeFactory;
 import de.robotricker.transportpipes.ducts.types.BasicDuctType;
 import de.robotricker.transportpipes.ducts.types.ColoredPipeType;
-import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.DuctProtocol;
@@ -134,6 +133,9 @@ public class DuctManager {
     }
 
     public void createDuct(Duct duct) {
+        getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
+        duct.updateDuctConnections();
+        duct.updateContainerConnections();
         for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             renderSystem.createDuctASD(duct, duct.getAllConnections());
             synchronized (renderSystem.getCurrentPlayers()) {
@@ -143,13 +145,14 @@ public class DuctManager {
                 }
             }
         }
-        getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
-        for (TPDirection ductConn : duct.getDuctConnections()) {
-            updateDuct(getDuctAtLoc(duct.getWorld(), duct.getBlockLoc().getNeighbor(ductConn)));
+        for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
+            updateDuct(duct.getDuctConnections().get(ductConn));
         }
     }
 
     public void updateDuct(Duct duct) {
+        duct.updateDuctConnections();
+        duct.updateContainerConnections();
         for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             List<ArmorStandData> removeASD = new ArrayList<>();
             List<ArmorStandData> addASD = new ArrayList<>();
@@ -164,6 +167,7 @@ public class DuctManager {
     }
 
     public void destroyDuct(Duct duct) {
+        getDucts(duct.getWorld()).remove(duct.getBlockLoc());
         for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBasicDuctType())) {
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
@@ -173,9 +177,8 @@ public class DuctManager {
             }
             renderSystem.destroyDuctASD(duct);
         }
-        getDucts(duct.getWorld()).remove(duct.getBlockLoc());
-        for (TPDirection ductConn : duct.getDuctConnections()) {
-            updateDuct(getDuctAtLoc(duct.getWorld(), duct.getBlockLoc().getNeighbor(ductConn)));
+        for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
+            updateDuct(duct.getDuctConnections().get(ductConn));
         }
     }
 
@@ -184,7 +187,7 @@ public class DuctManager {
         @EventHandler
         public void onJoin(PlayerJoinEvent e) {
             for (BasicDuctType bdt : BasicDuctType.values()) {
-                RenderSystem renderSystem = getRenderSystems(bdt).get(0);
+                RenderSystem renderSystem = getRenderSystems(bdt).get(1);
                 renderSystem.getCurrentPlayers().add(e.getPlayer());
             }
         }
