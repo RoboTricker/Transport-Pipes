@@ -29,7 +29,7 @@ import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.utils.HitboxUtils;
-import de.robotricker.transportpipes.utils.ItemUtils;
+import de.robotricker.transportpipes.ItemService;
 
 public class DuctListener implements Listener {
 
@@ -83,10 +83,12 @@ public class DuctListener implements Listener {
     private Map<Player, Interaction> interactions = new HashMap<>();
 
     private DuctService ductService;
+    private ItemService itemService;
 
     @Inject
-    public DuctListener(DuctService ductService, JavaPlugin plugin) {
+    public DuctListener(DuctService ductService, ItemService itemService, JavaPlugin plugin) {
         this.ductService = ductService;
+        this.itemService = itemService;
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::updateInteractSet, 0L, 1L);
     }
 
@@ -145,7 +147,7 @@ public class DuctListener implements Listener {
         if (interaction.action == Action.RIGHT_CLICK_AIR || interaction.action == Action.RIGHT_CLICK_BLOCK) {
             if (interaction.item != null) {
                 Duct clickedDuct = HitboxUtils.getDuctLookingTo(ductService, interaction.p, interaction.clickedBlock);
-                DuctType itemDuctType = ItemUtils.readDuctNBTTags(interaction.item);
+                DuctType itemDuctType = itemService.readDuctNBTTags(interaction.item);
                 boolean manualPlaceable = itemDuctType != null || interaction.item.getType().isSolid();
 
                 if (interaction.item.getType() == Material.STICK && clickedDuct != null) {

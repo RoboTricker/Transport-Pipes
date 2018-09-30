@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
@@ -14,12 +14,20 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.utils.NMSUtils;
 
-public class ItemUtils {
+public class ItemService {
 
-    public static ItemStack createModelledItem(int damage) {
+    @Inject
+    public ItemService() {
+
+    }
+
+    public ItemStack createModelledItem(int damage) {
         ItemStack is = NMSUtils.setItemStackUnbreakable(new ItemStack(Material.WOOD_PICKAXE, 1, (short) damage));
         ItemMeta im = is.getItemMeta();
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -28,11 +36,11 @@ public class ItemUtils {
         return is;
     }
 
-    public static ItemStack createGlowingItem(Material material) {
+    public ItemStack createGlowingItem(Material material) {
         return createGlowingItem(material, (short) 0);
     }
 
-    public static ItemStack createGlowingItem(Material material, short damage) {
+    public ItemStack createGlowingItem(Material material, short damage) {
         ItemStack is = new ItemStack(material, 1, damage);
         ItemMeta im = is.getItemMeta();
         im.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
@@ -41,14 +49,14 @@ public class ItemUtils {
         return is;
     }
 
-    public static ItemStack changeDisplayName(ItemStack is, String displayName) {
+    public ItemStack changeDisplayName(ItemStack is, String displayName) {
         ItemMeta im = is.getItemMeta();
         im.setDisplayName(displayName);
         is.setItemMeta(im);
         return is;
     }
 
-    public static ItemStack createSkullItemStack(String uuid, String textureValue, String textureSignature) {
+    public ItemStack createSkullItemStack(String uuid, String textureValue, String textureSignature) {
         WrappedGameProfile wrappedProfile = new WrappedGameProfile(UUID.fromString(uuid), null);
         wrappedProfile.getProperties().put("textures", new WrappedSignedProperty("textures", textureValue, textureSignature));
 
@@ -68,13 +76,13 @@ public class ItemUtils {
         return skull;
     }
 
-    public static ItemStack setDuctNBTTags(DuctType dt, ItemStack item) {
+    public ItemStack setDuctNBTTags(DuctType dt, ItemStack item) {
         item = NMSUtils.manipulateItemStackNBT(item, "basicDuctType", dt.getBaseDuctType().getName(), String.class, "String");
         item = NMSUtils.manipulateItemStackNBT(item, "ductType", dt.getName(), String.class, "String");
         return item;
     }
 
-    public static DuctType readDuctNBTTags(ItemStack item) {
+    public DuctType readDuctNBTTags(ItemStack item) {
         String basicDuctTypeSerialized = (String) NMSUtils.readItemStackNBT(item, "basicDuctType", "String");
         if (basicDuctTypeSerialized != null && !basicDuctTypeSerialized.isEmpty()) {
             BaseDuctType bdt = BaseDuctType.valueOf(basicDuctTypeSerialized);

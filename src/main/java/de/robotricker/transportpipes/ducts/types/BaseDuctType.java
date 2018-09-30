@@ -3,11 +3,13 @@ package de.robotricker.transportpipes.ducts.types;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.robotricker.transportpipes.DuctService;
+import de.robotricker.transportpipes.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.factory.DuctFactory;
 import de.robotricker.transportpipes.location.BlockLocation;
@@ -42,7 +44,6 @@ public final class BaseDuctType {
         return ductTypeValues;
     }
 
-    @NotNull
     public <T extends DuctType> T ductTypeValueOf(String displayName) {
         for (DuctType dt : ductTypeValues) {
             if (dt.getName().equalsIgnoreCase(displayName)) {
@@ -52,9 +53,9 @@ public final class BaseDuctType {
         return null;
     }
 
-    public void registerDuctType(DuctType ductType) {
+    public void registerDuctType(DuctType ductType, ItemService itemService) {
         ductType.setBaseDuctType(this);
-        ductType.initItem();
+        ductType.initItem(itemService);
         ductTypeValues.add(ductType);
     }
 
@@ -70,7 +71,6 @@ public final class BaseDuctType {
         return values;
     }
 
-    @NotNull
     public static BaseDuctType valueOf(String displayName) {
         for (BaseDuctType bdt : values) {
             if (bdt.name.equalsIgnoreCase(displayName)) {

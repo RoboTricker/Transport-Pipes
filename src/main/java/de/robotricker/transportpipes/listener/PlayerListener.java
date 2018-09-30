@@ -25,15 +25,18 @@ public class PlayerListener implements Listener {
             renderSystem.getCurrentPlayers().add(event.getPlayer());
         }
     }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         handleQuit(event.getPlayer());
     }
+
     @EventHandler
     public void onKick(PlayerKickEvent event) {
         // TODO: not sure if this is right, i think kick triggers both events -sg
         handleQuit(event.getPlayer());
     }
+
     private void handleQuit(Player player) {
         for (BaseDuctType ductBaseType : BaseDuctType.values()) {
             RenderSystem renderSystem = ductService.getRenderSystem(player, ductBaseType);

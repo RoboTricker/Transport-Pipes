@@ -23,13 +23,21 @@ import de.robotricker.transportpipes.utils.NMSUtils;
 
 public class ProtocolService {
 
-    private static final WrappedDataWatcher.Serializer INT_SERIALIZER = WrappedDataWatcher.Registry.get(Integer.class);
-    private static final WrappedDataWatcher.Serializer BYTE_SERIALIZER = WrappedDataWatcher.Registry.get(Byte.class);
-    private static final WrappedDataWatcher.Serializer VECTOR_SERIALIZER = WrappedDataWatcher.Registry.get(NMSUtils.getVector3fClass());
-    private static final WrappedDataWatcher.Serializer BOOLEAN_SERIALIZER = WrappedDataWatcher.Registry.get(Boolean.class);
+    private WrappedDataWatcher.Serializer INT_SERIALIZER;
+    private WrappedDataWatcher.Serializer BYTE_SERIALIZER;
+    private WrappedDataWatcher.Serializer VECTOR_SERIALIZER;
+    private WrappedDataWatcher.Serializer BOOLEAN_SERIALIZER;
+
+    private TPThread thread;
 
     @Inject
-    private TPThread thread;
+    public ProtocolService(TPThread thread) {
+        this.thread = thread;
+        INT_SERIALIZER = WrappedDataWatcher.Registry.get(Integer.class);
+        BYTE_SERIALIZER = WrappedDataWatcher.Registry.get(Byte.class);
+        VECTOR_SERIALIZER = WrappedDataWatcher.Registry.get(NMSUtils.getVector3fClass());
+        BOOLEAN_SERIALIZER = WrappedDataWatcher.Registry.get(Boolean.class);
+    }
 
     private int nextEntityID = 99999;
     private UUID uuid = UUID.randomUUID();
