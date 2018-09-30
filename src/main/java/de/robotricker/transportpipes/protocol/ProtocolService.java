@@ -14,23 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.RelLoc;
-import de.robotricker.transportpipes.utils.staticutils.ReflectionUtils;
+import javax.inject.Inject;
 
-public class DuctProtocol {
+import de.robotricker.transportpipes.TPThread;
+import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.location.RelativeLocation;
+import de.robotricker.transportpipes.utils.NMSUtils;
 
-    private static final WrappedDataWatcher.Serializer intSerializer = WrappedDataWatcher.Registry.get(Integer.class);
-    private static final WrappedDataWatcher.Serializer byteSerializer = WrappedDataWatcher.Registry.get(Byte.class);
-    private static final WrappedDataWatcher.Serializer vectorSerializer = WrappedDataWatcher.Registry.get(ReflectionUtils.getVector3fClass());
-    private static final WrappedDataWatcher.Serializer booleanSerializer = WrappedDataWatcher.Registry.get(Boolean.class);
-    private static int nextEntityID = 99999;
-    private static UUID uuid = UUID.randomUUID();
+public class ProtocolService {
 
-    public void sendASD(Player p, BlockLoc blockLoc, RelLoc offset, ArmorStandData asd) {
+    private static final WrappedDataWatcher.Serializer INT_SERIALIZER = WrappedDataWatcher.Registry.get(Integer.class);
+    private static final WrappedDataWatcher.Serializer BYTE_SERIALIZER = WrappedDataWatcher.Registry.get(Byte.class);
+    private static final WrappedDataWatcher.Serializer VECTOR_SERIALIZER = WrappedDataWatcher.Registry.get(NMSUtils.getVector3fClass());
+    private static final WrappedDataWatcher.Serializer BOOLEAN_SERIALIZER = WrappedDataWatcher.Registry.get(Boolean.class);
 
-        int serverVersion = ReflectionUtils.gatherProtocolVersion();
+    @Inject
+    private TPThread thread;
+
+    private int nextEntityID = 99999;
+    private UUID uuid = UUID.randomUUID();
+
+    public void sendASD(Player p, BlockLocation blockLoc, RelativeLocation offset, ArmorStandData asd) {
+        int serverVersion = NMSUtils.gatherProtocolVersion();
 
         try {
             if (asd.getEntityID() == -1) {
@@ -67,17 +72,17 @@ public class DuctProtocol {
             byte bitMask = (byte) ((asd.isSmall() ? 0x01 : 0x00) | 0x04 | 0x08 | 0x10); // (small) + hasArms + noBasePlate + Marker
 
             List<WrappedWatchableObject> metaList = new ArrayList<>();
-            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanSerializer), false));// customname
+            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, BOOLEAN_SERIALIZER), false));// customname
             // invisible
-            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, byteSerializer), bitMask));// armorstand
+            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(serverVersion <= 110 ? 10 : 11, BYTE_SERIALIZER), bitMask));// armorstand
             // specific
             // data...
-            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, byteSerializer), (byte) (0x20)));// invisible
+            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, BYTE_SERIALIZER), (byte) (0x20)));// invisible
             // (entity
             // specific
             // data)
-            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(serverVersion <= 110 ? 11 : 12, vectorSerializer), ReflectionUtils.createVector3f((float) asd.getHeadRotation().getX(), (float) asd.getHeadRotation().getY(), (float) asd.getHeadRotation().getZ())));// head rot
-            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(serverVersion <= 110 ? 14 : 15, vectorSerializer), ReflectionUtils.createVector3f((float) asd.getArmRotation().getX(), (float) asd.getArmRotation().getY(), (float) asd.getArmRotation().getZ())));// right arm rot
+            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(serverVersion <= 110 ? 11 : 12, VECTOR_SERIALIZER), NMSUtils.createVector3f((float) asd.getHeadRotation().getX(), (float) asd.getHeadRotation().getY(), (float) asd.getHeadRotation().getZ())));// head rot
+            metaList.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(serverVersion <= 110 ? 14 : 15, VECTOR_SERIALIZER), NMSUtils.createVector3f((float) asd.getArmRotation().getX(), (float) asd.getArmRotation().getY(), (float) asd.getArmRotation().getZ())));// right arm rot
 
             metaWrapper.setMetadata(metaList);
             metaWrapper.sendPacket(p);
@@ -103,11 +108,11 @@ public class DuctProtocol {
             meta2Wrapper.setEntityID(asd.getEntityID());
 
             List<WrappedWatchableObject> meta2List = new ArrayList<>();
-            meta2List.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, byteSerializer), (byte) (0x01 | 0x20)));// on
+            meta2List.add(new WrappedWatchableObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, BYTE_SERIALIZER), (byte) (0x01 | 0x20)));// on
             // fire
             meta2Wrapper.setMetadata(meta2List);
 
-            TransportPipes.instance.getTPThread().runTask(() -> {
+            thread.runTaskAsync(() -> {
                 try {
                     meta2Wrapper.sendPacket(p);
                     equipmentWrapper.sendPacket(p);
@@ -121,9 +126,9 @@ public class DuctProtocol {
         }
     }
 
-    public void sendASD(Player p, BlockLoc blockLoc, List<ArmorStandData> armorStandData) {
+    public void sendASD(Player p, BlockLocation blockLoc, List<ArmorStandData> armorStandData) {
         for (ArmorStandData asd : armorStandData) {
-            sendASD(p, blockLoc, new RelLoc(0d, 0d, 0d), asd);
+            sendASD(p, blockLoc, new RelativeLocation(0d, 0d, 0d), asd);
         }
     }
 

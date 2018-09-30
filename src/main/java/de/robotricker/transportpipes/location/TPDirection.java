@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.location;
 
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;

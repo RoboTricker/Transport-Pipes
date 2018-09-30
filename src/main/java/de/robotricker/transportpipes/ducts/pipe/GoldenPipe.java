@@ -3,14 +3,15 @@ package de.robotricker.transportpipes.ducts.pipe;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import de.robotricker.transportpipes.ducts.types.BasicDuctType;
-import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.TPDirection;
+import de.robotricker.transportpipes.DuctService;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.location.TPDirection;
 
 public class GoldenPipe extends Pipe {
 
-    public GoldenPipe(BlockLoc blockLoc, World world, Chunk chunk) {
-        super(blockLoc, world, chunk, BasicDuctType.valueOf("Pipe").ductTypeValueOf("Golden"));
+    public GoldenPipe(DuctService ductService, BlockLocation blockLoc, World world, Chunk chunk) {
+        super(ductService, blockLoc, world, chunk, BaseDuctType.valueOf("Pipe").ductTypeValueOf("Golden"));
     }
 
     public enum Color {

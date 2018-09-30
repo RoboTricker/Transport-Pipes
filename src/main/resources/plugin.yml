@@ -4,9 +4,6 @@ author: RoboTricker
 main: ${project.groupId}.${project.artifactId}.${project.name}
 depend: [ProtocolLib]
 softdepend: [LogisticsApi]
-commands:
-  transportpipes:
-    aliases: [transportpipe, tpipes, tpipe, pipes, pipe]
 permissions:
   transportpipes.*:
     children:

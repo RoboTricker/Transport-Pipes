@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
-import de.robotricker.transportpipes.ducts.types.BasicDuctType;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
-import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public abstract class VanillaPipeModel {
 
@@ -32,18 +32,18 @@ public abstract class VanillaPipeModel {
 
     public static void init() {
         pipeBlocks = new HashMap<>();
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("White"), new ItemStack(Material.GLASS));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Blue"), new ItemStack(Material.STAINED_GLASS, 1, (short) 11));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Red"), new ItemStack(Material.STAINED_GLASS, 1, (short) 14));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Yellow"), new ItemStack(Material.STAINED_GLASS, 1, (short) 4));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Green"), new ItemStack(Material.STAINED_GLASS, 1, (short) 13));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Black"), new ItemStack(Material.STAINED_GLASS, 1, (short) 15));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Golden"), new ItemStack(Material.GOLD_BLOCK));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), new ItemStack(Material.IRON_BLOCK));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Ice"), new ItemStack(Material.ICE));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Void"), new ItemStack(Material.OBSIDIAN));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), new ItemStack(Material.WOOD));
-        pipeBlocks.put(BasicDuctType.valueOf("Pipe").ductTypeValueOf("Crafting"), new ItemStack(Material.WORKBENCH));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("White"), new ItemStack(Material.GLASS));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Blue"), new ItemStack(Material.STAINED_GLASS, 1, (short) 11));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Red"), new ItemStack(Material.STAINED_GLASS, 1, (short) 14));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Yellow"), new ItemStack(Material.STAINED_GLASS, 1, (short) 4));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Green"), new ItemStack(Material.STAINED_GLASS, 1, (short) 13));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Black"), new ItemStack(Material.STAINED_GLASS, 1, (short) 15));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Golden"), new ItemStack(Material.GOLD_BLOCK));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), new ItemStack(Material.IRON_BLOCK));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Ice"), new ItemStack(Material.ICE));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Void"), new ItemStack(Material.OBSIDIAN));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), new ItemStack(Material.WOOD));
+        pipeBlocks.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Crafting"), new ItemStack(Material.WORKBENCH));
 
         goldenPipeColorCarpets = new HashMap<>();
         goldenPipeColorCarpets.put(GoldenPipe.Color.WHITE, ITEM_CARPET_WHITE);

@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes;
+package de.robotricker.transportpipes.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -14,19 +14,22 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import de.robotricker.transportpipes.DuctService;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.DuctType;
-import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.staticutils.HitboxUtils;
-import de.robotricker.transportpipes.utils.staticutils.ItemUtils;
+import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.utils.HitboxUtils;
+import de.robotricker.transportpipes.utils.ItemUtils;
 
 public class DuctListener implements Listener {
 
@@ -79,8 +82,12 @@ public class DuctListener implements Listener {
     //makes sure that "callInteraction" is called with the mainHand and with the offHand every single time
     private Map<Player, Interaction> interactions = new HashMap<>();
 
-    public DuctListener() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(TransportPipes.instance, this::updateInteractSet, 0L, 1L);
+    private DuctService ductService;
+
+    @Inject
+    public DuctListener(DuctService ductService, JavaPlugin plugin) {
+        this.ductService = ductService;
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::updateInteractSet, 0L, 1L);
     }
 
     private void updateInteractSet() {
@@ -137,7 +144,7 @@ public class DuctListener implements Listener {
     private void callInteraction(Interaction interaction) {
         if (interaction.action == Action.RIGHT_CLICK_AIR || interaction.action == Action.RIGHT_CLICK_BLOCK) {
             if (interaction.item != null) {
-                Duct clickedDuct = HitboxUtils.getDuctLookingTo(interaction.p, interaction.clickedBlock);
+                Duct clickedDuct = HitboxUtils.getDuctLookingTo(ductService, interaction.p, interaction.clickedBlock);
                 DuctType itemDuctType = ItemUtils.readDuctNBTTags(interaction.item);
                 boolean manualPlaceable = itemDuctType != null || interaction.item.getType().isSolid();
 
@@ -150,11 +157,11 @@ public class DuctListener implements Listener {
 
                 Block placeBlock = null;
                 if (clickedDuct != null) {
-                    placeBlock = HitboxUtils.getRelativeBlockOfDuct(interaction.p, clickedDuct.getBlockLoc().toBlock(interaction.p.getWorld()));
+                    placeBlock = HitboxUtils.getRelativeBlockOfDuct(ductService, interaction.p, clickedDuct.getBlockLoc().toBlock(interaction.p.getWorld()));
                 } else if (interaction.clickedBlock != null) {
                     placeBlock = interaction.clickedBlock.getRelative(interaction.blockFace);
                 }
-                if (placeBlock != null && (placeBlock.getType().isSolid() || TransportPipes.instance.getDuctManager().getDuctAtLoc(placeBlock.getLocation()) != null)) {
+                if (placeBlock != null && (placeBlock.getType().isSolid() || ductService.getDuctAtLoc(placeBlock.getLocation()) != null)) {
                     placeBlock = null;
                 }
                 if (clickedDuct == null && interaction.clickedBlock != null && interactables.contains(interaction.clickedBlock.getType()) && !interaction.p.isSneaking()) {
@@ -168,8 +175,8 @@ public class DuctListener implements Listener {
 
                 if (manualPlaceable) {
                     if (itemDuctType != null) {
-                        Duct itemDuct = itemDuctType.getBasicDuctType().createDuct(itemDuctType, new BlockLoc(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
-                        TransportPipes.instance.getDuctManager().createDuct(itemDuct);
+                        Duct itemDuct = itemDuctType.getBaseDuctType().createDuct(ductService, itemDuctType, new BlockLocation(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
+                        ductService.createDuct(itemDuct);
                         decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
                         interaction.successful = true;
@@ -183,9 +190,9 @@ public class DuctListener implements Listener {
 
             }
         } else if (interaction.action == Action.LEFT_CLICK_AIR || interaction.action == Action.LEFT_CLICK_BLOCK) {
-            Duct clickedDuct = HitboxUtils.getDuctLookingTo(interaction.p, interaction.clickedBlock);
+            Duct clickedDuct = HitboxUtils.getDuctLookingTo(ductService, interaction.p, interaction.clickedBlock);
             if (clickedDuct != null) {
-                TransportPipes.instance.getDuctManager().destroyDuct(clickedDuct);
+                ductService.destroyDuct(clickedDuct);
                 interaction.cancel = true;
                 interaction.successful = true;
             }

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.BasicDuctType;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -20,8 +20,8 @@ import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPip
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModelNS;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModelUD;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
-import de.robotricker.transportpipes.utils.TPDirection;
-import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public class VanillaPipeRenderSystem extends RenderSystem {
 
@@ -33,7 +33,7 @@ public class VanillaPipeRenderSystem extends RenderSystem {
     private Map<Pipe, List<ArmorStandData>> pipeASD = new HashMap<>();
 
     public VanillaPipeRenderSystem() {
-        super(BasicDuctType.valueOf("Pipe"));
+        super(BaseDuctType.valueOf("Pipe"));
         VanillaPipeModel.init();
     }
 

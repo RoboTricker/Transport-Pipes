@@ -1,32 +1,43 @@
 package de.robotricker.transportpipes;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import io.sentry.Sentry;
+import javax.inject.Inject;
+
+import de.robotricker.transportpipes.log.LoggerService;
+import de.robotricker.transportpipes.log.SentryService;
 
 public class TPThread extends Thread {
 
-    private final Map<Runnable, Long> tasks = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final Map<Runnable, Long> tasks;
+    private JavaPlugin plugin;
+    private LoggerService logger;
+    private SentryService sentry;
     private boolean running = false;
     private int preferredTPS = 10;
     private int currentTPS = 0;
 
-    public TPThread() {
+    @Inject
+    public TPThread(JavaPlugin plugin, LoggerService logger, SentryService sentry) {
         super("TransportPipes-Thread");
+        this.plugin = plugin;
+        this.logger = logger;
+        this.sentry = sentry;
+        this.tasks = Collections.synchronizedMap(new LinkedHashMap<>());
     }
 
     @Override
     public void run() {
-        TransportPipes.logInfo("Started TPThread");
+        logger.info("Started TPThread");
         running = true;
-        Sentry.getContext().addTag("thread", Thread.currentThread().getName());
-        setUncaughtExceptionHandler((t, e) -> {
-            e.printStackTrace();
-            Sentry.capture(e);
-        });
+        sentry.addTag("thread", getName());
+        sentry.injectThread(this);
 
         long lastTick = System.currentTimeMillis();
         long lastSec = lastTick;
@@ -45,7 +56,7 @@ public class TPThread extends Thread {
                     currentTPS = tpsCounter;
                     tpsCounter = 0;
                     lastSec = currentTick;
-                    TransportPipes.logDebug("TPS: " + currentTPS);
+                    logger.debug("TPS: " + currentTPS);
                 }
 
             } else {
@@ -53,11 +64,11 @@ public class TPThread extends Thread {
                 try {
                     sleep(waitTime);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("TPThread was terminated while sleeping!", e);
                 }
             }
         }
-        TransportPipes.logInfo("Stopped TPThread");
+        logger.info("Stopped TPThread");
     }
 
     private void tick() {
@@ -96,7 +107,20 @@ public class TPThread extends Thread {
         running = false;
     }
 
-    public void runTask(Runnable runnable, long delay) {
+    public void runTaskSync(Runnable task) {
+        if (plugin.isEnabled()) {
+            Bukkit.getScheduler().runTask(plugin, task);
+        }
+    }
+
+    public void runTaskSyncLater(Runnable task, long delay) {
+        if (plugin.isEnabled()) {
+            Bukkit.getScheduler().runTaskLater(plugin, task, delay);
+        }
+    }
+
+    public void runTaskAsync(Runnable runnable, long delay) {
         tasks.put(runnable, delay);
     }
+
 }

@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.robotricker.transportpipes.utils.staticutils.ItemUtils;
+import de.robotricker.transportpipes.utils.ItemUtils;
 
 public class DuctType {
 
-    private BasicDuctType basicDuctType;
+    private BaseDuctType baseDuctType;
     private String name;
     private ItemStack item;
     private String colorCode;
@@ -25,18 +25,18 @@ public class DuctType {
 
     public DuctType connectTo(String... ductTypeNames) {
         for (String name : ductTypeNames) {
-            connectables.add(getBasicDuctType().ductTypeValueOf(name));
+            connectables.add(getBaseDuctType().ductTypeValueOf(name));
         }
         return this;
     }
 
     public DuctType connectToAll() {
-        connectables.addAll(getBasicDuctType().ductTypeValues());
+        connectables.addAll(getBaseDuctType().ductTypeValues());
         return this;
     }
 
     public DuctType connectToClasses(Class<? extends DuctType> clazz) {
-        for (DuctType dt : getBasicDuctType().ductTypeValues()) {
+        for (DuctType dt : getBaseDuctType().ductTypeValues()) {
             if (clazz.isAssignableFrom(dt.getClass())) {
                 connectables.add(dt);
             }
@@ -46,13 +46,13 @@ public class DuctType {
 
     public DuctType disconnectFrom(String... ductTypeNames) {
         for (String name : ductTypeNames) {
-            connectables.remove(getBasicDuctType().ductTypeValueOf(name));
+            connectables.remove(getBaseDuctType().ductTypeValueOf(name));
         }
         return this;
     }
 
     public DuctType disconnectFromClasses(Class<? extends DuctType> clazz) {
-        for (DuctType dt : getBasicDuctType().ductTypeValues()) {
+        for (DuctType dt : getBaseDuctType().ductTypeValues()) {
             if (clazz.isAssignableFrom(dt.getClass())) {
                 connectables.remove(dt);
             }
@@ -64,12 +64,12 @@ public class DuctType {
         this.item = ItemUtils.changeDisplayName(ItemUtils.setDuctNBTTags(this, item), getFormattedTypeName());
     }
 
-    public BasicDuctType getBasicDuctType() {
-        return basicDuctType;
+    public BaseDuctType getBaseDuctType() {
+        return baseDuctType;
     }
 
-    public void setBasicDuctType(BasicDuctType basicDuctType) {
-        this.basicDuctType = basicDuctType;
+    public void setBaseDuctType(BaseDuctType baseDuctType) {
+        this.baseDuctType = baseDuctType;
     }
 
     public String getName() {
@@ -93,7 +93,7 @@ public class DuctType {
     }
 
     public boolean connectsTo(DuctType otherDuctType) {
-        return basicDuctType.equals(otherDuctType.basicDuctType) && connectables.contains(otherDuctType) && otherDuctType.connectables.contains(this);
+        return baseDuctType.equals(otherDuctType.baseDuctType) && connectables.contains(otherDuctType) && otherDuctType.connectables.contains(this);
     }
 
     @Override

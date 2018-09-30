@@ -7,19 +7,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robotricker.transportpipes.DuctService;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.factory.DuctFactory;
-import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.location.BlockLocation;
 
-public final class BasicDuctType {
+public final class BaseDuctType {
 
-    private static List<BasicDuctType> values = new ArrayList<>();
+    private static List<BaseDuctType> values = new ArrayList<>();
 
     private String name;
     private DuctFactory factory;
     private List<DuctType> ductTypeValues;
 
-    public BasicDuctType(String name, DuctFactory ductFactory) {
+    public BaseDuctType(String name, DuctFactory ductFactory) {
         this.name = name;
         this.factory = ductFactory;
         ductTypeValues = new ArrayList<>();
@@ -52,26 +53,26 @@ public final class BasicDuctType {
     }
 
     public void registerDuctType(DuctType ductType) {
-        ductType.setBasicDuctType(this);
+        ductType.setBaseDuctType(this);
         ductType.initItem();
         ductTypeValues.add(ductType);
     }
 
-    public Duct createDuct(DuctType ductType, BlockLoc blockLoc, World world, Chunk chunk) {
-        return factory.createDuct(ductType, blockLoc, world, chunk);
+    public Duct createDuct(DuctService ductService, DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
+        return factory.createDuct(ductService, ductType, blockLoc, world, chunk);
     }
 
     // ****************************************************
     // BASIC DUCT TYPE
     // ****************************************************
 
-    public static List<BasicDuctType> values() {
+    public static List<BaseDuctType> values() {
         return values;
     }
 
     @NotNull
-    public static BasicDuctType valueOf(String displayName) {
-        for (BasicDuctType bdt : values) {
+    public static BaseDuctType valueOf(String displayName) {
+        for (BaseDuctType bdt : values) {
             if (bdt.name.equalsIgnoreCase(displayName)) {
                 return bdt;
             }
@@ -79,7 +80,7 @@ public final class BasicDuctType {
         return null;
     }
 
-    public static void registerBasicDuctType(BasicDuctType ductType) {
+    public static void registerBasicDuctType(BaseDuctType ductType) {
         values.add(ductType);
     }
 
