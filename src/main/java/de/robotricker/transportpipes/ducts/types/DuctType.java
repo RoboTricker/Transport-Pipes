@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.robotricker.transportpipes.utils.ItemUtils;
+import de.robotricker.transportpipes.ItemService;
 
 public class DuctType {
 
@@ -17,6 +17,7 @@ public class DuctType {
     private Set<DuctType> connectables;
 
     public DuctType(String name, ItemStack item, String colorCode) {
+
         this.name = name;
         this.item = item;
         this.colorCode = colorCode;
@@ -60,8 +61,8 @@ public class DuctType {
         return this;
     }
 
-    public void initItem() {
-        this.item = ItemUtils.changeDisplayName(ItemUtils.setDuctNBTTags(this, item), getFormattedTypeName());
+    public void initItem(ItemService itemService) {
+        this.item = itemService.changeDisplayName(itemService.setDuctNBTTags(this, item), getFormattedTypeName());
     }
 
     public BaseDuctType getBaseDuctType() {

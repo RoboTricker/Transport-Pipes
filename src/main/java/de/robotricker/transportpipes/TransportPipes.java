@@ -22,11 +22,8 @@ public class TransportPipes extends JavaPlugin {
 
     private Injector injector;
 
-    private LoggerService logger;
     private SentryService sentry;
-    private ProtocolService protocol;
-    private TPThread tpThread;
-    private DuctService ductService;
+    private TPThread thread;
 
     @Override
     public void onEnable() {
@@ -37,7 +34,7 @@ public class TransportPipes extends JavaPlugin {
         injector.register(JavaPlugin.class, this);
 
         //Initialize logger
-        logger = injector.getSingleton(LoggerService.class);
+        LoggerService logger = injector.getSingleton(LoggerService.class);
 
         //Initialize sentry
         sentry = injector.getSingleton(SentryService.class);
@@ -48,16 +45,12 @@ public class TransportPipes extends JavaPlugin {
         sentry.injectThread(Thread.currentThread());
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabling plugin");
 
-        //Initialize protocol
-        protocol = injector.getSingleton(ProtocolService.class);
-
         //Initialize thread
-        tpThread = injector.getSingleton(TPThread.class);
-        tpThread.start();
+        thread = injector.getSingleton(TPThread.class);
+        thread.start();
 
-        //Initialize duct service
-        ductService = injector.getSingleton(DuctService.class);
-        ductService.register();
+        //Register duct service
+        injector.getSingleton(DuctService.class).register();
 
         //Register listeners
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerListener.class), this);
@@ -76,8 +69,8 @@ public class TransportPipes extends JavaPlugin {
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabling plugin");
         // Stop tpThread gracefully
         try {
-            tpThread.stopRunning();
-            tpThread.join();
+            thread.stopRunning();
+            thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

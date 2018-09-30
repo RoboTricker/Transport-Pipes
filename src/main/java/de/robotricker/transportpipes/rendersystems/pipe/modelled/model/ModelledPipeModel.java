@@ -15,12 +15,12 @@ import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.Mode
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.ModelledPipeConnectionModelData;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.location.TPDirection;
-import de.robotricker.transportpipes.utils.ItemUtils;
+import de.robotricker.transportpipes.ItemService;
 
 public class ModelledPipeModel {
 
-    private static ItemStack ITEM_IRONPIPE_CONN_OUTPUT = ItemUtils.createModelledItem(22);
-    private static ItemStack ITEM_EXTRACTIONPIPE_CONN_EXTRACT = ItemUtils.createModelledItem(39);
+    private static ItemStack ITEM_IRONPIPE_CONN_OUTPUT;
+    private static ItemStack ITEM_EXTRACTIONPIPE_CONN_EXTRACT;
     private static Map<PipeType, ItemStack> midItems;
     private static Map<PipeType, ItemStack> connItems;
     private static Map<GoldenPipe.Color, ItemStack> goldenPipeConnItems;
@@ -50,41 +50,44 @@ public class ModelledPipeModel {
         return asd;
     }
 
-    public static void init() {
+    public static void init(ItemService itemService) {
+        ITEM_IRONPIPE_CONN_OUTPUT = itemService.createModelledItem(22);
+        ITEM_EXTRACTIONPIPE_CONN_EXTRACT = itemService.createModelledItem(39);
+
         midItems = new HashMap<>();
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("White"), ItemUtils.createModelledItem(1));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Blue"), ItemUtils.createModelledItem(2));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Red"), ItemUtils.createModelledItem(3));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Yellow"), ItemUtils.createModelledItem(4));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Green"), ItemUtils.createModelledItem(5));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Black"), ItemUtils.createModelledItem(6));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Golden"), ItemUtils.createModelledItem(13));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), ItemUtils.createModelledItem(20));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Ice"), ItemUtils.createModelledItem(23));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Void"), ItemUtils.createModelledItem(35));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), ItemUtils.createModelledItem(37));
-        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Crafting"), ItemUtils.createModelledItem(42));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("White"), itemService.createModelledItem(1));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Blue"), itemService.createModelledItem(2));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Red"), itemService.createModelledItem(3));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Yellow"), itemService.createModelledItem(4));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Green"), itemService.createModelledItem(5));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Black"), itemService.createModelledItem(6));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Golden"), itemService.createModelledItem(13));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), itemService.createModelledItem(20));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Ice"), itemService.createModelledItem(23));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Void"), itemService.createModelledItem(35));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), itemService.createModelledItem(37));
+        midItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Crafting"), itemService.createModelledItem(42));
 
         connItems = new HashMap<>();
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("White"), ItemUtils.createModelledItem(7));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Blue"), ItemUtils.createModelledItem(8));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Red"), ItemUtils.createModelledItem(9));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Yellow"), ItemUtils.createModelledItem(10));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Green"), ItemUtils.createModelledItem(11));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Black"), ItemUtils.createModelledItem(12));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), ItemUtils.createModelledItem(21));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Ice"), ItemUtils.createModelledItem(24));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Void"), ItemUtils.createModelledItem(36));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), ItemUtils.createModelledItem(38));
-        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Crafting"), ItemUtils.createModelledItem(43));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("White"), itemService.createModelledItem(7));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Blue"), itemService.createModelledItem(8));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Red"), itemService.createModelledItem(9));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Yellow"), itemService.createModelledItem(10));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Green"), itemService.createModelledItem(11));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Black"), itemService.createModelledItem(12));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), itemService.createModelledItem(21));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Ice"), itemService.createModelledItem(24));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Void"), itemService.createModelledItem(36));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), itemService.createModelledItem(38));
+        connItems.put(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Crafting"), itemService.createModelledItem(43));
 
         goldenPipeConnItems = new HashMap<>();
-        goldenPipeConnItems.put(GoldenPipe.Color.WHITE, ItemUtils.createModelledItem(14));
-        goldenPipeConnItems.put(GoldenPipe.Color.BLUE, ItemUtils.createModelledItem(15));
-        goldenPipeConnItems.put(GoldenPipe.Color.RED, ItemUtils.createModelledItem(16));
-        goldenPipeConnItems.put(GoldenPipe.Color.YELLOW, ItemUtils.createModelledItem(17));
-        goldenPipeConnItems.put(GoldenPipe.Color.GREEN, ItemUtils.createModelledItem(18));
-        goldenPipeConnItems.put(GoldenPipe.Color.BLACK, ItemUtils.createModelledItem(19));
+        goldenPipeConnItems.put(GoldenPipe.Color.WHITE, itemService.createModelledItem(14));
+        goldenPipeConnItems.put(GoldenPipe.Color.BLUE, itemService.createModelledItem(15));
+        goldenPipeConnItems.put(GoldenPipe.Color.RED, itemService.createModelledItem(16));
+        goldenPipeConnItems.put(GoldenPipe.Color.YELLOW, itemService.createModelledItem(17));
+        goldenPipeConnItems.put(GoldenPipe.Color.GREEN, itemService.createModelledItem(18));
+        goldenPipeConnItems.put(GoldenPipe.Color.BLACK, itemService.createModelledItem(19));
     }
 
 }
