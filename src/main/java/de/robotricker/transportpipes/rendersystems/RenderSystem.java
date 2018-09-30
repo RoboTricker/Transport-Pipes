@@ -8,19 +8,18 @@ import java.util.Collections;
 import java.util.List;
 
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.BasicDuctType;
-import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.utils.TPDirection;
-import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public abstract class RenderSystem {
 
-    private BasicDuctType basicDuctType;
+    private BaseDuctType baseDuctType;
     private List<Player> currentPlayers;
 
-    public RenderSystem(BasicDuctType basicDuctType) {
-        this.basicDuctType = basicDuctType;
+    public RenderSystem(BaseDuctType baseDuctType) {
+        this.baseDuctType = baseDuctType;
         this.currentPlayers = Collections.synchronizedList(new ArrayList<>());
     }
 
@@ -65,8 +64,8 @@ public abstract class RenderSystem {
         return currentPlayers;
     }
 
-    public BasicDuctType getBasicDuctType() {
-        return basicDuctType;
+    public BaseDuctType getBaseDuctType() {
+        return baseDuctType;
     }
 
 }

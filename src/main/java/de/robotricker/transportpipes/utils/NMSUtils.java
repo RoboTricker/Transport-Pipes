@@ -1,5 +1,7 @@
-package de.robotricker.transportpipes.utils.staticutils;
+package de.robotricker.transportpipes.utils;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
@@ -7,7 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class ReflectionUtils {
+public final class NMSUtils {
 
     private static String packageName = Bukkit.getServer().getClass().getPackage().getName();
     private static String version = packageName.substring(packageName.lastIndexOf(".") + 1);
@@ -52,46 +54,48 @@ public class ReflectionUtils {
             return protocolVersion;
         }
         try {
-
             Class<?> serverClazz = Class.forName("net.minecraft.server." + version + ".MinecraftServer");
-            Method getServer = serverClazz.getDeclaredMethod("getServer");
-            Object server = getServer.invoke(null);
+            Object server = MethodUtils.invokeExactStaticMethod(serverClazz, "getServer");
+
             Class<?> pingClazz = Class.forName("net.minecraft.server." + version + ".ServerPing");
             Object ping = null;
-
-            for (Field f : serverClazz.getDeclaredFields()) {
-                if ((f.getType() == null) || (!f.getType().getSimpleName().equals("ServerPing")))
+            for (Field currentField : serverClazz.getDeclaredFields()) {
+                if ((currentField.getType() == null) || (!currentField.getType().getSimpleName().endsWith("ServerPing"))) {
                     continue;
-                f.setAccessible(true);
-                ping = f.get(server);
+                }
+                ping = FieldUtils.readField(currentField, server, true);
             }
 
-            if (ping != null) {
-                Object serverData = null;
-                for (Field f : pingClazz.getDeclaredFields()) {
-                    if ((f.getType() == null) || (!f.getType().getSimpleName().endsWith("ServerData")))
-                        continue;
-                    f.setAccessible(true);
-                    serverData = f.get(ping);
-                }
+            if (ping == null) {
+                return -1;
+            }
 
-                if (serverData != null) {
-                    int protocolVersion = -1;
-                    for (Field f : serverData.getClass().getDeclaredFields()) {
-                        if ((f.getType() == null) || (f.getType() != Integer.TYPE))
-                            continue;
-                        f.setAccessible(true);
-                        protocolVersion = (Integer) f.get(serverData);
-                    }
-
-                    if (protocolVersion != -1) {
-                        ReflectionUtils.protocolVersion = protocolVersion;
-                        return protocolVersion;
-                    }
+            Object serverData = null;
+            for (Field currentField : pingClazz.getDeclaredFields()) {
+                if ((currentField.getType() == null) || (!currentField.getType().getSimpleName().endsWith("ServerData"))) {
+                    continue;
                 }
+                serverData = FieldUtils.readField(currentField, ping, true);
+            }
+
+            if (serverData == null) {
+                return -1;
+            }
+
+            int protocolVersion = -1;
+            for (Field currentField : serverData.getClass().getDeclaredFields()) {
+                if ((currentField.getType() == null) || (currentField.getType() != Integer.TYPE)) {
+                    continue;
+                }
+                protocolVersion = (int) FieldUtils.readField(currentField, serverData, true);
+            }
+
+            if (protocolVersion != -1) {
+                NMSUtils.protocolVersion = protocolVersion;
+                return protocolVersion;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return -1;
     }

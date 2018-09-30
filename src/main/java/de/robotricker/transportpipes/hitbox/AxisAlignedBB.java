@@ -1,12 +1,12 @@
-package de.robotricker.transportpipes.utils.hitbox;
+package de.robotricker.transportpipes.hitbox;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
-import de.robotricker.transportpipes.utils.BlockLoc;
-import de.robotricker.transportpipes.utils.RelLoc;
-import de.robotricker.transportpipes.utils.TPDirection;
+import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.location.RelativeLocation;
+import de.robotricker.transportpipes.location.TPDirection;
 
 /**
  * represents an axis aligned bounding box relative to a blocks origin. That means the coordinates are mostly inside a [0;1] range.
@@ -14,23 +14,23 @@ import de.robotricker.transportpipes.utils.TPDirection;
  */
 public class AxisAlignedBB {
 
-    private RelLoc min;
-    private RelLoc max;
+    private RelativeLocation min;
+    private RelativeLocation max;
 
     public AxisAlignedBB(double minx, double miny, double minz, double maxx, double maxy, double maxz) {
-        min = new RelLoc(minx, miny, minz);
-        max = new RelLoc(maxx, maxy, maxz);
+        min = new RelativeLocation(minx, miny, minz);
+        max = new RelativeLocation(maxx, maxy, maxz);
     }
 
-    public Vector getAABBMiddle(BlockLoc blockLoc) {
+    public Vector getAABBMiddle(BlockLocation blockLoc) {
         return new Vector(min.getDoubleX() + (max.getDoubleX() - min.getDoubleX()) / 2d, min.getDoubleY() + (max.getDoubleY() - min.getDoubleY()) / 2d, min.getDoubleZ() + (max.getDoubleZ() - min.getDoubleZ()) / 2d).add(new Vector(blockLoc.getX(), blockLoc.getY(), blockLoc.getZ()));
     }
 
-    public RelLoc getMin() {
+    public RelativeLocation getMin() {
         return min;
     }
 
-    public RelLoc getMax() {
+    public RelativeLocation getMax() {
         return max;
     }
 
@@ -54,7 +54,7 @@ public class AxisAlignedBB {
         return max.getDoubleZ() - min.getDoubleZ();
     }
 
-    public TPDirection performRayIntersection(Vector ray, Vector rayOrigin, BlockLoc aabbBlockLoc) {
+    public TPDirection performRayIntersection(Vector ray, Vector rayOrigin, BlockLocation aabbBlockLoc) {
 
         //optimization to decrease division operations
         Vector dirFrac = new Vector(1d / ray.getX(), 1d / ray.getY(), 1d / ray.getZ());

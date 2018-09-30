@@ -10,9 +10,9 @@ import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaIronPipeModelData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
-import de.robotricker.transportpipes.utils.RelLoc;
-import de.robotricker.transportpipes.utils.TPDirection;
-import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.location.RelativeLocation;
+import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public class VanillaPipeModelMID extends VanillaPipeModel {
 
@@ -49,19 +49,19 @@ public class VanillaPipeModelMID extends VanillaPipeModel {
 
     private List<ArmorStandData> createSimpleBlockASD(ItemStack block) {
         List<ArmorStandData> asd = new ArrayList<>();
-        asd.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), true, new Vector(1, 0, 0), new Vector(0, 0, 0), new Vector(0, 0, 0), block, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f, -0.43f, 0.5f), true, new Vector(1, 0, 0), new Vector(0, 0, 0), new Vector(0, 0, 0), block, null));
         return asd;
     }
 
     private List<ArmorStandData> createComplexBlockASD(ItemStack centerBlock, ItemStack eastCarpet, ItemStack westCarpet, ItemStack northCarpet, ItemStack southCarpet, ItemStack topCarpet, ItemStack bottomCarpet) {
         List<ArmorStandData> asd = new ArrayList<>();
-        asd.add(new ArmorStandData(new RelLoc(0.5f, -0.43f, 0.5f), true, new Vector(1, 0, 0), new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f), centerBlock, null));
-        asd.add(new ArmorStandData(new RelLoc(0.5f + 0.26f, -0.255f, 0.5f), true, new Vector(1, 0, 0), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), eastCarpet, null));
-        asd.add(new ArmorStandData(new RelLoc(0.5f - 0.26f, -0.255f, 0.5f), true, new Vector(-1, 0, 0), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), westCarpet, null));
-        asd.add(new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f + 0.26f), true, new Vector(0, 0, 1), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), southCarpet, null));
-        asd.add(new ArmorStandData(new RelLoc(0.5f, -0.255f, 0.5f - 0.26f), true, new Vector(0, 0, -1), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), northCarpet, null));
-        asd.add(new ArmorStandData(new RelLoc(0.5f, -0.255f + 0.26f, 0.5f), true, new Vector(1, 0, 0), new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f), topCarpet, null));
-        asd.add(new ArmorStandData(new RelLoc(0.5f, -0.255f - 0.26f, 0.5f), true, new Vector(1, 0, 0), new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f), bottomCarpet, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f, -0.43f, 0.5f), true, new Vector(1, 0, 0), new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f), centerBlock, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f + 0.26f, -0.255f, 0.5f), true, new Vector(1, 0, 0), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), eastCarpet, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f - 0.26f, -0.255f, 0.5f), true, new Vector(-1, 0, 0), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), westCarpet, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f, -0.255f, 0.5f + 0.26f), true, new Vector(0, 0, 1), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), southCarpet, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f, -0.255f, 0.5f - 0.26f), true, new Vector(0, 0, -1), new Vector(90f, 0f, 0f), new Vector(0f, 0f, 0f), northCarpet, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f, -0.255f + 0.26f, 0.5f), true, new Vector(1, 0, 0), new Vector(0f, 0f, 0f), new Vector(0f, 0f, 0f), topCarpet, null));
+        asd.add(new ArmorStandData(new RelativeLocation(0.5f, -0.255f - 0.26f, 0.5f), true, new Vector(1, 0, 0), new Vector(180f, 0f, 0f), new Vector(0f, 0f, 0f), bottomCarpet, null));
         return asd;
     }
 

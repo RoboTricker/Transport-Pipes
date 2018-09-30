@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.location;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -7,17 +7,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class BlockLoc implements Comparable<BlockLoc> {
+public class BlockLocation implements Comparable<BlockLocation> {
 
     private int x;
     private int y;
     private int z;
 
-    public BlockLoc(Location loc) {
+    public BlockLocation(Location loc) {
         this(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
-    public BlockLoc(int x, int y, int z) {
+    public BlockLocation(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -47,8 +47,8 @@ public class BlockLoc implements Comparable<BlockLoc> {
         this.z = z;
     }
 
-    public BlockLoc getNeighbor(TPDirection direction) {
-        return new BlockLoc(x + direction.getVector().getBlockX(), y + direction.getVector().getBlockY(), z + direction.getVector().getBlockZ());
+    public BlockLocation getNeighbor(TPDirection direction) {
+        return new BlockLocation(x + direction.getVector().getBlockX(), y + direction.getVector().getBlockY(), z + direction.getVector().getBlockZ());
     }
 
     public Location toLocation(World world){
@@ -60,7 +60,7 @@ public class BlockLoc implements Comparable<BlockLoc> {
     }
 
     @Override
-    public int compareTo(@NotNull BlockLoc o) {
+    public int compareTo(@NotNull BlockLocation o) {
         if (z < o.z) {
             return -1;
         } else if (z > o.z) {
@@ -86,7 +86,7 @@ public class BlockLoc implements Comparable<BlockLoc> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BlockLoc blockLoc = (BlockLoc) o;
+        BlockLocation blockLoc = (BlockLocation) o;
         return x == blockLoc.x &&
                 y == blockLoc.y &&
                 z == blockLoc.z;

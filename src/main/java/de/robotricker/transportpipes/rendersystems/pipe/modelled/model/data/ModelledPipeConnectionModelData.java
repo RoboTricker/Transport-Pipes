@@ -2,7 +2,7 @@ package de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data;
 
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.PipeType;
-import de.robotricker.transportpipes.utils.TPDirection;
+import de.robotricker.transportpipes.location.TPDirection;
 
 public class ModelledPipeConnectionModelData {
 

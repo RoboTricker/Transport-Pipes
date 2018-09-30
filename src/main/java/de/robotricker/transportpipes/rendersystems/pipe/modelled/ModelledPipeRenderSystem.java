@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.BasicDuctType;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.ResourcepackRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.ModelledPipeModel;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.ModelledPipeConnectionModelData;
-import de.robotricker.transportpipes.utils.TPDirection;
-import de.robotricker.transportpipes.utils.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public class ModelledPipeRenderSystem extends ResourcepackRenderSystem {
 
@@ -29,7 +29,7 @@ public class ModelledPipeRenderSystem extends ResourcepackRenderSystem {
     private Map<TPDirection, AxisAlignedBB> connAABBs = new HashMap<>();
 
     public ModelledPipeRenderSystem() {
-        super(BasicDuctType.valueOf("Pipe"));
+        super(BaseDuctType.valueOf("Pipe"));
         ModelledPipeModel.init();
 
         midAABB = new AxisAlignedBB(4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d);

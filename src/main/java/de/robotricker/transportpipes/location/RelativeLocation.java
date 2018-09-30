@@ -1,8 +1,8 @@
-package de.robotricker.transportpipes.utils;
+package de.robotricker.transportpipes.location;
 
 import java.util.Objects;
 
-public class RelLoc {
+public class RelativeLocation {
 
     private static long PRECISION = 100000;
 
@@ -10,7 +10,7 @@ public class RelLoc {
     private long y;
     private long z;
 
-    public RelLoc(double x, double y, double z) {
+    public RelativeLocation(double x, double y, double z) {
         set(x, y, z);
     }
 
@@ -54,7 +54,7 @@ public class RelLoc {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RelLoc relLoc = (RelLoc) o;
+        RelativeLocation relLoc = (RelativeLocation) o;
         return x == relLoc.x &&
                 y == relLoc.y &&
                 z == relLoc.z;

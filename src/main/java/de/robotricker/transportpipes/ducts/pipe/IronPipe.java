@@ -3,12 +3,13 @@ package de.robotricker.transportpipes.ducts.pipe;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import de.robotricker.transportpipes.ducts.types.BasicDuctType;
-import de.robotricker.transportpipes.utils.BlockLoc;
+import de.robotricker.transportpipes.DuctService;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.location.BlockLocation;
 
 public class IronPipe extends Pipe {
 
-    public IronPipe(BlockLoc blockLoc, World world, Chunk chunk) {
-        super(blockLoc, world, chunk, BasicDuctType.valueOf("Pipe").ductTypeValueOf("Iron"));
+    public IronPipe(DuctService ductService, BlockLocation blockLoc, World world, Chunk chunk) {
+        super(ductService, blockLoc, world, chunk, BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"));
     }
 }
