@@ -48,6 +48,8 @@ public abstract class RenderSystem {
      */
     public abstract List<ArmorStandData> getASDForDuct(Duct duct);
 
+    public abstract String getDisplayName();
+
     // ***************************************************************
     // AABB UTILS
     // ***************************************************************

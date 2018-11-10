@@ -11,7 +11,7 @@ import java.util.Map;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
-import de.robotricker.transportpipes.ducts.types.PipeType;
+import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModel;
@@ -123,6 +123,11 @@ public class VanillaPipeRenderSystem extends RenderSystem {
             }
         }
         return midModel;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "VANILLA";
     }
 
 }

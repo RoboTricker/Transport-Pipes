@@ -17,7 +17,6 @@ public class DuctType {
     private Set<DuctType> connectables;
 
     public DuctType(String name, ItemStack item, String colorCode) {
-
         this.name = name;
         this.item = item;
         this.colorCode = colorCode;

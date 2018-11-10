@@ -1,7 +1,7 @@
 package de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data;
 
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
-import de.robotricker.transportpipes.ducts.types.PipeType;
+import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
 
 public class VanillaPipeModelData {
 

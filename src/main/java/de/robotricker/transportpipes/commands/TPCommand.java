@@ -4,8 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -13,16 +15,21 @@ import javax.inject.Inject;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.HelpCommand;
+import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import de.robotricker.transportpipes.DuctService;
 import de.robotricker.transportpipes.TPThread;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.protocol.ProtocolService;
+import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.utils.MessageUtils;
 
 @CommandAlias("tpipes|transportpipes|transportpipe|tpipe|pipes|pipe")
@@ -34,6 +41,8 @@ public class TPCommand extends BaseCommand {
     private JavaPlugin plugin;
     @Inject
     private DuctService ductService;
+    @Inject
+    private ProtocolService protocol;
 
     @Subcommand("tps")
     @CommandPermission("transportpipes.tps")
@@ -52,8 +61,8 @@ public class TPCommand extends BaseCommand {
             tpsColor = ChatColor.GREEN;
         }
 
-        cs.sendMessage(MessageUtils.wrapColoredMsg("&6TransportPipes &7v" + plugin.getDescription().getVersion()));
-        cs.sendMessage(MessageUtils.wrapColoredMsg("&6TPS: " + tpsColor + tps + " &6/ &2" + pref_tps));
+        cs.sendMessage(MessageUtils.formatColoredMsg("&6TransportPipes &7v" + plugin.getDescription().getVersion()));
+        cs.sendMessage(MessageUtils.formatColoredMsg("&6TPS: " + tpsColor + tps + " &6/ &2" + pref_tps));
 
         for (World world : Bukkit.getWorlds()) {
             int worldPipes = 0;
@@ -68,8 +77,60 @@ public class TPCommand extends BaseCommand {
                     }
                 }
             }
-            cs.sendMessage(MessageUtils.wrapColoredMsg("&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
+            cs.sendMessage(MessageUtils.formatColoredMsg("&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
         }
+    }
+
+    @Subcommand("rendersystem|rs|render")
+    @Syntax("<baseDuctType> [rendersystem]")
+    @CommandCompletion("@baseDuctType @nothing")
+    public void onChangeRenderSystem(Player p, String baseDuctType, @Optional String renderSystem) {
+        BaseDuctType bdt = BaseDuctType.valueOf(baseDuctType);
+        if (bdt == null) {
+            p.sendMessage(MessageUtils.formatColoredMsg("&4BaseDuctType does not exist"));
+            return;
+        }
+        if (renderSystem == null) {
+            p.sendMessage(MessageUtils.formatColoredMsg("&6Possible Render Systems:"));
+            for (RenderSystem rs : ductService.getRenderSystems(bdt)) {
+                String suffix = rs.getCurrentPlayers().contains(p) ? " &6(active)" : "";
+                p.sendMessage(MessageUtils.formatColoredMsg(" &b" + rs.getDisplayName() + suffix));
+            }
+        } else {
+            for (RenderSystem newRs : ductService.getRenderSystems(bdt)) {
+                if (newRs.getDisplayName().equalsIgnoreCase(renderSystem)) {
+                    if (ductService.getRenderSystem(p, bdt) == newRs) {
+                        p.sendMessage(MessageUtils.formatColoredMsg("&4This rendersystem is already active"));
+                        return;
+                    }
+
+                    //switch rendersystem
+                    RenderSystem oldRs = ductService.getRenderSystem(p, bdt);
+                    oldRs.getCurrentPlayers().remove(p);
+                    synchronized (ductService.getPlayerDucts(p)) {
+                        Iterator<Duct> ductIt = ductService.getPlayerDucts(p).iterator();
+                        while (ductIt.hasNext()) {
+                            Duct nextDuct =  ductIt.next();
+                            if(nextDuct.getDuctType().getBaseDuctType().equals(bdt)){
+                                protocol.removeASD(p, oldRs.getASDForDuct(nextDuct));
+                                ductIt.remove();
+                            }
+                        }
+                    }
+                    newRs.getCurrentPlayers().add(p);
+
+                    p.sendMessage(MessageUtils.formatColoredMsg("&6You've switched to the &b" + newRs.getDisplayName() + " &6render system"));
+                    return;
+                }
+            }
+            p.sendMessage(MessageUtils.formatColoredMsg("&4This render system does not exist"));
+        }
+    }
+
+    @HelpCommand
+    @Syntax("[command]")
+    public void onDefault(CommandSender cs, CommandHelp help) {
+        help.showHelp();
     }
 
     @Subcommand("reload")
@@ -90,12 +151,6 @@ public class TPCommand extends BaseCommand {
             cs.sendMessage("reload ducts");
         }
 
-    }
-
-    @HelpCommand
-    @Syntax("[command]")
-    public void onDefault(CommandSender cs, CommandHelp help) {
-        help.showHelp();
     }
 
 }

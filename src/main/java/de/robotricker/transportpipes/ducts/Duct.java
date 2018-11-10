@@ -53,6 +53,10 @@ public abstract class Duct {
         return chunk.isLoaded();
     }
 
+    public void tick() {
+
+    }
+
     public void updateDuctConnections() {
         connectedDucts.clear();
         for (TPDirection tpDir : TPDirection.values()) {

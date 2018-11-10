@@ -12,7 +12,7 @@ import de.robotricker.transportpipes.ducts.pipe.IcePipe;
 import de.robotricker.transportpipes.ducts.pipe.IronPipe;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.pipe.VoidPipe;
-import de.robotricker.transportpipes.ducts.types.ColoredPipeType;
+import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.location.BlockLocation;
 
