@@ -1,10 +1,9 @@
 package de.robotricker.transportpipes.listener;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.inject.Inject;
@@ -27,21 +26,18 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        handleQuit(event.getPlayer());
+    public void onQuit(PlayerQuitEvent e) {
+        for (BaseDuctType ductBaseType : BaseDuctType.values()) {
+            RenderSystem renderSystem = ductService.getRenderSystem(e.getPlayer(), ductBaseType);
+            renderSystem.getCurrentPlayers().remove(e.getPlayer());
+        }
+        ductService.getPlayerDucts(e.getPlayer()).clear();
     }
 
     @EventHandler
-    public void onKick(PlayerKickEvent event) {
-        // TODO: not sure if this is right, i think kick triggers both events -sg
-        handleQuit(event.getPlayer());
-    }
-
-    private void handleQuit(Player player) {
-        for (BaseDuctType ductBaseType : BaseDuctType.values()) {
-            RenderSystem renderSystem = ductService.getRenderSystem(player, ductBaseType);
-            renderSystem.getCurrentPlayers().remove(player);
-        }
+    public void onWorldChange(PlayerChangedWorldEvent e){
+        //make sure that all ducts that were visible to the player get removed so they will spawn again when the player is nearby
+        ductService.getPlayerDucts(e.getPlayer()).clear();
     }
 
 }

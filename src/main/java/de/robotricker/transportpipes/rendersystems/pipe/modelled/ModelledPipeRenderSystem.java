@@ -166,4 +166,10 @@ public class ModelledPipeRenderSystem extends ResourcepackRenderSystem {
             return currentClickedConnFace;
         }
     }
+
+    @Override
+    public String getDisplayName() {
+        return "MODELLED";
+    }
+
 }

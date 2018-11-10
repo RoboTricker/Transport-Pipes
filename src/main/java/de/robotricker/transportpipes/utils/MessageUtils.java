@@ -4,8 +4,8 @@ import org.bukkit.ChatColor;
 
 public class MessageUtils {
 
-    public static String wrapColoredMsg(String msg) {
-        return ChatColor.translateAlternateColorCodes('&', msg);
+    public static String formatColoredMsg(String msg, Object... args) {
+        return ChatColor.translateAlternateColorCodes('&', String.format(msg, args));
     }
 
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.TPThread;
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.utils.NMSUtils;
@@ -28,15 +28,16 @@ public class ProtocolService {
     private WrappedDataWatcher.Serializer VECTOR_SERIALIZER;
     private WrappedDataWatcher.Serializer BOOLEAN_SERIALIZER;
 
-    private TPThread thread;
+    private TransportPipes plugin;
 
     @Inject
-    public ProtocolService(TPThread thread) {
-        this.thread = thread;
+    public ProtocolService(TransportPipes plugin) {
         INT_SERIALIZER = WrappedDataWatcher.Registry.get(Integer.class);
         BYTE_SERIALIZER = WrappedDataWatcher.Registry.get(Byte.class);
         VECTOR_SERIALIZER = WrappedDataWatcher.Registry.get(NMSUtils.getVector3fClass());
         BOOLEAN_SERIALIZER = WrappedDataWatcher.Registry.get(Boolean.class);
+
+        this.plugin = plugin;
     }
 
     private int nextEntityID = 99999;
@@ -120,7 +121,7 @@ public class ProtocolService {
             // fire
             meta2Wrapper.setMetadata(meta2List);
 
-            thread.runTaskAsync(() -> {
+            plugin.runTaskAsync(() -> {
                 try {
                     meta2Wrapper.sendPacket(p);
                     equipmentWrapper.sendPacket(p);

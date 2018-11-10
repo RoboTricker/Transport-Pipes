@@ -20,24 +20,24 @@ import javax.inject.Inject;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.factory.PipeFactory;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
-import de.robotricker.transportpipes.ducts.types.ColoredPipeType;
-import de.robotricker.transportpipes.ducts.types.PipeType;
+import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
+import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
+import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
-import de.robotricker.transportpipes.location.BlockLocation;
-import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.utils.Constants;
 
 public class DuctService {
 
-    private ProtocolService protocol;
-    private ItemService itemService;
-
     private final Map<World, Map<BlockLocation, Duct>> ducts;
     private final List<RenderSystem> renderSystems;
-    private final Map<Player, Set<Duct>> ductsForPlayers;
+    private final Map<Player, Set<Duct>> playerDucts;
+    private ProtocolService protocol;
+    private ItemService itemService;
 
     @Inject
     public DuctService(ProtocolService protocol, ItemService itemService) {
@@ -46,7 +46,7 @@ public class DuctService {
 
         this.ducts = Collections.synchronizedMap(new HashMap<>());
         this.renderSystems = Collections.synchronizedList(new ArrayList<>());
-        this.ductsForPlayers = Collections.synchronizedMap(new HashMap<>());
+        this.playerDucts = Collections.synchronizedMap(new HashMap<>());
     }
 
     public void register() {
@@ -117,6 +117,10 @@ public class DuctService {
         return getDuctAtLoc(location.getWorld(), new BlockLocation(location));
     }
 
+    public Set<Duct> getPlayerDucts(Player player) {
+        return playerDucts.computeIfAbsent(player, p -> Collections.synchronizedSet(new HashSet<>()));
+    }
+
     public RenderSystem getRenderSystem(Player p, BaseDuctType baseDuctType) {
         synchronized (renderSystems) {
             return renderSystems.stream().filter(rs -> rs.getCurrentPlayers().contains(p) && rs.getBaseDuctType().equals(baseDuctType)).findAny().orElse(null);
@@ -137,8 +141,10 @@ public class DuctService {
             renderSystem.createDuctASD(duct, duct.getAllConnections());
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
-                    protocol.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
-                    ductsForPlayers.computeIfAbsent(p, k -> Collections.synchronizedSet(new HashSet<>())).add(duct);
+                    if(duct.getBlockLoc().toLocation(p.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
+                        protocol.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
+                        getPlayerDucts(p).add(duct);
+                    }
                 }
             }
         }
@@ -156,8 +162,10 @@ public class DuctService {
             renderSystem.updateDuctASD(duct, duct.getAllConnections(), removeASD, addASD);
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
-                    protocol.removeASD(p, removeASD);
-                    protocol.sendASD(p, duct.getBlockLoc(), addASD);
+                    if (getPlayerDucts(p).contains(duct)) {
+                        protocol.removeASD(p, removeASD);
+                        protocol.sendASD(p, duct.getBlockLoc(), addASD);
+                    }
                 }
             }
         }
@@ -168,8 +176,9 @@ public class DuctService {
         for (RenderSystem renderSystem : getRenderSystems(duct.getDuctType().getBaseDuctType())) {
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
-                    protocol.removeASD(p, renderSystem.getASDForDuct(duct));
-                    ductsForPlayers.computeIfAbsent(p, k -> Collections.synchronizedSet(new HashSet<>())).remove(duct);
+                    if(getPlayerDucts(p).remove(duct)) {
+                        protocol.removeASD(p, renderSystem.getASDForDuct(duct));
+                    }
                 }
             }
             renderSystem.destroyDuctASD(duct);

@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes.ducts.types;
+package de.robotricker.transportpipes.ducts.types.pipetype;
 
 import org.bukkit.inventory.ItemStack;
 
