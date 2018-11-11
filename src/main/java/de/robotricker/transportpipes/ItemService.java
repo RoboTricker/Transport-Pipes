@@ -18,13 +18,21 @@ import javax.inject.Inject;
 
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.utils.MessageUtils;
 import de.robotricker.transportpipes.utils.NMSUtils;
 
 public class ItemService {
 
+    private ItemStack wrench;
+
     @Inject
     public ItemService() {
+        wrench = createGlowingItem(Material.STICK);
+        wrench = changeDisplayName(wrench, MessageUtils.formatColoredMsg("&cWrench"));
+    }
 
+    public ItemStack getWrench() {
+        return wrench;
     }
 
     public ItemStack createModelledItem(int damage) {

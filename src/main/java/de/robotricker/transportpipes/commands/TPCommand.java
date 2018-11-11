@@ -27,6 +27,7 @@ import de.robotricker.transportpipes.TPThread;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.inventory.CreativeDuctInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
@@ -43,6 +44,8 @@ public class TPCommand extends BaseCommand {
     private DuctService ductService;
     @Inject
     private ProtocolService protocol;
+    @Inject
+    private CreativeDuctInventory creativeDuctInv;
 
     @Subcommand("tps")
     @CommandPermission("transportpipes.tps")
@@ -125,6 +128,11 @@ public class TPCommand extends BaseCommand {
             }
             p.sendMessage(MessageUtils.formatColoredMsg("&4This render system does not exist"));
         }
+    }
+
+    @Subcommand("creative")
+    public void onCreativeDuctInv(Player p) {
+        p.openInventory(creativeDuctInv.createInventory());
     }
 
     @HelpCommand
