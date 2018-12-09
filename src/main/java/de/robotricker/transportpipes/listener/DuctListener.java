@@ -24,7 +24,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.DuctService;
+import de.robotricker.transportpipes.DuctRegister;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.location.BlockLocation;
@@ -82,13 +82,13 @@ public class DuctListener implements Listener {
     //makes sure that "callInteraction" is called with the mainHand and with the offHand every single time
     private Map<Player, Interaction> interactions = new HashMap<>();
 
-    private DuctService ductService;
     private ItemService itemService;
+    private DuctRegister ductRegister;
 
     @Inject
-    public DuctListener(DuctService ductService, ItemService itemService, JavaPlugin plugin) {
-        this.ductService = ductService;
+    public DuctListener(ItemService itemService, JavaPlugin plugin, DuctRegister ductRegister) {
         this.itemService = itemService;
+        this.ductRegister = ductRegister;
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::updateInteractSet, 0L, 1L);
     }
 

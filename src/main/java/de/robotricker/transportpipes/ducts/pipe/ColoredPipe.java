@@ -3,7 +3,6 @@ package de.robotricker.transportpipes.ducts.pipe;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import de.robotricker.transportpipes.DuctService;
 import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
 import de.robotricker.transportpipes.location.BlockLocation;
 

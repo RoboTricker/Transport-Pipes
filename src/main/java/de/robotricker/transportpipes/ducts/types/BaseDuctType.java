@@ -1,35 +1,53 @@
 package de.robotricker.transportpipes.ducts.types;
 
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import de.robotricker.transportpipes.DuctService;
-import de.robotricker.transportpipes.ItemService;
+import ch.jalu.injector.Injector;
+import de.robotricker.transportpipes.DuctFactory;
+import de.robotricker.transportpipes.DuctManager;
+import de.robotricker.transportpipes.ItemManager;
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.factory.DuctFactory;
-import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.rendersystems.RenderSystem;
 
-public final class BaseDuctType {
-
-    private static List<BaseDuctType> values = new ArrayList<>();
+public final class BaseDuctType<T extends Duct> {
 
     private String name;
-    private DuctFactory factory;
-    private List<DuctType> ductTypeValues;
+    private DuctManager<T> ductManager;
+    private DuctFactory<T> ductFactory;
+    private ItemManager<T> itemManager;
+    private Set<RenderSystem> renderSystems;
 
-    public BaseDuctType(String name, DuctFactory ductFactory) {
+    private List<DuctType> ductTypes;
+
+    public BaseDuctType(String name, DuctManager<T> ductManager, DuctFactory<T> ductFactory, ItemManager<T> itemManager, Set<RenderSystem> renderSystems) {
         this.name = name;
-        this.factory = ductFactory;
-        ductTypeValues = new ArrayList<>();
+        this.ductManager = ductManager;
+        this.ductFactory = ductFactory;
+        this.itemManager = itemManager;
+        this.renderSystems = renderSystems;
+        this.ductTypes = new ArrayList<>();
     }
 
     public String getName() {
         return name;
+    }
+
+    public DuctManager<T> getDuctManager() {
+        return ductManager;
+    }
+
+    public DuctFactory<T> getDuctFactory() {
+        return ductFactory;
+    }
+
+    public ItemManager<T> getItemManager() {
+        return itemManager;
+    }
+
+    public Set<RenderSystem> getRenderSystems() {
+        return renderSystems;
     }
 
     public boolean is(String name) {
@@ -40,48 +58,24 @@ public final class BaseDuctType {
     // DUCT TYPE
     // ****************************************************
 
-    public List<DuctType> ductTypeValues() {
-        return ductTypeValues;
+    public List<DuctType> ductTypes() {
+        return ductTypes;
     }
 
-    public <T extends DuctType> T ductTypeValueOf(String displayName) {
-        for (DuctType dt : ductTypeValues) {
+    public <S extends DuctType> S ductTypeOf(String displayName) {
+        for (DuctType dt : ductTypes) {
             if (dt.getName().equalsIgnoreCase(displayName)) {
-                return (T) dt;
+                return (S) dt;
             }
         }
         return null;
     }
 
-    public void registerDuctType(DuctType ductType, ItemService itemService) {
-        ductType.setBaseDuctType(this);
-        ductType.initItem(itemService);
-        ductTypeValues.add(ductType);
-    }
-
-    public Duct createDuct(DuctService ductService, DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
-        return factory.createDuct(ductService, ductType, blockLoc, world, chunk);
-    }
-
-    // ****************************************************
-    // BASIC DUCT TYPE
-    // ****************************************************
-
-    public static List<BaseDuctType> values() {
-        return values;
-    }
-
-    public static BaseDuctType valueOf(String displayName) {
-        for (BaseDuctType bdt : values) {
-            if (bdt.name.equalsIgnoreCase(displayName)) {
-                return bdt;
-            }
+    public void registerDuctType(DuctType ductType) {
+        if (ductTypes.stream().anyMatch(dt -> dt.getName().equalsIgnoreCase(ductType.getName()))) {
+            throw new IllegalArgumentException("DuctType '" + ductType.getName() + "' already exists");
         }
-        return null;
-    }
-
-    public static void registerBasicDuctType(BaseDuctType ductType) {
-        values.add(ductType);
+        ductTypes.add(ductType);
     }
 
 }

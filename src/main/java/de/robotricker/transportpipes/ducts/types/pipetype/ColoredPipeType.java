@@ -1,11 +1,12 @@
 package de.robotricker.transportpipes.ducts.types.pipetype;
 
-import org.bukkit.inventory.ItemStack;
+import de.robotricker.transportpipes.ducts.pipe.Pipe;
+import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 
 public class ColoredPipeType extends PipeType {
 
-    public ColoredPipeType(String name, ItemStack item, String colorCode) {
-        super(name, item, colorCode);
+    public ColoredPipeType(BaseDuctType<Pipe> baseDuctType, String name, char colorCode) {
+        super(baseDuctType, name, colorCode);
     }
 
 }
