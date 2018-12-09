@@ -1,42 +1,39 @@
 package de.robotricker.transportpipes.ducts.types;
 
-import org.bukkit.inventory.ItemStack;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.robotricker.transportpipes.ItemService;
+import de.robotricker.transportpipes.ducts.Duct;
 
 public class DuctType {
 
-    private BaseDuctType baseDuctType;
+    private BaseDuctType<? extends Duct> baseDuctType;
     private String name;
-    private ItemStack item;
-    private String colorCode;
+    private char colorCode;
     private Set<DuctType> connectables;
 
-    public DuctType(String name, ItemStack item, String colorCode) {
+    public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, char colorCode) {
         this.name = name;
-        this.item = item;
         this.colorCode = colorCode;
         this.connectables = new HashSet<>();
     }
 
     public DuctType connectTo(String... ductTypeNames) {
         for (String name : ductTypeNames) {
-            connectables.add(getBaseDuctType().ductTypeValueOf(name));
+            connectables.add(getBaseDuctType().ductTypeOf(name));
         }
         return this;
     }
 
     public DuctType connectToAll() {
-        connectables.addAll(getBaseDuctType().ductTypeValues());
+        connectables.addAll(getBaseDuctType().ductTypes());
         return this;
     }
 
     public DuctType connectToClasses(Class<? extends DuctType> clazz) {
-        for (DuctType dt : getBaseDuctType().ductTypeValues()) {
+        for (DuctType dt : getBaseDuctType().ductTypes()) {
             if (clazz.isAssignableFrom(dt.getClass())) {
                 connectables.add(dt);
             }
@@ -46,13 +43,13 @@ public class DuctType {
 
     public DuctType disconnectFrom(String... ductTypeNames) {
         for (String name : ductTypeNames) {
-            connectables.remove(getBaseDuctType().ductTypeValueOf(name));
+            connectables.remove(getBaseDuctType().ductTypeOf(name));
         }
         return this;
     }
 
     public DuctType disconnectFromClasses(Class<? extends DuctType> clazz) {
-        for (DuctType dt : getBaseDuctType().ductTypeValues()) {
+        for (DuctType dt : getBaseDuctType().ductTypes()) {
             if (clazz.isAssignableFrom(dt.getClass())) {
                 connectables.remove(dt);
             }
@@ -60,24 +57,12 @@ public class DuctType {
         return this;
     }
 
-    public void initItem(ItemService itemService) {
-        this.item = itemService.changeDisplayName(itemService.setDuctNBTTags(this, item), getFormattedTypeName());
-    }
-
-    public BaseDuctType getBaseDuctType() {
+    public BaseDuctType<? extends Duct> getBaseDuctType() {
         return baseDuctType;
-    }
-
-    public void setBaseDuctType(BaseDuctType baseDuctType) {
-        this.baseDuctType = baseDuctType;
     }
 
     public String getName() {
         return name;
-    }
-
-    public ItemStack getItem() {
-        return item;
     }
 
     public boolean is(String name) {
@@ -85,7 +70,7 @@ public class DuctType {
     }
 
     public String getFormattedTypeName() {
-        return colorCode + name;
+        return "§" + colorCode + name;
     }
 
     public Set<DuctType> getConnectables() {

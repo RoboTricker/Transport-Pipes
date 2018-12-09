@@ -4,8 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
@@ -17,6 +20,9 @@ import de.robotricker.transportpipes.listener.PlayerListener;
 import de.robotricker.transportpipes.listener.WorldListener;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
+import de.robotricker.transportpipes.rendersystems.RenderSystem;
+import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
+import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
 import io.sentry.event.Breadcrumb;
 
 public class TransportPipes extends JavaPlugin {
@@ -51,8 +57,11 @@ public class TransportPipes extends JavaPlugin {
         thread = injector.getSingleton(TPThread.class);
         thread.start();
 
-        //Register duct service
-        injector.getSingleton(DuctService.class).register();
+        //Register pipeBaseDuctType
+        Set<RenderSystem> renderSystems = new HashSet<>();
+        renderSystems.add(new ModelledPipeRenderSystem(itemService));
+        renderSystems.add(new VanillaPipeRenderSystem());
+        injector.getSingleton(DuctRegister.class).registerBaseDuctType("Pipe", PipeManager.class, PipeFactory.class, PipeItemManager.class, renderSystems);
 
         //Register listeners
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerListener.class), this);
@@ -106,4 +115,7 @@ public class TransportPipes extends JavaPlugin {
         thread.getTasks().put(runnable, delay);
     }
 
+    public Injector getInjector() {
+        return injector;
+    }
 }

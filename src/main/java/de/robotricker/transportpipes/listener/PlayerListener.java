@@ -8,7 +8,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.DuctService;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 

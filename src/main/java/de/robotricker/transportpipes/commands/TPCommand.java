@@ -22,7 +22,6 @@ import co.aikar.commands.annotation.HelpCommand;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
-import de.robotricker.transportpipes.DuctService;
 import de.robotricker.transportpipes.TPThread;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
