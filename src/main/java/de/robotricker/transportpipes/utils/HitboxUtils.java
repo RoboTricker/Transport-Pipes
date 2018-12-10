@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.location.TPDirection;
@@ -47,7 +48,7 @@ public class HitboxUtils {
         return new ArrayList<>();
     }
 
-    public static Duct getDuctLookingTo(DuctService ductService, Player p, Block clickedBlock) {
+    public static Duct getDuctLookingTo(GlobalDuctManager globalDuctManager, Player p, Block clickedBlock) {
         List<Block> line = getLineOfSight(p);
 
         Duct currentDuct = null;
@@ -55,11 +56,11 @@ public class HitboxUtils {
 
         for (int i = 0; currentDuct == null && line.size() > i; i++) {
             // check whether on this block is a duct or not
-            Duct tempDuct = ductService.getDuctAtLoc(line.get(i).getLocation());
+            Duct tempDuct = globalDuctManager.getDuctAtLoc(line.get(i).getLocation());
             if (tempDuct != null) {
                 // check if the player looks on the hitbox of the duct (the player could
                 // possibly look on a block with a duct but not on the hitbox itself)
-                RenderSystem playerRenderSystem = ductService.getRenderSystem(p, tempDuct.getDuctType().getBaseDuctType());
+                RenderSystem playerRenderSystem = globalDuctManager.getPlayerRenderSystem(p, tempDuct.getDuctType().getBaseDuctType());
                 if (playerRenderSystem.getClickedDuctFace(p, tempDuct) != null) {
                     currentDuct = tempDuct;
                     indexOfDuctBlock = i;
@@ -89,12 +90,12 @@ public class HitboxUtils {
      * gets the neighbor block of the duct (where a block would be placed if right clicked) (calculated by the player direction ray
      * and the duct hitbox)
      */
-    public static Block getRelativeBlockOfDuct(DuctService ductService, Player p, Block ductLoc) {
-        Duct duct = ductService.getDuctAtLoc(ductLoc.getLocation());
+    public static Block getRelativeBlockOfDuct(GlobalDuctManager globalDuctManager, Player p, Block ductLoc) {
+        Duct duct = globalDuctManager.getDuctAtLoc(ductLoc.getLocation());
         if (duct == null) {
             return null;
         }
-        TPDirection dir = ductService.getRenderSystem(p, duct.getDuctType().getBaseDuctType()).getClickedDuctFace(p, duct);
+        TPDirection dir = globalDuctManager.getPlayerRenderSystem(p, duct.getDuctType().getBaseDuctType()).getClickedDuctFace(p, duct);
         return dir != null ? ductLoc.getRelative(dir.getBlockFace()) : null;
     }
 

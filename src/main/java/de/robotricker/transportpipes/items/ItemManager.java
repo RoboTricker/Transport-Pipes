@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes;
+package de.robotricker.transportpipes.items;
 
 import org.bukkit.inventory.ItemStack;
 
@@ -14,6 +14,14 @@ public abstract class ItemManager<T extends Duct> {
 
     public ItemManager() {
         this.items = new HashMap<>();
+    }
+
+    public ItemStack getItem(DuctType ductType) {
+        return items.get(ductType);
+    }
+
+    public ItemStack cloneItem(DuctType ductType) {
+        return getItem(ductType).clone();
     }
 
     public abstract void registerItems();

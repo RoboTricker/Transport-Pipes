@@ -1,4 +1,4 @@
-package de.robotricker.transportpipes;
+package de.robotricker.transportpipes.items;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.utils.MessageUtils;
@@ -90,13 +91,13 @@ public class ItemService {
         return item;
     }
 
-    public DuctType readDuctNBTTags(ItemStack item) {
+    public DuctType readDuctNBTTags(ItemStack item, DuctRegister ductRegister) {
         String basicDuctTypeSerialized = (String) NMSUtils.readItemStackNBT(item, "basicDuctType", "String");
         if (basicDuctTypeSerialized != null && !basicDuctTypeSerialized.isEmpty()) {
-            BaseDuctType bdt = BaseDuctType.valueOf(basicDuctTypeSerialized);
+            BaseDuctType bdt = ductRegister.baseDuctTypeOf(basicDuctTypeSerialized);
             String ductTypeSerialized = (String) NMSUtils.readItemStackNBT(item, "ductType", "String");
             if (ductTypeSerialized != null && !ductTypeSerialized.isEmpty()) {
-                return bdt.ductTypeValueOf(ductTypeSerialized);
+                return bdt.ductTypeOf(ductTypeSerialized);
             }
         }
         return null;

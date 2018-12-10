@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data;
 
+import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.location.TPDirection;
 
@@ -7,8 +8,8 @@ public class ModelledIronPipeConnectionModelData extends ModelledPipeConnectionM
 
     private boolean outputSide;
 
-    public ModelledIronPipeConnectionModelData(TPDirection connectionDir, boolean outputSide) {
-        super(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Iron"), connectionDir);
+    public ModelledIronPipeConnectionModelData(BaseDuctType<? extends Duct> baseDuctType, TPDirection connectionDir, boolean outputSide) {
+        super(baseDuctType.ductTypeOf("Iron"), connectionDir);
         this.outputSide = outputSide;
     }
 

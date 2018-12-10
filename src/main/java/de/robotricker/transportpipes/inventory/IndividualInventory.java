@@ -3,7 +3,7 @@ package de.robotricker.transportpipes.inventory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-public abstract class DynamicInventory {
+public abstract class IndividualInventory {
 
     abstract Inventory create(Player p);
 

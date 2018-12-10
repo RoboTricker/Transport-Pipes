@@ -24,9 +24,9 @@ public class ModelledPipeConnectionModelData {
 
     public static ModelledPipeConnectionModelData createConnectionModelData(Pipe pipe, TPDirection connectionDir) {
         if (pipe.getDuctType().is("Iron")) {
-            return new ModelledIronPipeConnectionModelData(connectionDir, false);
+            return new ModelledIronPipeConnectionModelData(pipe.getDuctType().getBaseDuctType(), connectionDir, false);
         } else if (pipe.getDuctType().is("Extraction")) {
-            return new ModelledExtractionPipeConnectionModelData(connectionDir, false);
+            return new ModelledExtractionPipeConnectionModelData(pipe.getDuctType().getBaseDuctType(), connectionDir, false);
         } else {
             return new ModelledPipeConnectionModelData(pipe.getDuctType(), connectionDir);
         }

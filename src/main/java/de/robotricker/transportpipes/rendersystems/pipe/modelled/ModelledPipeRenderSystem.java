@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.robotricker.transportpipes.ItemService;
+import javax.inject.Inject;
+
+import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.ResourcepackRenderSystem;
@@ -29,9 +31,10 @@ public class ModelledPipeRenderSystem extends ResourcepackRenderSystem {
     private AxisAlignedBB midAABB;
     private Map<TPDirection, AxisAlignedBB> connAABBs = new HashMap<>();
 
-    public ModelledPipeRenderSystem(ItemService itemService) {
-        super(BaseDuctType.valueOf("Pipe"));
-        ModelledPipeModel.init(itemService);
+    @Inject
+    public ModelledPipeRenderSystem(ItemService itemService, DuctRegister ductRegister) {
+        super(ductRegister.baseDuctTypeOf("Pipe"));
+        ModelledPipeModel.init(itemService, ductRegister);
 
         midAABB = new AxisAlignedBB(4d / 16d, 4d / 16d, 4d / 16d, 12d / 16d, 12d / 16d, 12d / 16d);
         connAABBs.put(TPDirection.NORTH, new AxisAlignedBB(4d / 16d, 4d / 16d, 0d / 16d, 12d / 16d, 12d / 16d, 4d / 16d));

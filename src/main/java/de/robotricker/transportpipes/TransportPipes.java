@@ -14,7 +14,12 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import co.aikar.commands.PaperCommandManager;
 import de.robotricker.transportpipes.commands.TPCommand;
+import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.ducts.factory.PipeFactory;
+import de.robotricker.transportpipes.ducts.manager.PipeManager;
+import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.items.PipeItemManager;
 import de.robotricker.transportpipes.listener.DuctListener;
 import de.robotricker.transportpipes.listener.PlayerListener;
 import de.robotricker.transportpipes.listener.WorldListener;
@@ -30,7 +35,7 @@ public class TransportPipes extends JavaPlugin {
     private Injector injector;
 
     private SentryService sentry;
-    private TPThread thread;
+    private ThreadService thread;
 
     @Override
     public void onEnable() {
@@ -54,14 +59,13 @@ public class TransportPipes extends JavaPlugin {
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabling plugin");
 
         //Initialize thread
-        thread = injector.getSingleton(TPThread.class);
+        thread = injector.getSingleton(ThreadService.class);
         thread.start();
 
         //Register pipeBaseDuctType
-        Set<RenderSystem> renderSystems = new HashSet<>();
-        renderSystems.add(new ModelledPipeRenderSystem(itemService));
-        renderSystems.add(new VanillaPipeRenderSystem());
-        injector.getSingleton(DuctRegister.class).registerBaseDuctType("Pipe", PipeManager.class, PipeFactory.class, PipeItemManager.class, renderSystems);
+        BaseDuctType<Pipe> baseDuctType = injector.getSingleton(DuctRegister.class).registerBaseDuctType("Pipe", PipeManager.class, PipeFactory.class, PipeItemManager.class);
+        baseDuctType.getRenderSystems().add(injector.newInstance(ModelledPipeRenderSystem.class));
+        baseDuctType.getRenderSystems().add(injector.newInstance(VanillaPipeRenderSystem.class));
 
         //Register listeners
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerListener.class), this);
@@ -72,7 +76,7 @@ public class TransportPipes extends JavaPlugin {
         PaperCommandManager commandManager = new PaperCommandManager(this);
         commandManager.enableUnstableAPI("help");
         commandManager.registerCommand(injector.getSingleton(TPCommand.class));
-        commandManager.getCommandCompletions().registerCompletion("baseDuctType", c -> BaseDuctType.values().stream().map(BaseDuctType::getName).collect(Collectors.toList()));
+        commandManager.getCommandCompletions().registerCompletion("baseDuctType", c -> injector.getSingleton(DuctRegister.class).baseDuctTypes().stream().map(BaseDuctType::getName).collect(Collectors.toList()));
 
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabled plugin");
     }

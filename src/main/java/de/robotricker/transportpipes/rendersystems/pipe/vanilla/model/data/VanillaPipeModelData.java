@@ -17,7 +17,7 @@ public class VanillaPipeModelData {
 
     public static VanillaPipeModelData createModelData(Pipe pipe) {
         if (pipe.getDuctType().is("Iron")) {
-            return new VanillaIronPipeModelData(null); //TODO: add outputDir
+            return new VanillaIronPipeModelData(pipe.getDuctType().getBaseDuctType(), null); //TODO: add outputDir
         } else {
             return new VanillaPipeModelData(pipe.getDuctType());
         }

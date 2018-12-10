@@ -4,10 +4,10 @@ import org.bukkit.Bukkit;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ItemService;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
 
-public class DuctSettingsInventory extends StaticInventory {
+public class DuctSettingsInventory extends GlobalInventory {
 
     @Inject
     private ItemService itemService;
