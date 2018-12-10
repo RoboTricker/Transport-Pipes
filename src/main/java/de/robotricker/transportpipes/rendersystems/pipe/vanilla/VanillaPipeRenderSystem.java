@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -32,9 +34,10 @@ public class VanillaPipeRenderSystem extends RenderSystem {
 
     private Map<Pipe, List<ArmorStandData>> pipeASD = new HashMap<>();
 
-    public VanillaPipeRenderSystem() {
-        super(BaseDuctType.valueOf("Pipe"));
-        VanillaPipeModel.init();
+    @Inject
+    public VanillaPipeRenderSystem(DuctRegister ductRegister) {
+        super(ductRegister.baseDuctTypeOf("Pipe"));
+        VanillaPipeModel.init(ductRegister);
     }
 
     @Override

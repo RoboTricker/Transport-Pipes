@@ -11,28 +11,28 @@ import de.robotricker.transportpipes.ducts.pipe.IcePipe;
 import de.robotricker.transportpipes.ducts.pipe.IronPipe;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.pipe.VoidPipe;
-import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
 import de.robotricker.transportpipes.location.BlockLocation;
 
-public class PipeFactory extends DuctFactory {
+public class PipeFactory extends DuctFactory<Pipe> {
 
     @Override
-    public Pipe createDuct(DuctService ductService, DuctType pipeType, BlockLocation blockLoc, World world, Chunk chunk) {
-        if (pipeType instanceof ColoredPipeType) {
-            return new ColoredPipe(ductService, blockLoc, world, chunk, (ColoredPipeType) pipeType);
-        } else if (pipeType.is("Golden")) {
-            return new GoldenPipe(ductService, blockLoc, world, chunk);
-        } else if (pipeType.is("Iron")) {
-            return new IronPipe(ductService, blockLoc, world, chunk);
-        } else if (pipeType.is("Ice")) {
-            return new IcePipe(ductService, blockLoc, world, chunk);
-        } else if (pipeType.is("Void")) {
-            return new VoidPipe(ductService, blockLoc, world, chunk);
-        } else if (pipeType.is("Extraction")) {
-            return new ExtractionPipe(ductService, blockLoc, world, chunk);
-        } else if (pipeType.is("Crafting")) {
-            return new CraftingPipe(ductService, blockLoc, world, chunk);
+    public Pipe createDuct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
+        if (ductType instanceof ColoredPipeType) {
+            return new ColoredPipe(ductType, blockLoc, world, chunk);
+        } else if (ductType.is("Golden")) {
+            return new GoldenPipe(ductType, blockLoc, world, chunk);
+        } else if (ductType.is("Iron")) {
+            return new IronPipe(ductType, blockLoc, world, chunk);
+        } else if (ductType.is("Ice")) {
+            return new IcePipe(ductType, blockLoc, world, chunk);
+        } else if (ductType.is("Void")) {
+            return new VoidPipe(ductType, blockLoc, world, chunk);
+        } else if (ductType.is("Extraction")) {
+            return new ExtractionPipe(ductType, blockLoc, world, chunk);
+        } else if (ductType.is("Crafting")) {
+            return new CraftingPipe(ductType, blockLoc, world, chunk);
         }
         return null;
     }

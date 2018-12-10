@@ -10,8 +10,8 @@ import de.robotricker.transportpipes.location.BlockLocation;
 
 public class Pipe extends Duct {
 
-    public Pipe(DuctService ductService, BlockLocation blockLoc, World world, Chunk chunk, DuctType pipeType) {
-        super(ductService, pipeType, blockLoc, world, chunk);
+    public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
+        super(ductType, blockLoc, world, chunk);
     }
 
     @Override

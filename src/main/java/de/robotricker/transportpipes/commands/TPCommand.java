@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -22,11 +23,13 @@ import co.aikar.commands.annotation.HelpCommand;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
-import de.robotricker.transportpipes.TPThread;
+import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.ThreadService;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
-import de.robotricker.transportpipes.inventory.CreativeDuctInventory;
+import de.robotricker.transportpipes.inventory.CreativeInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
@@ -36,22 +39,24 @@ import de.robotricker.transportpipes.utils.MessageUtils;
 public class TPCommand extends BaseCommand {
 
     @Inject
-    private TPThread tpThread;
+    private ThreadService threadService;
     @Inject
     private JavaPlugin plugin;
     @Inject
-    private DuctService ductService;
+    private GlobalDuctManager globalDuctManager;
     @Inject
     private ProtocolService protocol;
     @Inject
-    private CreativeDuctInventory creativeDuctInv;
+    private CreativeInventory creativeDuctInv;
+    @Inject
+    private DuctRegister ductRegister;
 
     @Subcommand("tps")
     @CommandPermission("transportpipes.tps")
     @Description("Shows some basic information about the plugin and it's runtime")
     public void onTPS(CommandSender cs) {
-        int tps = tpThread.getCurrentTPS();
-        int pref_tps = tpThread.getPreferredTPS();
+        int tps = threadService.getCurrentTPS();
+        int pref_tps = threadService.getPreferredTPS();
         ChatColor tpsColor = ChatColor.DARK_GREEN;
         if (tps <= 1) {
             tpsColor = ChatColor.DARK_RED;
@@ -69,7 +74,7 @@ public class TPCommand extends BaseCommand {
         for (World world : Bukkit.getWorlds()) {
             int worldPipes = 0;
             int worldItems = 0;
-            Map<BlockLocation, Duct> ductMap = ductService.getDucts(world);
+            Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
             synchronized (ductMap) {
                 for (Duct duct : ductMap.values()) {
                     if (duct.getDuctType().getBaseDuctType().is("Pipe")) {
@@ -87,30 +92,30 @@ public class TPCommand extends BaseCommand {
     @Syntax("<baseDuctType> [rendersystem]")
     @CommandCompletion("@baseDuctType @nothing")
     public void onChangeRenderSystem(Player p, String baseDuctType, @Optional String renderSystem) {
-        BaseDuctType bdt = BaseDuctType.valueOf(baseDuctType);
+        BaseDuctType<? extends Duct> bdt = ductRegister.baseDuctTypeOf(baseDuctType);
         if (bdt == null) {
             p.sendMessage(MessageUtils.formatColoredMsg("&4BaseDuctType does not exist"));
             return;
         }
         if (renderSystem == null) {
             p.sendMessage(MessageUtils.formatColoredMsg("&6Possible Render Systems:"));
-            for (RenderSystem rs : ductService.getRenderSystems(bdt)) {
+            for (RenderSystem rs : new ArrayList<>(bdt.getRenderSystems())) {
                 String suffix = rs.getCurrentPlayers().contains(p) ? " &6(active)" : "";
                 p.sendMessage(MessageUtils.formatColoredMsg(" &b" + rs.getDisplayName() + suffix));
             }
         } else {
-            for (RenderSystem newRs : ductService.getRenderSystems(bdt)) {
+            for (RenderSystem newRs : new ArrayList<>(bdt.getRenderSystems())) {
                 if (newRs.getDisplayName().equalsIgnoreCase(renderSystem)) {
-                    if (ductService.getRenderSystem(p, bdt) == newRs) {
+                    if (globalDuctManager.getPlayerRenderSystem(p, bdt) == newRs) {
                         p.sendMessage(MessageUtils.formatColoredMsg("&4This rendersystem is already active"));
                         return;
                     }
 
                     //switch rendersystem
-                    RenderSystem oldRs = ductService.getRenderSystem(p, bdt);
+                    RenderSystem oldRs = globalDuctManager.getPlayerRenderSystem(p, bdt);
                     oldRs.getCurrentPlayers().remove(p);
-                    synchronized (ductService.getPlayerDucts(p)) {
-                        Iterator<Duct> ductIt = ductService.getPlayerDucts(p).iterator();
+                    synchronized (globalDuctManager.getPlayerDucts(p)) {
+                        Iterator<Duct> ductIt = globalDuctManager.getPlayerDucts(p).iterator();
                         while (ductIt.hasNext()) {
                             Duct nextDuct =  ductIt.next();
                             if(nextDuct.getDuctType().getBaseDuctType().equals(bdt)){
@@ -131,7 +136,7 @@ public class TPCommand extends BaseCommand {
 
     @Subcommand("creative")
     public void onCreativeDuctInv(Player p) {
-        p.openInventory(creativeDuctInv.createInventory());
+        creativeDuctInv.openInv(p);
     }
 
     @HelpCommand

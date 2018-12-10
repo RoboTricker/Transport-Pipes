@@ -1,9 +1,10 @@
-package de.robotricker.transportpipes;
+package de.robotricker.transportpipes.items;
 
 import org.bukkit.inventory.ItemStack;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;

@@ -1,13 +1,13 @@
 package de.robotricker.transportpipes.ducts.types;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.jalu.injector.Injector;
-import de.robotricker.transportpipes.DuctFactory;
-import de.robotricker.transportpipes.DuctManager;
-import de.robotricker.transportpipes.ItemManager;
+import de.robotricker.transportpipes.ducts.factory.DuctFactory;
+import de.robotricker.transportpipes.ducts.manager.DuctManager;
+import de.robotricker.transportpipes.items.ItemManager;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 
@@ -21,12 +21,12 @@ public final class BaseDuctType<T extends Duct> {
 
     private List<DuctType> ductTypes;
 
-    public BaseDuctType(String name, DuctManager<T> ductManager, DuctFactory<T> ductFactory, ItemManager<T> itemManager, Set<RenderSystem> renderSystems) {
+    public BaseDuctType(String name, DuctManager<T> ductManager, DuctFactory<T> ductFactory, ItemManager<T> itemManager) {
         this.name = name;
         this.ductManager = ductManager;
         this.ductFactory = ductFactory;
         this.itemManager = itemManager;
-        this.renderSystems = renderSystems;
+        this.renderSystems = new HashSet<>();
         this.ductTypes = new ArrayList<>();
     }
 

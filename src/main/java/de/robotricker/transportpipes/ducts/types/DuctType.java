@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.robotricker.transportpipes.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
 
 public class DuctType {
@@ -15,6 +14,7 @@ public class DuctType {
     private Set<DuctType> connectables;
 
     public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, char colorCode) {
+        this.baseDuctType = baseDuctType;
         this.name = name;
         this.colorCode = colorCode;
         this.connectables = new HashSet<>();

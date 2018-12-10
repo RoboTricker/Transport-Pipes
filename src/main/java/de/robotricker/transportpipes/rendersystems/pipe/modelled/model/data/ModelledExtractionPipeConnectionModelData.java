@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data;
 
+import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.location.TPDirection;
 
@@ -7,8 +8,8 @@ public class ModelledExtractionPipeConnectionModelData extends ModelledPipeConne
 
     private boolean extractionSide;
 
-    public ModelledExtractionPipeConnectionModelData(TPDirection connectionDir, boolean extractionSide) {
-        super(BaseDuctType.valueOf("Pipe").ductTypeValueOf("Extraction"), connectionDir);
+    public ModelledExtractionPipeConnectionModelData(BaseDuctType<? extends Duct> baseDuctType, TPDirection connectionDir, boolean extractionSide) {
+        super(baseDuctType.ductTypeOf("Extraction"), connectionDir);
         this.extractionSide = extractionSide;
     }
 

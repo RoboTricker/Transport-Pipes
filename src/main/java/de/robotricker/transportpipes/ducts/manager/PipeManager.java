@@ -1,23 +1,24 @@
-package de.robotricker.transportpipes;
+package de.robotricker.transportpipes.ducts.manager;
+
+import org.bukkit.World;
+
+import java.util.Map;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
 import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
-import de.robotricker.transportpipes.protocol.ProtocolService;
+import de.robotricker.transportpipes.location.BlockLocation;
 
 public class PipeManager extends DuctManager<Pipe> {
 
-    private ProtocolService protocolService;
-    private DuctRegister ductRegister;
-
     @Inject
-    public PipeManager(ProtocolService protocolService, DuctRegister ductRegister) {
-        super();
-        this.protocolService = protocolService;
-        this.ductRegister = ductRegister;
+    public PipeManager(DuctRegister ductRegister) {
+        super(ductRegister);
     }
 
     @Override
@@ -66,23 +67,19 @@ public class PipeManager extends DuctManager<Pipe> {
     }
 
     @Override
-    public void tick() {
-
-    }
-
-    @Override
-    public void createDuct(Pipe duct) {
-
-    }
-
-    @Override
-    public void updateDuct(Pipe duct) {
-
-    }
-
-    @Override
-    public void destroyDuct(Pipe duct) {
-
+    public void tick(Map<World, Map<BlockLocation, Duct>> ducts) {
+        for (World world : ducts.keySet()) {
+            Map<BlockLocation, Duct> ductMap = ducts.get(world);
+            if (ductMap != null) {
+                synchronized (ductMap) {
+                    for (Duct duct : ductMap.values()) {
+                        if (duct.isInLoadedChunk()) {
+                            duct.tick();
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -15,6 +15,8 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
@@ -22,7 +24,7 @@ import de.robotricker.transportpipes.protocol.ProtocolService;
 import de.robotricker.transportpipes.utils.Constants;
 import de.robotricker.transportpipes.utils.WorldUtils;
 
-public class TPThread extends Thread {
+public class ThreadService extends Thread {
 
     private final Map<Runnable, Long> tasks;
 
@@ -30,20 +32,22 @@ public class TPThread extends Thread {
     private LoggerService logger;
     private SentryService sentry;
     private ProtocolService protocol;
-    private DuctService duct;
+    private GlobalDuctManager globalDuctManager;
+    private DuctRegister ductRegister;
 
     private boolean running = false;
     private int preferredTPS = 10;
     private int currentTPS = 0;
 
     @Inject
-    public TPThread(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, DuctService duct) {
+    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, GlobalDuctManager globalDuctManager, DuctRegister ductRegister) {
         super("TransportPipes-Thread");
         this.plugin = plugin;
         this.logger = logger;
         this.sentry = sentry;
         this.protocol = protocol;
-        this.duct = duct;
+        this.globalDuctManager = globalDuctManager;
+        this.ductRegister = ductRegister;
         this.tasks = Collections.synchronizedMap(new LinkedHashMap<>());
 
         Bukkit.getScheduler().runTaskTimer(plugin, this::tickDuctSpawnAndDespawn, 20L, 20L);
@@ -51,7 +55,7 @@ public class TPThread extends Thread {
 
     @Override
     public void run() {
-        logger.info("Started TPThread");
+        logger.info("Started ThreadService");
         running = true;
         sentry.addTag("thread", getName());
         sentry.injectThread(this);
@@ -81,11 +85,11 @@ public class TPThread extends Thread {
                 try {
                     sleep(waitTime);
                 } catch (InterruptedException e) {
-                    logger.error("TPThread was terminated while sleeping!", e);
+                    logger.error("ThreadService was terminated while sleeping!", e);
                 }
             }
         }
-        logger.info("Stopped TPThread");
+        logger.info("Stopped ThreadService");
     }
 
     public Map<Runnable, Long> getTasks() {
@@ -107,38 +111,40 @@ public class TPThread extends Thread {
             }
         }
 
+        globalDuctManager.tick();
+
         //pipe tick
-        for (World world : Bukkit.getWorlds()) {
-            Map<BlockLocation, Duct> ductMap = duct.getDucts(world);
-            if (ductMap != null) {
-                synchronized (ductMap) {
-                    for (Duct duct : ductMap.values()) {
-                        if (duct.getDuctType().getBaseDuctType().is("pipe") && duct.isInLoadedChunk()) {
-                            duct.tick();
-                        }
-                    }
-                }
-            }
-        }
+//        for (World world : Bukkit.getWorlds()) {
+//            Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
+//            if (ductMap != null) {
+//                synchronized (ductMap) {
+//                    for (Duct duct : ductMap.values()) {
+//                        if (duct.getDuctType().getBaseDuctType().is("pipe") && duct.isInLoadedChunk()) {
+//                            duct.tick();
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     private void tickDuctSpawnAndDespawn() {
         for (World world : Bukkit.getWorlds()) {
-            Map<BlockLocation, Duct> ductMap = duct.getDucts(world);
+            Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
             if (ductMap != null) {
                 synchronized (ductMap) {
                     for (Duct duct : ductMap.values()) {
                         List<Player> playerList = WorldUtils.getPlayerList(world);
                         for (Player worldPlayer : playerList) {
-                            Set<Duct> playerDucts = this.duct.getPlayerDucts(worldPlayer);
+                            Set<Duct> playerDucts = this.globalDuctManager.getPlayerDucts(worldPlayer);
                             if (duct.getBlockLoc().toLocation(world).distance(worldPlayer.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
-                                // spawn duct if not there
+                                // spawn globalDuctManager if not there
                                 if (playerDucts.add(duct))
-                                    protocol.sendASD(worldPlayer, duct.getBlockLoc(), this.duct.getRenderSystem(worldPlayer, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+                                    protocol.sendASD(worldPlayer, duct.getBlockLoc(), this.globalDuctManager.getPlayerRenderSystem(worldPlayer, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
                             } else {
-                                // despawn duct if there
+                                // despawn globalDuctManager if there
                                 if (playerDucts.remove(duct))
-                                    protocol.removeASD(worldPlayer, this.duct.getRenderSystem(worldPlayer, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+                                    protocol.removeASD(worldPlayer, this.globalDuctManager.getPlayerRenderSystem(worldPlayer, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
                             }
                         }
                     }
