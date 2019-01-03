@@ -4,8 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -25,7 +23,6 @@ import de.robotricker.transportpipes.listener.PlayerListener;
 import de.robotricker.transportpipes.listener.WorldListener;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
-import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
 import io.sentry.event.Breadcrumb;
@@ -62,7 +59,7 @@ public class TransportPipes extends JavaPlugin {
         thread = injector.getSingleton(ThreadService.class);
         thread.start();
 
-        //Register pipeBaseDuctType
+        //Register pipe
         BaseDuctType<Pipe> baseDuctType = injector.getSingleton(DuctRegister.class).registerBaseDuctType("Pipe", PipeManager.class, PipeFactory.class, PipeItemManager.class);
         baseDuctType.getRenderSystems().add(injector.newInstance(ModelledPipeRenderSystem.class));
         baseDuctType.getRenderSystems().add(injector.newInstance(VanillaPipeRenderSystem.class));

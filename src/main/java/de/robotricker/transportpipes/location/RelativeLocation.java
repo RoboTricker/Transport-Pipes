@@ -2,9 +2,9 @@ package de.robotricker.transportpipes.location;
 
 import java.util.Objects;
 
-public class RelativeLocation {
+public class RelativeLocation implements Cloneable {
 
-    private static long PRECISION = 100000;
+    public static final long PRECISION = 100000;
 
     private long x;
     private long y;
@@ -38,16 +38,54 @@ public class RelativeLocation {
         return z / 1d / PRECISION;
     }
 
-    public void set(double x, double y, double z) {
+    public RelativeLocation set(double x, double y, double z) {
         this.x = (long) (x * PRECISION);
         this.y = (long) (y * PRECISION);
         this.z = (long) (z * PRECISION);
+        return this;
     }
 
-    public void set(long x, long y, long z) {
+    public RelativeLocation set(long x, long y, long z) {
         this.x = x;
         this.y = y;
         this.z = z;
+        return this;
+    }
+
+    public RelativeLocation add(double x, double y, double z) {
+        set(getDoubleX() + x, getDoubleY() + y, getDoubleZ() + z);
+        return this;
+    }
+
+    public RelativeLocation add(long x, long y, long z) {
+        set(getLongX() + x, getLongY() + y, getLongZ() + z);
+        return this;
+    }
+
+    public boolean isXEquals(double x) {
+        return this.x == x * PRECISION;
+    }
+
+    public boolean isYEquals(double y) {
+        return this.y == y * PRECISION;
+    }
+
+    public boolean isZEquals(double z) {
+        return this.z == z * PRECISION;
+    }
+
+    public boolean isEquals(double x, double y, double z) {
+        return isXEquals(x) && isYEquals(y) && isZEquals(z);
+    }
+
+    /**
+     * switches all values in the following system:<br>
+     * 1: 0<br>
+     * 0: 1<br>
+     * 0.5: 0.5
+     */
+    public void switchValues() {
+        set(1d - getDoubleX(), 1d - getDoubleY(), 1d - getDoubleZ());
     }
 
     @Override
@@ -68,5 +106,10 @@ public class RelativeLocation {
     @Override
     public String toString() {
         return String.format("(%.2f, %.2f, %.2f)", getDoubleX(), getDoubleY(), getDoubleZ());
+    }
+
+    @Override
+    public RelativeLocation clone() {
+        return new RelativeLocation(getDoubleX(), getDoubleY(), getDoubleZ());
     }
 }

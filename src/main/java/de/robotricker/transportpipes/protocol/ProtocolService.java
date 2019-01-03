@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.protocol;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityMetadata;
+import com.comphenix.packetwrapper.WrapperPlayServerRelEntityMove;
 import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
@@ -11,12 +12,14 @@ import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.ducts.pipe.items.PipeItem;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.utils.NMSUtils;
@@ -42,6 +45,28 @@ public class ProtocolService {
 
     private int nextEntityID = 99999;
     private UUID uuid = UUID.randomUUID();
+
+    public void sendPipeItem(Player p, PipeItem item) {
+        sendASD(p, item.getBlockLoc(), item.getRelativeLocation().clone().add(-0.5d, -0.5d, -0.5d), item.getAsd());
+    }
+
+    public void updatePipeItem(Player p, PipeItem item) {
+        try {
+            WrapperPlayServerRelEntityMove moveWrapper = new WrapperPlayServerRelEntityMove();
+            moveWrapper.setEntityID(item.getAsd().getEntityID());
+            moveWrapper.setDx((int) ((item.getRelativeLocationDifference().getDoubleX() * 32d) * 128));
+            moveWrapper.setDy((int) ((item.getRelativeLocationDifference().getDoubleY() * 32d) * 128));
+            moveWrapper.setDz((int) ((item.getRelativeLocationDifference().getDoubleZ() * 32d) * 128));
+            moveWrapper.setOnGround(true);
+            moveWrapper.sendPacket(p);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removePipeItem(final Player p, PipeItem item) {
+        removeASD(p, Collections.singletonList(item.getAsd()));
+    }
 
     public void sendASD(Player p, BlockLocation blockLoc, RelativeLocation offset, ArmorStandData asd) {
         int serverVersion = NMSUtils.gatherProtocolVersion();

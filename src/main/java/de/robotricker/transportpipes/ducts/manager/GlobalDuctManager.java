@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
@@ -27,6 +28,7 @@ import de.robotricker.transportpipes.utils.Constants;
 
 public class GlobalDuctManager {
 
+    protected TransportPipes transportPipes;
     protected ProtocolService protocolService;
     protected DuctRegister ductRegister;
 
@@ -40,7 +42,8 @@ public class GlobalDuctManager {
     private Map<Player, Set<Duct>> playerDucts;
 
     @Inject
-    public GlobalDuctManager(ProtocolService protocolService, DuctRegister ductRegister) {
+    public GlobalDuctManager(TransportPipes transportPipes, ProtocolService protocolService, DuctRegister ductRegister) {
+        this.transportPipes = transportPipes;
         this.protocolService = protocolService;
         this.ductRegister = ductRegister;
         this.ducts = Collections.synchronizedMap(new HashMap<>());
@@ -73,6 +76,7 @@ public class GlobalDuctManager {
     }
 
     public void createDuct(Duct duct) {
+
         getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
         updateDuctConnections(duct);
         duct.updateContainerConnections();
@@ -125,6 +129,7 @@ public class GlobalDuctManager {
         for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
             updateDuct(duct.getDuctConnections().get(ductConn));
         }
+        duct.destroyed(transportPipes, duct.getDuctType().getBaseDuctType().getDuctManager());
     }
 
     public void updateDuctConnections(Duct duct) {

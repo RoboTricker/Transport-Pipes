@@ -9,6 +9,9 @@ import java.util.List;
 
 public class WorldUtils {
 
+    /**
+     * THREAD-SAFE
+     */
     public static List<Player> getPlayerList(World world) {
         // Bukkit.getOnlinePlayers is the only thread safe playerlist getter
         List<Player> playerList = new ArrayList<>();

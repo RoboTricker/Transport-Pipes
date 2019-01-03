@@ -41,7 +41,7 @@ public enum TPDirection {
     }
 
     public TPDirection getOpposite() {
-        return getFromBlockFace(getBlockFace().getOppositeFace());
+        return fromBlockFace(getBlockFace().getOppositeFace());
     }
 
     public boolean isSide() {
@@ -55,7 +55,7 @@ public enum TPDirection {
         return values()[ordinal];
     }
 
-    public static TPDirection getFromBlockFace(BlockFace blockFace) {
+    public static TPDirection fromBlockFace(BlockFace blockFace) {
         for (TPDirection tpDir : TPDirection.values()) {
             if (tpDir.getBlockFace().equals(blockFace)) {
                 return tpDir;

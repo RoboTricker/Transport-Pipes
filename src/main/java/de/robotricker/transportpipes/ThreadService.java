@@ -136,15 +136,12 @@ public class ThreadService extends Thread {
                     for (Duct duct : ductMap.values()) {
                         List<Player> playerList = WorldUtils.getPlayerList(world);
                         for (Player worldPlayer : playerList) {
-                            Set<Duct> playerDucts = this.globalDuctManager.getPlayerDucts(worldPlayer);
                             if (duct.getBlockLoc().toLocation(world).distance(worldPlayer.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
                                 // spawn globalDuctManager if not there
-                                if (playerDucts.add(duct))
-                                    protocol.sendASD(worldPlayer, duct.getBlockLoc(), this.globalDuctManager.getPlayerRenderSystem(worldPlayer, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+                                duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctShown(duct, worldPlayer);
                             } else {
                                 // despawn globalDuctManager if there
-                                if (playerDucts.remove(duct))
-                                    protocol.removeASD(worldPlayer, this.globalDuctManager.getPlayerRenderSystem(worldPlayer, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+                                duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctHidden(duct, worldPlayer);
                             }
                         }
                     }
