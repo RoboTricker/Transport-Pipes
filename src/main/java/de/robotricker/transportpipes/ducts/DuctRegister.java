@@ -2,7 +2,6 @@ package de.robotricker.transportpipes.ducts;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -11,7 +10,6 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.ducts.factory.DuctFactory;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.items.ItemManager;
-import de.robotricker.transportpipes.rendersystems.RenderSystem;
 
 public class DuctRegister {
 

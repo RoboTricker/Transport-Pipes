@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
 
 public class DuctType {
 

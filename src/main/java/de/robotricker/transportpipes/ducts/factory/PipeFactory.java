@@ -13,6 +13,7 @@ import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.pipe.VoidPipe;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.ducts.types.pipetype.ColoredPipeType;
+import de.robotricker.transportpipes.inventory.GoldenPipeSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
 
 public class PipeFactory extends DuctFactory<Pipe> {
@@ -20,19 +21,19 @@ public class PipeFactory extends DuctFactory<Pipe> {
     @Override
     public Pipe createDuct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
         if (ductType instanceof ColoredPipeType) {
-            return new ColoredPipe(ductType, blockLoc, world, chunk);
+            return new ColoredPipe(ductType, blockLoc, world, chunk, null);
         } else if (ductType.is("Golden")) {
-            return new GoldenPipe(ductType, blockLoc, world, chunk);
+            return new GoldenPipe(ductType, blockLoc, world, chunk, transportPipes.getInjector().newInstance(GoldenPipeSettingsInventory.class));
         } else if (ductType.is("Iron")) {
-            return new IronPipe(ductType, blockLoc, world, chunk);
+            return new IronPipe(ductType, blockLoc, world, chunk, null);
         } else if (ductType.is("Ice")) {
-            return new IcePipe(ductType, blockLoc, world, chunk);
+            return new IcePipe(ductType, blockLoc, world, chunk, null);
         } else if (ductType.is("Void")) {
-            return new VoidPipe(ductType, blockLoc, world, chunk);
+            return new VoidPipe(ductType, blockLoc, world, chunk, null);
         } else if (ductType.is("Extraction")) {
-            return new ExtractionPipe(ductType, blockLoc, world, chunk);
+            return new ExtractionPipe(ductType, blockLoc, world, chunk, null);
         } else if (ductType.is("Crafting")) {
-            return new CraftingPipe(ductType, blockLoc, world, chunk);
+            return new CraftingPipe(ductType, blockLoc, world, chunk, null);
         }
         return null;
     }

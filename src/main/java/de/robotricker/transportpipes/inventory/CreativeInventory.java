@@ -27,7 +27,7 @@ public class CreativeInventory extends IndividualInventory {
         int i = 0;
         for (BaseDuctType<? extends Duct> bdt : ductRegister.baseDuctTypes()) {
             for (DuctType dt : bdt.ductTypes()) {
-                ItemStack ductItem = bdt.getItemManager().cloneItem(dt);
+                ItemStack ductItem = bdt.getItemManager().getClonedItem(dt);
                 ductItem.setAmount(16);
                 inv.setItem(i++, ductItem);
             }

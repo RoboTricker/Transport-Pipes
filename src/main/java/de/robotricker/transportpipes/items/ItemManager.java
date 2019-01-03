@@ -20,7 +20,7 @@ public abstract class ItemManager<T extends Duct> {
         return items.get(ductType);
     }
 
-    public ItemStack cloneItem(DuctType ductType) {
+    public ItemStack getClonedItem(DuctType ductType) {
         return getItem(ductType).clone();
     }
 

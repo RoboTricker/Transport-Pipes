@@ -1,7 +1,5 @@
 package de.robotricker.transportpipes.ducts.types.pipetype;
 
-import org.bukkit.inventory.ItemStack;
-
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;

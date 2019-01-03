@@ -29,6 +29,7 @@ import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.location.BlockLocation;
+import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.utils.HitboxUtils;
 import de.robotricker.transportpipes.items.ItemService;
 
@@ -153,8 +154,11 @@ public class DuctListener implements Listener {
                 DuctType itemDuctType = itemService.readDuctNBTTags(interaction.item, ductRegister);
                 boolean manualPlaceable = itemDuctType != null || interaction.item.getType().isSolid();
 
-                if (interaction.item.getType() == Material.STICK && clickedDuct != null) {
-                    //TODO: open duct inv
+                if (interaction.item.isSimilar(itemService.getWrench()) && clickedDuct != null) {
+
+                    //wrench click
+                    clickedDuct.notifyClick(interaction.p, TPDirection.fromBlockFace(interaction.blockFace), interaction.p.isSneaking());
+
                     interaction.cancel = true;
                     interaction.successful = true;
                     return;

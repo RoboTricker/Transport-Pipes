@@ -10,7 +10,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.ducts.manager.DuctManager;
+import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
@@ -28,16 +31,21 @@ public abstract class Duct {
 
     private DuctSettingsInventory settingsInv;
 
-    public Duct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
+    public Duct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv) {
         this.ductType = ductType;
         this.blockLoc = blockLoc;
         this.world = world;
         this.chunk = chunk;
+        this.settingsInv = settingsInv;
+        if (settingsInv != null) {
+            settingsInv.setDuct(this);
+            settingsInv.populate();
+        }
         this.connectedDucts = Collections.synchronizedMap(new HashMap<>());
         this.connectedContainers = Collections.synchronizedMap(new HashMap<>());
     }
 
-    public void notifyClick(Player p, TPDirection face) {
+    public void notifyClick(Player p, TPDirection face, boolean shift) {
         if (settingsInv != null)
             settingsInv.openInv(p);
     }
@@ -58,7 +66,7 @@ public abstract class Duct {
         return chunk.isLoaded();
     }
 
-    public void tick() {
+    public void tick(TransportPipes transportPipes, DuctManager ductManager, GlobalDuctManager globalDuctManager) {
 
     }
 
@@ -79,6 +87,13 @@ public abstract class Duct {
         connections.addAll(getDuctConnections().keySet());
         connections.addAll(getContainerConnections().keySet());
         return connections;
+    }
+
+    /**
+     * just for the purpose of dropping inside items or other baseDuctType specific stuff
+     */
+    public void destroyed(TransportPipes transportPipes, DuctManager ductManager) {
+
     }
 
 }

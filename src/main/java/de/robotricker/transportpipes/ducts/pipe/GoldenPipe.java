@@ -5,13 +5,14 @@ import org.bukkit.World;
 
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class GoldenPipe extends Pipe {
 
-    public GoldenPipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
-        super(ductType, blockLoc, world, chunk);
+    public GoldenPipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv) {
+        super(ductType, blockLoc, world, chunk, settingsInv);
     }
 
     public enum Color {

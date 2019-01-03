@@ -5,11 +5,12 @@ import org.bukkit.World;
 
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
 
 public class VoidPipe extends Pipe {
 
-    public VoidPipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
-        super(ductType, blockLoc, world, chunk);
+    public VoidPipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv) {
+        super(ductType, blockLoc, world, chunk, settingsInv);
     }
 }

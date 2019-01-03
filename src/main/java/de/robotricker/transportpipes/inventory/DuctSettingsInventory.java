@@ -7,16 +7,17 @@ import javax.inject.Inject;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
 
-public class DuctSettingsInventory extends GlobalInventory {
+public abstract class DuctSettingsInventory extends GlobalInventory {
 
     @Inject
-    private ItemService itemService;
+    protected ItemService itemService;
 
-    private Duct duct;
+    protected Duct duct;
 
-    public DuctSettingsInventory(Duct duct) {
+    public final void setDuct(Duct duct) {
         this.duct = duct;
-        this.inv = Bukkit.createInventory(null, 9 * 3, duct.getDuctType() + " Inventory");
     }
+
+    public abstract void populate();
 
 }
