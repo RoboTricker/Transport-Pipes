@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.ducts.manager;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,10 +77,9 @@ public class GlobalDuctManager {
     }
 
     public void createDuct(Duct duct) {
-
         getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
         updateDuctConnections(duct);
-        duct.updateContainerConnections();
+        updateContainerConnections(duct);
         for (RenderSystem renderSystem : duct.getDuctType().getBaseDuctType().getRenderSystems()) {
             renderSystem.createDuctASD(duct, duct.getAllConnections());
             synchronized (renderSystem.getCurrentPlayers()) {
@@ -98,7 +98,7 @@ public class GlobalDuctManager {
 
     public void updateDuct(Duct duct) {
         updateDuctConnections(duct);
-        duct.updateContainerConnections();
+        updateContainerConnections(duct);
         for (RenderSystem renderSystem : duct.getDuctType().getBaseDuctType().getRenderSystems()) {
             List<ArmorStandData> removeASD = new ArrayList<>();
             List<ArmorStandData> addASD = new ArrayList<>();
@@ -114,7 +114,7 @@ public class GlobalDuctManager {
         }
     }
 
-    public void destroyDuct(Duct duct) {
+    public void destroyDuct(Duct duct, Player destroyer) {
         getDucts(duct.getWorld()).remove(duct.getBlockLoc());
         for (RenderSystem renderSystem : duct.getDuctType().getBaseDuctType().getRenderSystems()) {
             synchronized (renderSystem.getCurrentPlayers()) {
@@ -129,9 +129,19 @@ public class GlobalDuctManager {
         for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
             updateDuct(duct.getDuctConnections().get(ductConn));
         }
-        duct.destroyed(transportPipes, duct.getDuctType().getBaseDuctType().getDuctManager());
+        //drop items
+        List<ItemStack> dropItems = duct.destroyed(transportPipes, duct.getDuctType().getBaseDuctType().getDuctManager(), destroyer);
+        transportPipes.runTaskSync(() -> {
+            for (ItemStack is : dropItems) {
+                duct.getWorld().dropItem(duct.getBlockLoc().toLocation(duct.getWorld()), is);
+            }
+        });
     }
 
+    /**
+     * recalculates the duct connections of this duct and saves them.
+     * Also notifies the duct about this change
+     */
     public void updateDuctConnections(Duct duct) {
         duct.getDuctConnections().clear();
         for (TPDirection tpDir : TPDirection.values()) {
@@ -140,6 +150,15 @@ public class GlobalDuctManager {
                 duct.getDuctConnections().put(tpDir, neighborDuct);
             }
         }
+        duct.notifyConnectionChange();
+    }
+
+    /**
+     * recalculates the container connections of this duct and saves them.
+     * Also notifies the duct about this change
+     */
+    public void updateContainerConnections(Duct duct) {
+        duct.notifyConnectionChange();
     }
 
     public void tick() {

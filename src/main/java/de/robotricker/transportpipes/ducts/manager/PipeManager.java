@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.ducts.manager;
 
+import org.bukkit.DyeColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -27,15 +28,20 @@ import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class PipeManager extends DuctManager<Pipe> {
 
+    private static final long EXTRACT_TICK_COUNT = 10;
+
     /**
      * THREAD-SAFE
      */
     private Map<Player, Set<PipeItem>> playerItems;
 
+    private long tickCount;
+
     @Inject
     public PipeManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService) {
         super(transportPipes, ductRegister, globalDuctManager, protocolService);
         playerItems = Collections.synchronizedMap(new HashMap<>());
+        tickCount = 0;
     }
 
     @Override
@@ -43,17 +49,17 @@ public class PipeManager extends DuctManager<Pipe> {
         PipeType pipeType;
         BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
 
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "White", '7');
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "White", '7', DyeColor.WHITE);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", '1');
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", '1', DyeColor.BLUE);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", '4');
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", '4', DyeColor.RED);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", 'e');
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", 'e', DyeColor.YELLOW);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", '2');
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", '2', DyeColor.GREEN);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", '8');
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", '8', DyeColor.BLACK);
         pipeBaseDuctType.registerDuctType(pipeType);
         pipeType = new PipeType(pipeBaseDuctType, "Golden", '6');
         pipeBaseDuctType.registerDuctType(pipeType);
@@ -85,20 +91,41 @@ public class PipeManager extends DuctManager<Pipe> {
 
     @Override
     public void tick(Map<World, Map<BlockLocation, Duct>> ducts) {
+        tickCount++;
+        tickCount %= EXTRACT_TICK_COUNT;
+        boolean extract = tickCount == 0;
+
+        int pipesLoaded = 0;
+        int pipesUnloaded = 0;
+
         for (World world : ducts.keySet()) {
             Map<BlockLocation, Duct> ductMap = ducts.get(world);
             if (ductMap != null) {
                 synchronized (ductMap) {
-                    // activate pipeItems which are in futureItems
                     for (Duct duct : ductMap.values()) {
-                        Pipe pipe = (Pipe) duct;
-                        synchronized (pipe.getFutureItems()) {
-                            Iterator<PipeItem> itemIt = pipe.getFutureItems().iterator();
-                            while (itemIt.hasNext()) {
-                                PipeItem futureItem = itemIt.next();
-                                pipe.getItems().add(futureItem);
-                                itemIt.remove();
+                        if (duct.isInLoadedChunk()) {
+                            pipesLoaded++;
+                            Pipe pipe = (Pipe) duct;
+                            // activate pipeItems which are in futureItems
+                            synchronized (pipe.getFutureItems()) {
+                                Iterator<PipeItem> itemIt = pipe.getFutureItems().iterator();
+                                while (itemIt.hasNext()) {
+                                    PipeItem futureItem = itemIt.next();
+                                    pipe.getItems().add(futureItem);
+                                    itemIt.remove();
+                                }
                             }
+                            // activate pipeItems which are in unloadedItems one by one
+                            if (extract) {
+                                synchronized (pipe.getUnloadedItems()) {
+                                    if (!pipe.getUnloadedItems().isEmpty()) {
+                                        PipeItem unloadedItem = pipe.getUnloadedItems().remove(pipe.getUnloadedItems().size() - 1);
+                                        pipe.getItems().add(unloadedItem);
+                                    }
+                                }
+                            }
+                        } else {
+                            pipesUnloaded++;
                         }
                     }
                     //normal tick and item update
@@ -110,6 +137,10 @@ public class PipeManager extends DuctManager<Pipe> {
                 }
             }
         }
+
+//        if(extract)
+//        System.out.println(pipesLoaded + " loaded and " + pipesUnloaded + " unloaded");
+
     }
 
     public Set<PipeItem> getPlayerPipeItems(Player player) {
@@ -166,6 +197,16 @@ public class PipeManager extends DuctManager<Pipe> {
         Pipe pipe = (Pipe) duct;
         Set<PipeItem> playerPipeItems = getPlayerPipeItems(p);
         for (PipeItem pipeItem : pipe.getItems()) {
+            if (playerPipeItems.remove(pipeItem)) {
+                protocolService.removePipeItem(p, pipeItem);
+            }
+        }
+        for (PipeItem pipeItem : pipe.getFutureItems()) {
+            if (playerPipeItems.remove(pipeItem)) {
+                protocolService.removePipeItem(p, pipeItem);
+            }
+        }
+        for (PipeItem pipeItem : pipe.getUnloadedItems()) {
             if (playerPipeItems.remove(pipeItem)) {
                 protocolService.removePipeItem(p, pipeItem);
             }

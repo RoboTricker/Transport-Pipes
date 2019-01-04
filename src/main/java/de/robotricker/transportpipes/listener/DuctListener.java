@@ -201,7 +201,7 @@ public class DuctListener implements Listener {
         } else if (interaction.action == Action.LEFT_CLICK_AIR || interaction.action == Action.LEFT_CLICK_BLOCK) {
             Duct clickedDuct = HitboxUtils.getDuctLookingTo(globalDuctManager, interaction.p, interaction.clickedBlock);
             if (clickedDuct != null) {
-                globalDuctManager.destroyDuct(clickedDuct);
+                globalDuctManager.destroyDuct(clickedDuct, interaction.p);
                 interaction.cancel = true;
                 interaction.successful = true;
             }
