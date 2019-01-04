@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.ducts.factory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
@@ -21,19 +22,21 @@ public class PipeFactory extends DuctFactory<Pipe> {
     @Override
     public Pipe createDuct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
         if (ductType instanceof ColoredPipeType) {
-            return new ColoredPipe(ductType, blockLoc, world, chunk, null);
+            return new ColoredPipe(ductType, blockLoc, world, chunk, null, globalDuctManager);
         } else if (ductType.is("Golden")) {
-            return new GoldenPipe(ductType, blockLoc, world, chunk, transportPipes.getInjector().newInstance(GoldenPipeSettingsInventory.class));
+            GoldenPipeSettingsInventory inv = transportPipes.getInjector().newInstance(GoldenPipeSettingsInventory.class);
+            Bukkit.getPluginManager().registerEvents(inv, transportPipes);
+            return new GoldenPipe(ductType, blockLoc, world, chunk, inv, globalDuctManager);
         } else if (ductType.is("Iron")) {
-            return new IronPipe(ductType, blockLoc, world, chunk, null);
+            return new IronPipe(ductType, blockLoc, world, chunk, null, globalDuctManager);
         } else if (ductType.is("Ice")) {
-            return new IcePipe(ductType, blockLoc, world, chunk, null);
+            return new IcePipe(ductType, blockLoc, world, chunk, null, globalDuctManager);
         } else if (ductType.is("Void")) {
-            return new VoidPipe(ductType, blockLoc, world, chunk, null);
+            return new VoidPipe(ductType, blockLoc, world, chunk, null, globalDuctManager);
         } else if (ductType.is("Extraction")) {
-            return new ExtractionPipe(ductType, blockLoc, world, chunk, null);
+            return new ExtractionPipe(ductType, blockLoc, world, chunk, null, globalDuctManager);
         } else if (ductType.is("Crafting")) {
-            return new CraftingPipe(ductType, blockLoc, world, chunk, null);
+            return new CraftingPipe(ductType, blockLoc, world, chunk, null, globalDuctManager);
         }
         return null;
     }

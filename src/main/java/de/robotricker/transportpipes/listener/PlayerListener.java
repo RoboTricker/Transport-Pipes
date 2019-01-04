@@ -55,18 +55,20 @@ public class PlayerListener implements Listener {
     }
 
     // TODO: REMOVE DEBUG
-    /*@EventHandler
+    @EventHandler
     public void onDebug(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (e.getItem() != null && e.getItem().getType() == Material.APPLE) {
                 Pipe pipe = (Pipe) globalDuctManager.getDuctAtLoc(e.getPlayer().getLocation());
                 if (pipe != null) {
-                    PipeItem item = new PipeItem(new ItemStack(Material.APPLE), e.getPlayer().getWorld(), new BlockLocation(e.getPlayer().getLocation()), TPDirection.NORTH);
-                    ((PipeManager) pipe.getDuctType().getBaseDuctType().getDuctManager()).createPipeItem(item);
-                    System.out.println("placed item");
+                    for (int i = 0; i < (e.getPlayer().isSneaking() ? 10 : 1); i++) {
+                        PipeItem item = new PipeItem(new ItemStack(Material.APPLE), e.getPlayer().getWorld(), new BlockLocation(e.getPlayer().getLocation()), TPDirection.NORTH);
+                        ((PipeManager) pipe.getDuctType().getBaseDuctType().getDuctManager()).createPipeItem(item);
+                    }
+                    System.out.println("placed item(s)");
                 }
             }
         }
-    }*/
+    }
 
 }

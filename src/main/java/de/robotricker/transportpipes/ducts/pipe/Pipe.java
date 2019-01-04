@@ -2,11 +2,11 @@ package de.robotricker.transportpipes.ducts.pipe;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import de.robotricker.transportpipes.TransportPipes;
@@ -25,6 +25,8 @@ import de.robotricker.transportpipes.location.TPDirection;
 
 public class Pipe extends Duct {
 
+    private static final int MAX_ITEMS = 20;
+
     /**
      * THREAD-SAFE
      * contains all the items that are inside this pipe and should be updated
@@ -36,10 +38,17 @@ public class Pipe extends Duct {
      */
     private final List<PipeItem> futureItems;
 
-    public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv) {
-        super(ductType, blockLoc, world, chunk, settingsInv);
+    /**
+     * THREAD-SAFE
+     * contains all the items that arrived in this pipe while it was inside an unloaded chunk. As this pipe gets loaded, it extracts the items from this list one by one into the items list
+     */
+    private final List<PipeItem> unloadedItems;
+
+    public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
+        super(ductType, blockLoc, world, chunk, settingsInv, globalDuctManager);
         items = Collections.synchronizedList(new ArrayList<>());
         futureItems = Collections.synchronizedList(new ArrayList<>());
+        unloadedItems = Collections.synchronizedList(new ArrayList<>());
     }
 
     public List<PipeItem> getItems() {
@@ -50,8 +59,16 @@ public class Pipe extends Duct {
         return futureItems;
     }
 
+    public List<PipeItem> getUnloadedItems() {
+        return unloadedItems;
+    }
+
     public void putPipeItem(PipeItem pipeItem) {
-        futureItems.add(pipeItem);
+        if (isInLoadedChunk()) {
+            futureItems.add(pipeItem);
+        } else {
+            unloadedItems.add(pipeItem);
+        }
     }
 
     double getPipeItemSpeed() {
@@ -61,7 +78,12 @@ public class Pipe extends Duct {
     @Override
     public void tick(TransportPipes transportPipes, DuctManager ductManager, GlobalDuctManager globalDuctManager) {
         super.tick(transportPipes, ductManager, globalDuctManager);
+
         PipeManager pipeManager = (PipeManager) ductManager;
+        if(items.size() > MAX_ITEMS) {
+            transportPipes.runTaskAsync(() -> globalDuctManager.destroyDuct(this, null), 0L);
+            return;
+        }
         synchronized (items) {
             for (int i = items.size() - 1; i >= 0; i--) {
                 PipeItem pipeItem = items.get(i);
@@ -118,36 +140,32 @@ public class Pipe extends Duct {
     }
 
     @Override
-    public void destroyed(TransportPipes transportPipes, DuctManager ductManager) {
-        super.destroyed(transportPipes, ductManager);
-        List<ItemStack> dropItems = new ArrayList<>();
-        synchronized (futureItems) {
-            Iterator<PipeItem> pipeItemIterator = futureItems.iterator();
-            while (pipeItemIterator.hasNext()) {
-                PipeItem pipeItem = pipeItemIterator.next();
+    public List<ItemStack> destroyed(TransportPipes transportPipes, DuctManager ductManager, Player destroyer) {
+        List<ItemStack> dropItems = super.destroyed(transportPipes, ductManager, destroyer);
 
-                dropItems.add(pipeItem.getItem());
-                ((PipeManager) ductManager).destroyPipeItem(pipeItem);
-
-                pipeItemIterator.remove();
-            }
-        }
         synchronized (items) {
-            Iterator<PipeItem> pipeItemIterator = items.iterator();
-            while (pipeItemIterator.hasNext()) {
-                PipeItem pipeItem = pipeItemIterator.next();
-
-                dropItems.add(pipeItem.getItem());
+            items.forEach(pipeItem -> {
                 ((PipeManager) ductManager).destroyPipeItem(pipeItem);
-
-                pipeItemIterator.remove();
-            }
+                dropItems.add(pipeItem.getItem());
+            });
+            items.clear();
         }
-        transportPipes.runTaskSync(() -> {
-            for (ItemStack is : dropItems) {
-                getWorld().dropItem(getBlockLoc().toLocation(getWorld()), is);
-            }
-        });
+        synchronized (futureItems) {
+            futureItems.forEach(pipeItem -> {
+                ((PipeManager) ductManager).destroyPipeItem(pipeItem);
+                dropItems.add(pipeItem.getItem());
+            });
+            futureItems.clear();
+        }
+        synchronized (unloadedItems) {
+            unloadedItems.forEach(pipeItem -> {
+                ((PipeManager) ductManager).destroyPipeItem(pipeItem);
+                dropItems.add(pipeItem.getItem());
+            });
+            unloadedItems.clear();
+        }
+
+        return dropItems;
     }
 
     @Override

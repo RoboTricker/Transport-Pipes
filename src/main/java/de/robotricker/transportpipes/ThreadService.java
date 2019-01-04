@@ -98,8 +98,9 @@ public class ThreadService extends Thread {
 
     private void tick() {
         //schedule tasks
+        Set<Runnable> taskSet = tasks.keySet();
         synchronized (tasks) {
-            Iterator<Runnable> taskIt = tasks.keySet().iterator();
+            Iterator<Runnable> taskIt = taskSet.iterator();
             while (taskIt.hasNext()) {
                 Runnable task = taskIt.next();
                 if (tasks.get(task) > 1) {
@@ -112,20 +113,6 @@ public class ThreadService extends Thread {
         }
 
         globalDuctManager.tick();
-
-        //pipe tick
-//        for (World world : Bukkit.getWorlds()) {
-//            Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
-//            if (ductMap != null) {
-//                synchronized (ductMap) {
-//                    for (Duct duct : ductMap.values()) {
-//                        if (duct.getDuctType().getBaseDuctType().is("pipe") && duct.isInLoadedChunk()) {
-//                            duct.tick();
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
     private void tickDuctSpawnAndDespawn() {

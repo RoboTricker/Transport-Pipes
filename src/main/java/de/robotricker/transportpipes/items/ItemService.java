@@ -12,6 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -62,6 +64,22 @@ public class ItemService {
         ItemMeta im = is.getItemMeta();
         im.setDisplayName(displayName);
         is.setItemMeta(im);
+        return is;
+    }
+
+    public ItemStack changeDisplayNameAndLore(ItemStack is, String displayName, String... lore) {
+        ItemMeta meta = is.getItemMeta();
+        meta.setDisplayName(displayName);
+        meta.setLore(Arrays.asList(lore));
+        is.setItemMeta(meta);
+        return is;
+    }
+
+    public ItemStack changeDisplayNameAndLoreConfig(ItemStack is, String displayName, List<String> lore) {
+        ItemMeta meta = is.getItemMeta();
+        meta.setDisplayName(displayName);
+        meta.setLore(lore);
+        is.setItemMeta(meta);
         return is;
     }
 
