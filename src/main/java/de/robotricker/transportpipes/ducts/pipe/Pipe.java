@@ -43,11 +43,14 @@ public class Pipe extends Duct {
 
     /**
      * THREAD-SAFE
-     * contains all the items that arrived in this pipe while it was inside an unloaded chunk. As this pipe gets loaded, it extracts the items from this list one by one into the items list
+     * contains all the items that could not be put into the next pipe or container because it is inside an unloaded chunk.
+     * As this pipe / container gets loaded again, these items get put into the it one by one.
      */
     private final List<PipeItem> unloadedItems;
 
     private Map<TPDirection, TPContainer> connectedContainers;
+
+    private int middleDirectionCounter = 0;
 
     public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
         super(ductType, blockLoc, world, chunk, settingsInv, globalDuctManager);
@@ -82,11 +85,7 @@ public class Pipe extends Duct {
     }
 
     public void putPipeItem(PipeItem pipeItem) {
-        if (isInLoadedChunk()) {
-            futureItems.add(pipeItem);
-        } else {
-            unloadedItems.add(pipeItem);
-        }
+        futureItems.add(pipeItem);
     }
 
     double getPipeItemSpeed() {
@@ -117,11 +116,9 @@ public class Pipe extends Duct {
                     //calculate possible moving directions
                     List<TPDirection> possibleMovingDirs = new ArrayList<>(getAllConnections());
                     possibleMovingDirs.remove(pipeItem.getMovingDir().getOpposite());
-                    if (possibleMovingDirs.isEmpty()) {
-                        possibleMovingDirs.add(pipeItem.getMovingDir());
-                    }
 
-                    TPDirection newMovingDir = possibleMovingDirs.get((int) (Math.random() * possibleMovingDirs.size()));
+                    //calculate actual outcome
+                    TPDirection newMovingDir = calculateMiddleOutcome(pipeItem, possibleMovingDirs);
                     pipeItem.setMovingDir(newMovingDir);
                 } else if (pipeItem.getRelativeLocation().isXEquals(0d) || pipeItem.getRelativeLocation().isYEquals(0d) || pipeItem.getRelativeLocation().isZEquals(0d)
                         || pipeItem.getRelativeLocation().isXEquals(1d) || pipeItem.getRelativeLocation().isYEquals(1d) || pipeItem.getRelativeLocation().isZEquals(1d)) {
@@ -138,11 +135,20 @@ public class Pipe extends Duct {
 
                         //remove from current pipe and add to new one
                         items.remove(pipeItem);
-                        pipe.putPipeItem(pipeItem);
+                        if (pipe.isInLoadedChunk()) {
+                            pipe.putPipeItem(pipeItem);
+                        } else {
+                            unloadedItems.add(pipeItem);
+                        }
                     } else {
                         items.remove(pipeItem);
                         pipeManager.destroyPipeItem(pipeItem);
                         if (tpContainer != null) {
+
+                            pipeItem.setBlockLoc(getBlockLoc().getNeighbor(pipeItem.getMovingDir()));
+                            pipeItem.getRelativeLocation().switchValues();
+                            pipeItem.resetOldRelativeLocation();
+
                             transportPipes.runTaskSync(() -> {
                                 if (tpContainer.isInLoadedChunk()) {
                                     ItemStack overflow = tpContainer.insertItem(pipeItem.getMovingDir(), pipeItem.getItem());
@@ -150,7 +156,7 @@ public class Pipe extends Duct {
                                         getWorld().dropItem(getBlockLoc().toLocation(getWorld()), overflow);
                                     }
                                 } else {
-                                    tpContainer.getUnloadedItems().add(pipeItem);
+                                    unloadedItems.add(pipeItem);
                                 }
                             });
                         } else {
@@ -164,6 +170,37 @@ public class Pipe extends Duct {
 
             }
         }
+    }
+
+    public TPDirection calculateMiddleOutcome(PipeItem pipeItem, List<TPDirection> possibleMovingDirs) {
+        if (possibleMovingDirs.isEmpty()) {
+            return pipeItem.getMovingDir();
+        }
+
+        List<TPDirection> possibleMovingDirWithSize = new ArrayList<>();
+
+        for (TPDirection possibleMovingDir : possibleMovingDirs) {
+            boolean space = false;
+            if (getContainerConnections().containsKey(possibleMovingDir)) {
+                TPContainer container = getContainerConnections().get(possibleMovingDir);
+                space = container.spaceForItem(possibleMovingDir, pipeItem.getItem()) >= pipeItem.getItem().getAmount();
+            } else if (getDuctConnections().containsKey(possibleMovingDir)) {
+                Duct duct = getDuctConnections().get(possibleMovingDir);
+                if (duct instanceof Pipe) {
+                    space = true;
+                }
+            }
+            if (space) {
+                possibleMovingDirWithSize.add(possibleMovingDir);
+            }
+        }
+
+        if (possibleMovingDirWithSize.isEmpty()) {
+            possibleMovingDirWithSize.addAll(possibleMovingDirs);
+        }
+
+        middleDirectionCounter %= possibleMovingDirWithSize.size();
+        return possibleMovingDirWithSize.get(middleDirectionCounter++);
     }
 
     @Override

@@ -158,27 +158,23 @@ public class PipeManager extends DuctManager<Pipe> {
                                         }
                                     }
                                 }
-                            }
-                        }
-                    }
-                }
-                // try to put items which are in unloadedItems list inside containers into the container as soon as the container gets loaded
-                worlds = getContainers().keySet();
-                synchronized (getContainers()) {
-                    for (World world : worlds) {
-                        Map<BlockLocation, TPContainer> containerMap = getContainers().get(world);
-                        if (containerMap != null) {
-                            for (BlockLocation blockLoc : containerMap.keySet()) {
-                                TPContainer container = containerMap.get(blockLoc);
-                                if (container != null) {
-                                    if (container.isInLoadedChunk()) {
-                                        synchronized (container.getUnloadedItems()) {
-                                            if (!container.getUnloadedItems().isEmpty()) {
-                                                PipeItem item = container.getUnloadedItems().remove(container.getUnloadedItems().size() - 1);
-                                                ItemStack overflow = container.insertItem(item.getMovingDir(), item.getItem());
+                                //extract items from unloaded list and put into container
+                                if (duct instanceof Pipe && duct.isInLoadedChunk()) {
+                                    Pipe pipe = (Pipe) duct;
+                                    synchronized (pipe.getUnloadedItems()) {
+                                        if (!pipe.getUnloadedItems().isEmpty()) {
+                                            PipeItem unloadedItem = pipe.getUnloadedItems().get(pipe.getUnloadedItems().size() - 1);
+                                            TPContainer newContainer = getContainerAtLoc(world, unloadedItem.getBlockLoc());
+                                            if (newContainer != null && newContainer.isInLoadedChunk()) {
+                                                ItemStack overflow = newContainer.insertItem(unloadedItem.getMovingDir(), unloadedItem.getItem());
+                                                pipe.getUnloadedItems().remove(unloadedItem);
                                                 if (overflow != null) {
-                                                    world.dropItem(blockLoc.toLocation(world), overflow);
+                                                    world.dropItem(pipe.getBlockLoc().toLocation(world), overflow);
                                                 }
+                                            } else if (newContainer == null && !(globalDuctManager.getDuctAtLoc(world, unloadedItem.getBlockLoc()) instanceof Pipe)) {
+                                                //nothing there
+                                                world.dropItem(pipe.getBlockLoc().toLocation(world), unloadedItem.getItem());
+                                                pipe.getUnloadedItems().remove(unloadedItem);
                                             }
                                         }
                                     }
@@ -207,12 +203,16 @@ public class PipeManager extends DuctManager<Pipe> {
                                     itemIt.remove();
                                 }
                             }
-                            // activate pipeItems which are in unloadedItems one by one
+                            // extract items from unloaded list and put into next pipe
                             if (extract) {
                                 synchronized (pipe.getUnloadedItems()) {
                                     if (!pipe.getUnloadedItems().isEmpty()) {
-                                        PipeItem unloadedItem = pipe.getUnloadedItems().remove(pipe.getUnloadedItems().size() - 1);
-                                        pipe.getItems().add(unloadedItem);
+                                        PipeItem unloadedItem = pipe.getUnloadedItems().get(pipe.getUnloadedItems().size() - 1);
+                                        Duct newPipe = ductMap.get(unloadedItem.getBlockLoc());
+                                        if (newPipe instanceof Pipe && newPipe.isInLoadedChunk()) {
+                                            ((Pipe) newPipe).getItems().add(unloadedItem);
+                                            pipe.getUnloadedItems().remove(unloadedItem);
+                                        }
                                     }
                                 }
                             }

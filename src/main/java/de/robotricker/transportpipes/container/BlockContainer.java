@@ -3,33 +3,12 @@ package de.robotricker.transportpipes.container;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import de.robotricker.transportpipes.ducts.pipe.items.PipeItem;
-import de.robotricker.transportpipes.location.TPDirection;
-
 public abstract class BlockContainer implements TPContainer {
-
-    /**
-     * THREAD-SAFE
-     * contains all the items that arrived in this container while it was inside an unloaded chunk. As this container gets loaded, it extracts the items from this list one by one and tries to put it into the container block
-     */
-    final List<PipeItem> unloadedItems;
 
     protected Block block;
 
     public BlockContainer(Block block) {
         this.block = block;
-        this.unloadedItems = Collections.synchronizedList(new ArrayList<>());
-    }
-
-    @Override
-    public List<PipeItem> getUnloadedItems() {
-        return unloadedItems;
     }
 
     /**

@@ -2,7 +2,6 @@ package de.robotricker.transportpipes.container;
 
 import org.bukkit.Chunk;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -10,22 +9,17 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 
-import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class SimpleInventoryContainer extends BlockContainer {
 
-    private World world;
     private Chunk chunk;
-    private BlockLocation blockLoc;
     private InventoryHolder cachedInvHolder;
     private Inventory cachedInv;
 
     public SimpleInventoryContainer(Block block) {
         super(block);
-        this.world = block.getWorld();
         this.chunk = block.getChunk();
-        this.blockLoc = new BlockLocation(block.getLocation());
         this.cachedInvHolder = (InventoryHolder) block.getState();
         this.cachedInv = cachedInvHolder.getInventory();
     }

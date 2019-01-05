@@ -80,11 +80,16 @@ public class TransportPipes extends JavaPlugin {
 
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabled plugin");
 
-        for (World world : Bukkit.getWorlds()) {
-            for (Chunk loadedChunk : world.getLoadedChunks()) {
-                injector.getSingleton(TPContainerListener.class).handleChunkLoadSync(loadedChunk);
+        runTaskSync(() -> {
+            for (World world : Bukkit.getWorlds()) {
+                for (Chunk loadedChunk : world.getLoadedChunks()) {
+                    injector.getSingleton(TPContainerListener.class).handleChunkLoadSync(loadedChunk);
+                }
             }
-        }
+        });
+
+
+
     }
 
     @Override
