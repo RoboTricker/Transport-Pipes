@@ -23,10 +23,10 @@ import co.aikar.commands.annotation.HelpCommand;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ThreadService;
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.inventory.CreativeInventory;
@@ -71,11 +71,11 @@ public class TPCommand extends BaseCommand {
         cs.sendMessage(MessageUtils.formatColoredMsg("&6TransportPipes &7v" + plugin.getDescription().getVersion()));
         cs.sendMessage(MessageUtils.formatColoredMsg("&6TPS: " + tpsColor + tps + " &6/ &2" + pref_tps));
 
-        for (World world : Bukkit.getWorlds()) {
-            int worldPipes = 0;
-            int worldItems = 0;
-            Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
-            synchronized (ductMap) {
+        synchronized (globalDuctManager.getDucts()) {
+            for (World world : Bukkit.getWorlds()) {
+                int worldPipes = 0;
+                int worldItems = 0;
+                Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
                 for (Duct duct : ductMap.values()) {
                     if (duct.getDuctType().getBaseDuctType().is("Pipe")) {
                         Pipe pipe = (Pipe) duct;
@@ -83,8 +83,8 @@ public class TPCommand extends BaseCommand {
                         worldItems += 0;
                     }
                 }
+                cs.sendMessage(MessageUtils.formatColoredMsg("&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
             }
-            cs.sendMessage(MessageUtils.formatColoredMsg("&6" + world.getName() + ": &e" + worldPipes + " &6" + "pipes, &e" + worldItems + " &6items"));
         }
     }
 
@@ -117,8 +117,8 @@ public class TPCommand extends BaseCommand {
                     synchronized (globalDuctManager.getPlayerDucts(p)) {
                         Iterator<Duct> ductIt = globalDuctManager.getPlayerDucts(p).iterator();
                         while (ductIt.hasNext()) {
-                            Duct nextDuct =  ductIt.next();
-                            if(nextDuct.getDuctType().getBaseDuctType().equals(bdt)){
+                            Duct nextDuct = ductIt.next();
+                            if (nextDuct.getDuctType().getBaseDuctType().equals(bdt)) {
                                 protocol.removeASD(p, oldRs.getASDForDuct(nextDuct));
                                 ductIt.remove();
                             }

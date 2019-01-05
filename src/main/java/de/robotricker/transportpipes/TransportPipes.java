@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +21,7 @@ import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.items.PipeItemManager;
 import de.robotricker.transportpipes.listener.DuctListener;
 import de.robotricker.transportpipes.listener.PlayerListener;
+import de.robotricker.transportpipes.listener.TPContainerListener;
 import de.robotricker.transportpipes.listener.WorldListener;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
@@ -68,6 +70,7 @@ public class TransportPipes extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(DuctListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(WorldListener.class), this);
+        Bukkit.getPluginManager().registerEvents(injector.getSingleton(TPContainerListener.class), this);
 
         //Register commands
         PaperCommandManager commandManager = new PaperCommandManager(this);
@@ -76,6 +79,12 @@ public class TransportPipes extends JavaPlugin {
         commandManager.getCommandCompletions().registerCompletion("baseDuctType", c -> injector.getSingleton(DuctRegister.class).baseDuctTypes().stream().map(BaseDuctType::getName).collect(Collectors.toList()));
 
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabled plugin");
+
+        for (World world : Bukkit.getWorlds()) {
+            for (Chunk loadedChunk : world.getLoadedChunks()) {
+                injector.getSingleton(TPContainerListener.class).handleChunkLoadSync(loadedChunk);
+            }
+        }
     }
 
     @Override
