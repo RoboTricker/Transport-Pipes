@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.utils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Constructor;
@@ -176,6 +177,51 @@ public final class NMSUtils {
 
     public static ItemStack setItemStackUnbreakable(ItemStack is) {
         return manipulateItemStackNBT(is, "Unbreakable", true, boolean.class, "Boolean");
+    }
+
+    public static boolean isFurnaceFuelItem(ItemStack item) {
+        try {
+            Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
+            Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
+            Object nmsItemStackObj = asNMSCopy.invoke(null, item);
+
+            Class<?> tileEntityFurnaceClass = Class.forName("net.minecraft.server." + version + ".TileEntityFurnace");
+            Method isFuel = tileEntityFurnaceClass.getDeclaredMethod("isFuel", Class.forName("net.minecraft.server." + version + ".ItemStack"));
+            return (boolean) isFuel.invoke(null, nmsItemStackObj);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean isFurnaceBurnableItem(ItemStack item) {
+        try {
+            Class<?> recipesFurnaceClass = Class.forName("net.minecraft.server." + version + ".RecipesFurnace");
+            Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
+            Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
+
+            Method instanceMethod = recipesFurnaceClass.getDeclaredMethod("getInstance");
+            Method getResult = recipesFurnaceClass.getDeclaredMethod("getResult", nmsItemStackClass);
+            Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
+            Method asBukkitCopy = craftItemStackClass.getDeclaredMethod("asBukkitCopy", nmsItemStackClass);
+
+            Object recipesFurnaceObj = instanceMethod.invoke(null);
+            Object nmsItemStackObj = asNMSCopy.invoke(null, item);
+            Object resultObj = getResult.invoke(recipesFurnaceObj, nmsItemStackObj);
+
+            if (resultObj == null) {
+                return false;
+            }
+            ItemStack resultItem = (ItemStack) asBukkitCopy.invoke(null, resultObj);
+            if (resultItem.getType() != Material.AIR) {
+                return true;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

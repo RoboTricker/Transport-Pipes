@@ -24,16 +24,14 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.manager.DuctManager;
-import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.manager.PipeManager;
+import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.utils.HitboxUtils;
-import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class DuctListener implements Listener {
@@ -192,21 +190,15 @@ public class DuctListener implements Listener {
                         Duct itemDuct = itemDuctType.getBaseDuctType().getDuctFactory().createDuct(itemDuctType, new BlockLocation(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
                         globalDuctManager.createDuct(itemDuct);
 
-                        // check for nearby container blocks that aren't registered yet
-//                        for (TPDirection dir : TPDirection.values()) {
-//                            Block neighborBlock = placeBlock.getLocation().getBlock().getRelative(dir.getBlockFace());
-//                            if (WorldUtils.isIdContainerBlock(neighborBlock.getTypeId())) {
-//                                if (((PipeManager) (DuctManager<? extends Duct>) ductRegister.baseDuctTypeOf("pipe").getDuctManager()).getContainerAtLoc(neighborBlock.getLocation()) == null) {
-//                                    tpContainerListener.updateContainerBlock(neighborBlock, true);
-//                                }
-//                            }
-//                        }
-
                         decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
                         interaction.successful = true;
                     } else if (clickedDuct != null) {
                         placeBlock.setTypeIdAndData(interaction.item.getTypeId(), interaction.item.getData().getData(), true);
+                        // update placed container block if it is such
+                        if (WorldUtils.isIdContainerBlock(interaction.item.getTypeId())) {
+                            tpContainerListener.updateContainerBlock(placeBlock, true);
+                        }
                         decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
                         interaction.successful = true;

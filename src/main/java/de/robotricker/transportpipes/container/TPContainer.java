@@ -2,14 +2,9 @@ package de.robotricker.transportpipes.container;
 
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
-import de.robotricker.transportpipes.ducts.pipe.items.PipeItem;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public interface TPContainer {
-
-    List<PipeItem> getUnloadedItems();
 
     /**
      * should give back the extracted item with the given amount if possible. If there are not enough items left to extract, just give back whats there

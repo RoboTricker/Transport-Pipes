@@ -18,6 +18,8 @@ import org.bukkit.inventory.InventoryHolder;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.container.BlockContainer;
+import de.robotricker.transportpipes.container.BrewingStandContainer;
+import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
 import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.ducts.Duct;
@@ -107,9 +109,9 @@ public class TPContainerListener implements Listener {
 
     public TPContainer createContainerFromBlock(Block block) {
         if (block.getState() instanceof Furnace) {
-            return null;
+            return new FurnaceContainer(block);
         } else if (block.getState() instanceof BrewingStand) {
-            return null;
+            return new BrewingStandContainer(block);
         } else if (block.getState() instanceof InventoryHolder) {
             return new SimpleInventoryContainer(block);
         }
