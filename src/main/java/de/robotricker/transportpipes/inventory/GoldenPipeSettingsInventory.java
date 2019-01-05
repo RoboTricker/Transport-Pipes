@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
 import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterMode;
 import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterStrictness;
@@ -24,9 +25,15 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
     private Map<GoldenPipe.Color, Integer> scrollValues;
 
     @Override
-    public Inventory create() {
+    public void create() {
         scrollValues = new HashMap<>();
-        return Bukkit.createInventory(null, 6 * 9, duct.getDuctType().getFormattedTypeName() + " Pipe §rInventory");
+        inv = Bukkit.createInventory(null, 6 * 9, duct.getDuctType().getFormattedTypeName() + " Pipe §rInventory");
+    }
+
+    @Override
+    public void closeForAllPlayers(TransportPipes transportPipes) {
+        save(null);
+        super.closeForAllPlayers(transportPipes);
     }
 
     @Override
@@ -150,7 +157,11 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
                     if (is != null && is.getAmount() > 1) {
                         ItemStack drop = is.clone();
                         drop.setAmount(is.getAmount() - 1);
-                        p.getWorld().dropItem(p.getLocation(), drop);
+                        if (p != null) {
+                            p.getWorld().dropItem(p.getLocation(), drop);
+                        } else {
+                            duct.getWorld().dropItem(duct.getBlockLoc().toLocation(duct.getWorld()), drop);
+                        }
                         is.setAmount(1);
                     }
                     filterItems[scrollValue + i - 2] = is != null ? new ItemData(is) : null;

@@ -116,10 +116,10 @@ public class ThreadService extends Thread {
     }
 
     private void tickDuctSpawnAndDespawn() {
-        for (World world : Bukkit.getWorlds()) {
-            Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
-            if (ductMap != null) {
-                synchronized (ductMap) {
+        synchronized (globalDuctManager.getDucts()) {
+            for (World world : Bukkit.getWorlds()) {
+                Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
+                if (ductMap != null) {
                     for (Duct duct : ductMap.values()) {
                         List<Player> playerList = WorldUtils.getPlayerList(world);
                         for (Player worldPlayer : playerList) {

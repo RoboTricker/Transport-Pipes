@@ -30,7 +30,7 @@ public abstract class DuctManager<T extends Duct> {
 
     public abstract void registerDuctTypes();
 
-    public abstract void tick(Map<World, Map<BlockLocation, Duct>> ducts);
+    public abstract void tick();
 
     /**
      * called inside the bukkit thread whenever a duct comes into visible range
@@ -46,6 +46,10 @@ public abstract class DuctManager<T extends Duct> {
     public void notifyDuctHidden(Duct duct, Player p) {
         if (globalDuctManager.getPlayerDucts(p).remove(duct))
             protocolService.removeASD(p, globalDuctManager.getPlayerRenderSystem(p, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+    }
+
+    public void updateNonDuctConnections(Duct duct) {
+
     }
 
 }

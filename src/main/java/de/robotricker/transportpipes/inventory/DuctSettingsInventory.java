@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -15,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
 
@@ -27,10 +27,17 @@ public abstract class DuctSettingsInventory extends GlobalInventory implements L
 
     public final void setDuct(Duct duct) {
         this.duct = duct;
-        this.inv = create();
     }
 
-    protected abstract Inventory create();
+    public void closeForAllPlayers(TransportPipes transportPipes){
+        transportPipes.runTaskSync(() -> {
+            for (int i = 0; i < inv.getViewers().size(); i++) {
+                inv.getViewers().get(i).closeInventory();
+            }
+        });
+    }
+
+    public abstract void create();
 
     public abstract void populate();
 

@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.ducts;
 import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.ducts.manager.DuctManager;
 import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.types.DuctType;
@@ -36,7 +36,6 @@ public abstract class Duct {
     private Chunk chunk;
 
     private Map<TPDirection, Duct> connectedDucts;
-    private Map<TPDirection, TPContainer> connectedContainers;
 
     private DuctSettingsInventory settingsInv;
 
@@ -46,11 +45,15 @@ public abstract class Duct {
         this.world = world;
         this.chunk = chunk;
         this.connectedDucts = Collections.synchronizedMap(new HashMap<>());
-        this.connectedContainers = Collections.synchronizedMap(new HashMap<>());
         this.settingsInv = settingsInv;
         this.globalDuctManager = globalDuctManager;
+    }
+
+    public void initSettingsInv(TransportPipes transportPipes) {
         if (settingsInv != null) {
+            Bukkit.getPluginManager().registerEvents(settingsInv, transportPipes);
             settingsInv.setDuct(this);
+            settingsInv.create();
         }
     }
 
@@ -89,14 +92,9 @@ public abstract class Duct {
         return connectedDucts;
     }
 
-    public Map<TPDirection, TPContainer> getContainerConnections() {
-        return connectedContainers;
-    }
-
     public Set<TPDirection> getAllConnections() {
         Set<TPDirection> connections = new HashSet<>();
         connections.addAll(getDuctConnections().keySet());
-        connections.addAll(getContainerConnections().keySet());
         return connections;
     }
 
@@ -113,9 +111,14 @@ public abstract class Duct {
             dropItems.add(getDuctType().getBaseDuctType().getItemManager().getClonedItem(getDuctType()));
         }
 
+        if (settingsInv != null) {
+            settingsInv.closeForAllPlayers(transportPipes);
+        }
+
         //break particles
-        if(getBreakParticleData() != null) {
+        if (getBreakParticleData() != null) {
             transportPipes.runTaskSync(() -> {
+
                 if (destroyer != null) {
                     // show break particles
                     WrapperPlayServerWorldParticles wrapper = new WrapperPlayServerWorldParticles();

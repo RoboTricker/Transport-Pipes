@@ -4,7 +4,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.DyeColor;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
+import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.ducts.manager.DuctManager;
 import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterMode;
 import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterStrictness;
@@ -60,7 +66,21 @@ public class GoldenPipe extends Pipe {
 
     @Override
     public int[] getBreakParticleData() {
-        return new int[] { 41, 0 };
+        return new int[]{41, 0};
+    }
+
+    @Override
+    public List<ItemStack> destroyed(TransportPipes transportPipes, DuctManager ductManager, Player destroyer) {
+        List<ItemStack> drop = super.destroyed(transportPipes, ductManager, destroyer);
+        for (Color gpc : Color.values()) {
+            for (int i = 0; i < GoldenPipeSettingsInventory.MAX_ITEMS_PER_ROW; i++) {
+                ItemData itemData = getFilterItems(gpc)[i];
+                if (itemData != null) {
+                    drop.add(itemData.toItemStack());
+                }
+            }
+        }
+        return drop;
     }
 
     public enum Color {

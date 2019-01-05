@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.listener;
 
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -12,8 +13,11 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.DuctRegister;
+import de.robotricker.transportpipes.ducts.manager.DuctManager;
 import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.manager.PipeManager;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;

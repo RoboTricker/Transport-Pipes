@@ -78,15 +78,14 @@ public class GlobalDuctManager {
 
     public void createDuct(Duct duct) {
         getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
-        updateDuctConnections(duct);
-        updateContainerConnections(duct);
+        updateConnections(duct);
         for (RenderSystem renderSystem : duct.getDuctType().getBaseDuctType().getRenderSystems()) {
             renderSystem.createDuctASD(duct, duct.getAllConnections());
             synchronized (renderSystem.getCurrentPlayers()) {
                 for (Player p : renderSystem.getCurrentPlayers()) {
                     if (duct.getBlockLoc().toLocation(p.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
-                        protocolService.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
                         getPlayerDucts(p).add(duct);
+                        protocolService.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
                     }
                 }
             }
@@ -97,8 +96,7 @@ public class GlobalDuctManager {
     }
 
     public void updateDuct(Duct duct) {
-        updateDuctConnections(duct);
-        updateContainerConnections(duct);
+        updateConnections(duct);
         for (RenderSystem renderSystem : duct.getDuctType().getBaseDuctType().getRenderSystems()) {
             List<ArmorStandData> removeASD = new ArrayList<>();
             List<ArmorStandData> addASD = new ArrayList<>();
@@ -139,10 +137,11 @@ public class GlobalDuctManager {
     }
 
     /**
-     * recalculates the duct connections of this duct and saves them.
+     * recalculates the duct connections (in case of pipes the container connections, too) of this duct and saves them.
      * Also notifies the duct about this change
      */
-    public void updateDuctConnections(Duct duct) {
+    public void updateConnections(Duct duct) {
+        //update duct connections
         duct.getDuctConnections().clear();
         for (TPDirection tpDir : TPDirection.values()) {
             Duct neighborDuct = getDuctAtLoc(duct.getWorld(), duct.getBlockLoc().getNeighbor(tpDir));
@@ -150,26 +149,15 @@ public class GlobalDuctManager {
                 duct.getDuctConnections().put(tpDir, neighborDuct);
             }
         }
-        duct.notifyConnectionChange();
-    }
-
-    /**
-     * recalculates the container connections of this duct and saves them.
-     * Also notifies the duct about this change
-     */
-    public void updateContainerConnections(Duct duct) {
+        //update baseDuctType specific other connections
+        duct.getDuctType().getBaseDuctType().getDuctManager().updateNonDuctConnections(duct);
+        //notify connections change
         duct.notifyConnectionChange();
     }
 
     public void tick() {
         for (BaseDuctType<? extends Duct> baseDuctType : ductRegister.baseDuctTypes()) {
-            Map<World, Map<BlockLocation, Duct>> ducts = new HashMap<>();
-            for (World world : this.ducts.keySet()) {
-                Map<BlockLocation, Duct> ductMap = new TreeMap<>();
-                this.ducts.get(world).values().stream().filter(duct -> duct.getDuctType().getBaseDuctType().equals(baseDuctType)).forEach(duct -> ductMap.put(duct.getBlockLoc(), duct));
-                ducts.put(world, ductMap);
-            }
-            baseDuctType.getDuctManager().tick(ducts);
+            baseDuctType.getDuctManager().tick();
         }
     }
 

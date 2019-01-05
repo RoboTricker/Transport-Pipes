@@ -7,7 +7,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.container.TPContainer;
@@ -44,11 +47,26 @@ public class Pipe extends Duct {
      */
     private final List<PipeItem> unloadedItems;
 
+    private Map<TPDirection, TPContainer> connectedContainers;
+
     public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
         super(ductType, blockLoc, world, chunk, settingsInv, globalDuctManager);
         items = Collections.synchronizedList(new ArrayList<>());
         futureItems = Collections.synchronizedList(new ArrayList<>());
         unloadedItems = Collections.synchronizedList(new ArrayList<>());
+
+        this.connectedContainers = Collections.synchronizedMap(new HashMap<>());
+    }
+
+    public Map<TPDirection, TPContainer> getContainerConnections() {
+        return connectedContainers;
+    }
+
+    @Override
+    public Set<TPDirection> getAllConnections() {
+        Set<TPDirection> allConnections = super.getAllConnections();
+        allConnections.addAll(getContainerConnections().keySet());
+        return allConnections;
     }
 
     public List<PipeItem> getItems() {
@@ -80,7 +98,7 @@ public class Pipe extends Duct {
         super.tick(transportPipes, ductManager, globalDuctManager);
 
         PipeManager pipeManager = (PipeManager) ductManager;
-        if(items.size() > MAX_ITEMS) {
+        if (items.size() > MAX_ITEMS) {
             transportPipes.runTaskAsync(() -> globalDuctManager.destroyDuct(this, null), 0L);
             return;
         }
@@ -125,7 +143,16 @@ public class Pipe extends Duct {
                         items.remove(pipeItem);
                         pipeManager.destroyPipeItem(pipeItem);
                         if (tpContainer != null) {
-                            //TODO: put into container
+                            transportPipes.runTaskSync(() -> {
+                                if (tpContainer.isInLoadedChunk()) {
+                                    ItemStack overflow = tpContainer.insertItem(pipeItem.getMovingDir(), pipeItem.getItem());
+                                    if (overflow != null) {
+                                        getWorld().dropItem(getBlockLoc().toLocation(getWorld()), overflow);
+                                    }
+                                } else {
+                                    tpContainer.getUnloadedItems().add(pipeItem);
+                                }
+                            });
                         } else {
                             //drop item
                             transportPipes.runTaskSync(() -> {
