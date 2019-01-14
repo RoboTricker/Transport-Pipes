@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.rendersystems;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,19 +9,19 @@ import java.util.Collections;
 import java.util.List;
 
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
-import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.items.ItemService;
+import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.protocol.ArmorStandData;
 
 public abstract class RenderSystem {
 
     private BaseDuctType baseDuctType;
-    private List<Player> currentPlayers;
 
     public RenderSystem(BaseDuctType baseDuctType) {
         this.baseDuctType = baseDuctType;
-        this.currentPlayers = Collections.synchronizedList(new ArrayList<>());
     }
 
     // ***************************************************************
@@ -48,8 +49,6 @@ public abstract class RenderSystem {
      */
     public abstract List<ArmorStandData> getASDForDuct(Duct duct);
 
-    public abstract String getDisplayName();
-
     // ***************************************************************
     // AABB UTILS
     // ***************************************************************
@@ -62,12 +61,28 @@ public abstract class RenderSystem {
     //  MISC
     // ***************************************************************
 
-    public List<Player> getCurrentPlayers() {
-        return currentPlayers;
-    }
-
     public BaseDuctType getBaseDuctType() {
         return baseDuctType;
+    }
+
+    public static ItemStack getItem(String renderSystemDisplayName, ItemService itemService, DuctRegister ductRegister) {
+        if (ModelledRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemDisplayName)) {
+            return ModelledRenderSystem.getItem(itemService);
+        }
+        if (VanillaRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemDisplayName)) {
+            return VanillaRenderSystem.getItem(ductRegister);
+        }
+        return null;
+    }
+
+    public static RenderSystem getRenderSystem(String renderSystemDisplayName, BaseDuctType baseDuctType) {
+        if (baseDuctType.getVanillaRenderSystem() != null && VanillaRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemDisplayName)) {
+            return baseDuctType.getVanillaRenderSystem();
+        }
+        if (baseDuctType.getModelledRenderSystem() != null && ModelledRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemDisplayName)) {
+            return baseDuctType.getModelledRenderSystem();
+        }
+        return null;
     }
 
 }

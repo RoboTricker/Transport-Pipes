@@ -48,7 +48,7 @@ public enum TPDirection {
         return vec.getBlockY() == 0;
     }
 
-    public TPDirection cicle() {
+    public TPDirection next() {
         int ordinal = ordinal();
         ordinal++;
         ordinal %= values().length;

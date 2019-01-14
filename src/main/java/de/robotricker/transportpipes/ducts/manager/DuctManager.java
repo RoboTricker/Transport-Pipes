@@ -1,16 +1,12 @@
 package de.robotricker.transportpipes.ducts.manager;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
 
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 
 public abstract class DuctManager<T extends Duct> {

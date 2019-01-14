@@ -3,9 +3,12 @@ package de.robotricker.transportpipes.items;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,10 +21,10 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
-import de.robotricker.transportpipes.utils.MessageUtils;
 import de.robotricker.transportpipes.utils.NMSUtils;
 
 public class ItemService {
@@ -31,7 +34,7 @@ public class ItemService {
     @Inject
     public ItemService() {
         wrench = createGlowingItem(Material.STICK);
-        wrench = changeDisplayName(wrench, MessageUtils.formatColoredMsg("&cWrench"));
+        wrench = changeDisplayName(wrench, LangConf.Key.WRENCH.get());
     }
 
     public ItemStack getWrench() {
@@ -119,6 +122,32 @@ public class ItemService {
             }
         }
         return null;
+    }
+
+    public void populateInventoryLine(Inventory inv, int row, ItemStack... items) {
+        for (int i = 0; i < 9; i++) {
+            if (items.length > i && items[i] != null) {
+                ItemStack is = items[i];
+                inv.setItem(row * 9 + i, is);
+            }
+        }
+    }
+
+    public ItemStack createGlassItem(DyeColor dyeColor) {
+        return changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, dyeColor.getWoolData()), ChatColor.RESET.toString());
+    }
+
+    public ItemStack createBarrierItem() {
+        return changeDisplayNameAndLore(new ItemStack(Material.BARRIER, 1), ChatColor.RESET.toString());
+    }
+
+    public boolean isItemGlassOrBarrier(ItemStack item) {
+        if (item != null && (item.getType() == Material.STAINED_GLASS_PANE || item.getType() == Material.BARRIER)) {
+            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+                return item.getItemMeta().getDisplayName().equals(ChatColor.RESET.toString());
+            }
+        }
+        return false;
     }
 
 }

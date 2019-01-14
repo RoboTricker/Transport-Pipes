@@ -9,11 +9,10 @@ import java.util.Map;
 
 import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
-import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public abstract class VanillaPipeModel {
 

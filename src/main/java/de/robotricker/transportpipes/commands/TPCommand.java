@@ -30,6 +30,7 @@ import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.inventory.CreativeInventory;
+import de.robotricker.transportpipes.inventory.PlayerSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
@@ -45,11 +46,9 @@ public class TPCommand extends BaseCommand {
     @Inject
     private GlobalDuctManager globalDuctManager;
     @Inject
-    private ProtocolService protocol;
-    @Inject
     private CreativeInventory creativeDuctInv;
     @Inject
-    private DuctRegister ductRegister;
+    private PlayerSettingsInventory playerSettingsInventory;
 
     @Subcommand("tps")
     @CommandPermission("transportpipes.tps")
@@ -88,55 +87,14 @@ public class TPCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("rendersystem|rs|render")
-    @Syntax("<baseDuctType> [rendersystem]")
-    @CommandCompletion("@baseDuctType @nothing")
-    public void onChangeRenderSystem(Player p, String baseDuctType, @Optional String renderSystem) {
-        BaseDuctType<? extends Duct> bdt = ductRegister.baseDuctTypeOf(baseDuctType);
-        if (bdt == null) {
-            p.sendMessage(MessageUtils.formatColoredMsg("&4BaseDuctType does not exist"));
-            return;
-        }
-        if (renderSystem == null) {
-            p.sendMessage(MessageUtils.formatColoredMsg("&6Possible Render Systems:"));
-            for (RenderSystem rs : new ArrayList<>(bdt.getRenderSystems())) {
-                String suffix = rs.getCurrentPlayers().contains(p) ? " &6(active)" : "";
-                p.sendMessage(MessageUtils.formatColoredMsg(" &b" + rs.getDisplayName() + suffix));
-            }
-        } else {
-            for (RenderSystem newRs : new ArrayList<>(bdt.getRenderSystems())) {
-                if (newRs.getDisplayName().equalsIgnoreCase(renderSystem)) {
-                    if (globalDuctManager.getPlayerRenderSystem(p, bdt) == newRs) {
-                        p.sendMessage(MessageUtils.formatColoredMsg("&4This rendersystem is already active"));
-                        return;
-                    }
-
-                    //switch rendersystem
-                    RenderSystem oldRs = globalDuctManager.getPlayerRenderSystem(p, bdt);
-                    oldRs.getCurrentPlayers().remove(p);
-                    synchronized (globalDuctManager.getPlayerDucts(p)) {
-                        Iterator<Duct> ductIt = globalDuctManager.getPlayerDucts(p).iterator();
-                        while (ductIt.hasNext()) {
-                            Duct nextDuct = ductIt.next();
-                            if (nextDuct.getDuctType().getBaseDuctType().equals(bdt)) {
-                                protocol.removeASD(p, oldRs.getASDForDuct(nextDuct));
-                                ductIt.remove();
-                            }
-                        }
-                    }
-                    newRs.getCurrentPlayers().add(p);
-
-                    p.sendMessage(MessageUtils.formatColoredMsg("&6You've switched to the &b" + newRs.getDisplayName() + " &6render system"));
-                    return;
-                }
-            }
-            p.sendMessage(MessageUtils.formatColoredMsg("&4This render system does not exist"));
-        }
-    }
-
     @Subcommand("creative")
     public void onCreativeDuctInv(Player p) {
         creativeDuctInv.openInv(p);
+    }
+
+    @Subcommand("settings")
+    public void onSettingsInv(Player p) {
+        playerSettingsInventory.openInv(p);
     }
 
     @HelpCommand

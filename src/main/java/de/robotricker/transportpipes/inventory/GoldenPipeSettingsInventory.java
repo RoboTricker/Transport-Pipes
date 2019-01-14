@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -27,7 +26,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
     @Override
     public void create() {
         scrollValues = new HashMap<>();
-        inv = Bukkit.createInventory(null, 6 * 9, duct.getDuctType().getFormattedTypeName() + " Pipe §rInventory");
+        inv = Bukkit.createInventory(null, 6 * 9, duct.getDuctType().getFormattedTypeName() + " §rInventory");
     }
 
     @Override
@@ -46,9 +45,9 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
 
             FilterMode filterMode = pipe.getFilterMode(gpc);
             FilterStrictness filterStrictness = pipe.getFilterStrictness(gpc);
-            ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getDyeColor().getWoolData()), gpc.getChatColor().toString() + gpc.getDisplayName() + " §7output direction", "§7Filter mode: §c" + filterMode.getDisplayName(), "§7Filter strictness: §c" + filterStrictness.getDisplayName());
-            ItemStack glassPane = createGlassItem(gpc.getDyeColor());
-            ItemStack barrier = createBarrierItem();
+            ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getDyeColor().getWoolData()), gpc.getChatColor().toString() + gpc.getDisplayName() + " §7output direction", "§7Filter mode: §c" + filterMode.getDisplayName(), "§7Filter strictness: §c" + filterStrictness.getDisplayName(), "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
+            ItemStack glassPane = itemService.createGlassItem(gpc.getDyeColor());
+            ItemStack barrier = itemService.createBarrierItem();
             ItemStack scrollLeft = itemService.changeDisplayName(itemService.createSkullItemStack("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), "§6<<");
             ItemStack scrollRight = itemService.changeDisplayName(itemService.createSkullItemStack("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), "§6>>");
 
@@ -153,7 +152,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
             for (int i = 2; i < 8; i++) {
                 ItemStack is = inv.getItem(line * 9 + i);
                 //make sure the glass pane and barriers won't be saved
-                if (!isItemGlassOrBarrier(is)) {
+                if (!itemService.isItemGlassOrBarrier(is)) {
                     if (is != null && is.getAmount() > 1) {
                         ItemStack drop = is.clone();
                         drop.setAmount(is.getAmount() - 1);

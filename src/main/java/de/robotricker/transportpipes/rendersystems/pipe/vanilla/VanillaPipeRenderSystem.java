@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.rendersystems.pipe.vanilla;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,22 +11,24 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.items.ItemService;
+import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
+import de.robotricker.transportpipes.rendersystems.VanillaRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModel;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModelEW;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModelMID;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModelNS;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.VanillaPipeModelUD;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
-import de.robotricker.transportpipes.location.TPDirection;
-import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
-public class VanillaPipeRenderSystem extends RenderSystem {
+public class VanillaPipeRenderSystem extends VanillaRenderSystem {
 
     private VanillaPipeModel midModel = new VanillaPipeModelMID();
     private VanillaPipeModel ewModel = new VanillaPipeModelEW();
@@ -126,11 +129,6 @@ public class VanillaPipeRenderSystem extends RenderSystem {
             }
         }
         return midModel;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "VANILLA";
     }
 
 }

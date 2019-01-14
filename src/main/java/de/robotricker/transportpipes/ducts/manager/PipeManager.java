@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.DuctRegister;
@@ -91,29 +92,29 @@ public class PipeManager extends DuctManager<Pipe> {
         PipeType pipeType;
         BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
 
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "White", '7', DyeColor.WHITE);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "White", LangConf.Key.COLORS_WHITE.get() + " " + LangConf.Key.PIPES_PIPE.get(), DyeColor.WHITE);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", '1', DyeColor.BLUE);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", LangConf.Key.COLORS_BLUE.get() + " " + LangConf.Key.PIPES_PIPE.get(), DyeColor.BLUE);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", '4', DyeColor.RED);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", LangConf.Key.COLORS_RED.get() + " " + LangConf.Key.PIPES_PIPE.get(), DyeColor.RED);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", 'e', DyeColor.YELLOW);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", LangConf.Key.COLORS_YELLOW.get() + " " + LangConf.Key.PIPES_PIPE.get(), DyeColor.YELLOW);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", '2', DyeColor.GREEN);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", LangConf.Key.COLORS_GREEN.get() + " " + LangConf.Key.PIPES_PIPE.get(), DyeColor.GREEN);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", '8', DyeColor.BLACK);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", LangConf.Key.COLORS_BLACK.get() + " " + LangConf.Key.PIPES_PIPE.get(), DyeColor.BLACK);
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Golden", '6');
+        pipeType = new PipeType(pipeBaseDuctType, "Golden", LangConf.Key.PIPES_GOLDEN.get() + " " + LangConf.Key.PIPES_PIPE.get());
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Iron", '7');
+        pipeType = new PipeType(pipeBaseDuctType, "Iron", LangConf.Key.PIPES_IRON.get() + " " + LangConf.Key.PIPES_PIPE.get());
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Ice", 'b');
+        pipeType = new PipeType(pipeBaseDuctType, "Ice", LangConf.Key.PIPES_ICE.get() + " " + LangConf.Key.PIPES_PIPE.get());
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Void", '5');
+        pipeType = new PipeType(pipeBaseDuctType, "Void", LangConf.Key.PIPES_VOID.get() + " " + LangConf.Key.PIPES_PIPE.get());
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Extraction", 'd');
+        pipeType = new PipeType(pipeBaseDuctType, "Extraction", LangConf.Key.PIPES_EXTRACTION.get() + " " + LangConf.Key.PIPES_PIPE.get());
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Crafting", 'e');
+        pipeType = new PipeType(pipeBaseDuctType, "Crafting", LangConf.Key.PIPES_CRAFTING.get() + " " + LangConf.Key.PIPES_PIPE.get());
         pipeBaseDuctType.registerDuctType(pipeType);
 
         //connect correctly
@@ -145,6 +146,7 @@ public class PipeManager extends DuctManager<Pipe> {
                         Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts().get(world);
                         if (ductMap != null) {
                             for (Duct duct : ductMap.values()) {
+                                // extract items from containers
                                 if (duct instanceof ExtractionPipe && duct.isInLoadedChunk()) {
                                     Pipe pipe = (Pipe) duct;
                                     for (TPDirection dir : TPDirection.values()) {
@@ -158,7 +160,7 @@ public class PipeManager extends DuctManager<Pipe> {
                                         }
                                     }
                                 }
-                                //extract items from unloaded list and put into container
+                                // extract items from unloaded list and put into container
                                 if (duct instanceof Pipe && duct.isInLoadedChunk()) {
                                     Pipe pipe = (Pipe) duct;
                                     synchronized (pipe.getUnloadedItems()) {

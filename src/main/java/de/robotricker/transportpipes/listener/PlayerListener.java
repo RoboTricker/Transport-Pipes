@@ -8,6 +8,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.PlayerSettingsService;
+import de.robotricker.transportpipes.config.PlayerSettingsConf;
 import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.manager.DuctManager;
@@ -25,19 +27,7 @@ public class PlayerListener implements Listener {
     private DuctRegister ductRegister;
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        for (BaseDuctType<? extends Duct> ductBaseType : ductRegister.baseDuctTypes()) {
-            RenderSystem renderSystem = ductBaseType.getRenderSystems().stream().findFirst().get();
-            renderSystem.getCurrentPlayers().add(event.getPlayer());
-        }
-    }
-
-    @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        for (BaseDuctType<? extends Duct> ductBaseType : ductRegister.baseDuctTypes()) {
-            RenderSystem renderSystem = globalDuctManager.getPlayerRenderSystem(e.getPlayer(), ductBaseType);
-            renderSystem.getCurrentPlayers().remove(e.getPlayer());
-        }
         globalDuctManager.getPlayerDucts(e.getPlayer()).clear();
         ((PipeManager) (DuctManager<? extends Duct>) ductRegister.baseDuctTypeOf("pipe").getDuctManager()).getPlayerPipeItems(e.getPlayer()).clear();
     }
