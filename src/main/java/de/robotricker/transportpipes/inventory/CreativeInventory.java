@@ -7,11 +7,11 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.items.ItemService;
 
 public class CreativeInventory extends IndividualInventory {
 

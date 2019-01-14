@@ -1,0 +1,18 @@
+# This is the english language file. Feel free to change stuff around - to use a completely different language, delete this file and change the "language" option in the config.yml
+# This only works if transportpipes supports your desired language
+pipes:
+  pipe: 'Pipe'
+  ice: '&bIce'
+  golden: '&6Golden'
+  iron: '&7Iron'
+  void: '&5Void'
+  extraction: '&dExtraction'
+  crafting: '&eCrafting'
+wrench: '&cWrench'
+colors:
+  white: '&fWhite'
+  yellow: '&eYellow'
+  green: '&aGreen'
+  blue: '&9Blue'
+  red: '&cRed'
+  black: '&8Black'

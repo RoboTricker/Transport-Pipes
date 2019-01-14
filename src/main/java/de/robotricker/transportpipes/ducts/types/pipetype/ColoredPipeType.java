@@ -9,8 +9,8 @@ public class ColoredPipeType extends PipeType {
 
     private DyeColor dyeColor;
 
-    public ColoredPipeType(BaseDuctType<Pipe> baseDuctType, String name, char colorCode, DyeColor dyeColor) {
-        super(baseDuctType, name, colorCode);
+    public ColoredPipeType(BaseDuctType<Pipe> baseDuctType, String name, String displayName, DyeColor dyeColor) {
+        super(baseDuctType, name, displayName);
         this.dyeColor = dyeColor;
     }
 

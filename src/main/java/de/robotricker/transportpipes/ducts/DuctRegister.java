@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.manager.DuctManager;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.ducts.factory.DuctFactory;
+import de.robotricker.transportpipes.ducts.manager.DuctManager;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.items.ItemManager;
 

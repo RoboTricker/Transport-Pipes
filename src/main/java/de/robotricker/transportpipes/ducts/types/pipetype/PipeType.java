@@ -6,8 +6,8 @@ import de.robotricker.transportpipes.ducts.types.DuctType;
 
 public class PipeType extends DuctType {
 
-    public PipeType(BaseDuctType<Pipe> baseDuctType, String name, char colorCode) {
-        super(baseDuctType, name, colorCode);
+    public PipeType(BaseDuctType<Pipe> baseDuctType, String name, String displayName) {
+        super(baseDuctType, name, displayName);
     }
 
 }

@@ -5,19 +5,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
 
 public class DuctType {
 
     private BaseDuctType<? extends Duct> baseDuctType;
     private String name;
-    private char colorCode;
+    private String displayName;
     private Set<DuctType> connectables;
 
-    public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, char colorCode) {
+    public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, String displayName) {
         this.baseDuctType = baseDuctType;
         this.name = name;
-        this.colorCode = colorCode;
+        this.displayName = displayName;
         this.connectables = new HashSet<>();
     }
 
@@ -66,12 +65,16 @@ public class DuctType {
         return name;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
     public boolean is(String name) {
         return this.name.equalsIgnoreCase(name);
     }
 
     public String getFormattedTypeName() {
-        return "§" + colorCode + name;
+        return displayName;
     }
 
     public Set<DuctType> getConnectables() {

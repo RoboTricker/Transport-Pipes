@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.robotricker.transportpipes.ducts.Duct;
 import de.robotricker.transportpipes.ducts.factory.DuctFactory;
 import de.robotricker.transportpipes.ducts.manager.DuctManager;
 import de.robotricker.transportpipes.items.ItemManager;
-import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.rendersystems.ModelledRenderSystem;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
+import de.robotricker.transportpipes.rendersystems.VanillaRenderSystem;
 
 public final class BaseDuctType<T extends Duct> {
 
@@ -17,7 +19,8 @@ public final class BaseDuctType<T extends Duct> {
     private DuctManager<T> ductManager;
     private DuctFactory<T> ductFactory;
     private ItemManager<T> itemManager;
-    private Set<RenderSystem> renderSystems;
+    private VanillaRenderSystem vanillaRenderSystem;
+    private ModelledRenderSystem modelledRenderSystem;
 
     private List<DuctType> ductTypes;
 
@@ -26,7 +29,6 @@ public final class BaseDuctType<T extends Duct> {
         this.ductManager = ductManager;
         this.ductFactory = ductFactory;
         this.itemManager = itemManager;
-        this.renderSystems = new HashSet<>();
         this.ductTypes = new ArrayList<>();
     }
 
@@ -46,8 +48,20 @@ public final class BaseDuctType<T extends Duct> {
         return itemManager;
     }
 
-    public Set<RenderSystem> getRenderSystems() {
-        return renderSystems;
+    public VanillaRenderSystem getVanillaRenderSystem() {
+        return vanillaRenderSystem;
+    }
+
+    public ModelledRenderSystem getModelledRenderSystem() {
+        return modelledRenderSystem;
+    }
+
+    public void setVanillaRenderSystem(VanillaRenderSystem vanillaRenderSystem) {
+        this.vanillaRenderSystem = vanillaRenderSystem;
+    }
+
+    public void setModelledRenderSystem(ModelledRenderSystem modelledRenderSystem) {
+        this.modelledRenderSystem = modelledRenderSystem;
     }
 
     public boolean is(String name) {

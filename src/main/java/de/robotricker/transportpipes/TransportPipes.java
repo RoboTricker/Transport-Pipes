@@ -3,21 +3,24 @@ package de.robotricker.transportpipes;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import co.aikar.commands.PaperCommandManager;
 import de.robotricker.transportpipes.commands.TPCommand;
+import de.robotricker.transportpipes.config.GeneralConf;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.factory.PipeFactory;
 import de.robotricker.transportpipes.ducts.manager.PipeManager;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
 import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.inventory.PlayerSettingsInventory;
 import de.robotricker.transportpipes.items.PipeItemManager;
 import de.robotricker.transportpipes.listener.DuctListener;
 import de.robotricker.transportpipes.listener.PlayerListener;
@@ -42,6 +45,7 @@ public class TransportPipes extends JavaPlugin {
         //Initialize dependency injector
         injector = new InjectorBuilder().addDefaultHandlers("de.robotricker.transportpipes").create();
         injector.register(Logger.class, getLogger());
+        injector.register(Plugin.class, this);
         injector.register(JavaPlugin.class, this);
         injector.register(TransportPipes.class, this);
 
@@ -61,16 +65,22 @@ public class TransportPipes extends JavaPlugin {
         thread = injector.getSingleton(ThreadService.class);
         thread.start();
 
+        //Initialize configs
+        injector.getSingleton(GeneralConf.class);
+        injector.register(LangConf.class, new LangConf(this, injector.getSingleton(GeneralConf.class).getLanguage()));
+
         //Register pipe
         BaseDuctType<Pipe> baseDuctType = injector.getSingleton(DuctRegister.class).registerBaseDuctType("Pipe", PipeManager.class, PipeFactory.class, PipeItemManager.class);
-        baseDuctType.getRenderSystems().add(injector.newInstance(ModelledPipeRenderSystem.class));
-        baseDuctType.getRenderSystems().add(injector.newInstance(VanillaPipeRenderSystem.class));
+        baseDuctType.setModelledRenderSystem(injector.newInstance(ModelledPipeRenderSystem.class));
+        baseDuctType.setVanillaRenderSystem(injector.newInstance(VanillaPipeRenderSystem.class));
 
         //Register listeners
+        TPContainerListener tpContainerListener = injector.getSingleton(TPContainerListener.class);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(DuctListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(WorldListener.class), this);
-        Bukkit.getPluginManager().registerEvents(injector.getSingleton(TPContainerListener.class), this);
+        Bukkit.getPluginManager().registerEvents(tpContainerListener, this);
+        Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerSettingsInventory.class), this);
 
         //Register commands
         PaperCommandManager commandManager = new PaperCommandManager(this);
@@ -83,13 +93,10 @@ public class TransportPipes extends JavaPlugin {
         runTaskSync(() -> {
             for (World world : Bukkit.getWorlds()) {
                 for (Chunk loadedChunk : world.getLoadedChunks()) {
-                    injector.getSingleton(TPContainerListener.class).handleChunkLoadSync(loadedChunk);
+                    tpContainerListener.handleChunkLoadSync(loadedChunk);
                 }
             }
         });
-
-
-
     }
 
     @Override

@@ -6,10 +6,10 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.VanillaPipeModelData;
-import de.robotricker.transportpipes.location.RelativeLocation;
-import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
 public class VanillaPipeModelUD extends VanillaPipeModel {
 

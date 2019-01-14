@@ -8,15 +8,14 @@ import java.util.Map;
 
 import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
 import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
+import de.robotricker.transportpipes.items.ItemService;
+import de.robotricker.transportpipes.location.RelativeLocation;
+import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.ModelledExtractionPipeConnectionModelData;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.ModelledIronPipeConnectionModelData;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.ModelledPipeConnectionModelData;
-import de.robotricker.transportpipes.location.RelativeLocation;
-import de.robotricker.transportpipes.location.TPDirection;
-import de.robotricker.transportpipes.items.ItemService;
 
 public class ModelledPipeModel {
 

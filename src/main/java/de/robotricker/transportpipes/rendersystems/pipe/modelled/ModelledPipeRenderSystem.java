@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.rendersystems.pipe.modelled;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -11,18 +12,19 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.ducts.DuctRegister;
 import de.robotricker.transportpipes.ducts.pipe.Pipe;
+import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
+import de.robotricker.transportpipes.items.ItemService;
+import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
+import de.robotricker.transportpipes.rendersystems.ModelledRenderSystem;
 import de.robotricker.transportpipes.rendersystems.ResourcepackRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.ModelledPipeModel;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.model.data.ModelledPipeConnectionModelData;
-import de.robotricker.transportpipes.location.TPDirection;
-import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 
-public class ModelledPipeRenderSystem extends ResourcepackRenderSystem {
+public class ModelledPipeRenderSystem extends ModelledRenderSystem {
 
     private ModelledPipeModel model = new ModelledPipeModel();
 
@@ -168,11 +170,6 @@ public class ModelledPipeRenderSystem extends ResourcepackRenderSystem {
             }
             return currentClickedConnFace;
         }
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "MODELLED";
     }
 
 }
