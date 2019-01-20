@@ -6,9 +6,9 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
-import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
+import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
+import de.robotricker.transportpipes.duct.types.pipetype.PipeType;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.location.TPDirection;

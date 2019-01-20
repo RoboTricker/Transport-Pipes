@@ -3,14 +3,12 @@ package de.robotricker.transportpipes.rendersystems;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
 import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.TPDirection;
@@ -35,7 +33,7 @@ public abstract class RenderSystem {
     public abstract void createDuctASD(Duct duct, Collection<TPDirection> connections);
 
     /**
-     * does the same as createDuctASD but for ducts that exist already. The difference in ASD is put into "removeASD" and "addASD" so the caller can send it to the clients.
+     * does the same as createDuctASD but for duct that exist already. The difference in ASD is put into "removeASD" and "addASD" so the caller can send it to the clients.
      */
     public abstract void updateDuctASD(Duct duct, Collection<TPDirection> connections, List<ArmorStandData> removeASD, List<ArmorStandData> addASD);
 

@@ -22,12 +22,12 @@ import de.robotricker.transportpipes.container.BrewingStandContainer;
 import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
 import de.robotricker.transportpipes.container.TPContainer;
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.manager.DuctManager;
-import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
-import de.robotricker.transportpipes.ducts.manager.PipeManager;
-import de.robotricker.transportpipes.ducts.pipe.Pipe;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.manager.DuctManager;
+import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.duct.manager.PipeManager;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 

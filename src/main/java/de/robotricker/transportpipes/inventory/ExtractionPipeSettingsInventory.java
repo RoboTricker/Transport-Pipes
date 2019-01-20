@@ -8,14 +8,13 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.ducts.pipe.ExtractionPipe;
-import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterMode;
-import de.robotricker.transportpipes.ducts.pipe.goldenpipe.ItemData;
+import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
+import de.robotricker.transportpipes.duct.pipe.filter.FilterMode;
+import de.robotricker.transportpipes.duct.pipe.filter.ItemData;
+import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
-
-    public static final int MAX_ITEMS_PER_ROW = GoldenPipeSettingsInventory.MAX_ITEMS_PER_ROW;
 
     private int scrollValue;
 
@@ -43,7 +42,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         ItemStack extractCondition = itemService.changeDisplayNameAndLore(pipe.getExtractCondition().getDisplayItem(), "§7Extract Condition: §c" + pipe.getExtractCondition().getDisplayName(), "§8Click to change");
         ItemStack extractAmount = itemService.changeDisplayNameAndLore(pipe.getExtractAmount().getDisplayItem(), "§7Extract Amount: §c" + pipe.getExtractAmount().getDisplayName(), "§8Click to change");
 
-        ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), "§6Extraction Filter", "§7Filter Mode: §c" + pipe.getFilterMode().getDisplayName(), "§7Filter Strictness: §c" + pipe.getFilterStrictness().getDisplayName(), "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
+        ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), "§6Extraction Filter", "§7Filter Mode: §c" + pipe.getItemFilter().getFilterMode().getDisplayName(), "§7Filter Strictness: §c" + pipe.getItemFilter().getFilterStrictness().getDisplayName(), "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
         ItemStack scrollLeft = itemService.changeDisplayName(itemService.createSkullItemStack("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), "§6<<");
         ItemStack scrollRight = itemService.changeDisplayName(itemService.createSkullItemStack("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), "§6>>");
 
@@ -63,7 +62,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         inv.setItem(18, wool);
 
         // filtering stuff
-        if (pipe.getFilterMode() == FilterMode.BLOCK_ALL) {
+        if (pipe.getItemFilter().getFilterMode() == FilterMode.BLOCK_ALL) {
             for (int i = 1; i < 9; i++) {
                 inv.setItem(18 + i, itemService.createBarrierItem());
             }
@@ -71,7 +70,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
             inv.setItem(18 + 1, scrollLeft);
             inv.setItem(18 + 8, scrollRight);
 
-            ItemData[] items = pipe.getFilterItems();
+            ItemData[] items = pipe.getItemFilter().getFilterItems();
             int indexWithScrollValue = scrollValue;
             for (int i = 2; i < 8; i++) {
                 if (items[indexWithScrollValue] != null) {
@@ -115,9 +114,9 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         // clicked filtering mode wool
         if (rawSlot == 18) {
             if (ct == ClickType.LEFT || ct == ClickType.SHIFT_LEFT) {
-                pipe.setFilterMode(pipe.getFilterMode().next());
+                pipe.getItemFilter().setFilterMode(pipe.getItemFilter().getFilterMode().next());
             } else if (ct == ClickType.RIGHT || ct == ClickType.SHIFT_RIGHT) {
-                pipe.setFilterStrictness(pipe.getFilterStrictness().next());
+                pipe.getItemFilter().setFilterStrictness(pipe.getItemFilter().getFilterStrictness().next());
             }
             save(p);
             populate();
@@ -137,7 +136,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         // clicked scroll right
         if (rawSlot == 26) {
             save(p);
-            if (scrollValue < MAX_ITEMS_PER_ROW - 6) {
+            if (scrollValue < ItemFilter.MAX_ITEMS_PER_ROW - 6) {
                 scrollValue++;
             }
             populate();
@@ -151,7 +150,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
     protected void save(Player p) {
         ExtractionPipe pipe = (ExtractionPipe) duct;
 
-        ItemData[] items = pipe.getFilterItems();
+        ItemData[] items = pipe.getItemFilter().getFilterItems();
         for (int i = 2; i < 8; i++) {
             ItemStack itemStack = inv.getItem(18 + i);
             if (itemService.isItemGlassOrBarrier(itemStack)) {

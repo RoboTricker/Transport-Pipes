@@ -22,9 +22,9 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.config.LangConf;
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
-import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.utils.NMSUtils;
 
 public class ItemService {

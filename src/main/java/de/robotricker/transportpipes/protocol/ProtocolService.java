@@ -19,7 +19,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.ducts.pipe.items.PipeItem;
+import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.utils.NMSUtils;

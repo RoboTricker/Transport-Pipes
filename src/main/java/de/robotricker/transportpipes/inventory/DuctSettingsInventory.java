@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.ducts.Duct;
+import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.items.ItemService;
 
 public abstract class DuctSettingsInventory extends GlobalInventory implements Listener {

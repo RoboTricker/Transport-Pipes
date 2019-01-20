@@ -11,15 +11,14 @@ import java.util.Map;
 import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
-import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterMode;
-import de.robotricker.transportpipes.ducts.pipe.goldenpipe.FilterStrictness;
-import de.robotricker.transportpipes.ducts.pipe.goldenpipe.ItemData;
+import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
+import de.robotricker.transportpipes.duct.pipe.filter.FilterMode;
+import de.robotricker.transportpipes.duct.pipe.filter.FilterStrictness;
+import de.robotricker.transportpipes.duct.pipe.filter.ItemData;
+import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
-
-    public static final int MAX_ITEMS_PER_ROW = 32;
 
     private Map<GoldenPipe.Color, Integer> scrollValues;
 
@@ -43,8 +42,8 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
             GoldenPipe.Color gpc = GoldenPipe.Color.values()[line];
             int scrollValue = scrollValues.getOrDefault(gpc, 0);
 
-            FilterMode filterMode = pipe.getFilterMode(gpc);
-            FilterStrictness filterStrictness = pipe.getFilterStrictness(gpc);
+            FilterMode filterMode = pipe.getItemFilter(gpc).getFilterMode();
+            FilterStrictness filterStrictness = pipe.getItemFilter(gpc).getFilterStrictness();
             ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getDyeColor().getWoolData()), gpc.getChatColor().toString() + gpc.getDisplayName() + " §7output direction", "§7Filter mode: §c" + filterMode.getDisplayName(), "§7Filter strictness: §c" + filterStrictness.getDisplayName(), "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
             ItemStack glassPane = itemService.createGlassItem(gpc.getDyeColor());
             ItemStack barrier = itemService.createBarrierItem();
@@ -65,7 +64,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
                 inv.setItem(line * 9 + 1, scrollLeft);
                 inv.setItem(line * 9 + 8, scrollRight);
 
-                ItemData[] filterItems = pipe.getFilterItems(gpc);
+                ItemData[] filterItems = pipe.getItemFilter(gpc).getFilterItems();
                 int indexWithScrollValue = scrollValue;
                 for (int i = 2; i < 8; i++) {
                     if (filterItems[indexWithScrollValue] != null) {
@@ -89,9 +88,9 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
             int line = rawSlot / 9;
             GoldenPipe.Color gpc = GoldenPipe.Color.values()[line];
             if (ct == ClickType.LEFT || ct == ClickType.SHIFT_LEFT) {
-                pipe.setFilterMode(gpc, pipe.getFilterMode(gpc).next());
+                pipe.getItemFilter(gpc).setFilterMode(pipe.getItemFilter(gpc).getFilterMode().next());
             } else if (ct == ClickType.RIGHT || ct == ClickType.SHIFT_RIGHT) {
-                pipe.setFilterStrictness(gpc, pipe.getFilterStrictness(gpc).next());
+                pipe.getItemFilter(gpc).setFilterStrictness(pipe.getItemFilter(gpc).getFilterStrictness().next());
             }
 
             save(p);
@@ -126,7 +125,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
             int line = rawSlot / 9;
             GoldenPipe.Color gpc = GoldenPipe.Color.values()[line];
             int scrollValue = scrollValues.getOrDefault(gpc, 0);
-            if (scrollValue < MAX_ITEMS_PER_ROW - 6) {
+            if (scrollValue < ItemFilter.MAX_ITEMS_PER_ROW - 6) {
                 scrollValue++;
             }
             scrollValues.put(gpc, scrollValue);
@@ -147,7 +146,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
         line_loop:
         for (int line = 0; line < 6; line++) {
             GoldenPipe.Color gpc = GoldenPipe.Color.values()[line];
-            ItemData[] filterItems = pipe.getFilterItems(gpc);
+            ItemData[] filterItems = pipe.getItemFilter(gpc).getFilterItems();
             int scrollValue = scrollValues.getOrDefault(gpc, 0);
             for (int i = 2; i < 8; i++) {
                 ItemStack is = inv.getItem(line * 9 + i);

@@ -1,7 +1,7 @@
 package de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data;
 
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class VanillaIronPipeModelData extends VanillaPipeModelData {

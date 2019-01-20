@@ -3,7 +3,7 @@ package de.robotricker.transportpipes.config;
 import org.bukkit.entity.Player;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 
 public class PlayerSettingsConf extends Conf {

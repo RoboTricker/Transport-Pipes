@@ -4,10 +4,10 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.pipe.Pipe;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
-import de.robotricker.transportpipes.ducts.types.pipetype.PipeType;
+import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.pipetype.PipeType;
 
 public class PipeItemManager extends ItemManager<Pipe> {
 

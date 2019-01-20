@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
 

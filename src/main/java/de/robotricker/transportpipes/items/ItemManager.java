@@ -5,8 +5,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.types.DuctType;
 
 public abstract class ItemManager<T extends Duct> {
 

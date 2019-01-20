@@ -7,8 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -16,24 +14,18 @@ import javax.inject.Inject;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.HelpCommand;
-import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import de.robotricker.transportpipes.ThreadService;
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
-import de.robotricker.transportpipes.ducts.pipe.Pipe;
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.inventory.CreativeInventory;
 import de.robotricker.transportpipes.inventory.PlayerSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
-import de.robotricker.transportpipes.protocol.ProtocolService;
-import de.robotricker.transportpipes.rendersystems.RenderSystem;
 import de.robotricker.transportpipes.utils.MessageUtils;
 
 @CommandAlias("tpipes|transportpipes|transportpipe|tpipe|pipes|pipe")
@@ -114,11 +106,11 @@ public class TPCommand extends BaseCommand {
             cs.sendMessage("reload config");
         }
 
-        @Subcommand("ducts|pipes")
-        @CommandPermission("transportpipes.reload.ducts")
-        @Description("Reloads all of the ducts")
+        @Subcommand("duct|pipes")
+        @CommandPermission("transportpipes.reload.duct")
+        @Description("Reloads all of the duct")
         public void onReloadDucts(CommandSender cs) {
-            cs.sendMessage("reload ducts");
+            cs.sendMessage("reload duct");
         }
 
     }
