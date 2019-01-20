@@ -6,7 +6,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.robotricker.transportpipes.ducts.pipe.GoldenPipe;
+import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.hitbox.AxisAlignedBB;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.location.TPDirection;

@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
 
 public abstract class ResourcepackRenderSystem extends RenderSystem {
 

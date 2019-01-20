@@ -24,10 +24,10 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.ducts.Duct;
-import de.robotricker.transportpipes.ducts.DuctRegister;
-import de.robotricker.transportpipes.ducts.manager.GlobalDuctManager;
-import de.robotricker.transportpipes.ducts.types.DuctType;
+import de.robotricker.transportpipes.duct.Duct;
+import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;

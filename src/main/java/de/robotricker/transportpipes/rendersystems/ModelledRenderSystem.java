@@ -2,7 +2,7 @@ package de.robotricker.transportpipes.rendersystems;
 
 import org.bukkit.inventory.ItemStack;
 
-import de.robotricker.transportpipes.ducts.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.BaseDuctType;
 import de.robotricker.transportpipes.items.ItemService;
 
 public abstract class ModelledRenderSystem extends ResourcepackRenderSystem {
