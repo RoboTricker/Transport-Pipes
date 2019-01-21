@@ -9,7 +9,10 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.factory.DuctFactory;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.items.ItemManager;
+import de.robotricker.transportpipes.location.BlockLocation;
+import net.querz.nbt.CompoundTag;
 
 public class DuctRegister {
 
@@ -40,6 +43,27 @@ public class DuctRegister {
 
     public <T extends Duct> BaseDuctType<T> baseDuctTypeOf(String displayName) {
         return (BaseDuctType<T>) baseDuctTypes().stream().filter(bdt -> bdt.getName().equalsIgnoreCase(displayName)).findAny().orElse(null);
+    }
+
+    public void saveDuctTypeToNBTTag(DuctType ductType, CompoundTag ductTag) {
+        ductTag.putString("baseDuctType", ductType.getBaseDuctType().getName());
+        ductTag.putString("ductType", ductType.getName());
+    }
+
+    public void saveBlockLocToNBTTag(BlockLocation blockLoc, CompoundTag ductTag) {
+        ductTag.putString("blockLoc", blockLoc.toString());
+    }
+
+    public DuctType loadDuctTypeFromNBTTag(CompoundTag ductTag) {
+        BaseDuctType bdt = baseDuctTypeOf(ductTag.getString("baseDuctType"));
+        if (bdt == null) {
+            return null;
+        }
+        return bdt.ductTypeOf(ductTag.getString("ductType"));
+    }
+
+    public BlockLocation loadBlockLocFromNBTTag(CompoundTag ductTag) {
+        return BlockLocation.fromString(ductTag.getString("blockLoc"));
     }
 
 }

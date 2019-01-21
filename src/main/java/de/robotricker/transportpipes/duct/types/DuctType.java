@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.robotricker.transportpipes.duct.Duct;
+import net.querz.nbt.CompoundTag;
 
 public class DuctType {
 
@@ -90,4 +91,5 @@ public class DuctType {
         return "DuctType: " + name + "\n" +
                 "Connectables: " + connectables.stream().map(dt -> dt.name).collect(Collectors.joining(", "));
     }
+
 }

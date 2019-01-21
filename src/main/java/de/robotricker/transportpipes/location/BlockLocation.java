@@ -101,4 +101,23 @@ public class BlockLocation implements Comparable<BlockLocation> {
     public String toString() {
         return x + ", " + y + ", " + z;
     }
+
+    public static BlockLocation fromString(String s) {
+        if(s == null) {
+            return null;
+        }
+        String[] split = s.split(", ");
+        if(split.length == 3) {
+            try {
+                int x = Integer.parseInt(split[0]);
+                int y = Integer.parseInt(split[1]);
+                int z = Integer.parseInt(split[2]);
+                return new BlockLocation(x, y, z);
+            } catch (NumberFormatException e){
+
+            }
+        }
+        return null;
+    }
+
 }
