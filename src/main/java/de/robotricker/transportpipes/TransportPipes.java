@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes;
 
+import de.robotricker.transportpipes.saving.SaveService;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -91,6 +92,7 @@ public class TransportPipes extends JavaPlugin {
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabled plugin");
 
         runTaskSync(() -> {
+            injector.getSingleton(SaveService.class).loadDuctsSync();
             for (World world : Bukkit.getWorlds()) {
                 for (Chunk loadedChunk : world.getLoadedChunks()) {
                     tpContainerListener.handleChunkLoadSync(loadedChunk);
@@ -117,6 +119,8 @@ public class TransportPipes extends JavaPlugin {
 
     public void saveWorld(World world){
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "saving world " + world.getName());
+
+        injector.getSingleton(SaveService.class).saveDuctsSync();
 
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "saved world " + world.getName());
     }

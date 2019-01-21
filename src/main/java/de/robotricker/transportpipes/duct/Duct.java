@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.duct;
 import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 
+import net.querz.nbt.CompoundTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -141,6 +142,14 @@ public abstract class Duct {
         }
 
         return dropItems;
+    }
+
+    public void saveToNBTTag(CompoundTag compoundTag) {
+
+    }
+
+    public void loadFromNBTTag(CompoundTag compoundTag) {
+
     }
 
 }

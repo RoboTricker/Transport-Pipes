@@ -248,8 +248,8 @@
                             <shadedPattern>de.robotricker.transportpipes.libs.com.comphenix.packetwrapper</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.flowpowered.nbt</pattern>
-                            <shadedPattern>de.robotricker.transportpipes.libs.com.flowpowered.nbt</shadedPattern>
+                            <pattern>net.querz.nbt</pattern>
+                            <shadedPattern>de.robotricker.transportpipes.libs.net.querz.nbt</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>io.sentry</pattern>
@@ -350,6 +350,12 @@
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
+
+        <!-- JitPack Repo -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -424,14 +430,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- FlowNBT, Named Binary Tag (NBT) manipulation library, https://github.com/flow/nbt -->
-        <dependency>
-            <groupId>com.flowpowered</groupId>
-            <artifactId>flow-nbt</artifactId>
-            <version>1.0.0</version>
-            <optional>true</optional>
-        </dependency>
-
         <!-- LogisticsAPI, tech mechanics API for spigot plugins, https://github.com/LogisticsCraft/Logistics-API -->
         <dependency>
             <groupId>com.logisticscraft</groupId>
@@ -483,6 +481,12 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.25</version>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.Querz</groupId>
+            <artifactId>NBT</artifactId>
+            <version>3.0</version>
         </dependency>
     </dependencies>
 
