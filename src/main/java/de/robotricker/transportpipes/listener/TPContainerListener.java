@@ -44,14 +44,14 @@ public class TPContainerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
         if (isIdContainerBlock(e.getBlockPlaced().getTypeId())) {
-            updateContainerBlock(e.getBlock(), true);
+            updateContainerBlock(e.getBlock(), true, true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
         if (isIdContainerBlock(e.getBlock().getTypeId())) {
-            updateContainerBlock(e.getBlock(), false);
+            updateContainerBlock(e.getBlock(), false, true);
         }
     }
 
@@ -59,7 +59,7 @@ public class TPContainerListener implements Listener {
     public void onBlockExplode(BlockExplodeEvent e) {
         for (Block b : e.blockList()) {
             if (isIdContainerBlock(b.getTypeId())) {
-                updateContainerBlock(b, false);
+                updateContainerBlock(b, false, true);
             }
         }
     }
@@ -68,17 +68,17 @@ public class TPContainerListener implements Listener {
     public void onEntityExplode(EntityExplodeEvent e) {
         for (Block b : e.blockList()) {
             if (isIdContainerBlock(b.getTypeId())) {
-                updateContainerBlock(b, false);
+                updateContainerBlock(b, false, true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent e) {
-        handleChunkLoadSync(e.getChunk());
+        handleChunkLoadSync(e.getChunk(), false);
     }
 
-    public void updateContainerBlock(Block block, boolean add) {
+    public void updateContainerBlock(Block block, boolean add, boolean updateNeighborPipes) {
         PipeManager pipeManager = (PipeManager) (DuctManager<? extends Duct>) ductRegister.baseDuctTypeOf("pipe").getDuctManager();
 
         BlockLocation blockLoc = new BlockLocation(block.getLocation());
@@ -86,10 +86,15 @@ public class TPContainerListener implements Listener {
             if (pipeManager.getContainerAtLoc(block.getLocation()) == null) {
                 TPContainer container = createContainerFromBlock(block);
                 pipeManager.getContainers(block.getWorld()).put(blockLoc, container);
-                for (TPDirection dir : TPDirection.values()) {
-                    Duct duct = globalDuctManager.getDuctAtLoc(block.getWorld(), blockLoc.getNeighbor(dir));
-                    if (duct instanceof Pipe) {
-                        globalDuctManager.updateDuct(duct);
+
+                // only update the neighbor pipes if this updateContainerBlock method call is because of a chunk load that was not issued inside the onEnable method
+                if (updateNeighborPipes) {
+                    for (TPDirection dir : TPDirection.values()) {
+                        Duct duct = globalDuctManager.getDuctAtLoc(block.getWorld(), blockLoc.getNeighbor(dir));
+                        if (duct instanceof Pipe) {
+                            globalDuctManager.updateDuctConnections(duct);
+                            globalDuctManager.updateDuctInRenderSystems(duct, true);
+                        }
                     }
                 }
             }
@@ -97,10 +102,15 @@ public class TPContainerListener implements Listener {
             TPContainer container = pipeManager.getContainerAtLoc(block.getLocation());
             if (container != null) {
                 pipeManager.getContainers(block.getWorld()).remove(blockLoc);
-                for (TPDirection dir : TPDirection.values()) {
-                    Duct duct = globalDuctManager.getDuctAtLoc(block.getWorld(), blockLoc.getNeighbor(dir));
-                    if (duct instanceof Pipe) {
-                        globalDuctManager.updateDuct(duct);
+
+                // only update the neighbor pipes if this updateContainerBlock method call is because of a chunk load that was not issued inside the onEnable method
+                if (updateNeighborPipes) {
+                    for (TPDirection dir : TPDirection.values()) {
+                        Duct duct = globalDuctManager.getDuctAtLoc(block.getWorld(), blockLoc.getNeighbor(dir));
+                        if (duct instanceof Pipe) {
+                            globalDuctManager.updateDuctConnections(duct);
+                            globalDuctManager.updateDuctInRenderSystems(duct, true);
+                        }
                     }
                 }
             }
@@ -118,7 +128,7 @@ public class TPContainerListener implements Listener {
         return null;
     }
 
-    public void handleChunkLoadSync(Chunk loadedChunk) {
+    public void handleChunkLoadSync(Chunk loadedChunk, boolean onServerStart) {
         PipeManager pipeManager = (PipeManager) (DuctManager<? extends Duct>) ductRegister.baseDuctTypeOf("pipe").getDuctManager();
 
         if (loadedChunk.getTileEntities() != null) {
@@ -126,7 +136,7 @@ public class TPContainerListener implements Listener {
                 if (isIdContainerBlock(bs.getTypeId())) {
 
                     //automatically ignores this block if it is already registered as container block
-                    updateContainerBlock(bs.getBlock(), true);
+                    updateContainerBlock(bs.getBlock(), true, !onServerStart);
 
                     //if this block is already registered, update the block, because the blockState object changes after a chunk unload and load
                     TPContainer container = pipeManager.getContainerAtLoc(bs.getLocation());

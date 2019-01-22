@@ -1,5 +1,8 @@
 package de.robotricker.transportpipes.duct.pipe;
 
+import net.querz.nbt.CompoundTag;
+import net.querz.nbt.ListTag;
+
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -23,6 +26,7 @@ import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.duct.types.pipetype.PipeType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.location.TPDirection;
@@ -45,13 +49,12 @@ public class Pipe extends Duct {
     /**
      * THREAD-SAFE
      * contains all the items that could not be put into the next pipe or container because it is inside an unloaded chunk.
-     * As this pipe / container gets loaded again, these items get put into the it one by one.
+     * As this pipe / container gets loaded again, these items get put into it one by one.
      */
     private final List<PipeItem> unloadedItems;
 
+    ItemDistributorService itemDistributor;
     private Map<TPDirection, TPContainer> connectedContainers;
-
-    protected ItemDistributorService itemDistributor;
 
     public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager, ItemDistributorService itemDistributor) {
         super(ductType, blockLoc, world, chunk, settingsInv, globalDuctManager);
@@ -100,7 +103,13 @@ public class Pipe extends Duct {
 
         PipeManager pipeManager = (PipeManager) ductManager;
         if (items.size() > MAX_ITEMS) {
-            transportPipes.runTaskAsync(() -> globalDuctManager.destroyDuct(this, null), 0L);
+            transportPipes.runTaskAsync(() -> {
+                globalDuctManager.unregisterDuct(this);
+                globalDuctManager.unregisterDuctInRenderSystem(this, true);
+                globalDuctManager.updateNeighborDuctsConnections(this);
+                globalDuctManager.updateNeighborDuctsInRenderSystems(this, true);
+                globalDuctManager.playDuctDestroyEffects(this, null);
+            }, 0L);
             return;
         }
 
@@ -128,7 +137,7 @@ public class Pipe extends Duct {
                 if (distribution == null || distribution.isEmpty()) {
                     items.remove(pipeItem);
                     pipeManager.destroyPipeItem(pipeItem);
-                    if(distribution != null) {
+                    if (distribution != null) {
                         //drop item
                         transportPipes.runTaskSync(() -> {
                             pipeItem.getWorld().dropItem(pipeItem.getBlockLoc().toLocation(pipeItem.getWorld()), pipeItem.getItem());
@@ -247,4 +256,52 @@ public class Pipe extends Duct {
         return (PipeType) super.getDuctType();
     }
 
+    @Override
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.saveToNBTTag(compoundTag, itemService);
+
+        List<PipeItem> accumulatedItems = new ArrayList<>();
+        accumulatedItems.addAll(getItems());
+        accumulatedItems.addAll(getFutureItems());
+        List<PipeItem> unloadedItems = new ArrayList<>(getUnloadedItems());
+
+        ListTag<CompoundTag> accumulatedItemsListTag = new ListTag<>(CompoundTag.class);
+        ListTag<CompoundTag> unloadedItemsListTag = new ListTag<>(CompoundTag.class);
+
+        for(PipeItem accumulatedItem : accumulatedItems) {
+            CompoundTag itemTag = new CompoundTag();
+            accumulatedItem.saveToNBTTag(itemTag, itemService);
+            accumulatedItemsListTag.add(itemTag);
+        }
+
+        for(PipeItem unloadedItem : unloadedItems) {
+            CompoundTag itemTag = new CompoundTag();
+            unloadedItem.saveToNBTTag(itemTag, itemService);
+            unloadedItemsListTag.add(itemTag);
+        }
+
+        compoundTag.put("pipeItems", accumulatedItemsListTag);
+        compoundTag.put("unloadedPipeItems", unloadedItemsListTag);
+    }
+
+    @Override
+    public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.loadFromNBTTag(compoundTag, itemService);
+
+        ListTag<CompoundTag> accumulatedItemsListTag = (ListTag<CompoundTag>) compoundTag.getListTag("pipeItems");
+        ListTag<CompoundTag> unloadedItemsListTag = (ListTag<CompoundTag>) compoundTag.getListTag("unloadedPipeItems");
+
+        for (CompoundTag itemTag : accumulatedItemsListTag) {
+            PipeItem pipeItem = new PipeItem();
+            pipeItem.loadFromNBTTag(itemTag, getWorld(), itemService);
+            getItems().add(pipeItem);
+        }
+
+        for (CompoundTag itemTag : unloadedItemsListTag) {
+            PipeItem pipeItem = new PipeItem();
+            pipeItem.loadFromNBTTag(itemTag, getWorld(), itemService);
+            getUnloadedItems().add(pipeItem);
+        }
+
+    }
 }

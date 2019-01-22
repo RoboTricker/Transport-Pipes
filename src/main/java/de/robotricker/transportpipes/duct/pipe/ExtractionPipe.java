@@ -1,5 +1,7 @@
 package de.robotricker.transportpipes.duct.pipe;
 
+import net.querz.nbt.CompoundTag;
+
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -18,6 +20,7 @@ import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
@@ -51,7 +54,7 @@ public class ExtractionPipe extends Pipe {
             } while (!containerConnections.containsKey(extractDirection));
         }
         if (oldExtractDirection != getExtractDirection()) {
-            globalDuctManager.updateDuct(this);
+            globalDuctManager.updateDuctInRenderSystems(this, true);
         }
     }
 
@@ -93,5 +96,15 @@ public class ExtractionPipe extends Pipe {
         List<ItemStack> drop = super.destroyed(transportPipes, ductManager, destroyer);
         drop.addAll(itemFilter.getAsItemStacks());
         return drop;
+    }
+
+    @Override
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.saveToNBTTag(compoundTag, itemService);
+    }
+
+    @Override
+    public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.loadFromNBTTag(compoundTag, itemService);
     }
 }
