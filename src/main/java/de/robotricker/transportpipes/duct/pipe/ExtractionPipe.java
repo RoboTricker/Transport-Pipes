@@ -4,6 +4,7 @@ import net.querz.nbt.CompoundTag;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,10 +15,12 @@ import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.duct.manager.PipeManager;
 import de.robotricker.transportpipes.duct.pipe.extractionpipe.ExtractAmount;
 import de.robotricker.transportpipes.duct.pipe.extractionpipe.ExtractCondition;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
+import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
 import de.robotricker.transportpipes.items.ItemService;
@@ -55,6 +58,7 @@ public class ExtractionPipe extends Pipe {
         }
         if (oldExtractDirection != getExtractDirection()) {
             globalDuctManager.updateDuctInRenderSystems(this, true);
+            settingsInv.populate();
         }
     }
 
@@ -86,6 +90,24 @@ public class ExtractionPipe extends Pipe {
         return itemFilter;
     }
 
+    public void tryToExtractSync(PipeManager pipeManager, TPContainer container, TPDirection extractDirection) {
+        if (this.extractDirection != extractDirection || extractCondition == ExtractCondition.NEVER_EXTRACT) {
+            return;
+        }
+        if (extractCondition == ExtractCondition.NEEDS_REDSTONE) {
+            Block block = getBlockLoc().toBlock(getWorld());
+            if(!block.isBlockIndirectlyPowered() && !block.isBlockPowered()) {
+                return;
+            }
+        }
+        ItemStack item = container.extractItem(extractDirection, extractAmount.getAmount(), itemFilter);
+        if (item != null) {
+            PipeItem pipeItem = new PipeItem(item, getWorld(), getBlockLoc(), extractDirection.getOpposite());
+            pipeManager.createPipeItem(pipeItem);
+            pipeManager.addPipeItem(pipeItem);
+        }
+    }
+
     @Override
     public int[] getBreakParticleData() {
         return new int[] { 5, 0 };
@@ -99,12 +121,34 @@ public class ExtractionPipe extends Pipe {
     }
 
     @Override
+    public void notifyConnectionChange() {
+        super.notifyConnectionChange();
+        updateExtractDirection(false);
+    }
+
+    @Override
     public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
         super.saveToNBTTag(compoundTag, itemService);
+
+        compoundTag.putInt("extractDir", extractDirection != null ? extractDirection.ordinal() : -1);
+        compoundTag.putInt("extractCondition", extractCondition.ordinal());
+        compoundTag.putInt("extractAmount", extractAmount.ordinal());
+        CompoundTag itemFilterTag = new CompoundTag();
+        itemFilter.saveToNBTTag(itemFilterTag, itemService);
+        compoundTag.put("itemFilter", itemFilterTag);
+
     }
 
     @Override
     public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
         super.loadFromNBTTag(compoundTag, itemService);
+
+        extractDirection = compoundTag.getInt("extractDir") != -1 ? TPDirection.values()[compoundTag.getInt("extractDir")] : null;
+        extractCondition = ExtractCondition.values()[compoundTag.getInt("extractCondition")];
+        extractAmount = ExtractAmount.values()[compoundTag.getInt("extractAmount")];
+        itemFilter = new ItemFilter();
+        itemFilter.loadFromNBTTag(compoundTag.getCompoundTag("itemFilter"), itemService);
+
+        settingsInv.populate();
     }
 }

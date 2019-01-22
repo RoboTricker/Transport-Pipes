@@ -152,12 +152,7 @@ public class PipeManager extends DuctManager<Pipe> {
                                     for (TPDirection dir : TPDirection.values()) {
                                         TPContainer container = getContainerAtLoc(pipe.getWorld(), pipe.getBlockLoc().getNeighbor(dir));
                                         if (container != null) {
-                                            ItemStack item = container.extractItem(dir, 1);
-                                            if (item != null) {
-                                                PipeItem pipeItem = new PipeItem(item, pipe.getWorld(), pipe.getBlockLoc(), dir.getOpposite());
-                                                createPipeItem(pipeItem);
-                                                addPipeItem(pipeItem);
-                                            }
+                                            ((ExtractionPipe) pipe).tryToExtractSync(this, container, dir);
                                         }
                                     }
                                 }

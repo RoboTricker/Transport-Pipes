@@ -1,9 +1,15 @@
 package de.robotricker.transportpipes.duct.pipe.filter;
 
+import net.querz.nbt.CompoundTag;
+import net.querz.nbt.ListTag;
+import net.querz.nbt.StringTag;
+
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.robotricker.transportpipes.items.ItemService;
 
 public class ItemFilter {
 
@@ -40,7 +46,7 @@ public class ItemFilter {
     }
 
     public int applyFilter(ItemStack item) {
-        if (getFilterMode() == FilterMode.BLOCK_ALL) {
+        if (item == null || getFilterMode() == FilterMode.BLOCK_ALL) {
             return 0;
         }
         if (getFilterMode() == FilterMode.NORMAL) {
@@ -86,6 +92,35 @@ public class ItemFilter {
             }
         }
         return itemStacks;
+    }
+
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        compoundTag.putInt("filterMode", filterMode.ordinal());
+        compoundTag.putInt("filterStrictness", filterStrictness.ordinal());
+        ListTag<StringTag> itemDataListTag = new ListTag<>(StringTag.class);
+        for (int i = 0; i < MAX_ITEMS_PER_ROW; i++) {
+            ItemData itemData = filterItems[i];
+            if (itemData == null) {
+                itemDataListTag.add(new StringTag(null));
+            } else {
+                itemDataListTag.addString(itemService.serializeItemStack(itemData.toItemStack()));
+            }
+        }
+        compoundTag.put("filterItems", itemDataListTag);
+    }
+
+    public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        filterMode = FilterMode.values()[compoundTag.getInt("filterMode")];
+        filterStrictness = FilterStrictness.values()[compoundTag.getInt("filterStrictness")];
+        ListTag<StringTag> itemDataListTag = (ListTag<StringTag>) compoundTag.getListTag("filterItems");
+        for (int i = 0; i < MAX_ITEMS_PER_ROW; i++) {
+            if(i >= itemDataListTag.size()) {
+                filterItems[i] = null;
+                continue;
+            }
+            ItemStack deserialized = itemService.deserializeItemStack(itemDataListTag.get(i).getValue());
+            filterItems[i] = deserialized != null ? new ItemData(deserialized) : null;
+        }
     }
 
 }

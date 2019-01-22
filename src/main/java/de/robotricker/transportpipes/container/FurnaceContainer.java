@@ -6,6 +6,7 @@ import org.bukkit.block.Furnace;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.utils.NMSUtils;
 
@@ -28,11 +29,11 @@ public class FurnaceContainer extends BlockContainer {
     }
 
     @Override
-    public ItemStack extractItem(TPDirection extractDirection, int amount) {
+    public ItemStack extractItem(TPDirection extractDirection, int amount, ItemFilter itemFilter) {
         if (!isInLoadedChunk()) {
             return null;
         }
-        if (cachedInv.getResult() != null) {
+        if (itemFilter.applyFilter(cachedInv.getResult()) > 0) {
             ItemStack resultItem = cachedInv.getResult().clone();
             ItemStack returnItem = resultItem.clone();
 

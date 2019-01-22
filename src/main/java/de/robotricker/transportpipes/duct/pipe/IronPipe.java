@@ -1,5 +1,7 @@
 package de.robotricker.transportpipes.duct.pipe;
 
+import net.querz.nbt.CompoundTag;
+
 import org.bukkit.Chunk;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -15,6 +17,7 @@ import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
@@ -80,5 +83,21 @@ public class IronPipe extends Pipe {
         if (!allConns.isEmpty() && !allConns.contains(currentOutputDirection)) {
             cycleOutputDirection();
         }
+    }
+
+    @Override
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.saveToNBTTag(compoundTag, itemService);
+
+        compoundTag.putInt("outputDir", currentOutputDirection.ordinal());
+
+    }
+
+    @Override
+    public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.loadFromNBTTag(compoundTag, itemService);
+
+        currentOutputDirection = TPDirection.values()[compoundTag.getInt("outputDir")];
+
     }
 }

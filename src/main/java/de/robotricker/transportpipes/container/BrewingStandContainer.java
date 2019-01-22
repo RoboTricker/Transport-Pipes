@@ -7,6 +7,7 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class BrewingStandContainer extends BlockContainer {
@@ -28,19 +29,19 @@ public class BrewingStandContainer extends BlockContainer {
     }
 
     @Override
-    public ItemStack extractItem(TPDirection extractDirection, int amount) {
+    public ItemStack extractItem(TPDirection extractDirection, int amount, ItemFilter itemFilter) {
         if (!isInLoadedChunk()) {
             return null;
         }
         if (extractDirection != TPDirection.DOWN && cachedBrewingStand.getBrewingTime() == 0) {
             ItemStack takeItem = null;
-            if (cachedInv.getItem(0) != null) {
+            if (itemFilter.applyFilter(cachedInv.getItem(0)) > 0) {
                 takeItem = cachedInv.getItem(0);
                 cachedInv.setItem(0, null);
-            } else if (cachedInv.getItem(1) != null) {
+            } else if (itemFilter.applyFilter(cachedInv.getItem(1)) > 0) {
                 takeItem = cachedInv.getItem(1);
                 cachedInv.setItem(1, null);
-            } else if (cachedInv.getItem(2) != null) {
+            } else if (itemFilter.applyFilter(cachedInv.getItem(2)) > 0) {
                 takeItem = cachedInv.getItem(2);
                 cachedInv.setItem(2, null);
             }

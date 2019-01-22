@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 
+import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class SimpleInventoryContainer extends BlockContainer {
@@ -30,13 +31,13 @@ public class SimpleInventoryContainer extends BlockContainer {
     }
 
     @Override
-    public ItemStack extractItem(TPDirection extractDirection, int amount) {
+    public ItemStack extractItem(TPDirection extractDirection, int amount, ItemFilter itemFilter) {
         if (!isInLoadedChunk()) {
             return null;
         }
         ItemStack itemTaken = null;
         for (int i = 0; i < cachedInv.getSize(); i++) {
-            if (cachedInv.getItem(i) != null) {
+            if (itemFilter.applyFilter(cachedInv.getItem(i)) > 0) {
                 int amountBefore = itemTaken != null ? itemTaken.getAmount() : 0;
                 if (itemTaken == null) {
                     itemTaken = cachedInv.getItem(i).clone();
