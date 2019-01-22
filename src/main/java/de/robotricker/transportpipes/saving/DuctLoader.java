@@ -48,8 +48,8 @@ public class DuctLoader {
             // load duct specific nbt stuff later in order to be able to access other ducts inside this load process
             for (Duct duct : ductCompoundTagMap.keySet()) {
                 globalDuctManager.updateDuctConnections(duct);
-                globalDuctManager.registerDuctInRenderSystems(duct, false);
                 duct.loadFromNBTTag(ductCompoundTagMap.get(duct), itemService);
+                globalDuctManager.registerDuctInRenderSystems(duct, false);
             }
         }
     }

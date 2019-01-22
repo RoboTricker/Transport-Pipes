@@ -1,5 +1,8 @@
 package de.robotricker.transportpipes.duct.pipe;
 
+import net.querz.nbt.CompoundTag;
+import net.querz.nbt.ListTag;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.DyeColor;
@@ -19,6 +22,7 @@ import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
@@ -60,6 +64,35 @@ public class GoldenPipe extends Pipe {
             drop.addAll(getItemFilter(gpc).getAsItemStacks());
         }
         return drop;
+    }
+
+    @Override
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.saveToNBTTag(compoundTag, itemService);
+
+        ListTag<CompoundTag> itemFiltersTag = new ListTag<>(CompoundTag.class);
+        for (Color color : Color.values()) {
+            CompoundTag filterCompoundTag = new CompoundTag();
+            ItemFilter itemFilter = getItemFilter(color);
+            itemFilter.saveToNBTTag(filterCompoundTag, itemService);
+            itemFiltersTag.add(filterCompoundTag);
+        }
+        compoundTag.put("itemFilters", itemFiltersTag);
+
+    }
+
+    @Override
+    public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        super.loadFromNBTTag(compoundTag, itemService);
+
+        ListTag<CompoundTag> itemFiltersTag = (ListTag<CompoundTag>) compoundTag.getListTag("itemFilters");
+        for (Color color : Color.values()) {
+            ItemFilter itemFilter = new ItemFilter();
+            itemFilter.loadFromNBTTag(itemFiltersTag.get(color.ordinal()), itemService);
+            itemFilters[color.ordinal()] = itemFilter;
+        }
+
+        settingsInv.populate();
     }
 
     public enum Color {

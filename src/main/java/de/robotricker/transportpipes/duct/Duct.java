@@ -39,7 +39,7 @@ public abstract class Duct {
 
     private Map<TPDirection, Duct> connectedDucts;
 
-    private DuctSettingsInventory settingsInv;
+    protected DuctSettingsInventory settingsInv;
 
     public Duct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
         this.ductType = ductType;

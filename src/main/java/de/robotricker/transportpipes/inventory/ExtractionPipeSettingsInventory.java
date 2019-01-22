@@ -38,11 +38,11 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         ExtractionPipe pipe = (ExtractionPipe) duct;
         TPDirection extractDir = pipe.getExtractDirection();
 
-        ItemStack extractDirection = itemService.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), extractDir != null ? "§7Extract Direction: §c" + extractDir.name() : "§7Extract Direction: §cNONE", "§8Click to change");
-        ItemStack extractCondition = itemService.changeDisplayNameAndLore(pipe.getExtractCondition().getDisplayItem(), "§7Extract Condition: §c" + pipe.getExtractCondition().getDisplayName(), "§8Click to change");
-        ItemStack extractAmount = itemService.changeDisplayNameAndLore(pipe.getExtractAmount().getDisplayItem(), "§7Extract Amount: §c" + pipe.getExtractAmount().getDisplayName(), "§8Click to change");
+        ItemStack extractDirection = itemService.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), extractDir != null ? "§7Extract Direction: §c" + extractDir.name() : "§7Extract Direction: §cNONE", "", "§8Click to change");
+        ItemStack extractCondition = itemService.changeDisplayNameAndLore(pipe.getExtractCondition().getDisplayItem(), "§7Extract Condition: §c" + pipe.getExtractCondition().getDisplayName(), "", "§8Click to change");
+        ItemStack extractAmount = itemService.changeDisplayNameAndLore(pipe.getExtractAmount().getDisplayItem(), "§7Extract Amount: §c" + pipe.getExtractAmount().getDisplayName(), "", "§8Click to change");
 
-        ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), "§6Extraction Filter", "§7Filter Mode: §c" + pipe.getItemFilter().getFilterMode().getDisplayName(), "§7Filter Strictness: §c" + pipe.getItemFilter().getFilterStrictness().getDisplayName(), "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
+        ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, (short) 0), "§6Extraction Filter", "§7Filter Mode: §c" + pipe.getItemFilter().getFilterMode().getDisplayName(), "§7Filter Strictness: §c" + pipe.getItemFilter().getFilterStrictness().getDisplayName(), "", "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
         ItemStack scrollLeft = itemService.changeDisplayName(itemService.createSkullItemStack("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), "§6<<");
         ItemStack scrollRight = itemService.changeDisplayName(itemService.createSkullItemStack("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), "§6>>");
 

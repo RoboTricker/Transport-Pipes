@@ -44,7 +44,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
 
             FilterMode filterMode = pipe.getItemFilter(gpc).getFilterMode();
             FilterStrictness filterStrictness = pipe.getItemFilter(gpc).getFilterStrictness();
-            ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getDyeColor().getWoolData()), gpc.getChatColor().toString() + gpc.getDisplayName() + " §7output direction", "§7Filter mode: §c" + filterMode.getDisplayName(), "§7Filter strictness: §c" + filterStrictness.getDisplayName(), "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
+            ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WOOL, 1, gpc.getDyeColor().getWoolData()), gpc.getChatColor().toString() + gpc.getDisplayName() + " §7output direction", "§7Filter mode: §c" + filterMode.getDisplayName(), "§7Filter strictness: §c" + filterStrictness.getDisplayName(), "", "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
             ItemStack glassPane = itemService.createGlassItem(gpc.getDyeColor());
             ItemStack barrier = itemService.createBarrierItem();
             ItemStack scrollLeft = itemService.changeDisplayName(itemService.createSkullItemStack("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), "§6<<");
