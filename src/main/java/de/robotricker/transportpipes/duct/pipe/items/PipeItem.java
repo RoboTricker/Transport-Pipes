@@ -1,9 +1,12 @@
 package de.robotricker.transportpipes.duct.pipe.items;
 
+import net.querz.nbt.CompoundTag;
+
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.location.TPDirection;
@@ -18,13 +21,19 @@ public class PipeItem {
     private RelativeLocation oldRelativeLocation;
     private RelativeLocation relativeLocation;
     private TPDirection movingDir;
-    private boolean spawned;
+
+    public PipeItem() {
+    }
 
     public PipeItem(ItemStack item, World world, BlockLocation blockLoc, TPDirection movingDir) {
         this.item = item;
-        this.world = world;
         this.blockLoc = blockLoc;
         this.movingDir = movingDir;
+        init(world);
+    }
+
+    public void init(World world) {
+        this.world = world;
         this.asd = new ArmorStandData(new RelativeLocation(0.25f, 0f, 0.33f), true, new Vector(1, 0, 0), new Vector(0f, 0f, 0f), new Vector(-30f, 0f, 0f), null, item);
         this.relativeLocation = new RelativeLocation(movingDir.getX() > 0 ? 0 : (movingDir.getX() < 0 ? 1 : 0.5f), movingDir.getY() > 0 ? 0 : (movingDir.getY() < 0 ? 1 : 0.5f), movingDir.getZ() > 0 ? 0 : (movingDir.getZ() < 0 ? 1 : 0.5f));
         resetOldRelativeLocation();
@@ -66,10 +75,6 @@ public class PipeItem {
         return movingDir;
     }
 
-    public boolean isSpawned() {
-        return spawned;
-    }
-
     public void setBlockLoc(BlockLocation blockLoc) {
         this.blockLoc = blockLoc;
     }
@@ -77,4 +82,20 @@ public class PipeItem {
     public void setMovingDir(TPDirection movingDir) {
         this.movingDir = movingDir;
     }
+
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        compoundTag.putString("itemStack", itemService.serializeItemStack(item));
+        compoundTag.putString("blockLoc", blockLoc.toString());
+        compoundTag.putString("relLoc", relativeLocation.toString());
+        compoundTag.putInt("movingDir", movingDir.ordinal());
+    }
+
+    public void loadFromNBTTag(CompoundTag compoundTag, World world, ItemService itemService) {
+        item = itemService.deserializeItemStack(compoundTag.getString("itemStack"));
+        blockLoc = BlockLocation.fromString(compoundTag.getString("blockLoc"));
+        relativeLocation = RelativeLocation.fromString(compoundTag.getString("relLoc"));
+        movingDir = TPDirection.values()[compoundTag.getInt("movingDir")];
+        init(world);
+    }
+
 }

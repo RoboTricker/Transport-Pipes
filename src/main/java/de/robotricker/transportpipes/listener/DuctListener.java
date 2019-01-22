@@ -187,8 +187,12 @@ public class DuctListener implements Listener {
 
                 if (manualPlaceable) {
                     if (itemDuctType != null) {
-                        Duct itemDuct = itemDuctType.getBaseDuctType().getDuctFactory().createDuct(itemDuctType, new BlockLocation(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
-                        globalDuctManager.createDuct(itemDuct);
+                        Duct duct = globalDuctManager.createDuctObject(itemDuctType, new BlockLocation(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
+                        globalDuctManager.registerDuct(duct);
+                        globalDuctManager.updateDuctConnections(duct);
+                        globalDuctManager.registerDuctInRenderSystems(duct, true);
+                        globalDuctManager.updateNeighborDuctsConnections(duct);
+                        globalDuctManager.updateNeighborDuctsInRenderSystems(duct, true);
 
                         decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
@@ -197,7 +201,7 @@ public class DuctListener implements Listener {
                         placeBlock.setTypeIdAndData(interaction.item.getTypeId(), interaction.item.getData().getData(), true);
                         // update placed container block if it is such
                         if (WorldUtils.isIdContainerBlock(interaction.item.getTypeId())) {
-                            tpContainerListener.updateContainerBlock(placeBlock, true);
+                            tpContainerListener.updateContainerBlock(placeBlock, true, true);
                         }
                         decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
@@ -209,7 +213,12 @@ public class DuctListener implements Listener {
         } else if (interaction.action == Action.LEFT_CLICK_AIR || interaction.action == Action.LEFT_CLICK_BLOCK) {
             Duct clickedDuct = HitboxUtils.getDuctLookingTo(globalDuctManager, interaction.p, interaction.clickedBlock);
             if (clickedDuct != null) {
-                globalDuctManager.destroyDuct(clickedDuct, interaction.p);
+                globalDuctManager.unregisterDuct(clickedDuct);
+                globalDuctManager.unregisterDuctInRenderSystem(clickedDuct, true);
+                globalDuctManager.updateNeighborDuctsConnections(clickedDuct);
+                globalDuctManager.updateNeighborDuctsInRenderSystems(clickedDuct, true);
+                globalDuctManager.playDuctDestroyEffects(clickedDuct, interaction.p);
+
                 interaction.cancel = true;
                 interaction.successful = true;
             }

@@ -7,6 +7,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -30,11 +32,13 @@ import de.robotricker.transportpipes.utils.NMSUtils;
 public class ItemService {
 
     private ItemStack wrench;
+    private YamlConfiguration tempConf;
 
     @Inject
     public ItemService() {
         wrench = createGlowingItem(Material.STICK);
         wrench = changeDisplayName(wrench, LangConf.Key.WRENCH.get());
+        tempConf = new YamlConfiguration();
     }
 
     public ItemStack getWrench() {
@@ -148,6 +152,24 @@ public class ItemService {
             }
         }
         return false;
+    }
+
+    public String serializeItemStack(ItemStack itemStack) {
+        tempConf.set("itemStack", itemStack);
+        String string = tempConf.saveToString();
+        tempConf.set("itemStack", null);
+        return string;
+    }
+
+    public ItemStack deserializeItemStack(String string) {
+        try {
+            tempConf.loadFromString(string);
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        ItemStack itemStack = tempConf.getItemStack("itemStack");
+        tempConf.set("itemStack", null);
+        return itemStack;
     }
 
 }

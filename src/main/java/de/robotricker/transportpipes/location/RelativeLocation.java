@@ -14,6 +14,10 @@ public class RelativeLocation implements Cloneable {
         set(x, y, z);
     }
 
+    public RelativeLocation(long x, long y, long z) {
+        set(x, y, z);
+    }
+
     public long getLongX() {
         return x;
     }
@@ -104,12 +108,31 @@ public class RelativeLocation implements Cloneable {
     }
 
     @Override
-    public String toString() {
-        return String.format("(%.2f, %.2f, %.2f)", getDoubleX(), getDoubleY(), getDoubleZ());
-    }
-
-    @Override
     public RelativeLocation clone() {
         return new RelativeLocation(getDoubleX(), getDoubleY(), getDoubleZ());
     }
+
+    @Override
+    public String toString() {
+        return getLongX() + ", " + getLongY() + ", " + getLongZ();
+    }
+
+    public static RelativeLocation fromString(String s) {
+        if (s == null) {
+            return null;
+        }
+        String[] split = s.split(", ");
+        if (split.length == 3) {
+            try {
+                long x = Long.parseLong(split[0]);
+                long y = Long.parseLong(split[1]);
+                long z = Long.parseLong(split[2]);
+                return new RelativeLocation(x, y, z);
+            } catch (NumberFormatException e) {
+
+            }
+        }
+        return null;
+    }
+
 }

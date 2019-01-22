@@ -24,6 +24,7 @@ import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
@@ -94,9 +95,7 @@ public abstract class Duct {
     }
 
     public Set<TPDirection> getAllConnections() {
-        Set<TPDirection> connections = new HashSet<>();
-        connections.addAll(getDuctConnections().keySet());
-        return connections;
+        return new HashSet<>(getDuctConnections().keySet());
     }
 
     public int[] getBreakParticleData() {
@@ -144,12 +143,10 @@ public abstract class Duct {
         return dropItems;
     }
 
-    public void saveToNBTTag(CompoundTag compoundTag) {
-
+    public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
     }
 
-    public void loadFromNBTTag(CompoundTag compoundTag) {
-
+    public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
     }
 
 }

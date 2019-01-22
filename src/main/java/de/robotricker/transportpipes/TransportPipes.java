@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes;
 
-import de.robotricker.transportpipes.saving.SaveService;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -31,6 +30,8 @@ import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
+import de.robotricker.transportpipes.saving.DiskService;
+import de.robotricker.transportpipes.saving.DuctLoader;
 import io.sentry.event.Breadcrumb;
 
 public class TransportPipes extends JavaPlugin {
@@ -39,6 +40,7 @@ public class TransportPipes extends JavaPlugin {
 
     private SentryService sentry;
     private ThreadService thread;
+    private DiskService diskService;
 
     @Override
     public void onEnable() {
@@ -91,12 +93,14 @@ public class TransportPipes extends JavaPlugin {
 
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabled plugin");
 
+        diskService = injector.getSingleton(DiskService.class);
+
         runTaskSync(() -> {
-            injector.getSingleton(SaveService.class).loadDuctsSync();
             for (World world : Bukkit.getWorlds()) {
                 for (Chunk loadedChunk : world.getLoadedChunks()) {
-                    tpContainerListener.handleChunkLoadSync(loadedChunk);
+                    tpContainerListener.handleChunkLoadSync(loadedChunk, true);
                 }
+                diskService.loadDuctsSync(world);
             }
         });
     }
@@ -117,11 +121,9 @@ public class TransportPipes extends JavaPlugin {
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabled plugin");
     }
 
-    public void saveWorld(World world){
+    public void saveWorld(World world) {
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "saving world " + world.getName());
-
-        injector.getSingleton(SaveService.class).saveDuctsSync();
-
+        diskService.saveDuctsSync(world);
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "saved world " + world.getName());
     }
 
@@ -144,4 +146,46 @@ public class TransportPipes extends JavaPlugin {
     public Injector getInjector() {
         return injector;
     }
+
+    public long convertVersionToLong(String version) {
+        long versionLong = 0;
+        try {
+            if (version.contains("-")) {
+                for (String subVersion : version.split("-")) {
+                    if (subVersion.startsWith("b")) {
+                        int buildNumber = 0;
+                        String buildNumberString = subVersion.substring(1);
+                        if (!buildNumberString.equalsIgnoreCase("CUSTOM")) {
+                            buildNumber = Integer.parseInt(buildNumberString);
+                        }
+                        versionLong |= buildNumber;
+                    } else if (!subVersion.equalsIgnoreCase("SNAPSHOT")) {
+                        versionLong |= (long) convertMainVersionStringToInt(subVersion) << 32;
+                    }
+                }
+            } else {
+                versionLong = (long) convertMainVersionStringToInt(version) << 32;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return versionLong;
+    }
+
+    private int convertMainVersionStringToInt(String mainVersion) {
+        int versionInt = 0;
+        if (mainVersion.contains(".")) {
+            // shift for every version number 1 byte to the left
+            int leftShift = (mainVersion.split("\\.").length - 1) * 8;
+            for (String subVersion : mainVersion.split("\\.")) {
+                byte v = Byte.parseByte(subVersion);
+                versionInt |= ((int) v << leftShift);
+                leftShift -= 8;
+            }
+        } else {
+            versionInt = Byte.parseByte(mainVersion);
+        }
+        return versionInt;
+    }
+
 }

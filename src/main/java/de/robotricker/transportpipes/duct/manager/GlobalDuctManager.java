@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.duct.manager;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -22,6 +23,7 @@ import de.robotricker.transportpipes.config.PlayerSettingsConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
@@ -82,48 +84,59 @@ public class GlobalDuctManager {
         return conf.getRenderSystem(baseDuctType);
     }
 
-    public void createDuct(Duct duct) {
-        getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
-        updateConnections(duct);
+    public Duct createDuctObject(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk) {
+        return ductType.getBaseDuctType().getDuctFactory().createDuct(ductType, blockLoc, world, chunk);
+    }
 
+    public void registerDuct(Duct duct) {
+        getDucts(duct.getWorld()).put(duct.getBlockLoc(), duct);
+    }
+
+    public void unregisterDuct(Duct duct) {
+        getDucts(duct.getWorld()).remove(duct.getBlockLoc());
+    }
+
+    public void registerDuctInRenderSystems(Duct duct, boolean updateForPlayers) {
         RenderSystem renderSystem;
         for (int i = 0; i < 2; i++) {
             renderSystem = i == 0 ? duct.getDuctType().getBaseDuctType().getVanillaRenderSystem() : duct.getDuctType().getBaseDuctType().getModelledRenderSystem();
             if (renderSystem != null) {
+
                 renderSystem.createDuctASD(duct, duct.getAllConnections());
-                for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
-                    PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
-                    if (duct.getBlockLoc().toLocation(p.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
-                        if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
-                            getPlayerDucts(p).add(duct);
-                            protocolService.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
+
+                if (updateForPlayers) {
+                    for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
+                        PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
+                        if (duct.getBlockLoc().toLocation(p.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
+                            if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
+                                getPlayerDucts(p).add(duct);
+                                protocolService.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));
+                            }
                         }
                     }
                 }
             }
         }
-
-        for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
-            updateDuct(duct.getDuctConnections().get(ductConn));
-        }
     }
 
-    public void updateDuct(Duct duct) {
-        updateConnections(duct);
-
+    public void updateDuctInRenderSystems(Duct duct, boolean updateForPlayers) {
         RenderSystem renderSystem;
         for (int i = 0; i < 2; i++) {
             renderSystem = i == 0 ? duct.getDuctType().getBaseDuctType().getVanillaRenderSystem() : duct.getDuctType().getBaseDuctType().getModelledRenderSystem();
             if (renderSystem != null) {
+
                 List<ArmorStandData> removeASD = new ArrayList<>();
                 List<ArmorStandData> addASD = new ArrayList<>();
                 renderSystem.updateDuctASD(duct, duct.getAllConnections(), removeASD, addASD);
-                for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
-                    PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
-                    if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
-                        if (getPlayerDucts(p).contains(duct)) {
-                            protocolService.removeASD(p, removeASD);
-                            protocolService.sendASD(p, duct.getBlockLoc(), addASD);
+
+                if (updateForPlayers) {
+                    for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
+                        PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
+                        if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
+                            if (getPlayerDucts(p).contains(duct)) {
+                                protocolService.removeASD(p, removeASD);
+                                protocolService.sendASD(p, duct.getBlockLoc(), addASD);
+                            }
                         }
                     }
                 }
@@ -131,28 +144,29 @@ public class GlobalDuctManager {
         }
     }
 
-    public void destroyDuct(Duct duct, Player destroyer) {
-        getDucts(duct.getWorld()).remove(duct.getBlockLoc());
-
+    public void unregisterDuctInRenderSystem(Duct duct, boolean updateForPlayers) {
         RenderSystem renderSystem;
         for (int i = 0; i < 2; i++) {
             renderSystem = i == 0 ? duct.getDuctType().getBaseDuctType().getVanillaRenderSystem() : duct.getDuctType().getBaseDuctType().getModelledRenderSystem();
             if (renderSystem != null) {
-                for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
-                    PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
-                    if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
-                        if (getPlayerDucts(p).remove(duct)) {
-                            protocolService.removeASD(p, renderSystem.getASDForDuct(duct));
+                if (updateForPlayers) {
+                    for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
+                        PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
+                        if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
+                            if (getPlayerDucts(p).remove(duct)) {
+                                protocolService.removeASD(p, renderSystem.getASDForDuct(duct));
+                            }
                         }
                     }
                 }
+
                 renderSystem.destroyDuctASD(duct);
+
             }
         }
-        for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
-            updateDuct(duct.getDuctConnections().get(ductConn));
-        }
-        //drop items
+    }
+
+    public void playDuctDestroyEffects(Duct duct, Player destroyer) {
         List<ItemStack> dropItems = duct.destroyed(transportPipes, duct.getDuctType().getBaseDuctType().getDuctManager(), destroyer);
         transportPipes.runTaskSync(() -> {
             for (ItemStack is : dropItems) {
@@ -162,10 +176,10 @@ public class GlobalDuctManager {
     }
 
     /**
-     * recalculates the duct connections (in case of pipes the container connections, too) of this duct and saves them.
+     * recalculates the duct connections (in case of pipes, updates the container connections, too) of this duct and saves them.
      * Also notifies the duct about this change
      */
-    public void updateConnections(Duct duct) {
+    public void updateDuctConnections(Duct duct) {
         //update duct connections
         duct.getDuctConnections().clear();
         for (TPDirection tpDir : TPDirection.values()) {
@@ -178,6 +192,18 @@ public class GlobalDuctManager {
         duct.getDuctType().getBaseDuctType().getDuctManager().updateNonDuctConnections(duct);
         //notify connections change
         duct.notifyConnectionChange();
+    }
+
+    public void updateNeighborDuctsConnections(Duct duct) {
+        for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
+            updateDuctConnections(duct.getDuctConnections().get(ductConn));
+        }
+    }
+
+    public void updateNeighborDuctsInRenderSystems(Duct duct, boolean updateForPlayers) {
+        for (TPDirection ductConn : duct.getDuctConnections().keySet()) {
+            updateDuctInRenderSystems(duct.getDuctConnections().get(ductConn), updateForPlayers);
+        }
     }
 
     public void tick() {

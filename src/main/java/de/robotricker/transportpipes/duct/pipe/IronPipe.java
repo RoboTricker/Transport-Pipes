@@ -63,7 +63,7 @@ public class IronPipe extends Pipe {
         } while (!allConns.contains(currentOutputDirection));
 
         if (oldOutputDirection != currentOutputDirection) {
-            globalDuctManager.updateDuct(this);
+            globalDuctManager.updateDuctInRenderSystems(this, true);
         }
 
     }
