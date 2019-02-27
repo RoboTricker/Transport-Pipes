@@ -4,6 +4,7 @@ import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -83,6 +84,16 @@ public class TPContainerListener implements Listener {
 
         BlockLocation blockLoc = new BlockLocation(block.getLocation());
         if (add) {
+
+            //checks for double chest neighbor and updates the neighbors TPContainer if present
+            Block neighborDoubleChestBlock = checkForDoubleChestNeighbor(block);
+            if (neighborDoubleChestBlock != null) {
+                TPContainer neighborContainer = pipeManager.getContainerAtLoc(neighborDoubleChestBlock.getWorld(), new BlockLocation(neighborDoubleChestBlock.getLocation()));
+                if (neighborContainer instanceof BlockContainer) {
+                    ((BlockContainer) neighborContainer).updateBlock();
+                }
+            }
+
             if (pipeManager.getContainerAtLoc(block.getLocation()) == null) {
                 TPContainer container = createContainerFromBlock(block);
                 pipeManager.getContainers(block.getWorld()).put(blockLoc, container);
@@ -99,6 +110,7 @@ public class TPContainerListener implements Listener {
                 }
             }
         } else {
+
             TPContainer container = pipeManager.getContainerAtLoc(block.getLocation());
             if (container != null) {
                 pipeManager.getContainers(block.getWorld()).remove(blockLoc);
@@ -115,6 +127,28 @@ public class TPContainerListener implements Listener {
                 }
             }
         }
+    }
+
+    public Block checkForDoubleChestNeighbor(Block block) {
+        if (block.getState() instanceof InventoryHolder) {
+            if (((InventoryHolder) block.getState()).getInventory().getHolder() instanceof DoubleChest) {
+                for (TPDirection dir : TPDirection.values()) {
+                    if (dir.isSide()) {
+                        Block neighborBlock = block.getRelative(dir.getBlockFace());
+                        if (neighborBlock.getState() instanceof InventoryHolder) {
+                            if (((InventoryHolder) neighborBlock.getState()).getInventory().getHolder() instanceof DoubleChest) {
+                                DoubleChest blockChest = (DoubleChest) ((InventoryHolder) block.getState()).getInventory().getHolder();
+                                DoubleChest neighborBlockChest = (DoubleChest) ((InventoryHolder) neighborBlock.getState()).getInventory().getHolder();
+                                if (blockChest.getLocation().equals(neighborBlockChest.getLocation())) {
+                                    return neighborBlock;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public TPContainer createContainerFromBlock(Block block) {

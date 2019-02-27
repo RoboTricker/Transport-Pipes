@@ -139,7 +139,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
     }
 
     @Override
-    protected void save(Player p) {
+    public void save(Player p) {
 
         GoldenPipe pipe = (GoldenPipe) duct;
 

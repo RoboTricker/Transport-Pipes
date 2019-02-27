@@ -91,7 +91,6 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         if (rawSlot == 2) {
             save(p);
             pipe.updateExtractDirection(true);
-            populate();
             return true;
         }
 
@@ -147,7 +146,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
     }
 
     @Override
-    protected void save(Player p) {
+    public void save(Player p) {
         ExtractionPipe pipe = (ExtractionPipe) duct;
 
         ItemData[] items = pipe.getItemFilter().getFilterItems();

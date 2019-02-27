@@ -3,10 +3,10 @@ package de.robotricker.transportpipes.duct.pipe;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
@@ -22,7 +22,7 @@ public class VoidPipe extends Pipe {
     }
 
     @Override
-    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs) {
+    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs, TransportPipes transportPipes) {
         return null;
     }
 

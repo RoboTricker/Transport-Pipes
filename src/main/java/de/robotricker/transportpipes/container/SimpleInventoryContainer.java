@@ -1,8 +1,10 @@
 package de.robotricker.transportpipes.container;
 
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -91,7 +93,7 @@ public class SimpleInventoryContainer extends BlockContainer {
 
     @Override
     public void updateBlock() {
-        this.cachedInvHolder = (InventoryHolder) block.getState();
+        this.cachedInvHolder = ((InventoryHolder) block.getState()).getInventory().getHolder();
         this.cachedInv = cachedInvHolder.getInventory();
     }
 

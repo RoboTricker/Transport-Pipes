@@ -132,7 +132,7 @@ public class Pipe extends Duct {
                 //calculate possible moving directions
                 List<TPDirection> possibleMovingDirs = new ArrayList<>(getAllConnections());
 
-                Map<TPDirection, Integer> distribution = calculateItemDistribution(pipeItem, pipeItem.getMovingDir(), possibleMovingDirs);
+                Map<TPDirection, Integer> distribution = calculateItemDistribution(pipeItem, pipeItem.getMovingDir(), possibleMovingDirs, transportPipes);
 
                 if (distribution == null || distribution.isEmpty()) {
                     items.remove(pipeItem);
@@ -216,7 +216,7 @@ public class Pipe extends Duct {
         }
     }
 
-    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs) {
+    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs, TransportPipes transportPipes) {
         Map<TPDirection, Integer> absWeights = new HashMap<>();
         dirs.stream().filter(dir -> !dir.equals(movingDir.getOpposite())).forEach(dir -> absWeights.put(dir, 1));
         return itemDistributor.splitPipeItem(pipeItem.getItem(), absWeights, this);
