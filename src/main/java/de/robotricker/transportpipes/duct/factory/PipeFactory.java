@@ -16,6 +16,7 @@ import de.robotricker.transportpipes.duct.pipe.VoidPipe;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.duct.types.pipetype.ColoredPipeType;
+import de.robotricker.transportpipes.inventory.CraftingPipeSettingsInventory;
 import de.robotricker.transportpipes.inventory.ExtractionPipeSettingsInventory;
 import de.robotricker.transportpipes.inventory.GoldenPipeSettingsInventory;
 import de.robotricker.transportpipes.location.BlockLocation;
@@ -45,7 +46,9 @@ public class PipeFactory extends DuctFactory<Pipe> {
             pipe = new ExtractionPipe(ductType, blockLoc, world, chunk, inv, globalDuctManager, itemDistributor);
             pipe.initSettingsInv(transportPipes);
         } else if (ductType.is("Crafting")) {
-            pipe = new CraftingPipe(ductType, blockLoc, world, chunk, null, globalDuctManager, itemDistributor);
+            CraftingPipeSettingsInventory inv = transportPipes.getInjector().newInstance(CraftingPipeSettingsInventory.class);
+            pipe = new CraftingPipe(ductType, blockLoc, world, chunk, inv, globalDuctManager, itemDistributor);
+            pipe.initSettingsInv(transportPipes);
         }
         return pipe;
     }

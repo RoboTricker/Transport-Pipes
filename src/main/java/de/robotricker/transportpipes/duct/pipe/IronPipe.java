@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
@@ -42,7 +43,7 @@ public class IronPipe extends Pipe {
     }
 
     @Override
-    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs) {
+    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs, TransportPipes transportPipes) {
         Map<TPDirection, Integer> absWeights = new HashMap<>();
         if (dirs.contains(getCurrentOutputDirection())) {
             absWeights.put(getCurrentOutputDirection(), 1);

@@ -7,8 +7,16 @@ public class ItemData {
     private ItemStack backedItem;
 
     public ItemData(ItemStack item) {
-        this.backedItem = item.clone();
-        this.backedItem.setAmount(1);
+        this(item, false);
+    }
+
+    public ItemData(ItemStack item, boolean ignoreMeta) {
+        if (ignoreMeta) {
+            this.backedItem = new ItemStack(item.getType(), 1, item.getData().getData());
+        } else {
+            this.backedItem = item.clone();
+            this.backedItem.setAmount(1);
+        }
     }
 
     public ItemStack toItemStack() {
@@ -17,10 +25,13 @@ public class ItemData {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((backedItem == null) ? 0 : backedItem.hashCode());
-        return result;
+        int hash = 1;
+
+        hash = hash * 31 + backedItem.getTypeId();
+        hash = hash * 31 + (backedItem.getDurability() & 0xffff);
+        hash = hash * 31 + (backedItem.hasItemMeta() ? backedItem.getItemMeta().hashCode() : 0);
+
+        return hash;
     }
 
     @Override
@@ -34,8 +45,21 @@ public class ItemData {
         ItemData other = (ItemData) obj;
         if (backedItem == null) {
             return other.backedItem == null;
-        } else return backedItem.isSimilar(other.backedItem);
+        } else if (backedItem.isSimilar(other.backedItem)) {
+            return true;
+        } else {
+            if (backedItem.getData().getData() == -1) {
+                return backedItem.getType().equals(other.backedItem.getType());
+            } else if (other.backedItem.getData().getData() == -1) {
+                return other.backedItem.getType().equals(backedItem.getType());
+            }
+            return false;
+        }
     }
 
+    @Override
+    public String toString() {
+        return backedItem.toString();
+    }
 }
 

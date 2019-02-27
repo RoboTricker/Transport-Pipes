@@ -43,7 +43,7 @@ public class GoldenPipe extends Pipe {
     }
 
     @Override
-    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs) {
+    protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs, TransportPipes transportPipes) {
         Map<TPDirection, Integer> absWeights = new HashMap<>();
         for (TPDirection dir : dirs) {
             int amount = getItemFilter(Color.getByDir(dir)).applyFilter(pipeItem.getItem());

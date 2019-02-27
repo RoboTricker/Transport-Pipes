@@ -22,6 +22,7 @@ import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.duct.pipe.CraftingPipe;
 import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
@@ -212,6 +213,9 @@ public class PipeManager extends DuctManager<Pipe> {
                                             pipe.getUnloadedItems().remove(unloadedItem);
                                         }
                                     }
+                                }
+                                if (pipe instanceof CraftingPipe) {
+                                    ((CraftingPipe) pipe).performCrafting(this, transportPipes);
                                 }
                             }
                         }
