@@ -1,10 +1,14 @@
 package de.robotricker.transportpipes.duct.manager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.material.MaterialData;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,8 +31,10 @@ import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
+import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.duct.types.pipetype.ColoredPipeType;
 import de.robotricker.transportpipes.duct.types.pipetype.PipeType;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ProtocolService;
@@ -52,8 +58,8 @@ public class PipeManager extends DuctManager<Pipe> {
     private long tickCount;
 
     @Inject
-    public PipeManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService) {
-        super(transportPipes, ductRegister, globalDuctManager, protocolService);
+    public PipeManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService, ItemService itemService) {
+        super(transportPipes, ductRegister, globalDuctManager, protocolService, itemService);
         playerItems = Collections.synchronizedMap(new HashMap<>());
         containers = Collections.synchronizedMap(new HashMap<>());
         tickCount = 0;
@@ -131,6 +137,43 @@ public class PipeManager extends DuctManager<Pipe> {
         pipeBaseDuctType.ductTypeOf("Void").connectToAll();
         pipeBaseDuctType.ductTypeOf("Extraction").connectToAll();
         pipeBaseDuctType.ductTypeOf("Crafting").connectToAll();
+
+    }
+
+    @Override
+    public void registerRecipes() {
+        BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
+
+        pipeBaseDuctType.ductTypeOf("White").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("White"), new String[]{" a ", "a a", " a "}, 'a', new MaterialData(Material.GLASS)));
+        pipeBaseDuctType.ductTypeOf("Blue").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Blue"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.BLUE.getDyeData())));
+        pipeBaseDuctType.ductTypeOf("Red").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Red"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.RED.getDyeData())));
+        pipeBaseDuctType.ductTypeOf("Yellow").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Yellow"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.YELLOW.getDyeData())));
+        pipeBaseDuctType.ductTypeOf("Green").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Green"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.GREEN.getDyeData())));
+        pipeBaseDuctType.ductTypeOf("Black").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Black"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.BLACK.getDyeData())));
+        pipeBaseDuctType.ductTypeOf("Golden").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Golden"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.GOLD_BLOCK)));
+        pipeBaseDuctType.ductTypeOf("Iron").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Iron"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.IRON_BLOCK)));
+        pipeBaseDuctType.ductTypeOf("Ice").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Ice"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.SNOW_BLOCK)));
+        pipeBaseDuctType.ductTypeOf("Void").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Void"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.OBSIDIAN)));
+        pipeBaseDuctType.ductTypeOf("Extraction").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Extraction"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.WOOD)));
+        pipeBaseDuctType.ductTypeOf("Crafting").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Crafting"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.WORKBENCH)));
+
+        ShapedRecipe wrenchRecipe = new ShapedRecipe(itemService.getWrench());
+        wrenchRecipe.shape(" a ", "aba", " a ");
+        wrenchRecipe.setIngredient('a', new MaterialData(Material.REDSTONE));
+        wrenchRecipe.setIngredient('b', new MaterialData(Material.STICK));
+        Bukkit.addRecipe(wrenchRecipe);
+    }
+
+    private ShapedRecipe createShapedRecipe(DuctType ductType, String[] shape, Object... ingredientMap) {
+        BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
+        ShapedRecipe recipe = new ShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType));
+        recipe.shape(shape);
+        for (int i = 0; i < ingredientMap.length; i += 2) {
+            char c = (char) ingredientMap[i];
+            MaterialData item = (MaterialData) ingredientMap[i + 1];
+            recipe.setIngredient(c, item);
+        }
+        return recipe;
     }
 
     @Override

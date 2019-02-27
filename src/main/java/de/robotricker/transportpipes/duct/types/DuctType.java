@@ -7,12 +7,16 @@ import java.util.stream.Collectors;
 import de.robotricker.transportpipes.duct.Duct;
 import net.querz.nbt.CompoundTag;
 
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.Recipe;
+
 public class DuctType {
 
     private BaseDuctType<? extends Duct> baseDuctType;
     private String name;
     private String displayName;
     private Set<DuctType> connectables;
+    private Recipe ductRecipe;
 
     public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, String displayName) {
         this.baseDuctType = baseDuctType;
@@ -80,6 +84,15 @@ public class DuctType {
 
     public Set<DuctType> getConnectables() {
         return connectables;
+    }
+
+    public Recipe getDuctRecipe() {
+        return ductRecipe;
+    }
+
+    public void setDuctRecipe(Recipe ductRecipe) {
+        this.ductRecipe = ductRecipe;
+        Bukkit.addRecipe(ductRecipe);
     }
 
     public boolean connectsTo(DuctType otherDuctType) {

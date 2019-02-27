@@ -1,28 +1,32 @@
 package de.robotricker.transportpipes.duct;
 
+import net.querz.nbt.CompoundTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.duct.factory.DuctFactory;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.items.ItemManager;
 import de.robotricker.transportpipes.location.BlockLocation;
-import net.querz.nbt.CompoundTag;
 
 public class DuctRegister {
 
     private List<BaseDuctType<? extends Duct>> baseDuctTypes;
 
     private TransportPipes plugin;
+    private GeneralConf generalConf;
 
     @Inject
-    public DuctRegister(TransportPipes plugin) {
+    public DuctRegister(TransportPipes plugin, GeneralConf generalConf) {
         this.plugin = plugin;
+        this.generalConf = generalConf;
         this.baseDuctTypes = new ArrayList<>();
     }
 
@@ -34,6 +38,11 @@ public class DuctRegister {
         this.baseDuctTypes.add(baseDuctType);
         baseDuctType.getDuctManager().registerDuctTypes();
         baseDuctType.getItemManager().registerItems();
+
+        if (generalConf.isCraftingEnabled()) {
+            baseDuctType.getDuctManager().registerRecipes();
+        }
+
         return baseDuctType;
     }
 
