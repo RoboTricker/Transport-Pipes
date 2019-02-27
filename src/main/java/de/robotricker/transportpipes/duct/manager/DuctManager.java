@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 
 public abstract class DuctManager<T extends Duct> {
@@ -15,16 +16,20 @@ public abstract class DuctManager<T extends Duct> {
     protected DuctRegister ductRegister;
     protected GlobalDuctManager globalDuctManager;
     protected ProtocolService protocolService;
+    protected ItemService itemService;
 
     @Inject
-    public DuctManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService) {
+    public DuctManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService, ItemService itemService) {
         this.transportPipes = transportPipes;
         this.ductRegister = ductRegister;
         this.globalDuctManager = globalDuctManager;
         this.protocolService = protocolService;
+        this.itemService = itemService;
     }
 
     public abstract void registerDuctTypes();
+
+    public abstract void registerRecipes();
 
     public abstract void tick();
 
