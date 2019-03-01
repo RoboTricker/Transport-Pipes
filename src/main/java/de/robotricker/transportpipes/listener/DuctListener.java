@@ -11,11 +11,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +27,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
@@ -31,8 +35,10 @@ import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
+import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.utils.HitboxUtils;
 import de.robotricker.transportpipes.utils.WorldUtils;
+import io.sentry.Sentry;
 
 public class DuctListener implements Listener {
 
@@ -89,13 +95,17 @@ public class DuctListener implements Listener {
     private DuctRegister ductRegister;
     private GlobalDuctManager globalDuctManager;
     private TPContainerListener tpContainerListener;
+    private GeneralConf generalConf;
+    private SentryService sentry;
 
     @Inject
-    public DuctListener(ItemService itemService, JavaPlugin plugin, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, TPContainerListener tpContainerListener) {
+    public DuctListener(ItemService itemService, JavaPlugin plugin, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, TPContainerListener tpContainerListener, GeneralConf generalConf, SentryService sentry) {
         this.itemService = itemService;
         this.ductRegister = ductRegister;
         this.globalDuctManager = globalDuctManager;
         this.tpContainerListener = tpContainerListener;
+        this.generalConf = generalConf;
+        this.sentry = sentry;
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::updateInteractSet, 0L, 1L);
     }
 
@@ -187,23 +197,41 @@ public class DuctListener implements Listener {
 
                 if (manualPlaceable) {
                     if (itemDuctType != null) {
-                        Duct duct = globalDuctManager.createDuctObject(itemDuctType, new BlockLocation(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
-                        globalDuctManager.registerDuct(duct);
-                        globalDuctManager.updateDuctConnections(duct);
-                        globalDuctManager.registerDuctInRenderSystems(duct, true);
-                        globalDuctManager.updateNeighborDuctsConnections(duct);
-                        globalDuctManager.updateNeighborDuctsInRenderSystems(duct, true);
 
-                        decreaseHandItem(interaction.p, interaction.hand);
+                        // duct placement
+                        if (buildAllowed(interaction.p, placeBlock)) {
+                            boolean lwcAllowed = true;
+                            for (TPDirection dir : TPDirection.values()) {
+                                if (lwcProtection(placeBlock.getRelative(dir.getBlockFace()))) {
+                                    lwcAllowed = false;
+                                }
+                            }
+                            if (lwcAllowed) {
+                                Duct duct = globalDuctManager.createDuctObject(itemDuctType, new BlockLocation(placeBlock.getLocation()), placeBlock.getWorld(), placeBlock.getChunk());
+                                globalDuctManager.registerDuct(duct);
+                                globalDuctManager.updateDuctConnections(duct);
+                                globalDuctManager.registerDuctInRenderSystems(duct, true);
+                                globalDuctManager.updateNeighborDuctsConnections(duct);
+                                globalDuctManager.updateNeighborDuctsInRenderSystems(duct, true);
+
+                                decreaseHandItem(interaction.p, interaction.hand);
+                            } else {
+                                interaction.p.sendMessage("§cYou cannot place a pipe next to a protected block");
+                            }
+                        }
+
                         interaction.cancel = true;
                         interaction.successful = true;
                     } else if (clickedDuct != null) {
-                        placeBlock.setTypeIdAndData(interaction.item.getTypeId(), interaction.item.getData().getData(), true);
-                        // update placed container block if it is such
-                        if (WorldUtils.isIdContainerBlock(interaction.item.getTypeId())) {
-                            tpContainerListener.updateContainerBlock(placeBlock, true, true);
+                        //block placement
+                        if (buildAllowed(interaction.p, placeBlock)) {
+                            placeBlock.setTypeIdAndData(interaction.item.getTypeId(), interaction.item.getData().getData(), true);
+                            // create TPContainer from placed block if it is such
+                            if (WorldUtils.isIdContainerBlock(interaction.item.getTypeId())) {
+                                tpContainerListener.updateContainerBlock(placeBlock, true, true);
+                            }
+                            decreaseHandItem(interaction.p, interaction.hand);
                         }
-                        decreaseHandItem(interaction.p, interaction.hand);
                         interaction.cancel = true;
                         interaction.successful = true;
                     }
@@ -212,12 +240,15 @@ public class DuctListener implements Listener {
             }
         } else if (interaction.action == Action.LEFT_CLICK_AIR || interaction.action == Action.LEFT_CLICK_BLOCK) {
             Duct clickedDuct = HitboxUtils.getDuctLookingTo(globalDuctManager, interaction.p, interaction.clickedBlock);
+            // duct destruction
             if (clickedDuct != null) {
-                globalDuctManager.unregisterDuct(clickedDuct);
-                globalDuctManager.unregisterDuctInRenderSystem(clickedDuct, true);
-                globalDuctManager.updateNeighborDuctsConnections(clickedDuct);
-                globalDuctManager.updateNeighborDuctsInRenderSystems(clickedDuct, true);
-                globalDuctManager.playDuctDestroyActions(clickedDuct, interaction.p);
+                if (buildAllowed(interaction.p, clickedDuct.getBlockLoc().toBlock(interaction.p.getWorld()))) {
+                    globalDuctManager.unregisterDuct(clickedDuct);
+                    globalDuctManager.unregisterDuctInRenderSystem(clickedDuct, true);
+                    globalDuctManager.updateNeighborDuctsConnections(clickedDuct);
+                    globalDuctManager.updateNeighborDuctsInRenderSystems(clickedDuct, true);
+                    globalDuctManager.playDuctDestroyActions(clickedDuct, interaction.p);
+                }
 
                 interaction.cancel = true;
                 interaction.successful = true;
@@ -239,6 +270,51 @@ public class DuctListener implements Listener {
             if (hand == EquipmentSlot.HAND) p.getInventory().setItemInMainHand(item);
             else p.getInventory().setItemInOffHand(item);
         }
+    }
+
+    private boolean lwcProtection(Block b) {
+        if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+            try {
+                com.griefcraft.model.Protection protection = com.griefcraft.lwc.LWC.getInstance().findProtection(b);
+                return protection != null && protection.getType() != com.griefcraft.model.Protection.Type.PUBLIC;
+            } catch (Exception e) {
+                e.printStackTrace();
+                sentry.record(e);
+            }
+        }
+        return false;
+    }
+
+
+    private boolean buildAllowed(Player p, Block b) {
+        if (p.isOp()) {
+            return true;
+        }
+
+        BlockBreakEvent event = new BlockBreakEvent(b, p);
+
+        // unregister anticheat listeners
+        List<RegisteredListener> unregisterListeners = new ArrayList<>();
+        for (RegisteredListener rl : event.getHandlers().getRegisteredListeners()) {
+            for (String antiCheat : generalConf.getAnticheatPlugins()) {
+                if (rl.getPlugin().getName().equalsIgnoreCase(antiCheat)) {
+                    unregisterListeners.add(rl);
+                }
+            }
+            if (rl.getListener().equals(tpContainerListener)) {
+                unregisterListeners.add(rl);
+            }
+        }
+        for (RegisteredListener rl : unregisterListeners) {
+            event.getHandlers().unregister(rl);
+        }
+
+        Bukkit.getPluginManager().callEvent(event);
+
+        // register anticheat listeners
+        event.getHandlers().registerAll(unregisterListeners);
+
+        return !event.isCancelled();
     }
 
     private class Interaction {

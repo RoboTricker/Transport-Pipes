@@ -37,6 +37,9 @@ public class SimpleInventoryContainer extends BlockContainer {
         if (!isInLoadedChunk()) {
             return null;
         }
+        if (isInvLocked(cachedInvHolder)) {
+            return null;
+        }
         ItemStack itemTaken = null;
         for (int i = 0; i < cachedInv.getSize(); i++) {
             if (itemFilter.applyFilter(cachedInv.getItem(i)) > 0) {
@@ -63,6 +66,9 @@ public class SimpleInventoryContainer extends BlockContainer {
         if (!isInLoadedChunk()) {
             return insertion;
         }
+        if (isInvLocked(cachedInvHolder)) {
+            return insertion;
+        }
         Collection<ItemStack> overflow = cachedInv.addItem(insertion).values();
         //block.getState().update();
         if (overflow.isEmpty()) {
@@ -74,6 +80,10 @@ public class SimpleInventoryContainer extends BlockContainer {
 
     @Override
     public int spaceForItem(TPDirection insertDirection, ItemStack insertion) {
+        if (isInvLocked(cachedInvHolder)) {
+            return 0;
+        }
+
         int space = 0;
 
         for (int i = 0; i < cachedInv.getSize(); i++) {

@@ -33,6 +33,9 @@ public class FurnaceContainer extends BlockContainer {
         if (!isInLoadedChunk()) {
             return null;
         }
+        if (isInvLocked(cachedFurnace)) {
+            return null;
+        }
         if (itemFilter.applyFilter(cachedInv.getResult()) > 0) {
             ItemStack resultItem = cachedInv.getResult().clone();
             ItemStack returnItem = resultItem.clone();
@@ -53,7 +56,9 @@ public class FurnaceContainer extends BlockContainer {
         if (!isInLoadedChunk()) {
             return insertion;
         }
-
+        if (isInvLocked(cachedFurnace)) {
+            return insertion;
+        }
         if (NMSUtils.isFurnaceBurnableItem(insertion)) {
             if (insertDirection.isSide() || insertDirection == TPDirection.DOWN) {
                 ItemStack oldSmelting = cachedInv.getSmelting();
@@ -81,6 +86,9 @@ public class FurnaceContainer extends BlockContainer {
 
     @Override
     public int spaceForItem(TPDirection insertDirection, ItemStack insertion) {
+        if (isInvLocked(cachedFurnace)) {
+            return 0;
+        }
         if (NMSUtils.isFurnaceBurnableItem(insertion)) {
             if (insertDirection.isSide() || insertDirection == TPDirection.DOWN) {
                 return spaceForItem(cachedInv.getSmelting(), insertion);

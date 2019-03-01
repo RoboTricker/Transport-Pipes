@@ -31,7 +31,7 @@ import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.saving.DiskService;
-import de.robotricker.transportpipes.saving.DuctLoader;
+import de.robotricker.transportpipes.utils.LWCUtils;
 import io.sentry.event.Breadcrumb;
 
 public class TransportPipes extends JavaPlugin {
@@ -103,6 +103,17 @@ public class TransportPipes extends JavaPlugin {
                 diskService.loadDuctsSync(world);
             }
         });
+
+        if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+            try {
+                com.griefcraft.scripting.Module module = injector.getSingleton(LWCUtils.class);
+                com.griefcraft.lwc.LWC.getInstance().getModuleLoader().registerModule(this, module);
+            } catch (Exception e) {
+                e.printStackTrace();
+                sentry.record(e);
+            }
+        }
+
     }
 
     @Override

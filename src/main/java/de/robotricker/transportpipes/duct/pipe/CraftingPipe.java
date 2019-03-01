@@ -47,11 +47,9 @@ public class CraftingPipe extends Pipe {
     @Override
     public void tick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
         super.tick(bigTick, transportPipes, ductManager);
-
         if (bigTick) {
             performCrafting((PipeManager) ductManager, transportPipes);
         }
-
     }
 
     @Override
@@ -83,8 +81,8 @@ public class CraftingPipe extends Pipe {
 
                 //iterate cached items
                 for (int i = 0; i < cachedItems.size(); i++) {
-                    if(new ItemData(cachedItems.get(i)).equals(neededIngredient)) {
-                        if(cachedItems.get(i).getAmount() > 1) {
+                    if (new ItemData(cachedItems.get(i)).equals(neededIngredient)) {
+                        if (cachedItems.get(i).getAmount() > 1) {
                             cachedItems.get(i).setAmount(cachedItems.get(i).getAmount() - 1);
                         } else {
                             cachedItems.remove(i);
@@ -115,6 +113,23 @@ public class CraftingPipe extends Pipe {
 
             }
         }
+    }
+
+    public int spaceForItem(ItemData data) {
+        int space = 0;
+
+        for (int i = 0; i < 9; i++) {
+            if (i >= cachedItems.size()) {
+                space += data.toItemStack().getMaxStackSize();
+            } else {
+                ItemStack item = cachedItems.get(i);
+                if (item.isSimilar(data.toItemStack()) && item.getAmount() < item.getMaxStackSize()) {
+                    space += item.getMaxStackSize() - item.getAmount();
+                }
+            }
+        }
+
+        return space;
     }
 
     public ItemData[] getRecipeItems() {
