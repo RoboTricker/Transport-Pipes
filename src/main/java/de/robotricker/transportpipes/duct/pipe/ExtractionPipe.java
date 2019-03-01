@@ -42,6 +42,35 @@ public class ExtractionPipe extends Pipe {
         this.itemFilter = new ItemFilter();
     }
 
+    @Override
+    public void syncBigTick(DuctManager ductManager) {
+        super.syncBigTick(ductManager);
+
+        PipeManager pipeManager = (PipeManager) ductManager;
+
+        if (extractDirection == null || extractCondition == ExtractCondition.NEVER_EXTRACT) {
+            return;
+        }
+
+        //extract item
+        TPContainer container = pipeManager.getContainerAtLoc(getWorld(), getBlockLoc().getNeighbor(extractDirection));
+        if (container != null) {
+            if (extractCondition == ExtractCondition.NEEDS_REDSTONE) {
+                Block block = getBlockLoc().toBlock(getWorld());
+                if (!block.isBlockIndirectlyPowered() && !block.isBlockPowered()) {
+                    return;
+                }
+            }
+            ItemStack item = container.extractItem(extractDirection, extractAmount.getAmount(), itemFilter);
+            if (item != null) {
+                PipeItem pipeItem = new PipeItem(item, getWorld(), getBlockLoc(), extractDirection.getOpposite());
+                pipeManager.spawnPipeItem(pipeItem);
+                pipeManager.putPipeItemInPipe(pipeItem);
+            }
+        }
+
+    }
+
     public void updateExtractDirection(boolean cycle) {
         TPDirection oldExtractDirection = getExtractDirection();
         Map<TPDirection, TPContainer> containerConnections = getContainerConnections();
@@ -90,27 +119,9 @@ public class ExtractionPipe extends Pipe {
         return itemFilter;
     }
 
-    public void tryToExtractSync(PipeManager pipeManager, TPContainer container, TPDirection extractDirection) {
-        if (this.extractDirection != extractDirection || extractCondition == ExtractCondition.NEVER_EXTRACT) {
-            return;
-        }
-        if (extractCondition == ExtractCondition.NEEDS_REDSTONE) {
-            Block block = getBlockLoc().toBlock(getWorld());
-            if(!block.isBlockIndirectlyPowered() && !block.isBlockPowered()) {
-                return;
-            }
-        }
-        ItemStack item = container.extractItem(extractDirection, extractAmount.getAmount(), itemFilter);
-        if (item != null) {
-            PipeItem pipeItem = new PipeItem(item, getWorld(), getBlockLoc(), extractDirection.getOpposite());
-            pipeManager.createPipeItem(pipeItem);
-            pipeManager.addPipeItem(pipeItem);
-        }
-    }
-
     @Override
     public int[] getBreakParticleData() {
-        return new int[] { 5, 0 };
+        return new int[]{5, 0};
     }
 
     @Override

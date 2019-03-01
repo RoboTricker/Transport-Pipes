@@ -166,7 +166,7 @@ public class GlobalDuctManager {
         }
     }
 
-    public void playDuctDestroyEffects(Duct duct, Player destroyer) {
+    public void playDuctDestroyActions(Duct duct, Player destroyer) {
         List<ItemStack> dropItems = duct.destroyed(transportPipes, duct.getDuctType().getBaseDuctType().getDuctManager(), destroyer);
         transportPipes.runTaskSync(() -> {
             for (ItemStack is : dropItems) {

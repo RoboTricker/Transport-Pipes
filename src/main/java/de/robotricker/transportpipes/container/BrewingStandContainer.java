@@ -86,9 +86,6 @@ public class BrewingStandContainer extends BlockContainer {
 
     @Override
     public int spaceForItem(TPDirection insertDirection, ItemStack insertion) {
-        if (!isInLoadedChunk()) {
-            return 0;
-        }
         if (insertion.getType() == Material.POTION || insertion.getType() == Material.SPLASH_POTION || insertion.getType() == Material.LINGERING_POTION) {
             if (cachedInv.getItem(0) != null && cachedInv.getItem(1) != null && cachedInv.getItem(2) != null) {
                 return 0;

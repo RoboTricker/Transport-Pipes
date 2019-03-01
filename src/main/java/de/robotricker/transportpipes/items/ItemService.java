@@ -13,8 +13,11 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -170,6 +173,25 @@ public class ItemService {
         ItemStack itemStack = tempConf.getItemStack("itemStack");
         tempConf.set("itemStack", null);
         return itemStack;
+    }
+
+    public ShapedRecipe createShapedRecipe(ItemStack resultItem, String[] shape, Object... ingredientMap) {
+        ShapedRecipe recipe = new ShapedRecipe(resultItem);
+        recipe.shape(shape);
+        for (int i = 0; i < ingredientMap.length; i += 2) {
+            char c = (char) ingredientMap[i];
+            MaterialData item = (MaterialData) ingredientMap[i + 1];
+            recipe.setIngredient(c, item);
+        }
+        return recipe;
+    }
+
+    public ShapelessRecipe createShapelessRecipe(ItemStack resultItem, MaterialData... ingredients) {
+        ShapelessRecipe recipe = new ShapelessRecipe(resultItem);
+        for (int i = 0; i < ingredients.length; i += 2) {
+            recipe.addIngredient(ingredients[i]);
+        }
+        return recipe;
     }
 
 }

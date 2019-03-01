@@ -74,9 +74,6 @@ public class SimpleInventoryContainer extends BlockContainer {
 
     @Override
     public int spaceForItem(TPDirection insertDirection, ItemStack insertion) {
-        if (!isInLoadedChunk()) {
-            return 0;
-        }
         int space = 0;
 
         for (int i = 0; i < cachedInv.getSize(); i++) {

@@ -81,9 +81,6 @@ public class FurnaceContainer extends BlockContainer {
 
     @Override
     public int spaceForItem(TPDirection insertDirection, ItemStack insertion) {
-        if (!isInLoadedChunk()) {
-            return 0;
-        }
         if (NMSUtils.isFurnaceBurnableItem(insertion)) {
             if (insertDirection.isSide() || insertDirection == TPDirection.DOWN) {
                 return spaceForItem(cachedInv.getSmelting(), insertion);

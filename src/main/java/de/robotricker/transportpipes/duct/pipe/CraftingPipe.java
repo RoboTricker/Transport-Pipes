@@ -45,6 +45,16 @@ public class CraftingPipe extends Pipe {
     }
 
     @Override
+    public void tick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
+        super.tick(bigTick, transportPipes, ductManager);
+
+        if (bigTick) {
+            performCrafting((PipeManager) ductManager, transportPipes);
+        }
+
+    }
+
+    @Override
     protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs, TransportPipes transportPipes) {
         ItemStack overflow = addCachedItem(pipeItem.getItem(), transportPipes);
         if (overflow != null) {
@@ -100,8 +110,8 @@ public class CraftingPipe extends Pipe {
                 PipeItem pipeItem = new PipeItem(resultItem.clone(), getWorld(), getBlockLoc(), outputDir);
                 pipeItem.getRelativeLocation().set(0.5d, 0.5d, 0.5d);
                 pipeItem.resetOldRelativeLocation();
-                pipeManager.createPipeItem(pipeItem);
-                pipeManager.addPipeItem(pipeItem);
+                pipeManager.spawnPipeItem(pipeItem);
+                pipeManager.putPipeItemInPipe(pipeItem);
 
             }
         }

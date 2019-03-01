@@ -43,7 +43,7 @@ import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class PipeManager extends DuctManager<Pipe> {
 
-    private static final long EXTRACT_TICK_COUNT = 10;
+    private static final long BIG_TICK_COUNT = 10;
 
     /**
      * ThreadSafe
@@ -55,14 +55,14 @@ public class PipeManager extends DuctManager<Pipe> {
      */
     private Map<Player, Set<PipeItem>> playerItems;
 
-    private long tickCount;
+    private long tickCounter;
 
     @Inject
     public PipeManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService, ItemService itemService) {
         super(transportPipes, ductRegister, globalDuctManager, protocolService, itemService);
         playerItems = Collections.synchronizedMap(new HashMap<>());
         containers = Collections.synchronizedMap(new HashMap<>());
-        tickCount = 0;
+        tickCounter = 0;
     }
 
     public Map<World, Map<BlockLocation, TPContainer>> getContainers() {
@@ -144,45 +144,44 @@ public class PipeManager extends DuctManager<Pipe> {
     public void registerRecipes() {
         BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
 
-        pipeBaseDuctType.ductTypeOf("White").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("White"), new String[]{" a ", "a a", " a "}, 'a', new MaterialData(Material.GLASS)));
-        pipeBaseDuctType.ductTypeOf("Blue").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Blue"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.BLUE.getDyeData())));
-        pipeBaseDuctType.ductTypeOf("Red").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Red"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.RED.getDyeData())));
-        pipeBaseDuctType.ductTypeOf("Yellow").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Yellow"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.YELLOW.getDyeData())));
-        pipeBaseDuctType.ductTypeOf("Green").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Green"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.GREEN.getDyeData())));
-        pipeBaseDuctType.ductTypeOf("Black").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Black"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.BLACK.getDyeData())));
-        pipeBaseDuctType.ductTypeOf("Golden").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Golden"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.GOLD_BLOCK)));
-        pipeBaseDuctType.ductTypeOf("Iron").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Iron"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.IRON_BLOCK)));
-        pipeBaseDuctType.ductTypeOf("Ice").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Ice"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.SNOW_BLOCK)));
-        pipeBaseDuctType.ductTypeOf("Void").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Void"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.OBSIDIAN)));
-        pipeBaseDuctType.ductTypeOf("Extraction").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Extraction"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.WOOD)));
-        pipeBaseDuctType.ductTypeOf("Crafting").setDuctRecipe(createShapedRecipe(pipeBaseDuctType.ductTypeOf("Crafting"), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.WORKBENCH)));
+        DuctType ductType;
 
-        ShapedRecipe wrenchRecipe = new ShapedRecipe(itemService.getWrench());
-        wrenchRecipe.shape(" a ", "aba", " a ");
-        wrenchRecipe.setIngredient('a', new MaterialData(Material.REDSTONE));
-        wrenchRecipe.setIngredient('b', new MaterialData(Material.STICK));
+        ductType = pipeBaseDuctType.ductTypeOf("White");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "a a", " a "}, 'a', new MaterialData(Material.GLASS)));
+        ductType = pipeBaseDuctType.ductTypeOf("Blue");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.BLUE.getDyeData())));
+        ductType = pipeBaseDuctType.ductTypeOf("Red");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.RED.getDyeData())));
+        ductType = pipeBaseDuctType.ductTypeOf("Yellow");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.YELLOW.getDyeData())));
+        ductType = pipeBaseDuctType.ductTypeOf("Green");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.GREEN.getDyeData())));
+        ductType = pipeBaseDuctType.ductTypeOf("Black");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.INK_SACK, DyeColor.BLACK.getDyeData())));
+        ductType = pipeBaseDuctType.ductTypeOf("Golden");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.GOLD_BLOCK)));
+        ductType = pipeBaseDuctType.ductTypeOf("Iron");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.IRON_BLOCK)));
+        ductType = pipeBaseDuctType.ductTypeOf("Ice");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.SNOW_BLOCK)));
+        ductType = pipeBaseDuctType.ductTypeOf("Void");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.OBSIDIAN)));
+        ductType = pipeBaseDuctType.ductTypeOf("Extraction");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.WOOD)));
+        ductType = pipeBaseDuctType.ductTypeOf("Crafting");
+        ductType.setDuctRecipe(itemService.createShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.GLASS), 'b', new MaterialData(Material.WORKBENCH)));
+
+        ShapedRecipe wrenchRecipe = itemService.createShapedRecipe(itemService.getWrench(), new String[]{" a ", "aba", " a "}, 'a', new MaterialData(Material.REDSTONE), 'b', new MaterialData(Material.STICK));
         Bukkit.addRecipe(wrenchRecipe);
-    }
-
-    private ShapedRecipe createShapedRecipe(DuctType ductType, String[] shape, Object... ingredientMap) {
-        BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
-        ShapedRecipe recipe = new ShapedRecipe(pipeBaseDuctType.getItemManager().getClonedItem(ductType));
-        recipe.shape(shape);
-        for (int i = 0; i < ingredientMap.length; i += 2) {
-            char c = (char) ingredientMap[i];
-            MaterialData item = (MaterialData) ingredientMap[i + 1];
-            recipe.setIngredient(c, item);
-        }
-        return recipe;
     }
 
     @Override
     public void tick() {
-        tickCount++;
-        tickCount %= EXTRACT_TICK_COUNT;
-        boolean extract = tickCount == 0;
+        tickCounter++;
+        tickCounter %= BIG_TICK_COUNT;
+        boolean bigTick = tickCounter == 0;
 
-        if (extract) {
+        if(bigTick) {
             transportPipes.runTaskSync(() -> {
                 Set<World> worlds = globalDuctManager.getDucts().keySet();
                 synchronized (globalDuctManager.getDucts()) {
@@ -190,36 +189,8 @@ public class PipeManager extends DuctManager<Pipe> {
                         Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts().get(world);
                         if (ductMap != null) {
                             for (Duct duct : ductMap.values()) {
-                                // extract items from containers
-                                if (duct instanceof ExtractionPipe && duct.isInLoadedChunk()) {
-                                    Pipe pipe = (Pipe) duct;
-                                    for (TPDirection dir : TPDirection.values()) {
-                                        TPContainer container = getContainerAtLoc(pipe.getWorld(), pipe.getBlockLoc().getNeighbor(dir));
-                                        if (container != null) {
-                                            ((ExtractionPipe) pipe).tryToExtractSync(this, container, dir);
-                                        }
-                                    }
-                                }
-                                // extract items from unloaded list and put into container
                                 if (duct instanceof Pipe && duct.isInLoadedChunk()) {
-                                    Pipe pipe = (Pipe) duct;
-                                    synchronized (pipe.getUnloadedItems()) {
-                                        if (!pipe.getUnloadedItems().isEmpty()) {
-                                            PipeItem unloadedItem = pipe.getUnloadedItems().get(pipe.getUnloadedItems().size() - 1);
-                                            TPContainer newContainer = getContainerAtLoc(world, unloadedItem.getBlockLoc());
-                                            if (newContainer != null && newContainer.isInLoadedChunk()) {
-                                                ItemStack overflow = newContainer.insertItem(unloadedItem.getMovingDir(), unloadedItem.getItem());
-                                                pipe.getUnloadedItems().remove(unloadedItem);
-                                                if (overflow != null) {
-                                                    world.dropItem(pipe.getBlockLoc().toLocation(world), overflow);
-                                                }
-                                            } else if (newContainer == null && !(globalDuctManager.getDuctAtLoc(world, unloadedItem.getBlockLoc()) instanceof Pipe)) {
-                                                //nothing there
-                                                world.dropItem(pipe.getBlockLoc().toLocation(world), unloadedItem.getItem());
-                                                pipe.getUnloadedItems().remove(unloadedItem);
-                                            }
-                                        }
-                                    }
+                                    duct.syncBigTick(this);
                                 }
                             }
                         }
@@ -235,38 +206,12 @@ public class PipeManager extends DuctManager<Pipe> {
                 if (ductMap != null) {
                     for (Duct duct : ductMap.values()) {
                         if (duct instanceof Pipe && duct.isInLoadedChunk()) {
-                            Pipe pipe = (Pipe) duct;
-                            // activate pipeItems which are in futureItems
-                            synchronized (pipe.getFutureItems()) {
-                                Iterator<PipeItem> itemIt = pipe.getFutureItems().iterator();
-                                while (itemIt.hasNext()) {
-                                    PipeItem futureItem = itemIt.next();
-                                    pipe.getItems().add(futureItem);
-                                    itemIt.remove();
-                                }
-                            }
-                            // extract items from unloaded list and put into next pipe
-                            if (extract) {
-                                synchronized (pipe.getUnloadedItems()) {
-                                    if (!pipe.getUnloadedItems().isEmpty()) {
-                                        PipeItem unloadedItem = pipe.getUnloadedItems().get(pipe.getUnloadedItems().size() - 1);
-                                        Duct newPipe = ductMap.get(unloadedItem.getBlockLoc());
-                                        if (newPipe instanceof Pipe && newPipe.isInLoadedChunk()) {
-                                            ((Pipe) newPipe).getItems().add(unloadedItem);
-                                            pipe.getUnloadedItems().remove(unloadedItem);
-                                        }
-                                    }
-                                }
-                                if (pipe instanceof CraftingPipe) {
-                                    ((CraftingPipe) pipe).performCrafting(this, transportPipes);
-                                }
-                            }
+                            duct.tick(bigTick, transportPipes, this);
                         }
                     }
-                    //normal tick and item update
                     for (Duct duct : ductMap.values()) {
                         if (duct instanceof Pipe && duct.isInLoadedChunk()) {
-                            duct.tick(transportPipes, this, globalDuctManager);
+                            duct.postTick(bigTick, transportPipes, this);
                         }
                     }
                 }
@@ -279,7 +224,7 @@ public class PipeManager extends DuctManager<Pipe> {
         return playerItems.computeIfAbsent(player, p -> Collections.synchronizedSet(new HashSet<>()));
     }
 
-    public void createPipeItem(PipeItem pipeItem) {
+    public void spawnPipeItem(PipeItem pipeItem) {
         List<Player> playerList = WorldUtils.getPlayerList(pipeItem.getWorld());
         for (Player p : playerList) {
             if (p.getLocation().distance(pipeItem.getBlockLoc().toLocation(pipeItem.getWorld())) <= Constants.DEFAULT_RENDER_DISTANCE) {
@@ -289,7 +234,7 @@ public class PipeManager extends DuctManager<Pipe> {
         }
     }
 
-    public void addPipeItem(PipeItem pipeItem) {
+    public void putPipeItemInPipe(PipeItem pipeItem) {
         Pipe pipeAtBlockLoc = (Pipe) globalDuctManager.getDuctAtLoc(pipeItem.getWorld(), pipeItem.getBlockLoc());
         if (pipeAtBlockLoc == null) {
             throw new IllegalStateException("pipe item can't be created because on the given location is no pipe");
@@ -297,7 +242,7 @@ public class PipeManager extends DuctManager<Pipe> {
         pipeAtBlockLoc.putPipeItem(pipeItem);
     }
 
-    public void updatePipeItem(PipeItem pipeItem) {
+    public void updatePipeItemPosition(PipeItem pipeItem) {
         List<Player> playerList = WorldUtils.getPlayerList(pipeItem.getWorld());
         for (Player p : playerList) {
             if (getPlayerPipeItems(p).contains(pipeItem)) {
@@ -306,7 +251,7 @@ public class PipeManager extends DuctManager<Pipe> {
         }
     }
 
-    public void destroyPipeItem(PipeItem pipeItem) {
+    public void despawnPipeItem(PipeItem pipeItem) {
         List<Player> playerList = WorldUtils.getPlayerList(pipeItem.getWorld());
         for (Player p : playerList) {
             if (getPlayerPipeItems(p).remove(pipeItem)) {
