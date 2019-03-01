@@ -1,9 +1,22 @@
 package de.robotricker.transportpipes.container;
 
 import org.bukkit.block.Block;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class BlockContainer implements TPContainer {
+
+    private static boolean vanillaLockableExists;
+
+    static {
+        try {
+            Class.forName("org.bukkit.block.Lockable");
+            vanillaLockableExists = true;
+        } catch (ClassNotFoundException e) {
+            vanillaLockableExists = false;
+        }
+    }
+
 
     protected Block block;
 
@@ -55,6 +68,20 @@ public abstract class BlockContainer implements TPContainer {
             return 0;
         }
         return before.getMaxStackSize() - before.getAmount();
+    }
+
+    protected boolean isInvLocked(InventoryHolder ih) {
+        try {
+            // check vanilla lock
+            if (vanillaLockableExists && ih instanceof org.bukkit.block.Lockable) {
+                if (((org.bukkit.block.Lockable) ih).isLocked()) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public abstract void updateBlock();

@@ -74,12 +74,11 @@ public class ItemDistributorService {
                 // container at location
                 TPContainer container = containerMap.get(bl);
                 int freeSpace = container.spaceForItem(dir, item);
-                System.out.println(freeSpace + " calculated");
                 freeSpaceMap.put(dir, freeSpace);
             } else if (ductMap != null && ductMap.containsKey(bl) && ductMap.get(bl) instanceof CraftingPipe) {
                 // crafting pipe at location
                 CraftingPipe cp = (CraftingPipe) ductMap.get(bl);
-                int freeSpace = Integer.MAX_VALUE; //TODO: cp.freeSpaceForItem(new ItemData(item));
+                int freeSpace = cp.spaceForItem(new ItemData(item));
                 freeSpaceMap.put(dir, freeSpace);
             }
         }

@@ -33,6 +33,9 @@ public class BrewingStandContainer extends BlockContainer {
         if (!isInLoadedChunk()) {
             return null;
         }
+        if (isInvLocked(cachedBrewingStand)) {
+            return null;
+        }
         if (extractDirection != TPDirection.DOWN && cachedBrewingStand.getBrewingTime() == 0) {
             ItemStack takeItem = null;
             if (itemFilter.applyFilter(cachedInv.getItem(0)) > 0) {
@@ -55,7 +58,10 @@ public class BrewingStandContainer extends BlockContainer {
     @Override
     public ItemStack insertItem(TPDirection insertDirection, ItemStack insertion) {
         if (!isInLoadedChunk()) {
-            return null;
+            return insertion;
+        }
+        if (isInvLocked(cachedBrewingStand)) {
+            return insertion;
         }
         if (insertion.getType() == Material.POTION || insertion.getType() == Material.SPLASH_POTION || insertion.getType() == Material.LINGERING_POTION) {
             if (cachedInv.getItem(0) == null) {
@@ -86,6 +92,9 @@ public class BrewingStandContainer extends BlockContainer {
 
     @Override
     public int spaceForItem(TPDirection insertDirection, ItemStack insertion) {
+        if (isInvLocked(cachedBrewingStand)) {
+            return 0;
+        }
         if (insertion.getType() == Material.POTION || insertion.getType() == Material.SPLASH_POTION || insertion.getType() == Material.LINGERING_POTION) {
             if (cachedInv.getItem(0) != null && cachedInv.getItem(1) != null && cachedInv.getItem(2) != null) {
                 return 0;
