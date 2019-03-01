@@ -86,7 +86,15 @@ public abstract class Duct {
         }
     }
 
-    public void tick(TransportPipes transportPipes, DuctManager ductManager, GlobalDuctManager globalDuctManager) {
+    public void tick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
+
+    }
+
+    public void postTick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
+
+    }
+
+    public void syncBigTick(DuctManager ductManager) {
 
     }
 

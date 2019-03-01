@@ -217,7 +217,7 @@ public class DuctListener implements Listener {
                 globalDuctManager.unregisterDuctInRenderSystem(clickedDuct, true);
                 globalDuctManager.updateNeighborDuctsConnections(clickedDuct);
                 globalDuctManager.updateNeighborDuctsInRenderSystems(clickedDuct, true);
-                globalDuctManager.playDuctDestroyEffects(clickedDuct, interaction.p);
+                globalDuctManager.playDuctDestroyActions(clickedDuct, interaction.p);
 
                 interaction.cancel = true;
                 interaction.successful = true;
