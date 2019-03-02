@@ -18,8 +18,8 @@ public class ColoredPipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[] {Material.INK_SACK.getId(), ((ColoredPipeType) getDuctType()).getDyeColor().getDyeData() };
+    public Material getBreakParticleData() {
+        return ((ColoredPipeType) getDuctType()).getColoringMaterial();
     }
 
 }

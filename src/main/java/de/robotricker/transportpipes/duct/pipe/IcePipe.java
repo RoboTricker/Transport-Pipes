@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.duct.pipe;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
@@ -21,8 +22,8 @@ public class IcePipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[]{79, 0};
+    public Material getBreakParticleData() {
+        return Material.ICE;
     }
 
 }

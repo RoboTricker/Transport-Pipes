@@ -68,7 +68,7 @@ public final class BaseDuctType<T extends Duct> {
     }
 
     // ****************************************************
-    // DUCT TYPE
+    // DUCT MATERIAL
     // ****************************************************
 
     public List<DuctType> ductTypes() {

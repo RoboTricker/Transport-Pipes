@@ -22,9 +22,7 @@ public class HitboxUtils {
     static {
         LINE_OF_SIGHT_SET = new HashSet<>();
         LINE_OF_SIGHT_SET.add(Material.WATER);
-        LINE_OF_SIGHT_SET.add(Material.STATIONARY_WATER);
         LINE_OF_SIGHT_SET.add(Material.LAVA);
-        LINE_OF_SIGHT_SET.add(Material.STATIONARY_LAVA);
         LINE_OF_SIGHT_SET.add(Material.AIR);
         // add transprant blocks, so that when you look only a little above the hitbox
         // of e.g. a grass,

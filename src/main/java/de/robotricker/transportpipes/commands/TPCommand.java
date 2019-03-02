@@ -25,6 +25,7 @@ import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.inventory.CreativeInventory;
 import de.robotricker.transportpipes.inventory.PlayerSettingsInventory;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.utils.MessageUtils;
 
@@ -46,6 +47,7 @@ public class TPCommand extends BaseCommand {
     @CommandPermission("transportpipes.tps")
     @Description("Shows some basic information about the plugin and it's runtime")
     public void onTPS(CommandSender cs) {
+
         int tps = threadService.getCurrentTPS();
         int pref_tps = threadService.getPreferredTPS();
         ChatColor tpsColor = ChatColor.DARK_GREEN;

@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.duct.pipe;
 import net.querz.nbt.CompoundTag;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -120,8 +121,8 @@ public class ExtractionPipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[]{5, 0};
+    public Material getBreakParticleData() {
+        return Material.OAK_PLANKS;
     }
 
     @Override

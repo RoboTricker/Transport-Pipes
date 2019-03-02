@@ -2,9 +2,12 @@ package de.robotricker.transportpipes.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -17,9 +20,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,55 +41,55 @@ import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.utils.HitboxUtils;
 import de.robotricker.transportpipes.utils.WorldUtils;
-import io.sentry.Sentry;
 
 public class DuctListener implements Listener {
 
-    private final List<Material> interactables = Arrays.asList(
-            Material.ACACIA_DOOR,
-            Material.ACACIA_FENCE_GATE,
-            Material.ANVIL,
-            Material.BEACON,
-            Material.BED,
-            Material.BIRCH_DOOR,
-            Material.BIRCH_FENCE_GATE,
-            Material.BOAT,
-            Material.BOAT_ACACIA,
-            Material.BOAT_BIRCH,
-            Material.BOAT_DARK_OAK,
-            Material.BOAT_JUNGLE,
-            Material.BOAT_SPRUCE,
-            Material.BREWING_STAND,
-            Material.COMMAND,
-            Material.CHEST,
-            Material.DARK_OAK_DOOR,
-            Material.DARK_OAK_FENCE_GATE,
-            Material.DAYLIGHT_DETECTOR,
-            Material.DAYLIGHT_DETECTOR_INVERTED,
-            Material.DISPENSER,
-            Material.DROPPER,
-            Material.ENCHANTMENT_TABLE,
-            Material.ENDER_CHEST,
-            Material.FENCE_GATE,
-            Material.FURNACE,
-            Material.HOPPER,
-            Material.HOPPER_MINECART,
-            Material.ITEM_FRAME,
-            Material.JUNGLE_DOOR,
-            Material.JUNGLE_FENCE_GATE,
-            Material.LEVER,
-            Material.MINECART,
-            Material.NOTE_BLOCK,
-            Material.POWERED_MINECART,
-            Material.REDSTONE_COMPARATOR,
-            Material.REDSTONE_COMPARATOR_OFF,
-            Material.REDSTONE_COMPARATOR_ON,
-            Material.STORAGE_MINECART,
-            Material.TRAP_DOOR,
-            Material.TRAPPED_CHEST,
-            Material.WOOD_BUTTON,
-            Material.WOOD_DOOR,
-            Material.WOODEN_DOOR);
+    private final List<Material> interactables = new ArrayList<>();
+//            Arrays.asList(
+//            Material.ACACIA_DOOR,
+//            Material.ACACIA_FENCE_GATE,
+//            Material.ANVIL,
+//            Material.BEACON,
+//            Material.BED,
+//            Material.BIRCH_DOOR,
+//            Material.BIRCH_FENCE_GATE,
+//            Material.BOAT,
+//            Material.BOAT_ACACIA,
+//            Material.BOAT_BIRCH,
+//            Material.BOAT_DARK_OAK,
+//            Material.BOAT_JUNGLE,
+//            Material.BOAT_SPRUCE,
+//            Material.BREWING_STAND,
+//            Material.COMMAND,
+//            Material.CHEST,
+//            Material.DARK_OAK_DOOR,
+//            Material.DARK_OAK_FENCE_GATE,
+//            Material.DAYLIGHT_DETECTOR,
+//            Material.DAYLIGHT_DETECTOR_INVERTED,
+//            Material.DISPENSER,
+//            Material.DROPPER,
+//            Material.ENCHANTMENT_TABLE,
+//            Material.ENDER_CHEST,
+//            Material.FENCE_GATE,
+//            Material.FURNACE,
+//            Material.HOPPER,
+//            Material.HOPPER_MINECART,
+//            Material.ITEM_FRAME,
+//            Material.JUNGLE_DOOR,
+//            Material.JUNGLE_FENCE_GATE,
+//            Material.LEVER,
+//            Material.MINECART,
+//            Material.NOTE_BLOCK,
+//            Material.POWERED_MINECART,
+//            Material.REDSTONE_COMPARATOR,
+//            Material.REDSTONE_COMPARATOR_OFF,
+//            Material.REDSTONE_COMPARATOR_ON,
+//            Material.STORAGE_MINECART,
+//            Material.TRAP_DOOR,
+//            Material.TRAPPED_CHEST,
+//            Material.WOOD_BUTTON,
+//            Material.WOOD_DOOR,
+//            Material.WOODEN_DOOR);
 
     //makes sure that "callInteraction" is called with the mainHand and with the offHand every single time
     private Map<Player, Interaction> interactions = new HashMap<>();
@@ -106,6 +109,13 @@ public class DuctListener implements Listener {
         this.tpContainerListener = tpContainerListener;
         this.generalConf = generalConf;
         this.sentry = sentry;
+
+        for (Material m : Material.values()) {
+            if (m.isInteractable()) {
+                interactables.add(m);
+            }
+        }
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::updateInteractSet, 0L, 1L);
     }
 
@@ -225,9 +235,13 @@ public class DuctListener implements Listener {
                     } else if (clickedDuct != null) {
                         //block placement
                         if (buildAllowed(interaction.p, placeBlock)) {
-                            placeBlock.setTypeIdAndData(interaction.item.getTypeId(), interaction.item.getData().getData(), true);
+
+                            BlockData bd = interaction.item.getType().createBlockData();
+                            setDirectionalBlockFace(placeBlock.getLocation(), bd, interaction.p);
+                            placeBlock.setBlockData(bd, true);
+
                             // create TPContainer from placed block if it is such
-                            if (WorldUtils.isIdContainerBlock(interaction.item.getTypeId())) {
+                            if (WorldUtils.isContainerBlock(interaction.item.getType())) {
                                 tpContainerListener.updateContainerBlock(placeBlock, true, true);
                             }
                             decreaseHandItem(interaction.p, interaction.hand);
@@ -252,6 +266,31 @@ public class DuctListener implements Listener {
 
                 interaction.cancel = true;
                 interaction.successful = true;
+            }
+        }
+    }
+
+    private void setDirectionalBlockFace(Location b, BlockData bd, Player p) {
+        if (bd instanceof Directional) {
+            Vector dir = new Vector(b.getX() + 0.5d, b.getY() + 0.5d, b.getZ() + 0.5d);
+            dir.subtract(p.getEyeLocation().toVector());
+            double absX = Math.abs(dir.getX());
+            double absY = Math.abs(dir.getY());
+            double absZ = Math.abs(dir.getZ());
+            if (((Directional) bd).getFaces().contains(BlockFace.UP) && ((Directional) bd).getFaces().contains(BlockFace.DOWN)) {
+                if (absX >= absY && absX >= absZ) {
+                    ((Directional) bd).setFacing(dir.getX() > 0 ? BlockFace.WEST : BlockFace.EAST);
+                } else if (absY >= absX && absY >= absZ) {
+                    ((Directional) bd).setFacing(dir.getY() > 0 ? BlockFace.DOWN : BlockFace.UP);
+                } else {
+                    ((Directional) bd).setFacing(dir.getZ() > 0 ? BlockFace.NORTH : BlockFace.SOUTH);
+                }
+            } else {
+                if (absX >= absZ) {
+                    ((Directional) bd).setFacing(dir.getX() > 0 ? BlockFace.WEST : BlockFace.EAST);
+                } else {
+                    ((Directional) bd).setFacing(dir.getZ() > 0 ? BlockFace.NORTH : BlockFace.SOUTH);
+                }
             }
         }
     }

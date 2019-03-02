@@ -1,12 +1,12 @@
 package de.robotricker.transportpipes.duct;
 
-import com.comphenix.packetwrapper.WrapperPlayServerWorldParticles;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-
 import net.querz.nbt.CompoundTag;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -31,15 +31,12 @@ import de.robotricker.transportpipes.location.TPDirection;
 public abstract class Duct {
 
     protected GlobalDuctManager globalDuctManager;
-
+    protected DuctSettingsInventory settingsInv;
     private DuctType ductType;
     private BlockLocation blockLoc;
     private World world;
     private Chunk chunk;
-
     private Map<TPDirection, Duct> connectedDucts;
-
-    protected DuctSettingsInventory settingsInv;
 
     public Duct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
         this.ductType = ductType;
@@ -106,7 +103,7 @@ public abstract class Duct {
         return new HashSet<>(getDuctConnections().keySet());
     }
 
-    public int[] getBreakParticleData() {
+    public Material getBreakParticleData() {
         return null;
     }
 
@@ -124,28 +121,8 @@ public abstract class Duct {
         }
 
         //break particles
-        if (getBreakParticleData() != null) {
-            transportPipes.runTaskSync(() -> {
-
-                if (destroyer != null) {
-                    // show break particles
-                    WrapperPlayServerWorldParticles wrapper = new WrapperPlayServerWorldParticles();
-                    wrapper.setParticleType(EnumWrappers.Particle.ITEM_CRACK);
-                    wrapper.setNumberOfParticles(30);
-                    wrapper.setLongDistance(false);
-                    wrapper.setX(getBlockLoc().getX() + 0.5f);
-                    wrapper.setY(getBlockLoc().getY() + 0.5f);
-                    wrapper.setZ(getBlockLoc().getZ() + 0.5f);
-                    wrapper.setOffsetX(0.25f);
-                    wrapper.setOffsetY(0.25f);
-                    wrapper.setOffsetZ(0.25f);
-                    wrapper.setParticleData(0.05f);
-                    wrapper.setData(getBreakParticleData());
-                    for (Player worldPl : getWorld().getPlayers()) {
-                        wrapper.sendPacket(worldPl);
-                    }
-                }
-            });
+        if (destroyer != null && getBreakParticleData() != null) {
+            transportPipes.runTaskSync(() -> destroyer.getWorld().spawnParticle(Particle.ITEM_CRACK, getBlockLoc().getX() + 0.5f, getBlockLoc().getY() + 0.5f, getBlockLoc().getZ() + 0.5f, 30, 0.25f, 0.25f, 0.25f, 0.05f, new ItemStack(getBreakParticleData())));
         }
 
         return dropItems;

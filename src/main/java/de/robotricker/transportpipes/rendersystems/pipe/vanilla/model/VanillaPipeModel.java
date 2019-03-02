@@ -17,8 +17,8 @@ import de.robotricker.transportpipes.rendersystems.pipe.vanilla.model.data.Vanil
 public abstract class VanillaPipeModel {
 
     static ItemStack ITEM_BLAZE_ROD = new ItemStack(Material.BLAZE_ROD);
-    static ItemStack ITEM_CARPET_WHITE = new ItemStack(Material.CARPET, 1, (short) 0);
-    static ItemStack ITEM_CARPET_YELLOW = new ItemStack(Material.CARPET, 1, (short) 4);
+    static ItemStack ITEM_CARPET_WHITE = new ItemStack(Material.WHITE_CARPET);
+    static ItemStack ITEM_CARPET_YELLOW = new ItemStack(Material.YELLOW_CARPET);
     static Map<PipeType, ItemStack> pipeBlocks;
     static Map<GoldenPipe.Color, ItemStack> goldenPipeColorCarpets;
 
@@ -33,25 +33,25 @@ public abstract class VanillaPipeModel {
     public static void init(DuctRegister ductRegister) {
         pipeBlocks = new HashMap<>();
         pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("White"), new ItemStack(Material.GLASS));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Blue"), new ItemStack(Material.STAINED_GLASS, 1, (short) 11));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Red"), new ItemStack(Material.STAINED_GLASS, 1, (short) 14));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Yellow"), new ItemStack(Material.STAINED_GLASS, 1, (short) 4));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Green"), new ItemStack(Material.STAINED_GLASS, 1, (short) 13));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Black"), new ItemStack(Material.STAINED_GLASS, 1, (short) 15));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Blue"), new ItemStack(Material.BLUE_STAINED_GLASS));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Red"), new ItemStack(Material.RED_STAINED_GLASS));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Yellow"), new ItemStack(Material.YELLOW_STAINED_GLASS));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Green"), new ItemStack(Material.GREEN_STAINED_GLASS));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Black"), new ItemStack(Material.BLACK_STAINED_GLASS));
         pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Golden"), new ItemStack(Material.GOLD_BLOCK));
         pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Iron"), new ItemStack(Material.IRON_BLOCK));
         pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Ice"), new ItemStack(Material.ICE));
         pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Void"), new ItemStack(Material.OBSIDIAN));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Extraction"), new ItemStack(Material.WOOD));
-        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Crafting"), new ItemStack(Material.WORKBENCH));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Extraction"), new ItemStack(Material.OAK_PLANKS));
+        pipeBlocks.put(ductRegister.baseDuctTypeOf("Pipe").ductTypeOf("Crafting"), new ItemStack(Material.CRAFTING_TABLE));
 
         goldenPipeColorCarpets = new HashMap<>();
         goldenPipeColorCarpets.put(GoldenPipe.Color.WHITE, ITEM_CARPET_WHITE);
         goldenPipeColorCarpets.put(GoldenPipe.Color.YELLOW, ITEM_CARPET_YELLOW);
-        goldenPipeColorCarpets.put(GoldenPipe.Color.GREEN, new ItemStack(Material.CARPET, 1, (short) 5));
-        goldenPipeColorCarpets.put(GoldenPipe.Color.BLUE, new ItemStack(Material.CARPET, 1, (short) 11));
-        goldenPipeColorCarpets.put(GoldenPipe.Color.RED, new ItemStack(Material.CARPET, 1, (short) 14));
-        goldenPipeColorCarpets.put(GoldenPipe.Color.BLACK, new ItemStack(Material.CARPET, 1, (short) 15));
+        goldenPipeColorCarpets.put(GoldenPipe.Color.GREEN, new ItemStack(Material.GREEN_CARPET));
+        goldenPipeColorCarpets.put(GoldenPipe.Color.BLUE, new ItemStack(Material.BLUE_CARPET));
+        goldenPipeColorCarpets.put(GoldenPipe.Color.RED, new ItemStack(Material.RED_CARPET));
+        goldenPipeColorCarpets.put(GoldenPipe.Color.BLACK, new ItemStack(Material.BLACK_CARPET));
     }
 
 }

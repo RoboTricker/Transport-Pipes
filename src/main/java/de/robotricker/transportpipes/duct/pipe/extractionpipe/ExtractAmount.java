@@ -13,7 +13,7 @@ public enum ExtractAmount {
 
     ExtractAmount(String displayName, int amount) {
         this.displayName = displayName;
-        this.displayItem = new ItemStack(Material.BRICK, amount);
+        this.displayItem = new ItemStack(Material.BRICKS, amount);
     }
 
     public int getAmount() {

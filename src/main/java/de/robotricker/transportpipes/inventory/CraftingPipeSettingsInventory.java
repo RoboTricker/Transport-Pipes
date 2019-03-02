@@ -1,15 +1,20 @@
 package de.robotricker.transportpipes.inventory;
 
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.DragType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.PressurePlate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +49,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
         TPDirection outputDir = pipe.getOutputDir();
         List<ItemStack> cachedItems = pipe.getCachedItems();
 
-        ItemStack glassPane = itemService.createGlassItem(DyeColor.BLACK);
+        ItemStack glassPane = itemService.createWildcardItem(Material.GRAY_STAINED_GLASS_PANE);
         for (int i = 0; i < 9; i++) {
             inv.setItem(i, glassPane);
         }
@@ -77,7 +82,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
             inv.setItem(4 * 9 + i, glassPane);
         }
 
-        ItemStack retrieveItemsItem = itemService.changeDisplayNameAndLore(itemService.createSkullItemStack("5ca62fac-d094-4346-8361-e1dfdd970607", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzQzNzM0NmQ4YmRhNzhkNTI1ZDE5ZjU0MGE5NWU0ZTc5ZGFlZGE3OTVjYmM1YTEzMjU2MjM2MzEyY2YifX19", null), "§7Retrieve cached items", "", "§8Click to move the cached items into your inventory");
+        ItemStack retrieveItemsItem = itemService.changeDisplayNameAndLore(itemService.createHeadItem("5ca62fac-d094-4346-8361-e1dfdd970607", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzQzNzM0NmQ4YmRhNzhkNTI1ZDE5ZjU0MGE5NWU0ZTc5ZGFlZGE3OTVjYmM1YTEzMjU2MjM2MzEyY2YifX19", null), "§7Retrieve cached items", "", "§8Click to move the cached items into your inventory");
         inv.setItem(4 * 9 + 8, retrieveItemsItem);
 
         for (int i = 0; i < 9; i++) {
@@ -88,7 +93,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
 
     }
 
-    private ItemStack getCraftingResult(ItemData[] items) {
+    private Recipe getCraftingRecipe(ItemStack[] items) {
 
         int col_min = -1;
         int col_max = 0;
@@ -125,7 +130,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
             return null;
         }
 
-        Map<Character, ItemData> in_map = new HashMap<>();
+        Map<Character, ItemStack> in_map = new HashMap<>();
         String[] in_shape = new String[in_rows];
         char current_char = 'a';
         for (int row = row_min; row <= row_max; row++) {
@@ -156,6 +161,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
             Recipe recipe = recipeIt.next();
             if (recipe instanceof ShapedRecipe) {
                 ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
+
                 String[] shape = shapedRecipe.getShape();
                 int rows = shape.length;
                 int cols = shape[0].length();
@@ -165,31 +171,31 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
                         for (int col = 0; col < cols; col++) {
                             char recipeChar = shape[row].charAt(col);
                             char inChar = in_shape[row].charAt(col);
-                            if (shapedRecipe.getIngredientMap().get(recipeChar) == null && in_map.get(inChar) == null) {
+                            if (shapedRecipe.getChoiceMap().get(recipeChar) == null && in_map.get(inChar) == null) {
                                 continue;
                             }
-                            if (shapedRecipe.getIngredientMap().get(recipeChar) == null || in_map.get(inChar) == null) {
+                            if (shapedRecipe.getChoiceMap().get(recipeChar) == null || in_map.get(inChar) == null) {
                                 continue recipe_loop;
                             }
-                            if (new ItemData(shapedRecipe.getIngredientMap().get(recipeChar), true).equals(in_map.get(inChar))) {
+                            if(shapedRecipe.getChoiceMap().get(recipeChar).test(in_map.get(inChar))) {
                                 continue;
                             }
                             continue recipe_loop;
                         }
                     }
-                    return shapedRecipe.getResult();
+                    return shapedRecipe;
                 }
             } else if (recipe instanceof ShapelessRecipe) {
                 ShapelessRecipe shapelessRecipe = (ShapelessRecipe) recipe;
-                List<ItemData> givenItems = new ArrayList<>(Arrays.asList(items));
+                List<ItemStack> givenItems = new ArrayList<>(Arrays.asList(items));
                 givenItems.removeIf(Objects::isNull);
-                for (ItemStack ingredient : shapelessRecipe.getIngredientList()) {
-                    if (!givenItems.removeIf(givenItem -> givenItem.equals(new ItemData(ingredient, true)))) {
+                for (RecipeChoice ingredientChoice : shapelessRecipe.getChoiceList()) {
+                    if (!givenItems.removeIf(ingredientChoice::test)) {
                         continue recipe_loop;
                     }
                 }
                 if (givenItems.isEmpty()) {
-                    return shapelessRecipe.getResult();
+                    return shapelessRecipe;
                 }
             }
         }
@@ -263,24 +269,24 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
         return cursor != null;
     }
 
-    private ItemStack calculateResult() {
-        ItemData[] items = new ItemData[9];
+    private Recipe calculateRecipe() {
+        ItemStack[] items = new ItemStack[9];
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 if (inv.getItem(9 + 1 + row * 9 + col) != null) {
-                    items[row * 3 + col] = new ItemData(inv.getItem(9 + 1 + row * 9 + col), true);
+                    items[row * 3 + col] = inv.getItem(9 + 1 + row * 9 + col);
                 } else {
                     items[row * 3 + col] = null;
                 }
             }
         }
-        return getCraftingResult(items);
+        return getCraftingRecipe(items);
     }
 
     private void updateResultWithDelay() {
         Bukkit.getScheduler().runTask(transportPipes, () -> {
-            ItemStack result = calculateResult();
-            inv.setItem(24, result);
+            Recipe recipe = calculateRecipe();
+            inv.setItem(24, recipe != null ? recipe.getResult() : null);
         });
     }
 
@@ -308,7 +314,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
             }
         }
 
-        pipe.setResultItem(calculateResult());
+        pipe.setRecipe(calculateRecipe());
 
     }
 }

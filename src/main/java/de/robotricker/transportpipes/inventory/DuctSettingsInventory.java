@@ -65,7 +65,7 @@ public abstract class DuctSettingsInventory extends GlobalInventory implements L
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
         if (e.getInventory() != null && e.getInventory().equals(inv) && e.getWhoClicked() instanceof Player) {
-            if (itemService.isItemGlassOrBarrier(e.getCurrentItem())) {
+            if (itemService.isItemWildcardOrBarrier(e.getCurrentItem())) {
                 e.setCancelled(true);
                 return;
             }

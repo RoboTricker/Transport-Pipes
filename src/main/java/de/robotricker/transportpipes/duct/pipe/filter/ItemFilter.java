@@ -4,6 +4,7 @@ import net.querz.nbt.CompoundTag;
 import net.querz.nbt.ListTag;
 import net.querz.nbt.StringTag;
 
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class ItemFilter {
     public ItemFilter() {
         filterItems = new ItemData[MAX_ITEMS_PER_ROW];
         filterMode = FilterMode.NORMAL;
-        filterStrictness = FilterStrictness.TYPE_DAMAGE_METADATA;
+        filterStrictness = FilterStrictness.MATERIAL_METADATA;
     }
 
     public ItemData[] getFilterItems() {
@@ -71,14 +72,10 @@ public class ItemFilter {
 
     private boolean matchesItemStrictness(ItemStack mask, ItemStack itemStack) {
         switch (getFilterStrictness()) {
-            case TYPE:
+            case MATERIAL:
                 return mask.getType() == itemStack.getType();
-            case TYPE_DAMAGE:
-                return mask.getType() == itemStack.getType() && mask.getData().equals(itemStack.getData());
-            case TYPE_METADATA:
-                return mask.getType() == itemStack.getType() && mask.getItemMeta().equals(itemStack.getItemMeta());
-            case TYPE_DAMAGE_METADATA:
-                return mask.getType() == itemStack.getType() && mask.getData().equals(itemStack.getData()) && mask.getItemMeta().equals(itemStack.getItemMeta());
+            case MATERIAL_METADATA:
+                return mask.getType() == itemStack.getType() && Bukkit.getItemFactory().equals(mask.getItemMeta(), itemStack.getItemMeta());
             default:
                 return false;
         }

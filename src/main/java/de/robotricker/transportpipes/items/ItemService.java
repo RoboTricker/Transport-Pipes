@@ -3,10 +3,10 @@ package de.robotricker.transportpipes.items;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.SkullType;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -15,9 +15,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
@@ -49,20 +50,18 @@ public class ItemService {
     }
 
     public ItemStack createModelledItem(int damage) {
-        ItemStack is = NMSUtils.setItemStackUnbreakable(new ItemStack(Material.WOOD_PICKAXE, 1, (short) damage));
-        ItemMeta im = is.getItemMeta();
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        im.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-        is.setItemMeta(im);
-        return is;
+        ItemStack woodenPickage = new ItemStack(Material.WOODEN_PICKAXE);
+        ItemMeta meta = woodenPickage.getItemMeta();
+
+        ((Damageable) meta).setDamage(damage);
+        meta.setUnbreakable(true);
+        woodenPickage.setItemMeta(meta);
+
+        return woodenPickage;
     }
 
     public ItemStack createGlowingItem(Material material) {
-        return createGlowingItem(material, (short) 0);
-    }
-
-    public ItemStack createGlowingItem(Material material, short damage) {
-        ItemStack is = new ItemStack(material, 1, damage);
+        ItemStack is = new ItemStack(material);
         ItemMeta im = is.getItemMeta();
         im.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -93,12 +92,13 @@ public class ItemService {
         return is;
     }
 
-    public ItemStack createSkullItemStack(String uuid, String textureValue, String textureSignature) {
+    public ItemStack createHeadItem(String uuid, String textureValue, String textureSignature) {
         WrappedGameProfile wrappedProfile = new WrappedGameProfile(UUID.fromString(uuid), null);
         wrappedProfile.getProperties().put("textures", new WrappedSignedProperty("textures", textureValue, textureSignature));
 
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal());
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta sm = (SkullMeta) skull.getItemMeta();
+        sm.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(uuid)));
 
         Field profileField;
         try {
@@ -140,18 +140,40 @@ public class ItemService {
         }
     }
 
-    public ItemStack createGlassItem(DyeColor dyeColor) {
-        return changeDisplayNameAndLore(new ItemStack(Material.STAINED_GLASS_PANE, 1, dyeColor.getWoolData()), ChatColor.RESET.toString());
+    public ItemStack createWildcardItem(Material material) {
+        ItemStack glassPane = new ItemStack(material);
+        return changeDisplayNameAndLore(glassPane, ChatColor.RESET.toString());
     }
 
     public ItemStack createBarrierItem() {
-        return changeDisplayNameAndLore(new ItemStack(Material.BARRIER, 1), ChatColor.RESET.toString());
+        return changeDisplayNameAndLore(new ItemStack(Material.BARRIER), ChatColor.RESET.toString());
     }
 
-    public boolean isItemGlassOrBarrier(ItemStack item) {
-        if (item != null && (item.getType() == Material.STAINED_GLASS_PANE || item.getType() == Material.BARRIER)) {
-            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-                return item.getItemMeta().getDisplayName().equals(ChatColor.RESET.toString());
+    public boolean isItemWildcardOrBarrier(ItemStack item) {
+        if (item != null) {
+            switch (item.getType()) {
+                case GRAY_STAINED_GLASS_PANE:
+                case BLACK_STAINED_GLASS_PANE:
+                case RED_STAINED_GLASS_PANE:
+                case BLUE_STAINED_GLASS_PANE:
+                case LIME_STAINED_GLASS_PANE:
+                case WHITE_STAINED_GLASS_PANE:
+                case YELLOW_STAINED_GLASS_PANE:
+                case BROWN_STAINED_GLASS_PANE:
+                case CYAN_STAINED_GLASS_PANE:
+                case GREEN_STAINED_GLASS_PANE:
+                case LIGHT_BLUE_STAINED_GLASS_PANE:
+                case LIGHT_GRAY_STAINED_GLASS_PANE:
+                case MAGENTA_STAINED_GLASS_PANE:
+                case ORANGE_STAINED_GLASS_PANE:
+                case PINK_STAINED_GLASS_PANE:
+                case PURPLE_STAINED_GLASS_PANE:
+                case BARRIER:
+                    if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+                        return item.getItemMeta().getDisplayName().equals(ChatColor.RESET.toString());
+                    }
+                default:
+                    return false;
             }
         }
         return false;
@@ -175,19 +197,19 @@ public class ItemService {
         return itemStack;
     }
 
-    public ShapedRecipe createShapedRecipe(ItemStack resultItem, String[] shape, Object... ingredientMap) {
-        ShapedRecipe recipe = new ShapedRecipe(resultItem);
+    public ShapedRecipe createShapedRecipe(TransportPipes transportPipes, String recipeKey, ItemStack resultItem, String[] shape, Object... ingredientMap) {
+        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(transportPipes, recipeKey), resultItem);
         recipe.shape(shape);
         for (int i = 0; i < ingredientMap.length; i += 2) {
             char c = (char) ingredientMap[i];
-            MaterialData item = (MaterialData) ingredientMap[i + 1];
+            Material item = (Material) ingredientMap[i + 1];
             recipe.setIngredient(c, item);
         }
         return recipe;
     }
 
-    public ShapelessRecipe createShapelessRecipe(ItemStack resultItem, MaterialData... ingredients) {
-        ShapelessRecipe recipe = new ShapelessRecipe(resultItem);
+    public ShapelessRecipe createShapelessRecipe(TransportPipes transportPipes, String recipeKey, ItemStack resultItem, Material... ingredients) {
+        ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(transportPipes, recipeKey), resultItem);
         for (int i = 0; i < ingredients.length; i += 2) {
             recipe.addIngredient(ingredients[i]);
         }

@@ -10,10 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.InventoryHolder;
@@ -33,8 +31,7 @@ import de.robotricker.transportpipes.duct.manager.PipeManager;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
-
-import static de.robotricker.transportpipes.utils.WorldUtils.isIdContainerBlock;
+import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class TPContainerListener implements Listener {
 
@@ -46,14 +43,14 @@ public class TPContainerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (isIdContainerBlock(e.getBlockPlaced().getTypeId())) {
+        if (WorldUtils.isContainerBlock(e.getBlockPlaced().getType())) {
             updateContainerBlock(e.getBlock(), true, true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-        if (isIdContainerBlock(e.getBlock().getTypeId())) {
+        if (WorldUtils.isContainerBlock(e.getBlock().getType())) {
             updateContainerBlock(e.getBlock(), false, true);
         }
     }
@@ -61,7 +58,7 @@ public class TPContainerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent e) {
         for (Block b : e.blockList()) {
-            if (isIdContainerBlock(b.getTypeId())) {
+            if (WorldUtils.isContainerBlock(b.getType())) {
                 updateContainerBlock(b, false, true);
             }
         }
@@ -70,7 +67,7 @@ public class TPContainerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent e) {
         for (Block b : e.blockList()) {
-            if (isIdContainerBlock(b.getTypeId())) {
+            if (WorldUtils.isContainerBlock(b.getType())) {
                 updateContainerBlock(b, false, true);
             }
         }
@@ -169,7 +166,7 @@ public class TPContainerListener implements Listener {
 
         if (loadedChunk.getTileEntities() != null) {
             for (BlockState bs : loadedChunk.getTileEntities()) {
-                if (isIdContainerBlock(bs.getTypeId())) {
+                if (WorldUtils.isContainerBlock(bs.getType())) {
 
                     //automatically ignores this block if it is already registered as container block
                     updateContainerBlock(bs.getBlock(), true, !onServerStart);

@@ -36,7 +36,7 @@ public class BrewingStandContainer extends BlockContainer {
         if (isInvLocked(cachedBrewingStand)) {
             return null;
         }
-        if (extractDirection != TPDirection.DOWN && cachedBrewingStand.getBrewingTime() == 0) {
+        if (extractDirection != TPDirection.DOWN && ((BrewingStand) block.getState()).getBrewingTime() == 0) {
             ItemStack takeItem = null;
             if (itemFilter.applyFilter(cachedInv.getItem(0)) > 0) {
                 takeItem = cachedInv.getItem(0);
@@ -80,7 +80,7 @@ public class BrewingStandContainer extends BlockContainer {
             if (insertion == null || insertion.getAmount() == 0) {
                 insertion = null;
             }
-        } else if (isBrewingIngredient(insertion)) {
+        } else if (isBrewingIngredient(insertion.getType())) {
             ItemStack oldIngredient = cachedInv.getIngredient();
             cachedInv.setIngredient(accumulateItems(oldIngredient, insertion));
             if (insertion == null || insertion.getAmount() == 0) {
@@ -103,7 +103,7 @@ public class BrewingStandContainer extends BlockContainer {
             }
         } else if (insertDirection.isSide() && insertion.getType() == Material.BLAZE_POWDER) {
             return spaceForItem(cachedInv.getFuel(), insertion);
-        } else if (isBrewingIngredient(insertion)) {
+        } else if (isBrewingIngredient(insertion.getType())) {
             return spaceForItem(cachedInv.getIngredient(), insertion);
         } else {
             return 0;
@@ -116,50 +116,28 @@ public class BrewingStandContainer extends BlockContainer {
         this.cachedInv = cachedBrewingStand.getInventory();
     }
 
-    private static boolean isBrewingIngredient(ItemStack item) {
-        if (item.getType() == Material.NETHER_STALK) {
-            return true;
+    private static boolean isBrewingIngredient(Material material) {
+        switch(material) {
+            case NETHER_WART:
+            case REDSTONE:
+            case GLOWSTONE_DUST:
+            case FERMENTED_SPIDER_EYE:
+            case GUNPOWDER:
+            case DRAGON_BREATH:
+            case GHAST_TEAR:
+            case GLISTERING_MELON_SLICE:
+            case GOLDEN_CARROT:
+            case RABBIT_FOOT:
+            case PUFFERFISH:
+            case BLAZE_POWDER:
+            case MAGMA_CREAM:
+            case PHANTOM_MEMBRANE:
+            case TURTLE_HELMET:
+            case SPIDER_EYE:
+            case SUGAR:
+                return true;
+            default: return false;
         }
-        if (item.getType() == Material.SPECKLED_MELON) {
-            return true;
-        }
-        if (item.getType() == Material.GHAST_TEAR) {
-            return true;
-        }
-        if (item.getType() == Material.RABBIT_FOOT) {
-            return true;
-        }
-        if (item.getType() == Material.BLAZE_POWDER) {
-            return true;
-        }
-        if (item.getType() == Material.SPIDER_EYE) {
-            return true;
-        }
-        if (item.getType() == Material.SUGAR) {
-            return true;
-        }
-        if (item.getType() == Material.MAGMA_CREAM) {
-            return true;
-        }
-        if (item.getType() == Material.GLOWSTONE_DUST) {
-            return true;
-        }
-        if (item.getType() == Material.REDSTONE) {
-            return true;
-        }
-        if (item.getType() == Material.FERMENTED_SPIDER_EYE) {
-            return true;
-        }
-        if (item.getType() == Material.GOLDEN_CARROT) {
-            return true;
-        }
-        if (item.getType() == Material.RAW_FISH && item.getData().getData() == 3) {
-            return true;
-        }
-        if (item.getType() == Material.SULPHUR) {
-            return true;
-        }
-        return false;
     }
 
 }

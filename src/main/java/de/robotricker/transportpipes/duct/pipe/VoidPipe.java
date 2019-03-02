@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes.duct.pipe;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 
 import java.util.List;
@@ -27,8 +28,8 @@ public class VoidPipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[] { 49, 0 };
+    public Material getBreakParticleData() {
+        return Material.OBSIDIAN;
     }
 
 }
