@@ -2,10 +2,8 @@ package de.robotricker.transportpipes.duct.pipe.filter;
 
 public enum FilterStrictness {
 
-    TYPE("Item Type"),
-    TYPE_DAMAGE("Item Type and Damage"),
-    TYPE_METADATA("Item Type and Metadata"),
-    TYPE_DAMAGE_METADATA("Item Type, Damage and Metadata");
+    MATERIAL("Item Material"),
+    MATERIAL_METADATA("Item Material and Metadata");
 
     private String displayName;
 

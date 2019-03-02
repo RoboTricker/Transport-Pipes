@@ -5,7 +5,7 @@ import net.querz.nbt.ListTag;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -53,8 +53,8 @@ public class GoldenPipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[]{41, 0};
+    public Material getBreakParticleData() {
+        return Material.GOLD_BLOCK;
     }
 
     @Override
@@ -97,27 +97,33 @@ public class GoldenPipe extends Pipe {
 
     public enum Color {
 
-        BLUE(DyeColor.BLUE, ChatColor.BLUE, "Blue", TPDirection.EAST),
-        YELLOW(DyeColor.YELLOW, ChatColor.YELLOW, "Yellow", TPDirection.WEST),
-        RED(DyeColor.RED, ChatColor.RED, "Red", TPDirection.SOUTH),
-        WHITE(DyeColor.WHITE, ChatColor.WHITE, "White", TPDirection.NORTH),
-        GREEN(DyeColor.LIME, ChatColor.GREEN, "Green", TPDirection.UP),
-        BLACK(DyeColor.BLACK, ChatColor.BLACK, "Black", TPDirection.DOWN);
+        BLUE(Material.BLUE_WOOL, Material.BLUE_STAINED_GLASS_PANE, ChatColor.BLUE, "Blue", TPDirection.EAST),
+        YELLOW(Material.YELLOW_WOOL, Material.YELLOW_STAINED_GLASS_PANE, ChatColor.YELLOW, "Yellow", TPDirection.WEST),
+        RED(Material.RED_WOOL, Material.RED_STAINED_GLASS_PANE, ChatColor.RED, "Red", TPDirection.SOUTH),
+        WHITE(Material.WHITE_WOOL, Material.WHITE_STAINED_GLASS_PANE, ChatColor.WHITE, "White", TPDirection.NORTH),
+        GREEN(Material.LIME_WOOL, Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN, "Green", TPDirection.UP),
+        BLACK(Material.BLACK_WOOL, Material.BLACK_STAINED_GLASS_PANE, ChatColor.BLACK, "Black", TPDirection.DOWN);
 
-        private DyeColor dyeColor;
+        private Material woolMaterial;
+        private Material glassPaneMaterial;
         private ChatColor chatColor;
         private String displayName;
         private TPDirection direction;
 
-        Color(DyeColor dyeColor, ChatColor chatColor, String displayName, TPDirection direction) {
-            this.dyeColor = dyeColor;
+        Color(Material woolMaterial, Material glassPaneMaterial, ChatColor chatColor, String displayName, TPDirection direction) {
+            this.woolMaterial = woolMaterial;
+            this.glassPaneMaterial = glassPaneMaterial;
             this.chatColor = chatColor;
             this.displayName = displayName;
             this.direction = direction;
         }
 
-        public DyeColor getDyeColor() {
-            return dyeColor;
+        public Material getWoolMaterial() {
+            return woolMaterial;
+        }
+
+        public Material getGlassPaneMaterial() {
+            return glassPaneMaterial;
         }
 
         public ChatColor getChatColor() {

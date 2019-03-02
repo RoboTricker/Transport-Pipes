@@ -5,12 +5,19 @@ import net.querz.nbt.ListTag;
 import net.querz.nbt.StringTag;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +40,7 @@ import de.robotricker.transportpipes.location.TPDirection;
 public class CraftingPipe extends Pipe {
 
     private ItemData[] recipeItems;
-    private ItemStack resultItem;
+    private Recipe recipe;
     private TPDirection outputDir;
     private List<ItemStack> cachedItems;
 
@@ -62,12 +69,26 @@ public class CraftingPipe extends Pipe {
     }
 
     public void performCrafting(PipeManager pipeManager, TransportPipes transportPipes) {
-        if (outputDir != null && getResultItem() != null) {
-            ItemStack resultItem = getResultItem();
+        if (outputDir != null && recipe != null) {
+            ItemStack resultItem = recipe.getResult();
 
-            //remove ingredients from cachedItems
-            List<ItemData> neededIngredients = new ArrayList<>(Arrays.asList(recipeItems));
-            neededIngredients.removeIf(Objects::isNull);
+            List<RecipeChoice> ingredients = new ArrayList<>();
+            if (recipe instanceof ShapelessRecipe) {
+                ingredients.addAll(((ShapelessRecipe) recipe).getChoiceList());
+            } else if (recipe instanceof ShapedRecipe) {
+                Map<Character, Integer> charCounts = new HashMap<>();
+                for (String row : ((ShapedRecipe) recipe).getShape()) {
+                    for (char c : row.toCharArray()) {
+                        charCounts.put(c, charCounts.getOrDefault(c, 0) + 1);
+                    }
+                }
+                for (Character c : charCounts.keySet()) {
+                    RecipeChoice ingredientChoice = ((ShapedRecipe) recipe).getChoiceMap().get(c);
+                    if (ingredientChoice != null) {
+                        ingredients.addAll(Collections.nCopies(charCounts.get(c), ingredientChoice));
+                    }
+                }
+            }
 
             List<ItemStack> cachedItems = new ArrayList<>();
             for (ItemStack cachedItem : this.cachedItems) {
@@ -75,13 +96,13 @@ public class CraftingPipe extends Pipe {
             }
 
             //iterate needed ingredients
-            Iterator<ItemData> neededIngredientsIt = neededIngredients.iterator();
+            Iterator<RecipeChoice> neededIngredientsIt = ingredients.iterator();
             while (neededIngredientsIt.hasNext()) {
-                ItemData neededIngredient = neededIngredientsIt.next();
+                RecipeChoice neededIngredient = neededIngredientsIt.next();
 
                 //iterate cached items
                 for (int i = 0; i < cachedItems.size(); i++) {
-                    if (new ItemData(cachedItems.get(i)).equals(neededIngredient)) {
+                    if (neededIngredient.test(cachedItems.get(i))) {
                         if (cachedItems.get(i).getAmount() > 1) {
                             cachedItems.get(i).setAmount(cachedItems.get(i).getAmount() - 1);
                         } else {
@@ -94,7 +115,7 @@ public class CraftingPipe extends Pipe {
 
             }
 
-            if (neededIngredients.isEmpty()) {
+            if (ingredients.isEmpty()) {
                 // update real cachedItems list
                 this.cachedItems.clear();
                 this.cachedItems.addAll(cachedItems);
@@ -144,12 +165,12 @@ public class CraftingPipe extends Pipe {
         this.outputDir = outputDir;
     }
 
-    public ItemStack getResultItem() {
-        return resultItem;
+    public Recipe getRecipe() {
+        return recipe;
     }
 
-    public void setResultItem(ItemStack resultItem) {
-        this.resultItem = resultItem;
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
     }
 
     public List<ItemStack> getCachedItems() {
@@ -208,8 +229,8 @@ public class CraftingPipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[]{58, 0};
+    public Material getBreakParticleData() {
+        return Material.CRAFTING_TABLE;
     }
 
     @Override
@@ -263,6 +284,7 @@ public class CraftingPipe extends Pipe {
         }
 
         settingsInv.populate();
+        settingsInv.save(null);
     }
 
     @Override

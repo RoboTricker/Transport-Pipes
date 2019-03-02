@@ -3,6 +3,7 @@ package de.robotricker.transportpipes.duct.pipe;
 import net.querz.nbt.CompoundTag;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -73,8 +74,8 @@ public class IronPipe extends Pipe {
     }
 
     @Override
-    public int[] getBreakParticleData() {
-        return new int[] { 42, 0 };
+    public Material getBreakParticleData() {
+        return Material.IRON_BLOCK;
     }
 
     @Override

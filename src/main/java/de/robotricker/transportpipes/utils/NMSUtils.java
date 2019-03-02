@@ -3,12 +3,14 @@ package de.robotricker.transportpipes.utils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 
 public final class NMSUtils {
 
@@ -42,6 +44,7 @@ public final class NMSUtils {
     public static int convertYaw(float yaw) {
         try {
             Class<?> mathHelperClass = Class.forName("net.minecraft.server." + version + ".MathHelper");
+
             Method dMethod = mathHelperClass.getDeclaredMethod("d", float.class);
             return (int) dMethod.invoke(null, yaw * 256f / 360f);
         } catch (Exception e) {
@@ -55,6 +58,7 @@ public final class NMSUtils {
             return protocolVersion;
         }
         try {
+
             Class<?> serverClazz = Class.forName("net.minecraft.server." + version + ".MinecraftServer");
             Object server = MethodUtils.invokeExactStaticMethod(serverClazz, "getServer");
 
@@ -103,6 +107,7 @@ public final class NMSUtils {
 
     public static ItemStack manipulateItemStackNBT(ItemStack is, String tagName, Object tagValue, Class<?> tagType, String tagTypeName) {
         try {
+
             Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
             Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
             Class<?> nbtCompoundClass = Class.forName("net.minecraft.server." + version + ".NBTTagCompound");
@@ -196,31 +201,17 @@ public final class NMSUtils {
     }
 
     public static boolean isFurnaceBurnableItem(ItemStack item) {
-        try {
-            Class<?> recipesFurnaceClass = Class.forName("net.minecraft.server." + version + ".RecipesFurnace");
-            Class<?> nmsItemStackClass = Class.forName("net.minecraft.server." + version + ".ItemStack");
-            Class<?> craftItemStackClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
 
-            Method instanceMethod = recipesFurnaceClass.getDeclaredMethod("getInstance");
-            Method getResult = recipesFurnaceClass.getDeclaredMethod("getResult", nmsItemStackClass);
-            Method asNMSCopy = craftItemStackClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
-            Method asBukkitCopy = craftItemStackClass.getDeclaredMethod("asBukkitCopy", nmsItemStackClass);
-
-            Object recipesFurnaceObj = instanceMethod.invoke(null);
-            Object nmsItemStackObj = asNMSCopy.invoke(null, item);
-            Object resultObj = getResult.invoke(recipesFurnaceObj, nmsItemStackObj);
-
-            if (resultObj == null) {
-                return false;
-            }
-            ItemStack resultItem = (ItemStack) asBukkitCopy.invoke(null, resultObj);
-            if (resultItem.getType() != Material.AIR) {
-                return true;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        Iterator<Recipe> recipeIt = Bukkit.recipeIterator();
+        while (recipeIt.hasNext()) {
+            Recipe recipe = recipeIt.next();
+            if (!(recipe instanceof FurnaceRecipe))
+                continue;
+            if (((FurnaceRecipe) recipe).getInput().getType() != item.getType())
+                continue;
+            return true;
         }
+
         return false;
     }
 

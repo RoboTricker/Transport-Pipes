@@ -56,15 +56,15 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
 
         PlayerSettingsConf playerSettingsConf = playerSettingsService.getOrCreateSettingsConf(p);
 
-        ItemStack decreaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
+        ItemStack decreaseBtn = new ItemStack(Material.SUNFLOWER);
         itemService.changeDisplayNameAndLore(decreaseBtn, "§6Decrease Render Distance");
-        ItemStack increaseBtn = new ItemStack(Material.DOUBLE_PLANT, 1, (short) 0);
+        ItemStack increaseBtn = new ItemStack(Material.SUNFLOWER);
         itemService.changeDisplayNameAndLore(increaseBtn, "§6Increase Render Distance");
 
-        ItemStack eye = new ItemStack(Material.EYE_OF_ENDER, playerSettingsConf.getRenderDistance(), (short) 0);
+        ItemStack eye = new ItemStack(Material.ENDER_EYE, playerSettingsConf.getRenderDistance());
         itemService.changeDisplayNameAndLore(eye, "§7Render Distance (in blocks): §c" + playerSettingsConf.getRenderDistance());
 
-        ItemStack glassPane = itemService.createGlassItem(DyeColor.GRAY);
+        ItemStack glassPane = itemService.createWildcardItem(Material.GRAY_STAINED_GLASS_PANE);
 
         itemService.populateInventoryLine(inv, 0, glassPane, glassPane, decreaseBtn, glassPane, eye, glassPane, increaseBtn, glassPane, glassPane);
 
@@ -84,7 +84,7 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
         if (e.getInventory() != null && inventories.contains(e.getInventory()) && e.getWhoClicked() instanceof Player) {
-            if (itemService.isItemGlassOrBarrier(e.getCurrentItem())) {
+            if (itemService.isItemWildcardOrBarrier(e.getCurrentItem())) {
                 e.setCancelled(true);
                 return;
             }
@@ -103,7 +103,7 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
                     playerSettingsConf.setRenderDistance(after);
                     openInv(p);
                 } else {
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BASS, 1f, 1f);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
                 }
             } else if (e.getRawSlot() == 6) {
                 // increase render distance
@@ -114,7 +114,7 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
                     playerSettingsConf.setRenderDistance(after);
                     openInv(p);
                 } else {
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BASS, 1f, 1f);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
 
                 }
             } else if (e.getRawSlot() == 12) {
