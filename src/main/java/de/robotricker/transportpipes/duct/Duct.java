@@ -37,6 +37,7 @@ public abstract class Duct {
     private World world;
     private Chunk chunk;
     private Map<TPDirection, Duct> connectedDucts;
+    private boolean obfuscated;
 
     public Duct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
         this.ductType = ductType;
@@ -56,7 +57,7 @@ public abstract class Duct {
         }
     }
 
-    public void notifyClick(Player p, TPDirection face, boolean shift) {
+    public void notifyClick(Player p, boolean shift) {
         if (settingsInv != null)
             settingsInv.openInv(p);
     }
@@ -81,6 +82,14 @@ public abstract class Duct {
         if (settingsInv != null) {
             settingsInv.populate();
         }
+    }
+
+    public boolean isObfuscated() {
+        return obfuscated;
+    }
+
+    public void setObfuscated(boolean obfuscated) {
+        this.obfuscated = obfuscated;
     }
 
     public void tick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
@@ -129,9 +138,11 @@ public abstract class Duct {
     }
 
     public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        compoundTag.putBoolean("obfuscated", isObfuscated());
     }
 
     public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
+        setObfuscated(compoundTag.getBoolean("obfuscated"));
     }
 
 }
