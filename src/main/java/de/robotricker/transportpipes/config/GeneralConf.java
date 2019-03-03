@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.ResourcepackService;
+
 public class GeneralConf extends Conf {
 
     @Inject
@@ -43,7 +45,7 @@ public class GeneralConf extends Conf {
     }
 
     @SuppressWarnings("unchecked")
-    public List<String> getDisabledWorlds(){
+    public List<String> getDisabledWorlds() {
         return (List<String>) read("disabled_worlds");
     }
 
@@ -57,6 +59,18 @@ public class GeneralConf extends Conf {
 
     public String getLanguage() {
         return (String) read("language");
+    }
+
+    public ResourcepackService.ResourcepackMode getResourcepackMode() {
+        String url = (String) read("resourcepack_mode");
+        if (url == null || url.equalsIgnoreCase("default")) {
+            return ResourcepackService.ResourcepackMode.DEFAULT;
+        } else if (url.equalsIgnoreCase("none")) {
+            return ResourcepackService.ResourcepackMode.NONE;
+        } else if (url.equalsIgnoreCase("server")) {
+            return ResourcepackService.ResourcepackMode.SERVER;
+        }
+        return ResourcepackService.ResourcepackMode.DEFAULT;
     }
 
 }
