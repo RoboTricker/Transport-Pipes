@@ -1,8 +1,9 @@
 package de.robotricker.transportpipes.inventory;
 
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
+import org.bukkit.Instrument;
 import org.bukkit.Material;
+import org.bukkit.Note;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,8 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.PlayerSettingsService;
+import de.robotricker.transportpipes.ResourcepackService;
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.config.PlayerSettingsConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
@@ -39,9 +42,9 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
     @Inject
     private DuctRegister ductRegister;
     @Inject
-    private GlobalDuctManager globalDuctManager;
+    private ResourcepackService resourcepackService;
     @Inject
-    private ProtocolService protocolService;
+    private TransportPipes transportPipes;
 
     private Set<Inventory> inventories;
 
@@ -118,30 +121,27 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
 
                 }
             } else if (e.getRawSlot() == 12) {
+
+                if (resourcepackService.getResourcepackMode() == ResourcepackService.ResourcepackMode.NONE) {
+                    e.getWhoClicked().sendMessage("§cChanging the rendersystem is not possible on this server");
+                    return;
+                }
+
                 // change render system
                 String oldRenderSystemName = playerSettingsConf.getRenderSystemName();
                 String newRenderSystemName = null;
                 if (oldRenderSystemName.equalsIgnoreCase(VanillaRenderSystem.getDisplayName())) {
+                    if(resourcepackService.getResourcepackMode() == ResourcepackService.ResourcepackMode.DEFAULT && !resourcepackService.getResourcepackPlayers().contains((Player) e.getWhoClicked())) {
+                        p.closeInventory();
+                        resourcepackService.loadResourcepackForPlayer((Player) e.getWhoClicked());
+                        return;
+                    }
                     newRenderSystemName = ModelledRenderSystem.getDisplayName();
                 } else if (oldRenderSystemName.equalsIgnoreCase(ModelledRenderSystem.getDisplayName())) {
                     newRenderSystemName = VanillaRenderSystem.getDisplayName();
                 }
-                playerSettingsConf.setRenderSystemName(newRenderSystemName);
 
-                for (BaseDuctType baseDuctType : ductRegister.baseDuctTypes()) {
-                    RenderSystem oldRenderSystem = RenderSystem.getRenderSystem(oldRenderSystemName, baseDuctType);
-
-                    // switch render system
-                    synchronized (globalDuctManager.getPlayerDucts(p)) {
-                        Iterator<Duct> ductIt = globalDuctManager.getPlayerDucts(p).iterator();
-                        while (ductIt.hasNext()) {
-                            Duct nextDuct = ductIt.next();
-                            protocolService.removeASD(p, oldRenderSystem.getASDForDuct(nextDuct));
-                            ductIt.remove();
-                        }
-                    }
-
-                }
+                transportPipes.changeRenderSystem((Player) e.getWhoClicked(), newRenderSystemName);
 
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
                 openInv(p);

@@ -11,7 +11,7 @@ anticheat_plugins:
 default_pipe_render_system: vanilla
 default_show_items: true
 default_render_distance: 25
-resourcepack: default
+resourcepack_mode: default
 disabled_worlds: []
 wrench:
   item: '280:0'

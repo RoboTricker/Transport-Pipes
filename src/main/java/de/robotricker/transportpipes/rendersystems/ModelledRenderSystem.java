@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
 import de.robotricker.transportpipes.items.ItemService;
 
-public abstract class ModelledRenderSystem extends ResourcepackRenderSystem {
+public abstract class ModelledRenderSystem extends RenderSystem {
 
     public ModelledRenderSystem(BaseDuctType baseDuctType) {
         super(baseDuctType);

@@ -505,6 +505,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>fr.xephi</groupId>
+            <artifactId>authme</artifactId>
+            <version>5.4.0</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -4,10 +4,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -17,8 +19,12 @@ import co.aikar.commands.PaperCommandManager;
 import de.robotricker.transportpipes.commands.TPCommand;
 import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.config.LangConf;
+import de.robotricker.transportpipes.config.PlayerSettingsConf;
+import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.factory.PipeFactory;
+import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.manager.PipeManager;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
@@ -30,6 +36,10 @@ import de.robotricker.transportpipes.listener.TPContainerListener;
 import de.robotricker.transportpipes.listener.WorldListener;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
+import de.robotricker.transportpipes.protocol.ProtocolService;
+import de.robotricker.transportpipes.rendersystems.ModelledRenderSystem;
+import de.robotricker.transportpipes.rendersystems.RenderSystem;
+import de.robotricker.transportpipes.rendersystems.VanillaRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.saving.DiskService;
@@ -80,12 +90,12 @@ public class TransportPipes extends JavaPlugin {
         baseDuctType.setVanillaRenderSystem(injector.newInstance(VanillaPipeRenderSystem.class));
 
         //Register listeners
-        TPContainerListener tpContainerListener = injector.getSingleton(TPContainerListener.class);
+        Bukkit.getPluginManager().registerEvents(injector.getSingleton(TPContainerListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(DuctListener.class), this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(WorldListener.class), this);
-        Bukkit.getPluginManager().registerEvents(tpContainerListener, this);
         Bukkit.getPluginManager().registerEvents(injector.getSingleton(PlayerSettingsInventory.class), this);
+        Bukkit.getPluginManager().registerEvents(injector.getSingleton(ResourcepackService.class), this);
 
         //Register commands
         PaperCommandManager commandManager = new PaperCommandManager(this);
@@ -97,6 +107,7 @@ public class TransportPipes extends JavaPlugin {
 
         diskService = injector.getSingleton(DiskService.class);
 
+        TPContainerListener tpContainerListener = injector.getSingleton(TPContainerListener.class);
         runTaskSync(() -> {
             for (World world : Bukkit.getWorlds()) {
                 for (Chunk loadedChunk : world.getLoadedChunks()) {
@@ -158,6 +169,35 @@ public class TransportPipes extends JavaPlugin {
 
     public Injector getInjector() {
         return injector;
+    }
+
+    public void changeRenderSystem(Player p, String newRenderSystemName) {
+        PlayerSettingsConf playerSettingsConf = injector.getSingleton(PlayerSettingsService.class).getOrCreateSettingsConf(p);
+        DuctRegister ductRegister = injector.getSingleton(DuctRegister.class);
+        GlobalDuctManager globalDuctManager = injector.getSingleton(GlobalDuctManager.class);
+        ProtocolService protocolService = injector.getSingleton(ProtocolService.class);
+
+        // change render system
+        String oldRenderSystemName = playerSettingsConf.getRenderSystemName();
+        if (oldRenderSystemName.equalsIgnoreCase(newRenderSystemName)) {
+            return;
+        }
+        playerSettingsConf.setRenderSystemName(newRenderSystemName);
+
+        for (BaseDuctType baseDuctType : ductRegister.baseDuctTypes()) {
+            RenderSystem oldRenderSystem = RenderSystem.getRenderSystem(oldRenderSystemName, baseDuctType);
+
+            // switch render system
+            synchronized (globalDuctManager.getPlayerDucts(p)) {
+                Iterator<Duct> ductIt = globalDuctManager.getPlayerDucts(p).iterator();
+                while (ductIt.hasNext()) {
+                    Duct nextDuct = ductIt.next();
+                    protocolService.removeASD(p, oldRenderSystem.getASDForDuct(nextDuct));
+                    ductIt.remove();
+                }
+            }
+
+        }
     }
 
     public long convertVersionToLong(String version) {
