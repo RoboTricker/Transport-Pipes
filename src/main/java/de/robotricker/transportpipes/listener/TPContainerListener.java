@@ -11,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPistonEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -43,32 +44,37 @@ public class TPContainerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (WorldUtils.isContainerBlock(e.getBlockPlaced().getType())) {
-            updateContainerBlock(e.getBlock(), true, true);
-        }
+        notifyBlockUpdate(e.getBlock(), true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-        if (WorldUtils.isContainerBlock(e.getBlock().getType())) {
-            updateContainerBlock(e.getBlock(), false, true);
-        }
+        notifyBlockUpdate(e.getBlock(), false);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent e) {
         for (Block b : e.blockList()) {
-            if (WorldUtils.isContainerBlock(b.getType())) {
-                updateContainerBlock(b, false, true);
-            }
+            notifyBlockUpdate(b, false);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent e) {
         for (Block b : e.blockList()) {
-            if (WorldUtils.isContainerBlock(b.getType())) {
-                updateContainerBlock(b, false, true);
+            notifyBlockUpdate(b, false);
+        }
+    }
+
+    private void notifyBlockUpdate(Block block, boolean place) {
+        if (WorldUtils.isContainerBlock(block.getType())) {
+            updateContainerBlock(block, place, true);
+        }
+        if (!place) {
+            //undo obfuscation
+            Duct duct = globalDuctManager.getDuctAtLoc(block.getLocation());
+            if (duct != null) {
+                duct.setObfuscated(false);
             }
         }
     }

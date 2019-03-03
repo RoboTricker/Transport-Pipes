@@ -151,6 +151,7 @@ public class DuctListener implements Listener {
             }
         } else if (e.getHand() == EquipmentSlot.OFF_HAND) {
             if (interactions.containsKey(p) && interactions.get(p) == null) {
+                e.setCancelled(true);
                 return;
             }
             if (interactions.containsKey(p)) {
@@ -177,16 +178,37 @@ public class DuctListener implements Listener {
                 DuctType itemDuctType = itemService.readDuctNBTTags(interaction.item, ductRegister);
                 boolean manualPlaceable = itemDuctType != null || interaction.item.getType().isSolid();
 
-                if (interaction.item.isSimilar(itemService.getWrench()) && clickedDuct != null) {
-
+                // ********************** WRENCH CLICK ****************************
+                if (clickedDuct != null && interaction.item.isSimilar(itemService.getWrench())) {
                     //wrench click
-                    clickedDuct.notifyClick(interaction.p, TPDirection.fromBlockFace(interaction.blockFace), interaction.p.isSneaking());
+                    clickedDuct.notifyClick(interaction.p, interaction.p.isSneaking());
 
                     interaction.cancel = true;
                     interaction.successful = true;
                     return;
                 }
 
+                // ********************** DUCT OBFUSCATION ****************************
+                if (clickedDuct != null && !interaction.p.isSneaking() && canBeUsedToObfuscate(interaction.item.getType())) {
+                    // block can be used to obfuscate and player is not sneaking
+                    // this block will be used to obfuscate the duct
+                    Block ductBlock = clickedDuct.getBlockLoc().toBlock(interaction.p.getWorld());
+                    if (buildAllowed(interaction.p, ductBlock)) {
+
+                        BlockData bd = interaction.item.getType().createBlockData();
+                        setDirectionalBlockFace(ductBlock.getLocation(), bd, interaction.p);
+                        ductBlock.setBlockData(bd, true);
+                        clickedDuct.setObfuscated(true);
+
+                        decreaseHandItem(interaction.p, interaction.hand);
+                    }
+
+                    interaction.cancel = true;
+                    interaction.successful = true;
+                    return;
+                }
+
+                // ********************** PREPARATIONS FOR DUCT / BLOCK PLACE ****************************
                 Block placeBlock = null;
                 if (clickedDuct != null) {
                     placeBlock = HitboxUtils.getRelativeBlockOfDuct(globalDuctManager, interaction.p, clickedDuct.getBlockLoc().toBlock(interaction.p.getWorld()));
@@ -205,6 +227,7 @@ public class DuctListener implements Listener {
                     return;
                 }
 
+                // ********************** DUCT AND BLOCK PLACE ****************************
                 if (manualPlaceable) {
                     if (itemDuctType != null) {
 
@@ -233,7 +256,7 @@ public class DuctListener implements Listener {
                         interaction.cancel = true;
                         interaction.successful = true;
                     } else if (clickedDuct != null) {
-                        //block placement
+                        //block placement next to duct
                         if (buildAllowed(interaction.p, placeBlock)) {
 
                             BlockData bd = interaction.item.getType().createBlockData();
@@ -268,6 +291,10 @@ public class DuctListener implements Listener {
                 interaction.successful = true;
             }
         }
+    }
+
+    private boolean canBeUsedToObfuscate(Material type) {
+        return type.isOccluding() && !type.isInteractable() && !type.hasGravity();
     }
 
     private void setDirectionalBlockFace(Location b, BlockData bd, Player p) {

@@ -33,8 +33,8 @@ public class IronPipe extends Pipe {
     }
 
     @Override
-    public void notifyClick(Player p, TPDirection face, boolean shift) {
-        super.notifyClick(p, face, shift);
+    public void notifyClick(Player p, boolean shift) {
+        super.notifyClick(p, shift);
         cycleOutputDirection();
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
     }

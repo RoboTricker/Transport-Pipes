@@ -123,7 +123,7 @@ public class ThreadService extends Thread {
                     for (Duct duct : ductMap.values()) {
                         List<Player> playerList = WorldUtils.getPlayerList(world);
                         for (Player worldPlayer : playerList) {
-                            if (duct.getBlockLoc().toLocation(world).distance(worldPlayer.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
+                            if (duct.getBlockLoc().toLocation(world).distance(worldPlayer.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE && !duct.isObfuscated()) {
                                 // spawn globalDuctManager if not there
                                 duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctShown(duct, worldPlayer);
                             } else {
