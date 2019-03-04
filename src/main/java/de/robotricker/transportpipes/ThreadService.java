@@ -1,6 +1,7 @@
 package de.robotricker.transportpipes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
+import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
@@ -34,13 +36,14 @@ public class ThreadService extends Thread {
     private ProtocolService protocol;
     private GlobalDuctManager globalDuctManager;
     private DuctRegister ductRegister;
+    private ItemService itemService;
 
     private boolean running = false;
     private int preferredTPS = 10;
     private int currentTPS = 0;
 
     @Inject
-    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, GlobalDuctManager globalDuctManager, DuctRegister ductRegister) {
+    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, GlobalDuctManager globalDuctManager, DuctRegister ductRegister, ItemService itemService) {
         super("TransportPipes-Thread");
         this.plugin = plugin;
         this.logger = logger;
@@ -48,9 +51,10 @@ public class ThreadService extends Thread {
         this.protocol = protocol;
         this.globalDuctManager = globalDuctManager;
         this.ductRegister = ductRegister;
+        this.itemService = itemService;
         this.tasks = Collections.synchronizedMap(new LinkedHashMap<>());
 
-        Bukkit.getScheduler().runTaskTimer(plugin, this::tickDuctSpawnAndDespawn, 20L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, (Runnable) this::tickDuctSpawnAndDespawn, 20L, 20L);
     }
 
     @Override
@@ -115,25 +119,42 @@ public class ThreadService extends Thread {
         globalDuctManager.tick();
     }
 
+    /**
+     * does the same as tickDuctSpawnAndDespawn(Duct duct) but for all ducts in all worlds
+     */
     private void tickDuctSpawnAndDespawn() {
         synchronized (globalDuctManager.getDucts()) {
             for (World world : Bukkit.getWorlds()) {
                 Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(world);
                 if (ductMap != null) {
                     for (Duct duct : ductMap.values()) {
-                        List<Player> playerList = WorldUtils.getPlayerList(world);
-                        for (Player worldPlayer : playerList) {
-                            if (duct.getBlockLoc().toLocation(world).distance(worldPlayer.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE && !duct.isObfuscated()) {
-                                // spawn globalDuctManager if not there
-                                duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctShown(duct, worldPlayer);
-                            } else {
-                                // despawn globalDuctManager if there
-                                duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctHidden(duct, worldPlayer);
-                            }
-                        }
+                        tickDuctSpawnAndDespawn(duct);
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * does the same as tickDuctSpawnAndDespawn(Duct duct, Player p) but for all players in the duct's world
+     */
+    public void tickDuctSpawnAndDespawn(Duct duct) {
+        List<Player> playerList = WorldUtils.getPlayerList(duct.getWorld());
+        for (Player worldPlayer : playerList) {
+            tickDuctSpawnAndDespawn(duct, worldPlayer);
+        }
+    }
+
+    /**
+     * sync method which checks if the given duct should be visible or not for the given player and shows / hides the duct
+     */
+    public void tickDuctSpawnAndDespawn(Duct duct, Player p) {
+        if (duct.getBlockLoc().toLocation(duct.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE && (duct.obfuscatedWith() == null || duct.getBlockLoc().toBlock(duct.getWorld()).getType() == Material.BARRIER)) {
+            // spawn globalDuctManager if not there
+            duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctShown(duct, p);
+        } else {
+            // despawn globalDuctManager if there
+            duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctHidden(duct, p);
         }
     }
 

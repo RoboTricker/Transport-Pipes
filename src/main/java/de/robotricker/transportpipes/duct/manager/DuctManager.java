@@ -1,5 +1,10 @@
 package de.robotricker.transportpipes.duct.manager;
 
+import com.comphenix.packetwrapper.WrapperPlayServerBlockChange;
+import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.WrappedBlockData;
+
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;
@@ -37,16 +42,18 @@ public abstract class DuctManager<T extends Duct> {
      * called inside the bukkit thread whenever a duct comes into visible range
      */
     public void notifyDuctShown(Duct duct, Player p) {
-        if (globalDuctManager.getPlayerDucts(p).add(duct))
+        if (globalDuctManager.getPlayerDucts(p).add(duct)) {
             protocolService.sendASD(p, duct.getBlockLoc(), globalDuctManager.getPlayerRenderSystem(p, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+        }
     }
 
     /**
      * called inside the bukkit thread whenever a duct gets outside of the visible range
      */
     public void notifyDuctHidden(Duct duct, Player p) {
-        if (globalDuctManager.getPlayerDucts(p).remove(duct))
+        if (globalDuctManager.getPlayerDucts(p).remove(duct)) {
             protocolService.removeASD(p, globalDuctManager.getPlayerRenderSystem(p, duct.getDuctType().getBaseDuctType()).getASDForDuct(duct));
+        }
     }
 
     public void updateNonDuctConnections(Duct duct) {

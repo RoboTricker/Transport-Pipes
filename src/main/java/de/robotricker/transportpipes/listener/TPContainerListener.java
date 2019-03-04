@@ -11,7 +11,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPistonEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -74,7 +73,7 @@ public class TPContainerListener implements Listener {
             //undo obfuscation
             Duct duct = globalDuctManager.getDuctAtLoc(block.getLocation());
             if (duct != null) {
-                duct.setObfuscated(false);
+                duct.obfuscatedWith(null);
             }
         }
     }
