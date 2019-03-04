@@ -8,6 +8,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -37,7 +38,7 @@ public abstract class Duct {
     private World world;
     private Chunk chunk;
     private Map<TPDirection, Duct> connectedDucts;
-    private boolean obfuscated;
+    private BlockData obfuscatedWith;
 
     public Duct(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager) {
         this.ductType = ductType;
@@ -84,12 +85,12 @@ public abstract class Duct {
         }
     }
 
-    public boolean isObfuscated() {
-        return obfuscated;
+    public BlockData obfuscatedWith() {
+        return obfuscatedWith;
     }
 
-    public void setObfuscated(boolean obfuscated) {
-        this.obfuscated = obfuscated;
+    public void obfuscatedWith(BlockData obfuscatedWith) {
+        this.obfuscatedWith = obfuscatedWith;
     }
 
     public void tick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
@@ -138,11 +139,19 @@ public abstract class Duct {
     }
 
     public void saveToNBTTag(CompoundTag compoundTag, ItemService itemService) {
-        compoundTag.putBoolean("obfuscated", isObfuscated());
+        if (obfuscatedWith != null) {
+            compoundTag.putString("obfuscatedWith", obfuscatedWith.getAsString());
+        }
     }
 
     public void loadFromNBTTag(CompoundTag compoundTag, ItemService itemService) {
-        setObfuscated(compoundTag.getBoolean("obfuscated"));
+        if (compoundTag.containsKey("obfuscatedWith")) {
+            obfuscatedWith = Bukkit.createBlockData(compoundTag.getString("obfuscatedWith"));
+            // replace barrier block with real obfuscation block
+            if (getBlockLoc().toBlock(getWorld()).getType() == Material.BARRIER) {
+                getBlockLoc().toBlock(getWorld()).setBlockData(obfuscatedWith);
+            }
+        }
     }
 
 }

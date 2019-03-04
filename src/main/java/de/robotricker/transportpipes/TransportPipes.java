@@ -76,13 +76,13 @@ public class TransportPipes extends JavaPlugin {
         sentry.injectThread(Thread.currentThread());
         sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "enabling plugin");
 
-        //Initialize thread
-        thread = injector.getSingleton(ThreadService.class);
-        thread.start();
-
         //Initialize configs
         injector.getSingleton(GeneralConf.class);
         injector.register(LangConf.class, new LangConf(this, injector.getSingleton(GeneralConf.class).getLanguage()));
+
+        //Initialize thread
+        thread = injector.getSingleton(ThreadService.class);
+        thread.start();
 
         //Register pipe
         BaseDuctType<Pipe> baseDuctType = injector.getSingleton(DuctRegister.class).registerBaseDuctType("Pipe", PipeManager.class, PipeFactory.class, PipeItemManager.class);

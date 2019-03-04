@@ -24,12 +24,16 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.ThreadService;
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
@@ -39,57 +43,13 @@ import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.log.SentryService;
+import de.robotricker.transportpipes.utils.Constants;
 import de.robotricker.transportpipes.utils.HitboxUtils;
 import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class DuctListener implements Listener {
 
     private final List<Material> interactables = new ArrayList<>();
-//            Arrays.asList(
-//            Material.ACACIA_DOOR,
-//            Material.ACACIA_FENCE_GATE,
-//            Material.ANVIL,
-//            Material.BEACON,
-//            Material.BED,
-//            Material.BIRCH_DOOR,
-//            Material.BIRCH_FENCE_GATE,
-//            Material.BOAT,
-//            Material.BOAT_ACACIA,
-//            Material.BOAT_BIRCH,
-//            Material.BOAT_DARK_OAK,
-//            Material.BOAT_JUNGLE,
-//            Material.BOAT_SPRUCE,
-//            Material.BREWING_STAND,
-//            Material.COMMAND,
-//            Material.CHEST,
-//            Material.DARK_OAK_DOOR,
-//            Material.DARK_OAK_FENCE_GATE,
-//            Material.DAYLIGHT_DETECTOR,
-//            Material.DAYLIGHT_DETECTOR_INVERTED,
-//            Material.DISPENSER,
-//            Material.DROPPER,
-//            Material.ENCHANTMENT_TABLE,
-//            Material.ENDER_CHEST,
-//            Material.FENCE_GATE,
-//            Material.FURNACE,
-//            Material.HOPPER,
-//            Material.HOPPER_MINECART,
-//            Material.ITEM_FRAME,
-//            Material.JUNGLE_DOOR,
-//            Material.JUNGLE_FENCE_GATE,
-//            Material.LEVER,
-//            Material.MINECART,
-//            Material.NOTE_BLOCK,
-//            Material.POWERED_MINECART,
-//            Material.REDSTONE_COMPARATOR,
-//            Material.REDSTONE_COMPARATOR_OFF,
-//            Material.REDSTONE_COMPARATOR_ON,
-//            Material.STORAGE_MINECART,
-//            Material.TRAP_DOOR,
-//            Material.TRAPPED_CHEST,
-//            Material.WOOD_BUTTON,
-//            Material.WOOD_DOOR,
-//            Material.WOODEN_DOOR);
 
     //makes sure that "callInteraction" is called with the mainHand and with the offHand every single time
     private Map<Player, Interaction> interactions = new HashMap<>();
@@ -100,15 +60,19 @@ public class DuctListener implements Listener {
     private TPContainerListener tpContainerListener;
     private GeneralConf generalConf;
     private SentryService sentry;
+    private TransportPipes transportPipes;
+    private ThreadService threadService;
 
     @Inject
-    public DuctListener(ItemService itemService, JavaPlugin plugin, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, TPContainerListener tpContainerListener, GeneralConf generalConf, SentryService sentry) {
+    public DuctListener(ItemService itemService, JavaPlugin plugin, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, TPContainerListener tpContainerListener, GeneralConf generalConf, SentryService sentry, TransportPipes transportPipes, ThreadService threadService) {
         this.itemService = itemService;
         this.ductRegister = ductRegister;
         this.globalDuctManager = globalDuctManager;
         this.tpContainerListener = tpContainerListener;
         this.generalConf = generalConf;
         this.sentry = sentry;
+        this.transportPipes = transportPipes;
+        this.threadService = threadService;
 
         for (Material m : Material.values()) {
             if (m.isInteractable()) {
@@ -178,10 +142,48 @@ public class DuctListener implements Listener {
                 DuctType itemDuctType = itemService.readDuctNBTTags(interaction.item, ductRegister);
                 boolean manualPlaceable = itemDuctType != null || interaction.item.getType().isSolid();
 
-                // ********************** WRENCH CLICK ****************************
+                // ********************** WRENCH DUCT CLICK ****************************
                 if (clickedDuct != null && interaction.item.isSimilar(itemService.getWrench())) {
                     //wrench click
                     clickedDuct.notifyClick(interaction.p, interaction.p.isSneaking());
+
+                    interaction.cancel = true;
+                    interaction.successful = true;
+                    return;
+                }
+
+                // ********************** WRENCH NON DUCT CLICK ****************************
+                if (clickedDuct == null && interaction.item.isSimilar(itemService.getWrench())) {
+                    //wrench click
+
+                    Set<Duct> showingDucts = new HashSet<>();
+                    Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(interaction.p.getWorld());
+                    synchronized (globalDuctManager.getDucts()) {
+                        for (BlockLocation bl : ductMap.keySet()) {
+                            Duct duct = ductMap.get(bl);
+                            Block ductBlock = duct.getBlockLoc().toBlock(duct.getWorld());
+                            if(ductBlock.getLocation().distance(interaction.p.getLocation()) > Constants.DEFAULT_RENDER_DISTANCE) {
+                                continue;
+                            }
+                            if (duct.obfuscatedWith() != null && ductBlock.getBlockData().getMaterial() != Material.BARRIER) {
+                                showingDucts.add(duct);
+                                ductBlock.setBlockData(Material.BARRIER.createBlockData(), false);
+                                threadService.tickDuctSpawnAndDespawn(duct);
+                            }
+                        }
+                    }
+                    transportPipes.runTaskSyncLater(() -> {
+                        for (Duct duct : showingDucts) {
+                            if (globalDuctManager.getDuctAtLoc(duct.getWorld(), duct.getBlockLoc()) != duct) {
+                                continue;
+                            }
+                            Block ductBlock = duct.getBlockLoc().toBlock(duct.getWorld());
+                            if (ductBlock.getBlockData().getMaterial() == Material.BARRIER) {
+                                ductBlock.setBlockData(duct.obfuscatedWith() == null ? Material.AIR.createBlockData() : duct.obfuscatedWith(), false);
+                                threadService.tickDuctSpawnAndDespawn(duct);
+                            }
+                        }
+                    }, 10 * 4);
 
                     interaction.cancel = true;
                     interaction.successful = true;
@@ -198,7 +200,7 @@ public class DuctListener implements Listener {
                         BlockData bd = interaction.item.getType().createBlockData();
                         setDirectionalBlockFace(ductBlock.getLocation(), bd, interaction.p);
                         ductBlock.setBlockData(bd, true);
-                        clickedDuct.setObfuscated(true);
+                        clickedDuct.obfuscatedWith(bd);
 
                         decreaseHandItem(interaction.p, interaction.hand);
                     }
