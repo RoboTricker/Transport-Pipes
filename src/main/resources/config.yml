@@ -14,6 +14,6 @@ default_render_distance: 25
 resourcepack_mode: default
 disabled_worlds: []
 wrench:
-  item: '280:0'
+  item: STICK
   enchanted: true
 language: en
