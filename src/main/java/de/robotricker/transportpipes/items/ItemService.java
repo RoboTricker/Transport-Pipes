@@ -22,11 +22,14 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
@@ -39,8 +42,11 @@ public class ItemService {
     private YamlConfiguration tempConf;
 
     @Inject
-    public ItemService() {
-        wrench = createGlowingItem(Material.STICK);
+    public ItemService(GeneralConf generalConf) {
+        Material wrenchMaterial = Material.getMaterial(generalConf.getWrenchItem().toUpperCase(Locale.ENGLISH));
+        Objects.requireNonNull(wrenchMaterial, "The material for the wrench item set in the config file is not valid.");
+
+        wrench = generalConf.getWrenchEnchanted() ? createGlowingItem(wrenchMaterial) : new ItemStack(wrenchMaterial);
         wrench = changeDisplayName(wrench, LangConf.Key.WRENCH.get());
         tempConf = new YamlConfiguration();
     }
