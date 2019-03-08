@@ -113,7 +113,11 @@ public class ResourcepackService implements Listener {
 
     public void loadResourcepackForPlayer(Player p) {
         if (getResourcepackMode() == ResourcepackMode.DEFAULT) {
-            p.setResourcePack(URL, cachedHash);
+            if (cachedHash == null) {
+                p.setResourcePack(URL);
+            } else {
+                p.setResourcePack(URL, cachedHash);
+            }
             loadingResourcepackPlayers.add(p);
         }
     }
@@ -141,6 +145,8 @@ public class ResourcepackService implements Listener {
             }
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
+            sentry.record(e);
+        } catch (Exception e) {
             sentry.record(e);
         }
         return null;
