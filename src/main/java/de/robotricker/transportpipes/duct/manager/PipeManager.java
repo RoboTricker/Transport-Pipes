@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -99,29 +100,29 @@ public class PipeManager extends DuctManager<Pipe> {
         PipeType pipeType;
         BaseDuctType<Pipe> pipeBaseDuctType = ductRegister.baseDuctTypeOf("pipe");
 
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "White", LangConf.Key.COLORS_WHITE.get() + " " + LangConf.Key.PIPES_PIPE.get(), Material.BONE_MEAL);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "White", LangConf.Key.PIPES_WHITE.get(), Material.BONE_MEAL, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", LangConf.Key.COLORS_BLUE.get() + " " + LangConf.Key.PIPES_PIPE.get(), Material.LAPIS_LAZULI);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", LangConf.Key.PIPES_BLUE.get(), Material.LAPIS_LAZULI, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", LangConf.Key.COLORS_RED.get() + " " + LangConf.Key.PIPES_PIPE.get(), Material.ROSE_RED);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", LangConf.Key.PIPES_RED.get(), Material.ROSE_RED, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", LangConf.Key.COLORS_YELLOW.get() + " " + LangConf.Key.PIPES_PIPE.get(), Material.DANDELION_YELLOW);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", LangConf.Key.PIPES_YELLOW.get(), Material.DANDELION_YELLOW, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", LangConf.Key.COLORS_GREEN.get() + " " + LangConf.Key.PIPES_PIPE.get(), Material.CACTUS_GREEN);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", LangConf.Key.PIPES_GREEN.get(), Material.CACTUS_GREEN, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", LangConf.Key.COLORS_BLACK.get() + " " + LangConf.Key.PIPES_PIPE.get(), Material.INK_SAC);
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", LangConf.Key.PIPES_BLACK.get(), Material.INK_SAC, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Golden", LangConf.Key.PIPES_GOLDEN.get() + " " + LangConf.Key.PIPES_PIPE.get());
+        pipeType = new PipeType(pipeBaseDuctType, "Golden", LangConf.Key.PIPES_GOLDEN.get(), "transportpipes.craft.goldenpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Iron", LangConf.Key.PIPES_IRON.get() + " " + LangConf.Key.PIPES_PIPE.get());
+        pipeType = new PipeType(pipeBaseDuctType, "Iron", LangConf.Key.PIPES_IRON.get(), "transportpipes.craft.ironpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Ice", LangConf.Key.PIPES_ICE.get() + " " + LangConf.Key.PIPES_PIPE.get());
+        pipeType = new PipeType(pipeBaseDuctType, "Ice", LangConf.Key.PIPES_ICE.get(), "transportpipes.craft.icepipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Void", LangConf.Key.PIPES_VOID.get() + " " + LangConf.Key.PIPES_PIPE.get());
+        pipeType = new PipeType(pipeBaseDuctType, "Void", LangConf.Key.PIPES_VOID.get(), "transportpipes.craft.voidpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Extraction", LangConf.Key.PIPES_EXTRACTION.get() + " " + LangConf.Key.PIPES_PIPE.get());
+        pipeType = new PipeType(pipeBaseDuctType, "Extraction", LangConf.Key.PIPES_EXTRACTION.get(), "transportpipes.craft.extractionpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new PipeType(pipeBaseDuctType, "Crafting", LangConf.Key.PIPES_CRAFTING.get() + " " + LangConf.Key.PIPES_PIPE.get());
+        pipeType = new PipeType(pipeBaseDuctType, "Crafting", LangConf.Key.PIPES_CRAFTING.get(), "transportpipes.craft.craftingpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
 
         //connect correctly
@@ -167,7 +168,7 @@ public class PipeManager extends DuctManager<Pipe> {
         ductType = pipeBaseDuctType.ductTypeOf("Void");
         ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "void_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.OBSIDIAN));
         ductType = pipeBaseDuctType.ductTypeOf("Extraction");
-        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "extraction_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.OAK_PLANKS));
+        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "extraction_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Tag.PLANKS.getValues()));
         ductType = pipeBaseDuctType.ductTypeOf("Crafting");
         ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "crafting_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.CRAFTING_TABLE));
 

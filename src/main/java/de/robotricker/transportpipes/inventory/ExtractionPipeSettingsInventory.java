@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.filter.FilterMode;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemData;
@@ -23,7 +24,7 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
 
     @Override
     public void create() {
-        inv = Bukkit.createInventory(null, 3 * 9, duct.getDuctType().getFormattedTypeName() + " §rInventory");
+        inv = Bukkit.createInventory(null, 3 * 9, LangConf.Key.DUCT_INVENTORY_TITLE.get(duct.getDuctType().getFormattedTypeName()));
     }
 
     @Override
@@ -37,13 +38,13 @@ public class ExtractionPipeSettingsInventory extends DuctSettingsInventory {
         ExtractionPipe pipe = (ExtractionPipe) duct;
         TPDirection extractDir = pipe.getExtractDirection();
 
-        ItemStack extractDirection = itemService.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), extractDir != null ? "§7Extract Direction: §c" + extractDir.name() : "§7Extract Direction: §cNONE", "", "§8Click to change");
-        ItemStack extractCondition = itemService.changeDisplayNameAndLore(pipe.getExtractCondition().getDisplayItem(), "§7Extract Condition: §c" + pipe.getExtractCondition().getDisplayName(), "", "§8Click to change");
-        ItemStack extractAmount = itemService.changeDisplayNameAndLore(pipe.getExtractAmount().getDisplayItem(), "§7Extract Amount: §c" + pipe.getExtractAmount().getDisplayName(), "", "§8Click to change");
+        ItemStack extractDirection = itemService.changeDisplayNameAndLoreConfig(new ItemStack(Material.TRIPWIRE_HOOK), LangConf.Key.DUCT_INVENTORY_EXTRACTIONPIPE_EXTRACTDIRECTION.getLines(extractDir != null ? extractDir.getDisplayName() : LangConf.Key.DIRECTIONS_NONE.get()));
+        ItemStack extractCondition = itemService.changeDisplayNameAndLoreConfig(pipe.getExtractCondition().getDisplayItem(), LangConf.Key.DUCT_INVENTORY_EXTRACTIONPIPE_EXTRACTCONDITION.getLines(pipe.getExtractCondition().getDisplayName()));
+        ItemStack extractAmount = itemService.changeDisplayNameAndLoreConfig(pipe.getExtractAmount().getDisplayItem(), LangConf.Key.DUCT_INVENTORY_EXTRACTIONPIPE_EXTRACTAMOUNT.getLines(pipe.getExtractAmount().getDisplayName()));
 
-        ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(Material.WHITE_WOOL), "§6Extraction Filter", "§7Filter Mode: §c" + pipe.getItemFilter().getFilterMode().getDisplayName(), "§7Filter Strictness: §c" + pipe.getItemFilter().getFilterStrictness().getDisplayName(), "", "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
-        ItemStack scrollLeft = itemService.changeDisplayName(itemService.createHeadItem("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), "§6<<");
-        ItemStack scrollRight = itemService.changeDisplayName(itemService.createHeadItem("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), "§6>>");
+        ItemStack wool = itemService.changeDisplayNameAndLoreConfig(new ItemStack(Material.WHITE_WOOL), LangConf.Key.DUCT_INVENTORY_EXTRACTIONPIPE_FILTERTITLE.get(), LangConf.Key.DUCT_INVENTORY_FILTER_MODE_AND_STRICTNESS.getLines(pipe.getItemFilter().getFilterMode().getDisplayName(), pipe.getItemFilter().getFilterStrictness().getDisplayName()));
+        ItemStack scrollLeft = itemService.changeDisplayName(itemService.createHeadItem("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), LangConf.Key.DUCT_INVENTORY_LEFTARROW.get());
+        ItemStack scrollRight = itemService.changeDisplayName(itemService.createHeadItem("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), LangConf.Key.DUCT_INVENTORY_RIGHTARROW.get());
 
         // basic settings
         for (int i = 0; i < 18; i++) {

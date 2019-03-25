@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
 import de.robotricker.transportpipes.duct.pipe.filter.FilterMode;
 import de.robotricker.transportpipes.duct.pipe.filter.FilterStrictness;
@@ -24,7 +25,7 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
     @Override
     public void create() {
         scrollValues = new HashMap<>();
-        inv = Bukkit.createInventory(null, 6 * 9, duct.getDuctType().getFormattedTypeName() + " §rInventory");
+        inv = Bukkit.createInventory(null, 6 * 9, LangConf.Key.DUCT_INVENTORY_TITLE.get(duct.getDuctType().getFormattedTypeName()));
     }
 
     @Override
@@ -43,11 +44,11 @@ public class GoldenPipeSettingsInventory extends DuctSettingsInventory {
 
             FilterMode filterMode = pipe.getItemFilter(gpc).getFilterMode();
             FilterStrictness filterStrictness = pipe.getItemFilter(gpc).getFilterStrictness();
-            ItemStack wool = itemService.changeDisplayNameAndLore(new ItemStack(gpc.getWoolMaterial()), gpc.getChatColor().toString() + gpc.getDisplayName() + " §7output direction", "§7Filter mode: §c" + filterMode.getDisplayName(), "§7Filter strictness: §c" + filterStrictness.getDisplayName(), "", "§8Left-click to change Filter mode", "§8Right-click to change Filter strictness");
+            ItemStack wool = itemService.changeDisplayNameAndLoreConfig(new ItemStack(gpc.getWoolMaterial()), LangConf.Key.DUCT_INVENTORY_GOLDENPIPE_FILTERTITLE.get(gpc.getDisplayName()), LangConf.Key.DUCT_INVENTORY_FILTER_MODE_AND_STRICTNESS.getLines(filterMode.getDisplayName(), filterStrictness.getDisplayName()));
             ItemStack glassPane = itemService.createWildcardItem(gpc.getGlassPaneMaterial());
             ItemStack barrier = itemService.createBarrierItem();
-            ItemStack scrollLeft = itemService.changeDisplayName(itemService.createHeadItem("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), "§6<<");
-            ItemStack scrollRight = itemService.changeDisplayName(itemService.createHeadItem("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), "§6>>");
+            ItemStack scrollLeft = itemService.changeDisplayName(itemService.createHeadItem("69b9a08d-4e89-4878-8be8-551caeacbf2a", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0=", null), LangConf.Key.DUCT_INVENTORY_LEFTARROW.get());
+            ItemStack scrollRight = itemService.changeDisplayName(itemService.createHeadItem("15f49744-9b61-46af-b1c3-71c6261a0d0e", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ==", null), LangConf.Key.DUCT_INVENTORY_RIGHTARROW.get());
 
             inv.setItem(line * 9, wool);
 

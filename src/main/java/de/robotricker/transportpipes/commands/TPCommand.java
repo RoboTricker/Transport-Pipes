@@ -82,11 +82,13 @@ public class TPCommand extends BaseCommand {
     }
 
     @Subcommand("creative")
+    @CommandPermission("transportpipes.creative")
     public void onCreativeDuctInv(Player p) {
         creativeDuctInv.openInv(p);
     }
 
     @Subcommand("settings")
+    @CommandPermission("transportpipes.settings")
     public void onSettingsInv(Player p) {
         playerSettingsInventory.openInv(p);
     }
@@ -95,26 +97,6 @@ public class TPCommand extends BaseCommand {
     @Syntax("[command]")
     public void onDefault(CommandSender cs, CommandHelp help) {
         help.showHelp();
-    }
-
-    @Subcommand("reload")
-    @CommandPermission("transportpipes.reload")
-    public class ReloadCommand extends BaseCommand {
-
-        @Subcommand("config")
-        @CommandPermission("transportpipes.reload.config")
-        @Description("Reloads the config")
-        public void onReloadConfig(CommandSender cs) {
-            cs.sendMessage("reload config");
-        }
-
-        @Subcommand("duct|pipes")
-        @CommandPermission("transportpipes.reload.duct")
-        @Description("Reloads all of the duct")
-        public void onReloadDucts(CommandSender cs) {
-            cs.sendMessage("reload duct");
-        }
-
     }
 
 }

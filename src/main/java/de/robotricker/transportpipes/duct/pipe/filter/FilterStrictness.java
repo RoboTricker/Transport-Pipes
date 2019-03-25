@@ -1,9 +1,11 @@
 package de.robotricker.transportpipes.duct.pipe.filter;
 
+import de.robotricker.transportpipes.config.LangConf;
+
 public enum FilterStrictness {
 
-    MATERIAL("Item Material"),
-    MATERIAL_METADATA("Item Material and Metadata");
+    MATERIAL(LangConf.Key.FILTER_STRICTNESS_MATERIAL.get()),
+    MATERIAL_METADATA(LangConf.Key.FILTER_STRICTNESS_MATERIAL_METADATA.get());
 
     private String displayName;
 

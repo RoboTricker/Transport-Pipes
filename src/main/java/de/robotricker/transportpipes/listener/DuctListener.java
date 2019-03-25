@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import de.robotricker.transportpipes.ThreadService;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.config.GeneralConf;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
@@ -251,7 +252,7 @@ public class DuctListener implements Listener {
 
                                 decreaseHandItem(interaction.p, interaction.hand);
                             } else {
-                                interaction.p.sendMessage("§cYou cannot place a pipe next to a protected block");
+                                LangConf.Key.PROTECTED_BLOCK.sendMessage(interaction.p);
                             }
                         }
 

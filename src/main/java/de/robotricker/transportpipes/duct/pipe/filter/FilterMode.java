@@ -1,10 +1,12 @@
 package de.robotricker.transportpipes.duct.pipe.filter;
 
+import de.robotricker.transportpipes.config.LangConf;
+
 public enum FilterMode {
 
-    NORMAL("Normal"),
-    INVERTED("Inverted"),
-    BLOCK_ALL("Block all");
+    NORMAL(LangConf.Key.FILTER_MODE_NORMAL.get()),
+    INVERTED(LangConf.Key.FILTER_MODE_INVERTED.get()),
+    BLOCK_ALL(LangConf.Key.FILTER_MODE_BLOCKALL.get());
 
     private String displayName;
 

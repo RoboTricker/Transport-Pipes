@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import de.robotricker.transportpipes.PlayerSettingsService;
 import de.robotricker.transportpipes.ResourcepackService;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.config.PlayerSettingsConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
@@ -54,18 +55,18 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
 
     @Override
     Inventory create(Player p) {
-        Inventory inv = Bukkit.createInventory(null, 2 * 9, "Player Settings");
+        Inventory inv = Bukkit.createInventory(null, 2 * 9, LangConf.Key.PLAYER_SETTINGS_TITLE.get());
         inventories.add(inv);
 
         PlayerSettingsConf playerSettingsConf = playerSettingsService.getOrCreateSettingsConf(p);
 
         ItemStack decreaseBtn = new ItemStack(Material.SUNFLOWER);
-        itemService.changeDisplayNameAndLore(decreaseBtn, "§6Decrease Render Distance");
+        itemService.changeDisplayName(decreaseBtn, LangConf.Key.PLAYER_SETTINGS_DECREASE_RENDERDISTANCE.get());
         ItemStack increaseBtn = new ItemStack(Material.SUNFLOWER);
-        itemService.changeDisplayNameAndLore(increaseBtn, "§6Increase Render Distance");
+        itemService.changeDisplayName(increaseBtn, LangConf.Key.PLAYER_SETTINGS_INCREASE_RENDERDISTANCE.get());
 
         ItemStack eye = new ItemStack(Material.ENDER_EYE, playerSettingsConf.getRenderDistance());
-        itemService.changeDisplayNameAndLore(eye, "§7Render Distance (in blocks): §c" + playerSettingsConf.getRenderDistance());
+        itemService.changeDisplayNameAndLore(eye, LangConf.Key.PLAYER_SETTINGS_RENDERDISTANCE.get(playerSettingsConf.getRenderDistance()));
 
         ItemStack glassPane = itemService.createWildcardItem(Material.GRAY_STAINED_GLASS_PANE);
 
@@ -74,10 +75,10 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
         String renderSystemName = playerSettingsConf.getRenderSystemName();
 
         ItemStack renderSystemRepresentationItem = RenderSystem.getItem(renderSystemName, itemService, ductRegister);
-        itemService.changeDisplayNameAndLore(renderSystemRepresentationItem, "§7Render System: §c" + renderSystemName);
+        itemService.changeDisplayNameAndLore(renderSystemRepresentationItem, LangConf.Key.PLAYER_SETTINGS_RENDERSYSTEM.get(RenderSystem.getLocalizedRenderSystemName(renderSystemName)));
 
         boolean showItems = playerSettingsConf.isShowItems();
-        ItemStack itemVisibilityItem = showItems ? itemService.changeDisplayNameAndLore(new ItemStack(Material.GLASS), "§7Item Visibility: §cSHOW") : itemService.changeDisplayNameAndLore(new ItemStack(Material.BARRIER), "§7Item Visibility: §cHIDE");
+        ItemStack itemVisibilityItem = showItems ? itemService.changeDisplayNameAndLore(new ItemStack(Material.GLASS), LangConf.Key.PLAYER_SETTINGS_ITEM_VISIBILITY_SHOW.get()) : itemService.changeDisplayNameAndLore(new ItemStack(Material.BARRIER), LangConf.Key.PLAYER_SETTINGS_ITEM_VISIBILITY_HIDE.get());
 
         itemService.populateInventoryLine(inv, 1, glassPane, glassPane, glassPane, renderSystemRepresentationItem, glassPane, itemVisibilityItem, glassPane, glassPane, glassPane);
 
@@ -123,7 +124,7 @@ public class PlayerSettingsInventory extends IndividualInventory implements List
             } else if (e.getRawSlot() == 12) {
 
                 if (resourcepackService.getResourcepackMode() == ResourcepackService.ResourcepackMode.NONE) {
-                    e.getWhoClicked().sendMessage("§cChanging the rendersystem is not possible on this server");
+                    LangConf.Key.RENDERSYSTEM_BLOCK.sendMessage((Player) e.getWhoClicked());
                     return;
                 }
 

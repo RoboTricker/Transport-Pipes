@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemDistributorService;
@@ -97,23 +98,21 @@ public class GoldenPipe extends Pipe {
 
     public enum Color {
 
-        BLUE(Material.BLUE_WOOL, Material.BLUE_STAINED_GLASS_PANE, ChatColor.BLUE, "Blue", TPDirection.EAST),
-        YELLOW(Material.YELLOW_WOOL, Material.YELLOW_STAINED_GLASS_PANE, ChatColor.YELLOW, "Yellow", TPDirection.WEST),
-        RED(Material.RED_WOOL, Material.RED_STAINED_GLASS_PANE, ChatColor.RED, "Red", TPDirection.SOUTH),
-        WHITE(Material.WHITE_WOOL, Material.WHITE_STAINED_GLASS_PANE, ChatColor.WHITE, "White", TPDirection.NORTH),
-        GREEN(Material.LIME_WOOL, Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN, "Green", TPDirection.UP),
-        BLACK(Material.BLACK_WOOL, Material.BLACK_STAINED_GLASS_PANE, ChatColor.BLACK, "Black", TPDirection.DOWN);
+        BLUE(Material.BLUE_WOOL, Material.BLUE_STAINED_GLASS_PANE, LangConf.Key.COLORS_BLUE.get(), TPDirection.EAST),
+        YELLOW(Material.YELLOW_WOOL, Material.YELLOW_STAINED_GLASS_PANE, LangConf.Key.COLORS_YELLOW.get(), TPDirection.WEST),
+        RED(Material.RED_WOOL, Material.RED_STAINED_GLASS_PANE, LangConf.Key.COLORS_RED.get(), TPDirection.SOUTH),
+        WHITE(Material.WHITE_WOOL, Material.WHITE_STAINED_GLASS_PANE, LangConf.Key.COLORS_WHITE.get(), TPDirection.NORTH),
+        GREEN(Material.LIME_WOOL, Material.LIME_STAINED_GLASS_PANE, LangConf.Key.COLORS_GREEN.get(), TPDirection.UP),
+        BLACK(Material.BLACK_WOOL, Material.BLACK_STAINED_GLASS_PANE, LangConf.Key.COLORS_BLACK.get(), TPDirection.DOWN);
 
         private Material woolMaterial;
         private Material glassPaneMaterial;
-        private ChatColor chatColor;
         private String displayName;
         private TPDirection direction;
 
-        Color(Material woolMaterial, Material glassPaneMaterial, ChatColor chatColor, String displayName, TPDirection direction) {
+        Color(Material woolMaterial, Material glassPaneMaterial, String displayName, TPDirection direction) {
             this.woolMaterial = woolMaterial;
             this.glassPaneMaterial = glassPaneMaterial;
-            this.chatColor = chatColor;
             this.displayName = displayName;
             this.direction = direction;
         }
@@ -124,10 +123,6 @@ public class GoldenPipe extends Pipe {
 
         public Material getGlassPaneMaterial() {
             return glassPaneMaterial;
-        }
-
-        public ChatColor getChatColor() {
-            return chatColor;
         }
 
         public String getDisplayName() {

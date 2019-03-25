@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.config.GeneralConf;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.config.PlayerSettingsConf;
 import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.rendersystems.ModelledRenderSystem;
@@ -100,8 +101,7 @@ public class ResourcepackService implements Listener {
             return;
         }
         if (e.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED || e.getStatus() == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-            e.getPlayer().sendMessage("§cResourcepack Download failed!");
-            e.getPlayer().sendMessage("§cDid you enable \"Server Resourcepacks\" in your server list?");
+            LangConf.Key.RESOURCEPACK_FAIL.sendMessage(e.getPlayer());
             loadingResourcepackPlayers.remove(e.getPlayer());
         } else if (e.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
             resourcepackPlayers.add(e.getPlayer());
@@ -127,6 +127,9 @@ public class ResourcepackService implements Listener {
             URL url = new URL(resourcepackUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
+            if (connection.getContentLength() <= 0) {
+                return null;
+            }
             byte[] resourcePackBytes = new byte[connection.getContentLength()];
             InputStream in = connection.getInputStream();
 

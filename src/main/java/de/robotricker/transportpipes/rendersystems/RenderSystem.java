@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collection;
 import java.util.List;
 
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
@@ -73,12 +74,21 @@ public abstract class RenderSystem {
         return null;
     }
 
-    public static RenderSystem getRenderSystem(String renderSystemDisplayName, BaseDuctType baseDuctType) {
-        if (baseDuctType.getVanillaRenderSystem() != null && VanillaRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemDisplayName)) {
+    public static RenderSystem getRenderSystem(String renderSystemName, BaseDuctType baseDuctType) {
+        if (baseDuctType.getVanillaRenderSystem() != null && VanillaRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemName)) {
             return baseDuctType.getVanillaRenderSystem();
         }
-        if (baseDuctType.getModelledRenderSystem() != null && ModelledRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemDisplayName)) {
+        if (baseDuctType.getModelledRenderSystem() != null && ModelledRenderSystem.getDisplayName().equalsIgnoreCase(renderSystemName)) {
             return baseDuctType.getModelledRenderSystem();
+        }
+        return null;
+    }
+
+    public static String getLocalizedRenderSystemName(String renderSystemName) {
+        if (renderSystemName.equalsIgnoreCase("modelled")) {
+            return LangConf.Key.RENDERSYSTEM_NAME_MODELLED.get();
+        } else if (renderSystemName.equalsIgnoreCase("vanilla")) {
+            return LangConf.Key.RENDERSYSTEM_NAME_VANILLA.get();
         }
         return null;
     }
