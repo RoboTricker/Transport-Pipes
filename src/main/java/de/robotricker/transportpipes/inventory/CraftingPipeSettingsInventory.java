@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.duct.pipe.CraftingPipe;
 import de.robotricker.transportpipes.duct.pipe.filter.ItemData;
 import de.robotricker.transportpipes.location.TPDirection;
@@ -34,7 +35,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
 
     @Override
     public void create() {
-        inv = Bukkit.createInventory(null, 6 * 9, duct.getDuctType().getFormattedTypeName() + " §rInventory");
+        inv = Bukkit.createInventory(null, 6 * 9, LangConf.Key.DUCT_INVENTORY_TITLE.get(duct.getDuctType().getFormattedTypeName()));
     }
 
     @Override
@@ -54,7 +55,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
             inv.setItem(i, glassPane);
         }
 
-        ItemStack outputDirectionItem = itemService.changeDisplayNameAndLore(new ItemStack(Material.TRIPWIRE_HOOK), outputDir != null ? "§7Output Direction: §c" + outputDir.name() : "§7Output Direction: §cNONE", "", "§8Click to change");
+        ItemStack outputDirectionItem = itemService.changeDisplayNameAndLoreConfig(new ItemStack(Material.TRIPWIRE_HOOK), LangConf.Key.DUCT_INVENTORY_CRAFTINGPIPE_OUTPUTDIRECTION.getLines(outputDir != null ? outputDir.getDisplayName() : LangConf.Key.DIRECTIONS_NONE.get()));
         inv.setItem(8, outputDirectionItem);
 
         for (int col = 0; col < 9; col += 4) {
@@ -82,7 +83,7 @@ public class CraftingPipeSettingsInventory extends DuctSettingsInventory {
             inv.setItem(4 * 9 + i, glassPane);
         }
 
-        ItemStack retrieveItemsItem = itemService.changeDisplayNameAndLore(itemService.createHeadItem("5ca62fac-d094-4346-8361-e1dfdd970607", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzQzNzM0NmQ4YmRhNzhkNTI1ZDE5ZjU0MGE5NWU0ZTc5ZGFlZGE3OTVjYmM1YTEzMjU2MjM2MzEyY2YifX19", null), "§7Retrieve cached items", "", "§8Click to move the cached items into your inventory");
+        ItemStack retrieveItemsItem = itemService.changeDisplayNameAndLoreConfig(itemService.createHeadItem("5ca62fac-d094-4346-8361-e1dfdd970607", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzQzNzM0NmQ4YmRhNzhkNTI1ZDE5ZjU0MGE5NWU0ZTc5ZGFlZGE3OTVjYmM1YTEzMjU2MjM2MzEyY2YifX19", null), LangConf.Key.DUCT_INVENTORY_CRAFTINGPIPE_RETRIEVECACHEDITEMS.getLines());
         inv.setItem(4 * 9 + 8, retrieveItemsItem);
 
         for (int i = 0; i < 9; i++) {

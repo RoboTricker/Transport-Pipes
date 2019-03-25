@@ -3,10 +3,12 @@ package de.robotricker.transportpipes.duct.pipe.extractionpipe;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import de.robotricker.transportpipes.config.LangConf;
+
 public enum ExtractAmount {
 
-    EXTRACT_1("1", 1),
-    EXTRACT_16("16", 16);
+    EXTRACT_1(LangConf.Key.EXTRACT_AMOUNT_EXTRACT_1.get(), 1),
+    EXTRACT_16(LangConf.Key.EXTRACT_AMOUNT_EXTRACT_16.get(), 16);
 
     private String displayName;
     private ItemStack displayItem;

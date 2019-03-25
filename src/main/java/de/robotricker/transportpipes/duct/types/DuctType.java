@@ -8,6 +8,7 @@ import de.robotricker.transportpipes.duct.Duct;
 import net.querz.nbt.CompoundTag;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 
 public class DuctType {
@@ -17,11 +18,13 @@ public class DuctType {
     private String displayName;
     private Set<DuctType> connectables;
     private Recipe ductRecipe;
+    private String craftingPermission;
 
-    public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, String displayName) {
+    public DuctType(BaseDuctType<? extends Duct> baseDuctType, String name, String displayName, String craftingPermission) {
         this.baseDuctType = baseDuctType;
         this.name = name;
         this.displayName = displayName;
+        this.craftingPermission = craftingPermission;
         this.connectables = new HashSet<>();
     }
 
@@ -93,6 +96,10 @@ public class DuctType {
     public void setDuctRecipe(Recipe ductRecipe) {
         this.ductRecipe = ductRecipe;
         Bukkit.addRecipe(ductRecipe);
+    }
+
+    public boolean hasPlayerCraftingPermission(Player p) {
+        return craftingPermission == null || p.hasPermission(craftingPermission);
     }
 
     public boolean connectsTo(DuctType otherDuctType) {

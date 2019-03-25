@@ -9,11 +9,15 @@ permissions:
   transportpipes.*:
     children:
       transportpipes.tps: true
-      transportpipes.reload: true
       transportpipes.creative: true
-      transportpipes.save: true
-      transportpipes.delete: true
-      transportpipes.craft: true
+      transportpipes.settings: true
+      transportpipes.craft.*: true
+  transportpipes.tps:
+    default: op
+  transportpipes.creative:
+    default: op
+  transportpipes.settings:
+    default: true
   transportpipes.craft.*:
     default: true
     children:

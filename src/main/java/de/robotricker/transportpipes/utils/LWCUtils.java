@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
@@ -59,7 +60,7 @@ public class LWCUtils extends JavaModule {
         }
 
         if (destroyedAtLeastOneDuct) {
-            e.getPlayer().sendMessage("§cYou cannot place a protected block next to a pipe");
+            LangConf.Key.PROTECTED_BLOCK.sendMessage(e.getPlayer());
         }
 
     }

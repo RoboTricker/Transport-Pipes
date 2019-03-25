@@ -13,6 +13,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.Damageable;
@@ -21,10 +22,12 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -82,10 +85,12 @@ public class ItemService {
         return is;
     }
 
-    public ItemStack changeDisplayNameAndLore(ItemStack is, String displayName, String... lore) {
+    public ItemStack changeDisplayNameAndLore(ItemStack is, String... displayNameAndLore) {
         ItemMeta meta = is.getItemMeta();
-        meta.setDisplayName(displayName);
-        meta.setLore(Arrays.asList(lore));
+        if (displayNameAndLore.length > 0)
+            meta.setDisplayName(displayNameAndLore[0]);
+        if (displayNameAndLore.length > 1)
+            meta.setLore(Arrays.asList(displayNameAndLore).subList(1, displayNameAndLore.length));
         is.setItemMeta(meta);
         return is;
     }
@@ -94,6 +99,16 @@ public class ItemService {
         ItemMeta meta = is.getItemMeta();
         meta.setDisplayName(displayName);
         meta.setLore(lore);
+        is.setItemMeta(meta);
+        return is;
+    }
+
+    public ItemStack changeDisplayNameAndLoreConfig(ItemStack is, List<String> displayNameAndLore) {
+        ItemMeta meta = is.getItemMeta();
+        if (displayNameAndLore.size() > 0)
+            meta.setDisplayName(displayNameAndLore.get(0));
+        if (displayNameAndLore.size() > 1)
+            meta.setLore(displayNameAndLore.subList(1, displayNameAndLore.size()));
         is.setItemMeta(meta);
         return is;
     }
@@ -208,8 +223,11 @@ public class ItemService {
         recipe.shape(shape);
         for (int i = 0; i < ingredientMap.length; i += 2) {
             char c = (char) ingredientMap[i];
-            Material item = (Material) ingredientMap[i + 1];
-            recipe.setIngredient(c, item);
+            if (ingredientMap[i + 1] instanceof Material) {
+                recipe.setIngredient(c, (Material) ingredientMap[i + 1]);
+            } else {
+                recipe.setIngredient(c, new RecipeChoice.MaterialChoice(((Collection<Material>) ingredientMap[i + 1]).stream().collect(Collectors.toList())));
+            }
         }
         return recipe;
     }

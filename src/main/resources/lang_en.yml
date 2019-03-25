@@ -1,13 +1,18 @@
 # This is the english language file. Feel free to change stuff around - to use a completely different language, delete this file and change the "language" option in the config.yml
 # This only works if transportpipes supports your desired language
 pipes:
-  pipe: 'Pipe'
-  ice: '&bIce'
-  golden: '&6Golden'
-  iron: '&7Iron'
-  void: '&5Void'
-  extraction: '&dExtraction'
-  crafting: '&eCrafting'
+  white: '&fWhite &rPipe'
+  yellow: '&eYellow &rPipe'
+  green: '&aGreen &rPipe'
+  blue: '&9Blue &rPipe'
+  red: '&cRed &rPipe'
+  black: '&8Black &rPipe'
+  ice: '&bIce &rPipe'
+  golden: '&6Golden &rPipe'
+  iron: '&7Iron &rPipe'
+  void: '&5Void &rPipe'
+  extraction: '&dExtraction &rPipe'
+  crafting: '&eCrafting &rPipe'
 wrench: '&cWrench'
 colors:
   white: '&fWhite'
@@ -16,3 +21,55 @@ colors:
   blue: '&9Blue'
   red: '&cRed'
   black: '&8Black'
+directions:
+  east: 'East'
+  west: 'West'
+  south: 'South'
+  north: 'North'
+  up: 'Up'
+  down: 'Down'
+  none: 'None'
+resourcepack_fail: '&cResourcepack Download failed!\n&cDid you enable "Server Resourcepacks" in your server list?'
+rendersystem_block: '&cChanging the rendersystem is not possible on this server'
+protected_block: '&cPipes next to a protected block are not allowed'
+rendersystem_name:
+  vanilla: 'VANILLA'
+  modelled: 'MODELLED'
+player_settings:
+  title: 'Player Settings'
+  renderdistance: '&7Render Distance: &c%1% &7Blocks'
+  decrease_renderdistance: '&6Decrease Render Distance'
+  increase_renderdistance: '&6Increase Render Distance'
+  rendersystem: '&7Render System: &c%1%'
+  item_visibility_show: '&7Item Visibility: &cSHOW'
+  item_visibility_hide: '&7Item Visibility: &cHIDE'
+duct_inventory:
+  title: '%1% &rInventory'
+  leftarrow: '&6<<'
+  rightarrow: '&6>>'
+  filter_mode_and_strictness: '&7Filter mode: &c%1%\n&7Filter strictness: &c%2%\n\n&8Left-click to change Filter mode\n&8Right-click to change Filter strictness'
+  goldenpipe:
+    filtertitle: '%1% &7output direction'
+  extractionpipe:
+    extractdirection: '&7Extract Direction: &c%1%\n\n&8Click to change extract direction'
+    extractcondition: '&7Extract Condition: &c%1%\n\n&8Click to change extract condition'
+    extractamount: '&7Extract Amount: &c%1%\n\n&8Click to change extract amount'
+    filtertitle: '&6Extraction Filter'
+  craftingpipe:
+    outputdirection: '&7Output direction: &c%1%\n\n&8Click to change output direction'
+    retrievecacheditems: '&7Retrieve cached items\n\n&8Click to move the cached items into your inventory'
+  creative_inventory_title: 'Creative Inventory'
+filter_strictness:
+  material: 'Item material'
+  material_metadata: 'Item material and metadata'
+filter_mode:
+  normal: 'Normal'
+  inverted: 'Inverted'
+  blockall: 'Block all'
+extract_condition:
+  needs_redstone: 'Needs redstone'
+  always_extract: 'Always extract'
+  never_extract: 'Never extract'
+extract_amount:
+  extract_1: '1'
+  extract_16: '16'

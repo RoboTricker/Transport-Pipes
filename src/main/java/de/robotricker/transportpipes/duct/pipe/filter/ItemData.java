@@ -1,6 +1,5 @@
 package de.robotricker.transportpipes.duct.pipe.filter;
 
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemData {
