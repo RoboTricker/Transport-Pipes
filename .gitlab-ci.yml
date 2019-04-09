@@ -9,4 +9,4 @@ build:
     - mvn clean install
   artifacts:
     paths:
-- target/transportpipes-*.jar
+      - target/transportpipes-*.jar
