@@ -220,10 +220,6 @@
 			<url>https://repo.codemc.org/repository/maven-public/</url>
 		</repository>
 		<repository>
-			<id>frontfight-repo</id>
-			<url>http://repo.frontfight.net/repository/maven-public/</url>
-		</repository>
-		<repository>
 			<id>bstats-repo</id>
 			<url>http://repo.bstats.org/content/repositories/releases/</url>
 		</repository>
