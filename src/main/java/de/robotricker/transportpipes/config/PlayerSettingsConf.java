@@ -8,11 +8,17 @@ import de.robotricker.transportpipes.rendersystems.RenderSystem;
 
 public class PlayerSettingsConf extends Conf {
 
-    public PlayerSettingsConf(TransportPipes transportPipes, Player p) {
+    private GeneralConf generalConf;
+
+    public PlayerSettingsConf(TransportPipes transportPipes, GeneralConf generalConf, Player p) {
         super(transportPipes, "playerconfig.yml", "playersettings/" + p.getUniqueId().toString() + ".yml");
+        this.generalConf = generalConf;
     }
 
     public int getRenderDistance() {
+        if (!getYamlConf().contains("render_distance")) {
+            setRenderDistance(generalConf.getDefaultRenderDistance());
+        }
         return (int) read("render_distance");
     }
 
@@ -21,18 +27,24 @@ public class PlayerSettingsConf extends Conf {
     }
 
     public String getRenderSystemName() {
+        if (!getYamlConf().contains("render_system")) {
+            setRenderSystemName(generalConf.getDefaultRenderSystemName());
+        }
         return (String) read("render_system");
-    }
-
-    public RenderSystem getRenderSystem(BaseDuctType baseDuctType) {
-        return RenderSystem.getRenderSystem(getRenderSystemName(), baseDuctType);
     }
 
     public void setRenderSystemName(String name) {
         overrideAsync("render_system", name);
     }
 
+    public RenderSystem getRenderSystem(BaseDuctType baseDuctType) {
+        return RenderSystem.getRenderSystem(getRenderSystemName(), baseDuctType);
+    }
+
     public boolean isShowItems() {
+        if (!getYamlConf().contains("show_items")) {
+            setShowItems(generalConf.isDefaultShowItems());
+        }
         return (int) read("show_items") == 1;
     }
 

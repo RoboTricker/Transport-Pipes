@@ -29,7 +29,6 @@ import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
 import de.robotricker.transportpipes.protocol.ProtocolService;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
-import de.robotricker.transportpipes.utils.Constants;
 import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class GlobalDuctManager {
@@ -107,7 +106,7 @@ public class GlobalDuctManager {
                 if (updateForPlayers) {
                     for (Player p : WorldUtils.getPlayerList(duct.getWorld())) {
                         PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
-                        if (duct.getBlockLoc().toLocation(p.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE) {
+                        if (duct.getBlockLoc().toLocation(p.getWorld()).distance(p.getLocation()) <= conf.getRenderDistance()) {
                             if (conf.getRenderSystem(duct.getDuctType().getBaseDuctType()).equals(renderSystem)) {
                                 getPlayerDucts(p).add(duct);
                                 protocolService.sendASD(p, duct.getBlockLoc(), renderSystem.getASDForDuct(duct));

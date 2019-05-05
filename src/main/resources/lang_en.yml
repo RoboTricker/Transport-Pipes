@@ -1,5 +1,6 @@
-# This is the english language file. Feel free to change stuff around - to use a completely different language, delete this file and change the "language" option in the config.yml
-# This only works if transportpipes supports your desired language
+# This is the english language file. Feel free to change stuff around.
+# To use a different language, change the "language" option in the config.yml
+# This only works if the desired language file exists. You may create it and implement your language
 pipes:
   white: '&fWhite &rPipe'
   yellow: '&eYellow &rPipe'
@@ -13,7 +14,7 @@ pipes:
   void: '&5Void &rPipe'
   extraction: '&dExtraction &rPipe'
   crafting: '&eCrafting &rPipe'
-wrench: '&cWrench'
+wrench: '&cWrench\n\n&7Click on specific ducts to change their behavior\nShift-Click to show nearby hidden ducts'
 colors:
   white: '&fWhite'
   yellow: '&eYellow'
@@ -73,3 +74,4 @@ extract_condition:
 extract_amount:
   extract_1: '1'
   extract_16: '16'
+show_hidden_ducts: '&6Showing nearby hidden ducts for &b%1% &6more seconds'

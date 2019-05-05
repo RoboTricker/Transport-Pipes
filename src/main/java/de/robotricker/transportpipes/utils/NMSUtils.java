@@ -207,7 +207,7 @@ public final class NMSUtils {
             Recipe recipe = recipeIt.next();
             if (!(recipe instanceof FurnaceRecipe))
                 continue;
-            if (((FurnaceRecipe) recipe).getInput().getType() != item.getType())
+            if(!((FurnaceRecipe) recipe).getInputChoice().test(item))
                 continue;
             return true;
         }

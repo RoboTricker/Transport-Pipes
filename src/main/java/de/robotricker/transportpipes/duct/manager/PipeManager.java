@@ -1,20 +1,16 @@
 package de.robotricker.transportpipes.duct.manager;
 
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.material.MaterialData;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,13 +18,14 @@ import java.util.TreeMap;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.PlayerSettingsService;
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.config.LangConf;
-import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.config.PlayerSettingsConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
-import de.robotricker.transportpipes.duct.pipe.CraftingPipe;
-import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
 import de.robotricker.transportpipes.duct.pipe.Pipe;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.BaseDuctType;
@@ -39,17 +36,20 @@ import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 import de.robotricker.transportpipes.protocol.ProtocolService;
-import de.robotricker.transportpipes.utils.Constants;
 import de.robotricker.transportpipes.utils.WorldUtils;
+import de.robotricker.transportpipes.utils.legacy.LegacyUtils;
 
 public class PipeManager extends DuctManager<Pipe> {
 
     private static final long BIG_TICK_COUNT = 10;
 
+    private PlayerSettingsService playerSettingsService;
+    private GeneralConf generalConf;
+
     /**
      * ThreadSafe
      **/
-    private Map<World, Map<BlockLocation, TPContainer>> containers;
+    private Map<World, Map<BlockLocation, TransportPipesContainer>> containers;
 
     /**
      * THREAD-SAFE
@@ -59,27 +59,29 @@ public class PipeManager extends DuctManager<Pipe> {
     private long tickCounter;
 
     @Inject
-    public PipeManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService, ItemService itemService) {
+    public PipeManager(TransportPipes transportPipes, DuctRegister ductRegister, GlobalDuctManager globalDuctManager, ProtocolService protocolService, ItemService itemService, PlayerSettingsService playerSettingsService, GeneralConf generalConf) {
         super(transportPipes, ductRegister, globalDuctManager, protocolService, itemService);
+        this.playerSettingsService = playerSettingsService;
+        this.generalConf = generalConf;
         playerItems = Collections.synchronizedMap(new HashMap<>());
         containers = Collections.synchronizedMap(new HashMap<>());
         tickCounter = 0;
     }
 
-    public Map<World, Map<BlockLocation, TPContainer>> getContainers() {
+    public Map<World, Map<BlockLocation, TransportPipesContainer>> getContainers() {
         return containers;
     }
 
-    public Map<BlockLocation, TPContainer> getContainers(World world) {
+    public Map<BlockLocation, TransportPipesContainer> getContainers(World world) {
         return containers.computeIfAbsent(world, v -> Collections.synchronizedMap(new TreeMap<>()));
     }
 
-    public TPContainer getContainerAtLoc(World world, BlockLocation blockLoc) {
-        Map<BlockLocation, TPContainer> containerMap = getContainers(world);
+    public TransportPipesContainer getContainerAtLoc(World world, BlockLocation blockLoc) {
+        Map<BlockLocation, TransportPipesContainer> containerMap = getContainers(world);
         return containerMap.get(blockLoc);
     }
 
-    public TPContainer getContainerAtLoc(Location location) {
+    public TransportPipesContainer getContainerAtLoc(Location location) {
         return getContainerAtLoc(location.getWorld(), new BlockLocation(location));
     }
 
@@ -88,7 +90,7 @@ public class PipeManager extends DuctManager<Pipe> {
         Pipe pipe = (Pipe) duct;
         pipe.getContainerConnections().clear();
         for (TPDirection tpDir : TPDirection.values()) {
-            TPContainer neighborContainer = getContainerAtLoc(pipe.getWorld(), pipe.getBlockLoc().getNeighbor(tpDir));
+            TransportPipesContainer neighborContainer = getContainerAtLoc(pipe.getWorld(), pipe.getBlockLoc().getNeighbor(tpDir));
             if (neighborContainer != null) {
                 pipe.getContainerConnections().put(tpDir, neighborContainer);
             }
@@ -104,11 +106,11 @@ public class PipeManager extends DuctManager<Pipe> {
         pipeBaseDuctType.registerDuctType(pipeType);
         pipeType = new ColoredPipeType(pipeBaseDuctType, "Blue", LangConf.Key.PIPES_BLUE.get(), Material.LAPIS_LAZULI, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", LangConf.Key.PIPES_RED.get(), Material.ROSE_RED, "transportpipes.craft.coloredpipe");
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Red", LangConf.Key.PIPES_RED.get(), LegacyUtils.getInstance().getRedDye(), "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", LangConf.Key.PIPES_YELLOW.get(), Material.DANDELION_YELLOW, "transportpipes.craft.coloredpipe");
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Yellow", LangConf.Key.PIPES_YELLOW.get(), LegacyUtils.getInstance().getYellowDye(), "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
-        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", LangConf.Key.PIPES_GREEN.get(), Material.CACTUS_GREEN, "transportpipes.craft.coloredpipe");
+        pipeType = new ColoredPipeType(pipeBaseDuctType, "Green", LangConf.Key.PIPES_GREEN.get(), LegacyUtils.getInstance().getGreenDye(), "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
         pipeType = new ColoredPipeType(pipeBaseDuctType, "Black", LangConf.Key.PIPES_BLACK.get(), Material.INK_SAC, "transportpipes.craft.coloredpipe");
         pipeBaseDuctType.registerDuctType(pipeType);
@@ -152,11 +154,11 @@ public class PipeManager extends DuctManager<Pipe> {
         ductType = pipeBaseDuctType.ductTypeOf("Blue");
         ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "blue_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.LAPIS_LAZULI));
         ductType = pipeBaseDuctType.ductTypeOf("Red");
-        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "red_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.ROSE_RED));
+        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "red_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', LegacyUtils.getInstance().getRedDye()));
         ductType = pipeBaseDuctType.ductTypeOf("Yellow");
-        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "yellow_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.DANDELION_YELLOW));
+        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "yellow_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', LegacyUtils.getInstance().getYellowDye()));
         ductType = pipeBaseDuctType.ductTypeOf("Green");
-        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "green_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.CACTUS_GREEN));
+        ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "green_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', LegacyUtils.getInstance().getGreenDye()));
         ductType = pipeBaseDuctType.ductTypeOf("Black");
         ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "black_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.INK_SAC));
         ductType = pipeBaseDuctType.ductTypeOf("Golden");
@@ -212,7 +214,7 @@ public class PipeManager extends DuctManager<Pipe> {
                     }
                     for (Duct duct : ductMap.values()) {
                         if (duct instanceof Pipe && duct.isInLoadedChunk()) {
-                            duct.postTick(bigTick, transportPipes, this);
+                            duct.postTick(bigTick, transportPipes, this, generalConf);
                         }
                     }
                 }
@@ -228,7 +230,9 @@ public class PipeManager extends DuctManager<Pipe> {
     public void spawnPipeItem(PipeItem pipeItem) {
         List<Player> playerList = WorldUtils.getPlayerList(pipeItem.getWorld());
         for (Player p : playerList) {
-            if (p.getLocation().distance(pipeItem.getBlockLoc().toLocation(pipeItem.getWorld())) <= Constants.DEFAULT_RENDER_DISTANCE) {
+            PlayerSettingsConf conf = playerSettingsService.getOrCreateSettingsConf(p);
+            int renderDistance = conf.getRenderDistance();
+            if (conf.isShowItems() && p.getLocation().distance(pipeItem.getBlockLoc().toLocation(pipeItem.getWorld())) <= renderDistance) {
                 getPlayerPipeItems(p).add(pipeItem);
                 protocolService.sendPipeItem(p, pipeItem);
             }
@@ -264,6 +268,9 @@ public class PipeManager extends DuctManager<Pipe> {
     @Override
     public void notifyDuctShown(Duct duct, Player p) {
         super.notifyDuctShown(duct, p);
+        if (!playerSettingsService.getOrCreateSettingsConf(p).isShowItems()) {
+            return;
+        }
         Pipe pipe = (Pipe) duct;
         Set<PipeItem> playerPipeItems = getPlayerPipeItems(p);
         for (PipeItem pipeItem : pipe.getItems()) {

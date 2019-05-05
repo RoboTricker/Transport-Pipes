@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import de.robotricker.transportpipes.config.LangConf;
-import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
@@ -39,7 +39,7 @@ public class LWCUtils extends JavaModule {
 
         Location protectionLoc = e.getProtection().getBlock().getLocation();
         BlockLocation protectionBlockLoc = new BlockLocation(protectionLoc);
-        Map<BlockLocation, TPContainer> containerMap = pipeManager.getContainers(e.getProtection().getBukkitWorld());
+        Map<BlockLocation, TransportPipesContainer> containerMap = pipeManager.getContainers(e.getProtection().getBukkitWorld());
         if (containerMap != null && containerMap.containsKey(protectionBlockLoc)) {
             Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(e.getProtection().getBukkitWorld());
             if (ductMap != null) {

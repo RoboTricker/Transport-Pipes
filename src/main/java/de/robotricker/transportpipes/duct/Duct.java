@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Panda;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.types.DuctType;
@@ -56,6 +58,10 @@ public abstract class Duct {
             settingsInv.setDuct(this);
             settingsInv.create();
         }
+    }
+
+    public DuctSettingsInventory getSettingsInv() {
+        return settingsInv;
     }
 
     public void notifyClick(Player p, boolean shift) {
@@ -97,7 +103,7 @@ public abstract class Duct {
 
     }
 
-    public void postTick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
+    public void postTick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager, GeneralConf generalConf) {
 
     }
 

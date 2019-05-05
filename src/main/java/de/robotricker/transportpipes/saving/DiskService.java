@@ -7,6 +7,8 @@ import org.bukkit.World;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.inject.Inject;
@@ -22,12 +24,21 @@ public class DiskService {
 
     public void loadDuctsSync(World world) {
         try {
-            CompoundTag compoundTag = (CompoundTag) NBTUtil.readTag(Paths.get(world.getWorldFolder().getAbsolutePath(), "ducts.dat").toFile());
+            Path p = Paths.get(world.getWorldFolder().getAbsolutePath(), "ducts.dat");
+            if (!Files.isRegularFile(p)) {
+                p = Paths.get(world.getWorldFolder().getAbsolutePath(), "pipes.dat");
+            }
+            CompoundTag compoundTag = (CompoundTag) NBTUtil.readTag(p.toFile());
             String version = compoundTag.getString("version");
+            if(version == null || version.isEmpty()) {
+                version = compoundTag.getString("PluginVersion");
+            }
 
             long versionLong = transportPipes.convertVersionToLong(version);
             DuctLoader ductLoader;
-            if (versionLong <= transportPipes.convertVersionToLong("4.3.1")) {
+
+            //one more than the real version to handle all versions below
+            if (versionLong <= transportPipes.convertVersionToLong("4.3.2")) {
                 ductLoader = transportPipes.getInjector().getSingleton(LegacyDuctLoader_v4_3_1.class);
             } else {
                 ductLoader = transportPipes.getInjector().getSingleton(DuctLoader.class);
@@ -40,7 +51,7 @@ public class DiskService {
             ductLoader.loadDuctsSync(world, compoundTag);
 
         } catch (FileNotFoundException ignored) {
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

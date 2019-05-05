@@ -29,13 +29,22 @@ public class PipeItem {
         this.item = item;
         this.blockLoc = blockLoc;
         this.movingDir = movingDir;
-        init(world);
+        init(world, true);
     }
 
-    public void init(World world) {
+    public PipeItem(ItemStack item, World world, BlockLocation blockLoc, RelativeLocation relLoc, TPDirection movingDir) {
+        this.item = item;
+        this.blockLoc = blockLoc;
+        this.relativeLocation = relLoc;
+        this.movingDir = movingDir;
+        init(world, false);
+    }
+
+    public void init(World world, boolean initRelLoc) {
         this.world = world;
         this.asd = new ArmorStandData(new RelativeLocation(0.25f, 0f, 0.33f), true, new Vector(1, 0, 0), new Vector(0f, 0f, 0f), new Vector(-30f, 0f, 0f), null, item);
-        this.relativeLocation = new RelativeLocation(movingDir.getX() > 0 ? 0 : (movingDir.getX() < 0 ? 1 : 0.5f), movingDir.getY() > 0 ? 0 : (movingDir.getY() < 0 ? 1 : 0.5f), movingDir.getZ() > 0 ? 0 : (movingDir.getZ() < 0 ? 1 : 0.5f));
+        if (initRelLoc)
+            this.relativeLocation = new RelativeLocation(movingDir.getX() > 0 ? 0 : (movingDir.getX() < 0 ? 1 : 0.5f), movingDir.getY() > 0 ? 0 : (movingDir.getY() < 0 ? 1 : 0.5f), movingDir.getZ() > 0 ? 0 : (movingDir.getZ() < 0 ? 1 : 0.5f));
         resetOldRelativeLocation();
     }
 
@@ -53,6 +62,10 @@ public class PipeItem {
 
     public BlockLocation getBlockLoc() {
         return blockLoc;
+    }
+
+    public void setBlockLoc(BlockLocation blockLoc) {
+        this.blockLoc = blockLoc;
     }
 
     public RelativeLocation getOldRelativeLocation() {
@@ -75,10 +88,6 @@ public class PipeItem {
         return movingDir;
     }
 
-    public void setBlockLoc(BlockLocation blockLoc) {
-        this.blockLoc = blockLoc;
-    }
-
     public void setMovingDir(TPDirection movingDir) {
         this.movingDir = movingDir;
     }
@@ -95,7 +104,7 @@ public class PipeItem {
         blockLoc = BlockLocation.fromString(compoundTag.getString("blockLoc"));
         relativeLocation = RelativeLocation.fromString(compoundTag.getString("relLoc"));
         movingDir = TPDirection.values()[compoundTag.getInt("movingDir")];
-        init(world);
+        init(world, false);
     }
 
 }

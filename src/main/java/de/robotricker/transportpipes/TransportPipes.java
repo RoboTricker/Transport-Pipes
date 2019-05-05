@@ -2,13 +2,13 @@ package de.robotricker.transportpipes;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import co.aikar.commands.PaperCommandManager;
+import de.robotricker.transportpipes.api.TransportPipesAPI;
 import de.robotricker.transportpipes.commands.TPCommand;
 import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.config.LangConf;
 import de.robotricker.transportpipes.config.PlayerSettingsConf;
-import de.robotricker.transportpipes.container.TPContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.factory.PipeFactory;
@@ -37,13 +37,13 @@ import de.robotricker.transportpipes.listener.WorldListener;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.protocol.ProtocolService;
-import de.robotricker.transportpipes.rendersystems.ModelledRenderSystem;
 import de.robotricker.transportpipes.rendersystems.RenderSystem;
-import de.robotricker.transportpipes.rendersystems.VanillaRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.modelled.ModelledPipeRenderSystem;
 import de.robotricker.transportpipes.rendersystems.pipe.vanilla.VanillaPipeRenderSystem;
 import de.robotricker.transportpipes.saving.DiskService;
 import de.robotricker.transportpipes.utils.LWCUtils;
+import de.robotricker.transportpipes.utils.legacy.LegacyUtils;
+import de.robotricker.transportpipes.utils.legacy.LegacyUtils_1_13;
 import io.sentry.event.Breadcrumb;
 
 public class TransportPipes extends JavaPlugin {
@@ -56,6 +56,24 @@ public class TransportPipes extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        if (Bukkit.getVersion().contains("1.13")) {
+            LegacyUtils.setInstance(new LegacyUtils_1_13());
+        } else {
+            System.err.println("------------------------------------------");
+            System.err.println("TransportPipes currently only works with spigot 1.13");
+            System.err.println("------------------------------------------");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        if (Files.isRegularFile(Paths.get(getDataFolder().getPath(), "recipes.yml"))) {
+            System.err.println("------------------------------------------");
+            System.err.println("Please delete the old plugins/TransportPipes directory so TransportPipes can recreate it with a bunch of new config values");
+            System.err.println("------------------------------------------");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         //Initialize dependency injector
         injector = new InjectorBuilder().addDefaultHandlers("de.robotricker.transportpipes").create();
@@ -79,6 +97,9 @@ public class TransportPipes extends JavaPlugin {
         //Initialize configs
         injector.getSingleton(GeneralConf.class);
         injector.register(LangConf.class, new LangConf(this, injector.getSingleton(GeneralConf.class).getLanguage()));
+
+        //Initialize API
+        injector.getSingleton(TransportPipesAPI.class);
 
         //Initialize thread
         thread = injector.getSingleton(ThreadService.class);
@@ -131,18 +152,20 @@ public class TransportPipes extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabling plugin");
-        // Stop tpThread gracefully
-        try {
-            thread.stopRunning();
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(sentry != null && thread != null) {
+            sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabling plugin");
+            // Stop tpThread gracefully
+            try {
+                thread.stopRunning();
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (World world : Bukkit.getWorlds()) {
+                saveWorld(world);
+            }
+            sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabled plugin");
         }
-        for (World world : Bukkit.getWorlds()) {
-            saveWorld(world);
-        }
-        sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabled plugin");
     }
 
     public void saveWorld(World world) {

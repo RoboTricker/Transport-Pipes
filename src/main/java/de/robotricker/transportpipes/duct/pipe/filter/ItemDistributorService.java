@@ -11,7 +11,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
@@ -64,7 +64,7 @@ public class ItemDistributorService {
     private Map<TPDirection, Integer> calculateFreeSpaceForAllDirections(ItemStack item, Collection<TPDirection> dirs, Pipe pipe) {
         Map<TPDirection, Integer> freeSpaceMap = new HashMap<>();
 
-        Map<BlockLocation, TPContainer> containerMap = ((PipeManager) (DuctManager<? extends Duct>) ductRegister.baseDuctTypeOf("pipe").getDuctManager()).getContainers(pipe.getWorld());
+        Map<BlockLocation, TransportPipesContainer> containerMap = ((PipeManager) (DuctManager<? extends Duct>) ductRegister.baseDuctTypeOf("pipe").getDuctManager()).getContainers(pipe.getWorld());
         Map<BlockLocation, Duct> ductMap = globalDuctManager.getDucts(pipe.getWorld());
 
         for (TPDirection dir : dirs) {
@@ -72,7 +72,7 @@ public class ItemDistributorService {
             BlockLocation bl = pipe.getBlockLoc().getNeighbor(dir);
             if (containerMap != null && containerMap.containsKey(bl)) {
                 // container at location
-                TPContainer container = containerMap.get(bl);
+                TransportPipesContainer container = containerMap.get(bl);
                 int freeSpace = container.spaceForItem(dir, item);
                 freeSpaceMap.put(dir, freeSpace);
             } else if (ductMap != null && ductMap.containsKey(bl) && ductMap.get(bl) instanceof CraftingPipe) {

@@ -1,10 +1,5 @@
 package de.robotricker.transportpipes.duct.manager;
 
-import com.comphenix.packetwrapper.WrapperPlayServerBlockChange;
-import com.comphenix.protocol.wrappers.BlockPosition;
-import com.comphenix.protocol.wrappers.WrappedBlockData;
-
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.inject.Inject;

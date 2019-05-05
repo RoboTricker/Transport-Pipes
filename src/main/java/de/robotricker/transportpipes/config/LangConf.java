@@ -79,7 +79,8 @@ public class LangConf extends Conf {
         EXTRACT_CONDITION_ALWAYS_EXTRACT("extract_condition.always_extract"),
         EXTRACT_CONDITION_NEVER_EXTRACT("extract_condition.never_extract"),
         EXTRACT_AMOUNT_EXTRACT_1("extract_amount.extract_1"),
-        EXTRACT_AMOUNT_EXTRACT_16("extract_amount.extract_16");
+        EXTRACT_AMOUNT_EXTRACT_16("extract_amount.extract_16"),
+        SHOW_HIDDEN_DUCTS("show_hidden_ducts");
 
         private String key;
 

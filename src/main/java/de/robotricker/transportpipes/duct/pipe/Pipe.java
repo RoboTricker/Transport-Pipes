@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.Set;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
@@ -33,8 +34,6 @@ import de.robotricker.transportpipes.location.RelativeLocation;
 import de.robotricker.transportpipes.location.TPDirection;
 
 public class Pipe extends Duct {
-
-    private static final int MAX_ITEMS = 20;
 
     /**
      * THREAD-SAFE
@@ -57,7 +56,7 @@ public class Pipe extends Duct {
     private final List<PipeItem> unloadedItems;
 
     ItemDistributorService itemDistributor;
-    private Map<TPDirection, TPContainer> connectedContainers;
+    private Map<TPDirection, TransportPipesContainer> connectedContainers;
 
     public Pipe(DuctType ductType, BlockLocation blockLoc, World world, Chunk chunk, DuctSettingsInventory settingsInv, GlobalDuctManager globalDuctManager, ItemDistributorService itemDistributor) {
         super(ductType, blockLoc, world, chunk, settingsInv, globalDuctManager);
@@ -69,7 +68,7 @@ public class Pipe extends Duct {
         this.connectedContainers = Collections.synchronizedMap(new HashMap<>());
     }
 
-    public Map<TPDirection, TPContainer> getContainerConnections() {
+    public Map<TPDirection, TransportPipesContainer> getContainerConnections() {
         return connectedContainers;
     }
 
@@ -131,11 +130,11 @@ public class Pipe extends Duct {
     }
 
     @Override
-    public void postTick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager) {
-        super.postTick(bigTick, transportPipes, ductManager);
+    public void postTick(boolean bigTick, TransportPipes transportPipes, DuctManager ductManager, GeneralConf generalConf) {
+        super.postTick(bigTick, transportPipes, ductManager, generalConf);
 
         PipeManager pipeManager = (PipeManager) ductManager;
-        if (items.size() > MAX_ITEMS) {
+        if (items.size() > generalConf.getMaxItemsPerPipe()) {
             transportPipes.runTaskAsync(() -> {
                 globalDuctManager.unregisterDuct(this);
                 globalDuctManager.unregisterDuctInRenderSystem(this, true);
@@ -204,7 +203,7 @@ public class Pipe extends Duct {
                 //arrival at end of pipe
 
                 Duct duct = getDuctConnections().get(pipeItem.getMovingDir());
-                TPContainer tpContainer = getContainerConnections().get(pipeItem.getMovingDir());
+                TransportPipesContainer transportPipesContainer = getContainerConnections().get(pipeItem.getMovingDir());
 
                 if (duct instanceof Pipe) {
 
@@ -226,16 +225,16 @@ public class Pipe extends Duct {
                     items.remove(pipeItem);
                     pipeManager.despawnPipeItem(pipeItem);
 
-                    if (tpContainer != null) {
+                    if (transportPipesContainer != null) {
 
                         pipeItem.setBlockLoc(getBlockLoc().getNeighbor(pipeItem.getMovingDir()));
                         pipeItem.getRelativeLocation().switchValues();
                         pipeItem.resetOldRelativeLocation();
 
                         transportPipes.runTaskSync(() -> {
-                            if (tpContainer.isInLoadedChunk()) {
+                            if (transportPipesContainer.isInLoadedChunk()) {
 
-                                ItemStack overflow = tpContainer.insertItem(pipeItem.getMovingDir(), pipeItem.getItem());
+                                ItemStack overflow = transportPipesContainer.insertItem(pipeItem.getMovingDir(), pipeItem.getItem());
                                 if (overflow != null) {
                                     getWorld().dropItem(getBlockLoc().toLocation(getWorld()), overflow);
                                 }
@@ -266,7 +265,7 @@ public class Pipe extends Duct {
         synchronized (getUnloadedItems()) {
             if (!getUnloadedItems().isEmpty()) {
                 PipeItem unloadedItem = getUnloadedItems().get(getUnloadedItems().size() - 1);
-                TPContainer newContainer = pipeManager.getContainerAtLoc(getWorld(), unloadedItem.getBlockLoc());
+                TransportPipesContainer newContainer = pipeManager.getContainerAtLoc(getWorld(), unloadedItem.getBlockLoc());
                 if (newContainer != null && newContainer.isInLoadedChunk()) {
                     ItemStack overflow = newContainer.insertItem(unloadedItem.getMovingDir(), unloadedItem.getItem());
                     getUnloadedItems().remove(unloadedItem);

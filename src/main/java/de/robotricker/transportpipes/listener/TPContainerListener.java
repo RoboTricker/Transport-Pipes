@@ -18,11 +18,12 @@ import org.bukkit.inventory.InventoryHolder;
 
 import javax.inject.Inject;
 
+import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.container.BlockContainer;
 import de.robotricker.transportpipes.container.BrewingStandContainer;
 import de.robotricker.transportpipes.container.FurnaceContainer;
 import de.robotricker.transportpipes.container.SimpleInventoryContainer;
-import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
@@ -40,6 +41,9 @@ public class TPContainerListener implements Listener {
 
     @Inject
     private GlobalDuctManager globalDuctManager;
+
+    @Inject
+    private TransportPipes transportPipes;
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
@@ -89,17 +93,8 @@ public class TPContainerListener implements Listener {
         BlockLocation blockLoc = new BlockLocation(block.getLocation());
         if (add) {
 
-            //checks for double chest neighbor and updates the neighbors TPContainer if present
-            Block neighborDoubleChestBlock = checkForDoubleChestNeighbor(block);
-            if (neighborDoubleChestBlock != null) {
-                TPContainer neighborContainer = pipeManager.getContainerAtLoc(neighborDoubleChestBlock.getWorld(), new BlockLocation(neighborDoubleChestBlock.getLocation()));
-                if (neighborContainer instanceof BlockContainer) {
-                    ((BlockContainer) neighborContainer).updateBlock();
-                }
-            }
-
             if (pipeManager.getContainerAtLoc(block.getLocation()) == null) {
-                TPContainer container = createContainerFromBlock(block);
+                TransportPipesContainer container = createContainerFromBlock(block);
                 pipeManager.getContainers(block.getWorld()).put(blockLoc, container);
 
                 // only update the neighbor pipes if this updateContainerBlock method call is because of a chunk load that was not issued inside the onEnable method
@@ -112,10 +107,26 @@ public class TPContainerListener implements Listener {
                         }
                     }
                 }
+
+                transportPipes.runTaskSync(() -> {
+                    //checks for double chest neighbor and updates the neighbors TransportPipesContainer if present
+                    Block neighborDoubleChestBlock = checkForDoubleChestNeighbor(block);
+                    if (neighborDoubleChestBlock != null) {
+                        TransportPipesContainer neighborContainer = pipeManager.getContainerAtLoc(neighborDoubleChestBlock.getWorld(), new BlockLocation(neighborDoubleChestBlock.getLocation()));
+                        if (neighborContainer instanceof BlockContainer) {
+                            ((BlockContainer) neighborContainer).updateBlock();
+                        }
+                        if (pipeManager.getContainers(block.getWorld()).get(blockLoc) == container) {
+                            ((BlockContainer) container).updateBlock();
+                        }
+                    }
+                });
+
             }
+
         } else {
 
-            TPContainer container = pipeManager.getContainerAtLoc(block.getLocation());
+            TransportPipesContainer container = pipeManager.getContainerAtLoc(block.getLocation());
             if (container != null) {
                 pipeManager.getContainers(block.getWorld()).remove(blockLoc);
 
@@ -155,7 +166,7 @@ public class TPContainerListener implements Listener {
         return null;
     }
 
-    public TPContainer createContainerFromBlock(Block block) {
+    public TransportPipesContainer createContainerFromBlock(Block block) {
         if (block.getState() instanceof Furnace) {
             return new FurnaceContainer(block);
         } else if (block.getState() instanceof BrewingStand) {
@@ -177,7 +188,7 @@ public class TPContainerListener implements Listener {
                     updateContainerBlock(bs.getBlock(), true, !onServerStart);
 
                     //if this block is already registered, update the block, because the blockState object changes after a chunk unload and load
-                    TPContainer container = pipeManager.getContainerAtLoc(bs.getLocation());
+                    TransportPipesContainer container = pipeManager.getContainerAtLoc(bs.getLocation());
                     if (container instanceof BlockContainer) {
                         ((BlockContainer) container).updateBlock();
                     }
