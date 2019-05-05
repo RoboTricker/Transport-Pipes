@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.container.TPContainer;
+import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
 import de.robotricker.transportpipes.duct.manager.GlobalDuctManager;
 import de.robotricker.transportpipes.duct.manager.PipeManager;
@@ -54,7 +54,7 @@ public class ExtractionPipe extends Pipe {
         }
 
         //extract item
-        TPContainer container = pipeManager.getContainerAtLoc(getWorld(), getBlockLoc().getNeighbor(extractDirection));
+        TransportPipesContainer container = pipeManager.getContainerAtLoc(getWorld(), getBlockLoc().getNeighbor(extractDirection));
         if (container != null) {
             if (extractCondition == ExtractCondition.NEEDS_REDSTONE) {
                 Block block = getBlockLoc().toBlock(getWorld());
@@ -74,7 +74,7 @@ public class ExtractionPipe extends Pipe {
 
     public void updateExtractDirection(boolean cycle) {
         TPDirection oldExtractDirection = getExtractDirection();
-        Map<TPDirection, TPContainer> containerConnections = getContainerConnections();
+        Map<TPDirection, TransportPipesContainer> containerConnections = getContainerConnections();
         if (containerConnections.isEmpty()) {
             extractDirection = null;
         } else if (cycle || extractDirection == null || !containerConnections.containsKey(extractDirection)) {
@@ -118,6 +118,10 @@ public class ExtractionPipe extends Pipe {
 
     public ItemFilter getItemFilter() {
         return itemFilter;
+    }
+
+    public void setItemFilter(ItemFilter itemFilter) {
+        this.itemFilter = itemFilter;
     }
 
     @Override

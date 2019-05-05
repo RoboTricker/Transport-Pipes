@@ -59,7 +59,7 @@ public class PlayerListener implements Listener {
                 }
             }
         }
-        if (itemService.getWrench().isSimilar(e.getRecipe().getResult())) {
+        if (itemService.isWrench(e.getRecipe().getResult())) {
             if (!p.hasPermission("transportpipes.craft.wrench")) {
                 e.getInventory().setResult(null);
             }

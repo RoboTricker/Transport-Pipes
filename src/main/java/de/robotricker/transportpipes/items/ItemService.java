@@ -49,13 +49,20 @@ public class ItemService {
         Material wrenchMaterial = Material.getMaterial(generalConf.getWrenchItem().toUpperCase(Locale.ENGLISH));
         Objects.requireNonNull(wrenchMaterial, "The material for the wrench item set in the config file is not valid.");
 
-        wrench = generalConf.getWrenchEnchanted() ? createGlowingItem(wrenchMaterial) : new ItemStack(wrenchMaterial);
-        wrench = changeDisplayName(wrench, LangConf.Key.WRENCH.get());
+        wrench = generalConf.getWrenchGlowing() ? createGlowingItem(wrenchMaterial) : new ItemStack(wrenchMaterial);
+        wrench = changeDisplayNameAndLoreConfig(wrench, LangConf.Key.WRENCH.getLines());
         tempConf = new YamlConfiguration();
     }
 
     public ItemStack getWrench() {
         return wrench;
+    }
+
+    public boolean isWrench(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return false;
+        }
+        return item.getItemMeta().getDisplayName().equals(LangConf.Key.WRENCH.getLines().get(0));
     }
 
     public ItemStack createModelledItem(int damage) {
@@ -147,6 +154,38 @@ public class ItemService {
             String ductTypeSerialized = (String) NMSUtils.readItemStackNBT(item, "ductType", "String");
             if (ductTypeSerialized != null && !ductTypeSerialized.isEmpty()) {
                 return bdt.ductTypeOf(ductTypeSerialized);
+            }
+        } else {
+            //legacy ductType loading (with the gameprofile uuids of the skulls)
+            if (item.getItemMeta() instanceof SkullMeta) {
+
+                SkullMeta sm = (SkullMeta) item.getItemMeta();
+                try {
+
+                    Field profileField = sm.getClass().getDeclaredField("profile");
+                    profileField.setAccessible(true);
+                    Object profile = profileField.get(sm);
+                    if (profile == null)
+                        return null;
+
+                    Field idField = Class.forName("com.mojang.authlib.GameProfile").getDeclaredField("id");
+                    idField.setAccessible(true);
+                    UUID id = (UUID) idField.get(profile);
+                    if (id == null)
+                        return null;
+
+                    for (DuctType dt : ductRegister.baseDuctTypeOf("pipe").ductTypes()) {
+                        Object dtProfile = profileField.get(dt.getBaseDuctType().getItemManager().getItem(dt).getItemMeta());
+                        UUID dtId = (UUID) idField.get(dtProfile);
+
+                        if (id.compareTo(dtId) == 0) {
+                            return dt;
+                        }
+                    }
+                } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
             }
         }
         return null;

@@ -23,7 +23,6 @@ import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.log.LoggerService;
 import de.robotricker.transportpipes.log.SentryService;
 import de.robotricker.transportpipes.protocol.ProtocolService;
-import de.robotricker.transportpipes.utils.Constants;
 import de.robotricker.transportpipes.utils.WorldUtils;
 
 public class ThreadService extends Thread {
@@ -37,13 +36,14 @@ public class ThreadService extends Thread {
     private GlobalDuctManager globalDuctManager;
     private DuctRegister ductRegister;
     private ItemService itemService;
+    private PlayerSettingsService playerSettingsService;
 
     private boolean running = false;
     private int preferredTPS = 10;
     private int currentTPS = 0;
 
     @Inject
-    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, GlobalDuctManager globalDuctManager, DuctRegister ductRegister, ItemService itemService) {
+    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, GlobalDuctManager globalDuctManager, DuctRegister ductRegister, ItemService itemService, PlayerSettingsService playerSettingsService) {
         super("TransportPipes-Thread");
         this.plugin = plugin;
         this.logger = logger;
@@ -52,6 +52,7 @@ public class ThreadService extends Thread {
         this.globalDuctManager = globalDuctManager;
         this.ductRegister = ductRegister;
         this.itemService = itemService;
+        this.playerSettingsService = playerSettingsService;
         this.tasks = Collections.synchronizedMap(new LinkedHashMap<>());
 
         Bukkit.getScheduler().runTaskTimer(plugin, (Runnable) this::tickDuctSpawnAndDespawn, 20L, 20L);
@@ -149,7 +150,8 @@ public class ThreadService extends Thread {
      * sync method which checks if the given duct should be visible or not for the given player and shows / hides the duct
      */
     public void tickDuctSpawnAndDespawn(Duct duct, Player p) {
-        if (duct.getBlockLoc().toLocation(duct.getWorld()).distance(p.getLocation()) <= Constants.DEFAULT_RENDER_DISTANCE && (duct.obfuscatedWith() == null || duct.getBlockLoc().toBlock(duct.getWorld()).getType() == Material.BARRIER)) {
+        int renderDistance = playerSettingsService.getOrCreateSettingsConf(p).getRenderDistance();
+        if (duct.getBlockLoc().toLocation(duct.getWorld()).distance(p.getLocation()) <= renderDistance && (duct.obfuscatedWith() == null || duct.getBlockLoc().toBlock(duct.getWorld()).getType() == Material.BARRIER)) {
             // spawn globalDuctManager if not there
             duct.getDuctType().getBaseDuctType().getDuctManager().notifyDuctShown(duct, p);
         } else {

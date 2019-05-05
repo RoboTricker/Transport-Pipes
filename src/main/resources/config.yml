@@ -2,18 +2,18 @@
 # https://github.com/RoboTricker/Transport-Pipes/wiki
 max_items_per_pipe: 20
 crafting_enabled: true
-destroy_ducts_on_explosion: true
 anticheat_plugins:
 - NoCheatPlus
 - AAC
 - CompatNoCheatPlus
 - AntiCheatPlus
-default_pipe_render_system: vanilla
+default_render_system: vanilla
 default_show_items: true
 default_render_distance: 25
 resourcepack_mode: default
 disabled_worlds: []
 wrench:
   item: STICK
-  enchanted: true
+  glowing: true
 language: en
+show_hidden_ducts_time: 5

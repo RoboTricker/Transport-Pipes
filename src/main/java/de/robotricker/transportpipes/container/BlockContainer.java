@@ -4,7 +4,9 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-public abstract class BlockContainer implements TPContainer {
+import de.robotricker.transportpipes.api.TransportPipesContainer;
+
+public abstract class BlockContainer implements TransportPipesContainer {
 
     private static boolean vanillaLockableExists;
 

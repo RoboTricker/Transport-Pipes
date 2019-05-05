@@ -43,6 +43,10 @@ public class IronPipe extends Pipe {
         return currentOutputDirection;
     }
 
+    public void setCurrentOutputDirection(TPDirection currentOutputDirection) {
+        this.currentOutputDirection = currentOutputDirection;
+    }
+
     @Override
     protected Map<TPDirection, Integer> calculateItemDistribution(PipeItem pipeItem, TPDirection movingDir, List<TPDirection> dirs, TransportPipes transportPipes) {
         Map<TPDirection, Integer> absWeights = new HashMap<>();

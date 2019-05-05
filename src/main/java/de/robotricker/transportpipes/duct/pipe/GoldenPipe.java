@@ -23,6 +23,7 @@ import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.duct.pipe.items.PipeItem;
 import de.robotricker.transportpipes.duct.types.DuctType;
 import de.robotricker.transportpipes.inventory.DuctSettingsInventory;
+import de.robotricker.transportpipes.inventory.GoldenPipeSettingsInventory;
 import de.robotricker.transportpipes.items.ItemService;
 import de.robotricker.transportpipes.location.BlockLocation;
 import de.robotricker.transportpipes.location.TPDirection;
@@ -41,6 +42,10 @@ public class GoldenPipe extends Pipe {
 
     public ItemFilter getItemFilter(Color gpc) {
         return itemFilters[gpc.ordinal()];
+    }
+
+    public void setItemFilter(Color gpc, ItemFilter itemFilter) {
+        itemFilters[gpc.ordinal()] = itemFilter;
     }
 
     @Override

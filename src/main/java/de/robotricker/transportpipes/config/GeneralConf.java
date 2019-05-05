@@ -23,17 +23,13 @@ public class GeneralConf extends Conf {
         return (boolean) read("crafting_enabled");
     }
 
-    public boolean isDestroyDuctsOnExplosion() {
-        return (boolean) read("destroy_ducts_on_explosion");
-    }
-
     @SuppressWarnings("unchecked")
     public List<String> getAnticheatPlugins() {
         return (List<String>) read("anticheat_plugins");
     }
 
-    public String getDefaultPipeRenderSystemName() {
-        return (String) read("default_pipe_render_system");
+    public String getDefaultRenderSystemName() {
+        return (String) read("default_render_system");
     }
 
     public boolean isDefaultShowItems() {
@@ -53,12 +49,16 @@ public class GeneralConf extends Conf {
         return (String) read("wrench.item");
     }
 
-    public boolean getWrenchEnchanted() {
-        return (boolean) read("wrench.enchanted");
+    public boolean getWrenchGlowing() {
+        return (boolean) read("wrench.glowing");
     }
 
     public String getLanguage() {
         return (String) read("language");
+    }
+
+    public int getShowHiddenDuctsTime() {
+        return (int) read("show_hidden_ducts_time");
     }
 
     public ResourcepackService.ResourcepackMode getResourcepackMode() {

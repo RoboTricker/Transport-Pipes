@@ -1,11 +1,11 @@
-package de.robotricker.transportpipes.container;
+package de.robotricker.transportpipes.api;
 
 import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.transportpipes.duct.pipe.filter.ItemFilter;
 import de.robotricker.transportpipes.location.TPDirection;
 
-public interface TPContainer {
+public interface TransportPipesContainer {
 
     /**
      * should give back the extracted item with the given amount if possible. If there are not enough items left to extract, just give back whats there

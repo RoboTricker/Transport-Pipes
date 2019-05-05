@@ -59,8 +59,24 @@ public class FurnaceContainer extends BlockContainer {
         if (isInvLocked(cachedFurnace)) {
             return insertion;
         }
-        if (NMSUtils.isFurnaceBurnableItem(insertion)) {
-            if (insertDirection.isSide() || insertDirection == TPDirection.DOWN) {
+        if (insertDirection == TPDirection.DOWN) {
+            if (NMSUtils.isFurnaceBurnableItem(insertion)) {
+                ItemStack oldSmelting = cachedInv.getSmelting();
+                cachedInv.setSmelting(accumulateItems(oldSmelting, insertion));
+                if (insertion == null || insertion.getAmount() == 0) {
+                    insertion = null;
+                }
+            }
+        } else if (insertDirection == TPDirection.UP) {
+            if (NMSUtils.isFurnaceFuelItem(insertion)) {
+                ItemStack oldFuel = cachedInv.getFuel();
+                cachedInv.setFuel(accumulateItems(oldFuel, insertion));
+                if (insertion == null || insertion.getAmount() == 0) {
+                    insertion = null;
+                }
+            }
+        } else {
+            if (NMSUtils.isFurnaceBurnableItem(insertion)) {
                 ItemStack oldSmelting = cachedInv.getSmelting();
                 cachedInv.setSmelting(accumulateItems(oldSmelting, insertion));
                 if (insertion == null || insertion.getAmount() == 0) {
@@ -72,12 +88,6 @@ public class FurnaceContainer extends BlockContainer {
                 if (insertion == null || insertion.getAmount() == 0) {
                     insertion = null;
                 }
-            }
-        } else if (NMSUtils.isFurnaceFuelItem(insertion)) {
-            ItemStack oldFuel = cachedInv.getFuel();
-            cachedInv.setFuel(accumulateItems(oldFuel, insertion));
-            if (insertion == null || insertion.getAmount() == 0) {
-                insertion = null;
             }
         }
 
