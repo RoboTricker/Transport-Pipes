@@ -56,6 +56,8 @@ public class PipeManager extends DuctManager<Pipe> {
      */
     private Map<Player, Set<PipeItem>> playerItems;
 
+    private ShapedRecipe wrenchRecipe;
+
     private long tickCounter;
 
     @Inject
@@ -174,8 +176,12 @@ public class PipeManager extends DuctManager<Pipe> {
         ductType = pipeBaseDuctType.ductTypeOf("Crafting");
         ductType.setDuctRecipe(itemService.createShapedRecipe(transportPipes, "crafting_pipe", pipeBaseDuctType.getItemManager().getClonedItem(ductType), new String[]{" a ", "aba", " a "}, 'a', Material.GLASS, 'b', Material.CRAFTING_TABLE));
 
-        ShapedRecipe wrenchRecipe = itemService.createShapedRecipe(transportPipes, "wrench", itemService.getWrench(), new String[]{" a ", "aba", " a "}, 'a', Material.REDSTONE, 'b', Material.STICK);
+        wrenchRecipe = itemService.createShapedRecipe(transportPipes, "wrench", itemService.getWrench(), new String[]{" a ", "aba", " a "}, 'a', Material.REDSTONE, 'b', Material.STICK);
         Bukkit.addRecipe(wrenchRecipe);
+    }
+
+    public ShapedRecipe getWrenchRecipe() {
+        return wrenchRecipe;
     }
 
     @Override
