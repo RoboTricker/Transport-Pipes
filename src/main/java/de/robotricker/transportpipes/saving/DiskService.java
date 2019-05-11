@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.saving;
 
+import de.robotricker.transportpipes.log.SentryService;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.NBTUtil;
 
@@ -21,6 +22,8 @@ public class DiskService {
     private TransportPipes transportPipes;
     @Inject
     private DuctSaver ductSaver;
+    @Inject
+    private SentryService sentry;
 
     public void loadDuctsSync(World world) {
         try {
@@ -53,11 +56,16 @@ public class DiskService {
         } catch (FileNotFoundException ignored) {
         } catch (Exception e) {
             e.printStackTrace();
+            sentry.record(e);
         }
     }
 
     public void saveDuctsSync(World world) {
-        ductSaver.saveDuctsSync(world);
+        try {
+            ductSaver.saveDuctsSync(world);
+        } catch (Exception e) {
+            sentry.record(e);
+        }
     }
 
 }

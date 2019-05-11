@@ -1,5 +1,6 @@
 package de.robotricker.transportpipes.listener;
 
+import de.robotricker.transportpipes.config.GeneralConf;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctRegister;
 import de.robotricker.transportpipes.duct.manager.DuctManager;
@@ -33,6 +34,9 @@ public class PlayerListener implements Listener {
     @Inject
     private ItemService itemService;
 
+    @Inject
+    private GeneralConf generalConf;
+
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         globalDuctManager.getPlayerDucts(e.getPlayer()).clear();
@@ -48,20 +52,22 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        List<NamespacedKey> keys = new ArrayList<>();
-        for (BaseDuctType bdt : ductRegister.baseDuctTypes()) {
-            for (Object type : bdt.ductTypes()) {
-                DuctType dt = (DuctType) type;
-                if (dt.getDuctRecipe() != null) {
-                    NamespacedKey key = ((Keyed) dt.getDuctRecipe()).getKey();
-                    keys.add(key);
+        if (generalConf.isCraftingEnabled()) {
+            List<NamespacedKey> keys = new ArrayList<>();
+            for (BaseDuctType bdt : ductRegister.baseDuctTypes()) {
+                for (Object type : bdt.ductTypes()) {
+                    DuctType dt = (DuctType) type;
+                    if (dt.getDuctRecipe() != null) {
+                        NamespacedKey key = ((Keyed) dt.getDuctRecipe()).getKey();
+                        keys.add(key);
+                    }
+                }
+                if (bdt.is("pipe")) {
+                    keys.add(((PipeManager) bdt.getDuctManager()).getWrenchRecipe().getKey());
                 }
             }
-            if (bdt.is("pipe")) {
-                keys.add(((PipeManager) bdt.getDuctManager()).getWrenchRecipe().getKey());
-            }
+            event.getPlayer().discoverRecipes(keys);
         }
-        event.getPlayer().discoverRecipes(keys);
     }
 
     @EventHandler

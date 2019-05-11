@@ -14,7 +14,7 @@ pipes:
   void: '&5Void &rPipe'
   extraction: '&dExtraction &rPipe'
   crafting: '&eCrafting &rPipe'
-wrench: '&cWrench\n\n&7Click on specific ducts to change their behavior\nShift-Click to show nearby hidden ducts'
+wrench: '&cWrench\n\n&7Click on specific ducts to change their behavior\n&7Shift-Click to show nearby hidden ducts'
 colors:
   white: '&fWhite'
   yellow: '&eYellow'

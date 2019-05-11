@@ -14,7 +14,7 @@ public class LangConf extends Conf {
     private static LangConf langConf;
 
     public LangConf(Plugin configPlugin, String language) {
-        super(configPlugin, "lang_" + language.toLowerCase(Locale.ENGLISH) + ".yml", "lang.yml");
+        super(configPlugin, "lang_" + language.toLowerCase(Locale.ENGLISH) + ".yml", "lang.yml", true);
         langConf = this;
     }
 

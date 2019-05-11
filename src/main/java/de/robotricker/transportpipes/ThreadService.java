@@ -29,13 +29,9 @@ public class ThreadService extends Thread {
 
     private final Map<Runnable, Long> tasks;
 
-    private JavaPlugin plugin;
     private LoggerService logger;
     private SentryService sentry;
-    private ProtocolService protocol;
     private GlobalDuctManager globalDuctManager;
-    private DuctRegister ductRegister;
-    private ItemService itemService;
     private PlayerSettingsService playerSettingsService;
 
     private boolean running = false;
@@ -43,15 +39,11 @@ public class ThreadService extends Thread {
     private int currentTPS = 0;
 
     @Inject
-    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, ProtocolService protocol, GlobalDuctManager globalDuctManager, DuctRegister ductRegister, ItemService itemService, PlayerSettingsService playerSettingsService) {
+    public ThreadService(JavaPlugin plugin, LoggerService logger, SentryService sentry, GlobalDuctManager globalDuctManager, PlayerSettingsService playerSettingsService) {
         super("TransportPipes-Thread");
-        this.plugin = plugin;
         this.logger = logger;
         this.sentry = sentry;
-        this.protocol = protocol;
         this.globalDuctManager = globalDuctManager;
-        this.ductRegister = ductRegister;
-        this.itemService = itemService;
         this.playerSettingsService = playerSettingsService;
         this.tasks = Collections.synchronizedMap(new LinkedHashMap<>());
 
