@@ -28,9 +28,9 @@ You can also add TransportPipes as a Maven dependency:
 
 <dependencies>
   <dependency>
-    <groupId>de.robotricker.transportpipes</groupId>
-    <artifactId>TransportPipes</artifactId>
-    <version>VERSION</version>
+    <groupId>de.robotricker</groupId>
+    <artifactId>transportpipes</artifactId>
+    <version>5.0.0</version>
   </dependency>
 </dependencies>
 ```
