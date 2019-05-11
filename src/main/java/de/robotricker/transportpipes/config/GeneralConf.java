@@ -12,7 +12,7 @@ public class GeneralConf extends Conf {
 
     @Inject
     public GeneralConf(Plugin configPlugin) {
-        super(configPlugin, "config.yml", "config.yml");
+        super(configPlugin, "config.yml", "config.yml", true);
     }
 
     public int getMaxItemsPerPipe() {

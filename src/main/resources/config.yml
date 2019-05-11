@@ -7,7 +7,7 @@ anticheat_plugins:
 - AAC
 - CompatNoCheatPlus
 - AntiCheatPlus
-default_render_system: vanilla
+default_render_system: modelled
 default_show_items: true
 default_render_distance: 25
 resourcepack_mode: default

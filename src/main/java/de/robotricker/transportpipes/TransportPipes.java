@@ -1,18 +1,5 @@
 package de.robotricker.transportpipes;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import co.aikar.commands.PaperCommandManager;
@@ -45,6 +32,18 @@ import de.robotricker.transportpipes.utils.LWCUtils;
 import de.robotricker.transportpipes.utils.legacy.LegacyUtils;
 import de.robotricker.transportpipes.utils.legacy.LegacyUtils_1_13;
 import io.sentry.event.Breadcrumb;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class TransportPipes extends JavaPlugin {
 
@@ -61,7 +60,17 @@ public class TransportPipes extends JavaPlugin {
             LegacyUtils.setInstance(new LegacyUtils_1_13());
         } else {
             System.err.println("------------------------------------------");
-            System.err.println("TransportPipes currently only works with spigot 1.13");
+            System.err.println("TransportPipes currently only works with Minecraft 1.13.1 and 1.13.2");
+            System.err.println("------------------------------------------");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        try {
+            Class.forName("org.bukkit.inventory.RecipeChoice");
+        } catch (ClassNotFoundException e) {
+            System.err.println("------------------------------------------");
+            System.err.println("TransportPipes currently only works with Minecraft 1.13.1 and 1.13.2");
             System.err.println("------------------------------------------");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
@@ -152,7 +161,7 @@ public class TransportPipes extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if(sentry != null && thread != null) {
+        if (sentry != null && thread != null) {
             sentry.breadcrumb(Breadcrumb.Level.INFO, "MAIN", "disabling plugin");
             // Stop tpThread gracefully
             try {

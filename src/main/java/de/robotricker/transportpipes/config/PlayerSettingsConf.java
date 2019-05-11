@@ -11,7 +11,7 @@ public class PlayerSettingsConf extends Conf {
     private GeneralConf generalConf;
 
     public PlayerSettingsConf(TransportPipes transportPipes, GeneralConf generalConf, Player p) {
-        super(transportPipes, "playerconfig.yml", "playersettings/" + p.getUniqueId().toString() + ".yml");
+        super(transportPipes, "playerconfig.yml", "playersettings/" + p.getUniqueId().toString() + ".yml", false);
         this.generalConf = generalConf;
     }
 

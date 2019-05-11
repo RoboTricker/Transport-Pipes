@@ -21,7 +21,10 @@ public class Conf {
     private YamlConfiguration yamlConf;
     private Map<String, Object> cachedValues = new HashMap<>();
 
-    public Conf(Plugin configPlugin, String jarConfigName, String finalConfigPath) {
+    /**
+     * @param onlyOverwriteExistingProperties when true: only sets oldconf properties if the property exists in the new conf
+     */
+    public Conf(Plugin configPlugin, String jarConfigName, String finalConfigPath, boolean onlyOverwriteExistingProperties) {
         this.configPlugin = configPlugin;
 
         // copy configuration from jar file
@@ -42,14 +45,24 @@ public class Conf {
 
             YamlConfiguration newConf = YamlConfiguration.loadConfiguration(finalConfigFile.toFile());
             Map<String, Object> valuesAfter = newConf.getValues(true);
-            for (String key : valuesAfter.keySet()) {
-                if (valuesAfter.get(key) instanceof ConfigurationSection) {
-                    continue;
+            if (onlyOverwriteExistingProperties) {
+                for (String key : valuesAfter.keySet()) {
+                    if (valuesAfter.get(key) instanceof ConfigurationSection) {
+                        continue;
+                    }
+                    if (valuesBefore.containsKey(key)) {
+                        newConf.set(key, valuesBefore.get(key));
+                    }
                 }
-                if (valuesBefore.containsKey(key)) {
+            } else {
+                for (String key : valuesBefore.keySet()) {
+                    if (valuesBefore.get(key) instanceof ConfigurationSection) {
+                        continue;
+                    }
                     newConf.set(key, valuesBefore.get(key));
                 }
             }
+
             newConf.save(finalConfigFile.toFile());
 
             this.configFile = finalConfigFile;
